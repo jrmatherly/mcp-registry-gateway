@@ -343,5 +343,6 @@ terraform/.admin_password
 image-manifest.json
 agent_security_scans/
 
-# Claude
-.claude
+# Claude Code
+# Keep .claude/ configuration but ignore local settings
+.claude/settings.local.json

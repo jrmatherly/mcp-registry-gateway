@@ -120,7 +120,7 @@ AUTH_PROVIDER=keycloak
 
 # Set auth server URL for local development
 # This URL must be accessible from your browser for OAuth redirects
-AUTH_SERVER_EXTERNAL_URL=http://localhost
+AUTH_SERVER_EXTERNAL_URL=http://localhost:8888
 
 # Set secure passwords (CHANGE THESE!)
 KEYCLOAK_ADMIN_PASSWORD=your_secure_admin_password_here
@@ -143,15 +143,18 @@ KEYCLOAK_CLIENT_ID=mcp-gateway-web
 The MCP Gateway requires a sentence-transformers model for intelligent tool discovery. Download it to the shared models directory:
 
 ```bash
+# Install Hugging Face CLI
+brew install huggingface-cli
+
 # Download the embeddings model (this may take a few minutes)
-huggingface-cli download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
+hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 
 # Verify the model was downloaded
 ls -la ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2/
 # You should see model files like model.safetensors, config.json, etc.
 ```
 
-**Note**: This command automatically creates the necessary directory structure and downloads all required model files (~90MB). If you don't have `hf` command installed, install it first with `pip install huggingface_hub[cli]`.
+**Note**: This command automatically creates the necessary directory structure and downloads all required model files (~90MB). If you don't have `hf` command installed, install it first with `pip install huggingface_hub[cli]` or with homebrew `brew install huggingface-cli`.
 
 ---
 
@@ -174,7 +177,6 @@ echo "DB Password: $KEYCLOAK_DB_PASSWORD"
 ```
 
 **Critical**: These passwords MUST match what you set in the `.env` file in Step 4. If they don't match, Keycloak initialization will fail!
-
 
 ### Start Database and Keycloak
 
@@ -210,10 +212,10 @@ docker-compose ps keycloak
 
 ```bash
 # Configure Keycloak admin CLI (use your actual admin password)
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
 
 # Disable SSL requirement for master realm
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
 
 # Verify the fix worked
 curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080/admin/"
@@ -272,10 +274,10 @@ chmod +x keycloak/setup/get-all-client-credentials.sh
 
 ```bash
 # Configure Keycloak admin CLI (if session expired)
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
 
 # Disable SSL requirement for the mcp-gateway realm
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/mcp-gateway -s sslRequired=NONE
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/mcp-gateway -s sslRequired=NONE
 
 # Verify both realms are accessible
 curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080/admin/"
@@ -678,7 +680,7 @@ cd ../..
 **Important**: With Podman, services use different host ports:
 
 | Service | URL (Podman) |
-|---------|-------------|
+| --------- | --------- |
 | **Main UI** | `http://localhost:8080` |
 | **Main UI (HTTPS)** | `https://localhost:8443` |
 | Registry API | `http://localhost:7860` |
@@ -1033,7 +1035,7 @@ You now have a fully functional MCP Gateway & Registry running on macOS! The sys
 - **Agent Support**: Ready for AI coding assistants and agents
 - **Container Choice**: Works with both Docker and Podman
 
-### Key URLs:
+### Key URLs
 
 **With Docker:**
 - **Registry**: http://localhost
@@ -1047,13 +1049,13 @@ You now have a fully functional MCP Gateway & Registry running on macOS! The sys
 - **API Gateway**: http://localhost:8080/mcpgw/mcp
 - **Individual Services**: http://localhost:8080/[service-name]/mcp
 
-### Key Files:
+### Key Files
 - **Configuration**: `.env`
 - **Client Credentials**: `.oauth-tokens/keycloak-client-secrets.txt`
 - **Agent Tokens**: `.oauth-tokens/agent-*-m2m.env`
 - **Podman Overlay**: `docker-compose.podman.yml` (auto-applied with `--podman` flag)
 
-### Next Steps:
+### Next Steps
 1. **Configure your AI coding assistant** with the generated MCP configuration
 2. **Create additional agents** using the setup-agent-service-account.sh script
 3. **Add custom MCP servers** by editing docker-compose.yml

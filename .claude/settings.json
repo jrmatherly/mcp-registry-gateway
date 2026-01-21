@@ -1,0 +1,83 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_BASH_COMMAND\" | grep -qE '(rm -rf /|rm -rf ~|git push.*--force.*main|git push.*--force.*master|drop database|DROP DATABASE|mongosh.*--eval.*drop)' && echo 'BLOCKED: Dangerous command detected' && exit 1 || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_FILE_PATH\" == *.py ]]; then uv run ruff format \"$CLAUDE_FILE_PATH\" 2>/dev/null && uv run python -m py_compile \"$CLAUDE_FILE_PATH\" 2>/dev/null || true; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_FILE_PATH\" == *.sh ]]; then bash -n \"$CLAUDE_FILE_PATH\" 2>/dev/null || echo '[Warning] Shell script has syntax errors'; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if git -C /Users/jason/dev/MCP/mcp-registry-gateway status --porcelain 2>/dev/null | grep -q '^[MADRCU]'; then echo '\\n[Reminder] You have staged changes. Run: uv run pytest tests/ -n 8'; fi"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"$CLAUDE_NOTIFICATION_MESSAGE\" with title \"Claude Code\"' 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(uv run pytest*)",
+      "Bash(uv run ruff*)",
+      "Bash(uv run mypy*)",
+      "Bash(uv run bandit*)",
+      "Bash(uv run python*)",
+      "Bash(uv sync*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(docker compose*)",
+      "Bash(docker ps*)",
+      "Bash(docker logs*)",
+      "Bash(docker exec*)",
+      "Bash(docker inspect*)",
+      "Bash(curl*localhost*)",
+      "Bash(curl*127.0.0.1*)",
+      "Bash(wc -l*)",
+      "Bash(find*)",
+      "Bash(ls*)",
+      "Bash(cat*)",
+      "Bash(head*)",
+      "Bash(tail*)",
+      "Bash(grep*)",
+      "Bash(mkdir*)",
+      "Bash(chmod*)"
+    ]
+  }
+}
