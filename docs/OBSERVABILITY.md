@@ -888,7 +888,7 @@ Configure alerts in Grafana or Prometheus for:
 
 ```bash
 # Check database volume
-docker volume inspect mcp-gateway-registry_metrics-db-data
+docker volume inspect mcp-registry-gateway_metrics-db-data
 
 # Check database file permissions
 docker compose exec metrics-db ls -la /var/lib/sqlite/

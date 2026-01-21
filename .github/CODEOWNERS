@@ -1,0 +1,34 @@
+# Code Owners for MCP Registry Gateway
+# These owners will be requested for review when someone opens a pull request.
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @jrmatherly
+
+# Core registry code
+/registry/ @jrmatherly
+
+# Authentication
+/auth_server/ @jrmatherly
+/keycloak/ @jrmatherly
+
+# Infrastructure
+/terraform/ @jrmatherly
+/docker/ @jrmatherly
+/charts/ @jrmatherly
+
+# Documentation
+/docs/ @jrmatherly
+*.md @jrmatherly
+
+# CI/CD
+/.github/ @jrmatherly
+
+# Frontend
+/frontend/ @jrmatherly
+
+# Agents
+/agents/ @jrmatherly
+
+# Tests
+/tests/ @jrmatherly

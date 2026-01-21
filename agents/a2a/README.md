@@ -10,14 +10,14 @@ Two AI agents built with AWS Bedrock AgentCore and the Strands framework for fli
 - Provides flight recommendations based on price and preferences
 - Returns detailed flight information (times, prices, airlines)
 - **Discovers other agents** through the MCP Gateway Registry and dynamically adds them as tools
-- [Full specification](https://github.com/agentic-community/mcp-gateway-registry/issues/196)
+- [Full specification](https://github.com/jrmatherly/mcp-registry-gateway/issues/196)
 
 **Flight Booking Agent** (`flight_booking_agent`)
 
 - Checks flight availability and seat counts
 - Creates flight reservations
 - Manages booking database
-- [Full specification](https://github.com/agentic-community/mcp-gateway-registry/issues/197)
+- [Full specification](https://github.com/jrmatherly/mcp-registry-gateway/issues/197)
 
 ## Deployment Options
 

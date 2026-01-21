@@ -110,14 +110,14 @@ grep -i "error\|fail" /tmp/*.log
 1. **Fork the repository on GitHub**
 
    ```
-   https://github.com/agentic-community/mcp-gateway-registry
+   https://github.com/jrmatherly/mcp-registry-gateway
    ```
 
 2. **Clone your fork locally**
 
    ```bash
-   git clone https://github.com/YOUR-USERNAME/mcp-gateway-registry.git
-   cd mcp-gateway-registry
+   git clone https://github.com/YOUR-USERNAME/mcp-registry-gateway.git
+   cd mcp-registry-gateway
    ```
 
 3. **Create a feature branch**

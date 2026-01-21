@@ -196,7 +196,7 @@ If you continue to experience problems:
 
 1. **Share full logs**: Include output from `podman machine logs`
 2. **System info**: Run `podman info` and share output
-3. **Open an issue**: [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
+3. **Open an issue**: [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)
 4. **Include details**: Mac model, macOS version, Podman version
 
 ## Quick Reference Commands

@@ -1,19 +1,65 @@
 ---
+name: execute
 description: Execute an implementation plan systematically
+category: development
+complexity: advanced
 argument-hint: <path-to-plan>
+mcp-servers: [serena]
+personas: [arch-analyzer, code-reviewer, test-runner]
 ---
 
-# Execute: Implement from Plan
+# /execute - Implement from Plan
 
-## Plan to Execute
+## Triggers
 
-Read plan file: `$ARGUMENTS`
+- After completing feature planning with `/plan-feature`
+- Resuming implementation from an existing plan
+- Systematic multi-file implementation requiring coordination
+
+## Usage
+
+```
+/execute <path-to-plan>
+```
+
+**Examples:**
+- `/execute .claude/output/plans/add-agent-capabilities.md`
+- `/execute .claude/output/plans/server-health-monitoring.md`
 
 If no argument provided, list available plans:
 
 ```bash
 ls -la .claude/output/plans/
 ```
+
+## Behavioral Flow
+
+1. **Read**: Load and understand the entire plan
+2. **Verify**: Pre-flight checks (git, tests, services)
+3. **Execute**: Implement tasks in order with validation
+4. **Test**: Run test suite per plan specifications
+5. **Report**: Generate execution report documenting outcomes
+
+Key behaviors:
+- Task-by-task execution with immediate validation
+- Serena symbolic tools for precise code modifications
+- Continuous progress tracking via TodoWrite
+
+## MCP Integration
+
+- **Serena MCP**: Symbolic code manipulation
+  - `find_symbol`: Locate code to modify
+  - `get_symbols_overview`: Understand file structure before editing
+  - `replace_symbol_body`: Precise function/class modifications
+  - `insert_after_symbol`: Add new code after existing symbols
+
+## Tool Coordination
+
+- **Serena Tools**: Symbolic reading and editing
+- **Write/Edit**: File creation and modification
+- **Bash**: Validation commands, git operations
+- **TodoWrite**: Track task completion progress
+- **Read**: Load plan and reference files
 
 ## Execution Instructions
 
@@ -117,14 +163,12 @@ Before completing:
 - [ ] No new linting warnings
 - [ ] Documentation updated as needed
 
-## Output Report
+## Output Format
 
-After execution, provide summary:
+```markdown
+## Execution Report
 
 ### Completed Tasks
-
-List all tasks completed with status:
-
 - [x] Task 1: Created `registry/schemas/resource.py`
 - [x] Task 2: Created `registry/services/resource_service.py`
 - ...
@@ -132,25 +176,21 @@ List all tasks completed with status:
 ### Files Changed
 
 **Created:**
-
 - `registry/schemas/resource.py`
 - `registry/services/resource_service.py`
 - `tests/unit/test_resource_service.py`
 
 **Modified:**
-
 - `registry/api/__init__.py` (added router)
 - `registry/api/dependencies.py` (added dependency)
 
 ### Tests Added
-
 - `tests/unit/test_resource_service.py`
   - `test_create_resource`
   - `test_get_resource`
   - `test_get_resource_not_found`
 
 ### Validation Results
-
 ```bash
 # Ruff check
 All checks passed!
@@ -163,23 +203,10 @@ Success: no issues found in X source files
 ```
 
 ### Divergences from Plan
-
-If any divergences occurred, document:
-
-**Divergence: {title}**
-
-- **Planned**: What the plan specified
-- **Actual**: What was implemented
-- **Reason**: Why this change was necessary
+{Document any deviations with justification}
 
 ### Ready for Commit
-
-- [ ] All changes complete
-- [ ] All validations pass
-- [ ] Ready for `/commit` command
-
 **Suggested commit message:**
-
 ```text
 feat(resource): add resource management endpoints
 
@@ -188,11 +215,18 @@ feat(resource): add resource management endpoints
 - Add API endpoints for resource management
 - Add unit and integration tests
 ```
+```
 
-## Notes
+## Boundaries
 
-- If you encounter issues not addressed in the plan, document them
-- If you need to deviate from the plan, explain why in the report
-- If tests fail, fix implementation until they pass
-- Don't skip validation steps
-- Generate execution report for system review
+**Will:**
+- Execute plan tasks in specified order with validation
+- Use Serena symbolic tools for precise code modifications
+- Document any divergences from plan with justification
+- Generate comprehensive execution report
+
+**Will Not:**
+- Skip validation steps between tasks
+- Deviate from plan without documenting reasons
+- Continue past failed validations without fixing
+- Ignore test requirements from the plan

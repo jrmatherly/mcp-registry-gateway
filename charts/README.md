@@ -42,7 +42,7 @@ Once your EKS cluster is provisioned, return to this directory to deploy the MCP
 
 ### Stack Chart
 
-- **mcp-gateway-registry-stack**: Complete stack deployment including Keycloak, auth-server, registry, and configuration
+- **mcp-registry-gateway-stack**: Complete stack deployment including Keycloak, auth-server, registry, and configuration
 
 ## Improved Values Structure
 
@@ -122,10 +122,10 @@ helm install registry ./charts/registry
 
 ```bash
 # Option 1: Update values.yaml file directly
-# Edit charts/mcp-gateway-registry-stack/values.yaml and change global.domain
+# Edit charts/mcp-registry-gateway-stack/values.yaml and change global.domain
 
 # Option 2: Override via command line
-helm install mcp-stack ./charts/mcp-gateway-registry-stack \
+helm install mcp-stack ./charts/mcp-registry-gateway-stack \
   --set global.domain=yourdomain.com \
   --set global.secretKey=your-production-secret
 ```
@@ -155,11 +155,11 @@ The stack chart uses `global.domain` to automatically configure all subdomains:
 
 ```bash
 # Edit the values file
-vim charts/mcp-gateway-registry-stack/values.yaml
+vim charts/mcp-registry-gateway-stack/values.yaml
 # Change: global.domain: "your-new-domain.com"
 
 # Or override via command line
-helm upgrade mcp-stack ./charts/mcp-gateway-registry-stack \
+helm upgrade mcp-stack ./charts/mcp-registry-gateway-stack \
   --set global.domain=your-new-domain.com
 ```
 

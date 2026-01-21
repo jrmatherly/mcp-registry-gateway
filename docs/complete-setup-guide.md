@@ -177,8 +177,8 @@ sudo apt-get install -y net-tools
 
 ```bash
 cd ~/workspace
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 
 # Verify you're in the right directory
 ls -la
@@ -194,7 +194,7 @@ source .venv/bin/activate
 
 # Verify the virtual environment is active
 which python
-# Should show: /home/ubuntu/workspace/mcp-gateway-registry/.venv/bin/python
+# Should show: /home/ubuntu/workspace/mcp-registry-gateway/.venv/bin/python
 ```
 
 ### Initial Environment Configuration
@@ -332,7 +332,7 @@ First, ensure Docker is installed by following the [Installing Prerequisites](#3
 ```bash
 # Remove any existing keycloak database volume (skip if this is a fresh install)
 docker compose down keycloak keycloak-db
-docker volume rm mcp-gateway-registry_keycloak_db_data 2>/dev/null || true
+docker volume rm mcp-registry-gateway_keycloak_db_data 2>/dev/null || true
 ```
 
 ```bash
@@ -565,7 +565,7 @@ You should see the Keycloak login page. You can log in with:
 
 ```bash
 # Return to project directory
-cd ~/workspace/mcp-gateway-registry
+cd ~/workspace/mcp-registry-gateway
 
 # Activate the virtual environment if not already active
 source .venv/bin/activate
@@ -723,7 +723,7 @@ For detailed MongoDB CE architecture and configuration options, see [Storage Arc
 
 ```bash
 # Navigate to project root directory
-cd ~/workspace/mcp-gateway-registry
+cd ~/workspace/mcp-registry-gateway
 
 # Activate the virtual environment if not already active
 source .venv/bin/activate
@@ -769,7 +769,7 @@ If your access tokens have expired or you need to regenerate credentials, you ca
 
 ```bash
 # Navigate to project root directory
-cd ~/workspace/mcp-gateway-registry
+cd ~/workspace/mcp-registry-gateway
 
 # Regenerate all credentials
 ./credentials-provider/generate_creds.sh
@@ -874,7 +874,7 @@ Once connected via remote desktop, open Firefox and navigate to http://localhost
 Before generating tokens, you need to configure your OAuth credentials. Follow the [Configuration Reference](configuration.md) for detailed parameter documentation.
 
 ```bash
-cd ~/workspace/mcp-gateway-registry
+cd ~/workspace/mcp-registry-gateway
 
 # Configure OAuth credentials for external services (if needed)
 cp credentials-provider/oauth/.env.example credentials-provider/oauth/.env
@@ -915,7 +915,7 @@ tail -f token_refresher.log
 
 ```
 2025-09-17 03:09:43,391,p455210,{token_refresher.py:370},INFO,Successfully refreshed OAuth token: agent-test-agent-m2m-token.json
-2025-09-17 03:09:43,391,p455210,{token_refresher.py:898},INFO,Token successfully updated at: /home/ubuntu/repos/mcp-gateway-registry/.oauth-tokens/agent-test-agent-m2m-token.json
+2025-09-17 03:09:43,391,p455210,{token_refresher.py:898},INFO,Token successfully updated at: /home/ubuntu/repos/mcp-registry-gateway/.oauth-tokens/agent-test-agent-m2m-token.json
 2025-09-17 03:09:43,631,p455210,{token_refresher.py:341},INFO,Refreshing OAuth token for provider: keycloak
 2025-09-17 03:09:43,778,p455210,{token_refresher.py:903},INFO,Refresh cycle complete: 8/8 tokens refreshed successfully
 2025-09-17 03:09:43,778,p455210,{token_refresher.py:907},INFO,Regenerating MCP configuration files after token refresh...
@@ -969,7 +969,7 @@ For VS Code or similar editors, you'll need to:
 
    ```bash
    # From your local machine (not the EC2 instance)
-   scp -i your-key.pem ubuntu@your-instance-ip:~/workspace/mcp-gateway-registry/.oauth-tokens/mcp.json ~/
+   scp -i your-key.pem ubuntu@your-instance-ip:~/workspace/mcp-registry-gateway/.oauth-tokens/mcp.json ~/
    ```
 
 2. Add to your editor's MCP settings:
@@ -980,7 +980,7 @@ For VS Code or similar editors, you'll need to:
 ### Create a Python Test Agent
 
 ```bash
-cd ~/workspace/mcp-gateway-registry/agents
+cd ~/workspace/mcp-registry-gateway/agents
 
 # Create a test configuration
 cat > agent_config.json <<EOF
@@ -1201,7 +1201,7 @@ docker-compose exec auth-server curl -f http://keycloak:8080/health/ready
 docker-compose logs registry | tail -50
 
 # Rebuild registry frontend
-cd ~/workspace/mcp-gateway-registry/registry
+cd ~/workspace/mcp-registry-gateway/registry
 npm install
 npm run build
 cd ..
@@ -1321,7 +1321,7 @@ curl -f https://mcpgateway.mycorp.com/realms/mcp-gateway
 1. Check available MCP servers:
 
    ```bash
-   ls ~/workspace/mcp-gateway-registry/registry/servers/
+   ls ~/workspace/mcp-registry-gateway/registry/servers/
    ```
 
 2. Edit `docker-compose.yml` to enable additional servers
@@ -1356,8 +1356,8 @@ curl -f https://mcpgateway.mycorp.com/realms/mcp-gateway
 
 ### Getting Help
 
-- **GitHub Issues**: https://github.com/agentic-community/mcp-gateway-registry/issues
-- **Discussions**: https://github.com/agentic-community/mcp-gateway-registry/discussions
+- **GitHub Issues**: https://github.com/jrmatherly/mcp-registry-gateway/issues
+- **Discussions**: https://github.com/jrmatherly/mcp-registry-gateway/discussions
 - **Documentation**: Check the `/docs` folder for detailed guides
 
 ---
@@ -1421,7 +1421,7 @@ GITHUB_TOKEN=your_github_token
 
 # Organization names for publishing
 DOCKERHUB_ORG=mcpgateway
-GITHUB_ORG=agentic-community
+GITHUB_ORG=jrmatherly
 ```
 
 ### Generated Image Names
@@ -1437,12 +1437,12 @@ GITHUB_ORG=agentic-community
 
 **GitHub Container Registry:**
 
-- `ghcr.io/agentic-community/mcp-registry:latest`
-- `ghcr.io/agentic-community/mcp-auth-server:latest`
-- `ghcr.io/agentic-community/mcp-currenttime-server:latest`
-- `ghcr.io/agentic-community/mcp-realserverfaketools-server:latest`
-- `ghcr.io/agentic-community/mcp-fininfo-server:latest`
-- `ghcr.io/agentic-community/mcp-mcpgw-server:latest`
+- `ghcr.io/jrmatherly/mcp-registry:latest`
+- `ghcr.io/jrmatherly/mcp-auth-server:latest`
+- `ghcr.io/jrmatherly/mcp-currenttime-server:latest`
+- `ghcr.io/jrmatherly/mcp-realserverfaketools-server:latest`
+- `ghcr.io/jrmatherly/mcp-fininfo-server:latest`
+- `ghcr.io/jrmatherly/mcp-mcpgw-server:latest`
 
 ### Using Pre-built Images
 

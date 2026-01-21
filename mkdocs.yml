@@ -1,14 +1,14 @@
 site_name: MCP Gateway & Registry
 site_description: Enterprise-grade MCP server registry and reverse proxy with OAuth authentication and fine-grained access control
-site_author: Agentic Community
-site_url: https://agentic-community.github.io/mcp-gateway-registry/
+site_author: Jason Matherly
+site_url: https://jrmatherly.github.io/mcp-registry-gateway/
 
 # Repository
-repo_name: agentic-community/mcp-gateway-registry
-repo_url: https://github.com/agentic-community/mcp-gateway-registry
+repo_name: jrmatherly/mcp-registry-gateway
+repo_url: https://github.com/jrmatherly/mcp-registry-gateway
 
 # Copyright
-copyright: Copyright &copy; 2025 Agentic Community
+copyright: Copyright &copy; 2025 Jason Matherly. Originally forked from Agentic Community.
 
 # Configuration
 theme:
@@ -79,8 +79,8 @@ markdown_extensions:
   - pymdownx.keys
   - pymdownx.magiclink:
       repo_url_shorthand: true
-      user: agentic-community
-      repo: mcp-gateway-registry
+      user: jrmatherly
+      repo: mcp-registry-gateway
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.superfences:
@@ -127,9 +127,7 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/agentic-community/mcp-gateway-registry
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/agentic-community
+      link: https://github.com/jrmatherly/mcp-registry-gateway
   generator: false
 
 # Analytics (optional - add your Google Analytics ID if needed)

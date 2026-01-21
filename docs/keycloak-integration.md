@@ -248,7 +248,7 @@ AUTH_LOG_FORMAT=%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s
 
 ```bash
 # Clone repository and navigate to project
-cd /path/to/mcp-gateway-registry
+cd /path/to/mcp-registry-gateway
 
 # Start prerequisite services
 docker-compose up -d postgres

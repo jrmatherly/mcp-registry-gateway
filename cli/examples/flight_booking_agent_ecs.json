@@ -11,7 +11,7 @@
   "defaultOutputModes": ["text/plain", "application/json"],
   "provider": {
     "organization": "MCP Gateway",
-    "url": "https://github.com/agentic-community/mcp-gateway-registry"
+    "url": "https://github.com/jrmatherly/mcp-registry-gateway"
   },
   "skills": [
     {

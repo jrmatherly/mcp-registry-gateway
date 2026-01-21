@@ -1,12 +1,52 @@
 ---
+name: prime
 description: Prime agent with MCP Registry Gateway codebase understanding
+category: initialization
+complexity: standard
+mcp-servers: [serena]
+personas: [arch-analyzer]
 ---
 
-# Prime: Load Project Context
+# /prime - Load Project Context
 
-## Objective
+## Triggers
 
-Build comprehensive understanding of the MCP Registry Gateway codebase by analyzing structure, documentation, and key files.
+- Starting a new Claude Code session
+- Switching to unfamiliar area of the codebase
+- Before major implementation work requiring architectural understanding
+- After extended time away from the project
+
+## Usage
+
+```
+/prime
+```
+
+## Behavioral Flow
+
+1. **Analyze**: Examine project structure and identify key components
+2. **Load**: Activate Serena project and load relevant memories
+3. **Assess**: Check current git state and running services
+4. **Report**: Provide concise project overview
+
+Key behaviors:
+- On-demand context loading (avoid loading everything)
+- Serena MCP integration for project activation
+- Component-aware context identification
+
+## MCP Integration
+
+- **Serena MCP**: Project activation and memory access
+  - `activate_project`: Initialize project context
+  - `list_memories`: View available project knowledge
+  - `read_memory`: Load specific context (project_overview, api_reference)
+  - `list_dir`: Understand project structure
+
+## Tool Coordination
+
+- **Bash**: Git status, branch info, service checks
+- **Read**: Core documentation (CLAUDE.md already loaded)
+- **Serena**: Project activation and memory loading
 
 ## Process
 
@@ -83,24 +123,22 @@ Check running services:
 docker ps --format "{{.Names}}: {{.Status}}" | grep -E "(mcp|mongo|keycloak)" || echo "No MCP services running"
 ```
 
-## Output Report
+## Output Format
 
-Provide a concise summary covering:
+```markdown
+## Project Context: MCP Registry Gateway
 
 ### Project Overview
-
 - Purpose: MCP Registry Gateway for AI coding assistants
 - Primary technologies: FastAPI, MongoDB, Python 3.11+
 - Current version/state from git
 
 ### Architecture
-
 - Layer architecture: API -> Service -> Repository
 - Key patterns: Dependency injection, Repository pattern
 - Important directories and purposes
 
 ### Tech Stack
-
 - Python 3.11+ with uv package manager
 - FastAPI for REST API
 - MongoDB/DocumentDB for storage
@@ -108,13 +146,11 @@ Provide a concise summary covering:
 - ruff for linting, mypy for type checking
 
 ### Current State
-
 - Active branch
 - Recent changes or development focus
 - Running services status
 - Any immediate observations
-
-**Keep summary scannable with bullet points and clear headers.**
+```
 
 ## Quick Reference Commands
 
@@ -134,3 +170,17 @@ docker compose up -d
 # Check API health
 curl http://localhost:8000/health
 ```
+
+## Boundaries
+
+**Will:**
+- Build comprehensive understanding of codebase structure
+- Load context selectively based on identified task
+- Provide actionable summary of project state
+- Use Serena MCP for efficient context acquisition
+
+**Will Not:**
+- Re-read CLAUDE.md (already in context)
+- Load all memories upfront (on-demand only)
+- Read entire files when Serena symbolic tools suffice
+- Make code changes during priming phase

@@ -68,8 +68,8 @@ mkdir -p ${HOME}/workspace
 cd ${HOME}/workspace
 
 # Clone the repository
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 
 # Copy environment file
 cp .env.example .env
@@ -265,10 +265,10 @@ Create a file named `gateway-config.json` in your AgentCore project directory wi
 
 ### 3.2 Register the Gateway
 
-Navigate to your `mcp-gateway-registry` directory and run:
+Navigate to your `mcp-registry-gateway` directory and run:
 
 ```bash
-cd ${HOME}/workspace/mcp-gateway-registry
+cd ${HOME}/workspace/mcp-registry-gateway
 source .venv/bin/activate
 
 # Register the AgentCore gateway
@@ -518,7 +518,7 @@ Set up access controls so the customer-support-assistant service is only accessi
 
 ```bash
 # Create a new group/scope for customer support users
-cd ${HOME}/workspace/mcp-gateway-registry
+cd ${HOME}/workspace/mcp-registry-gateway
 
 # Add the group and assign users
 # See the complete end-to-end example in the Service Management Guide
@@ -560,7 +560,7 @@ If you get a 401 error:
 
 1. Verify AgentCore gateway is accessible from registry container
 2. Check network connectivity
-3. Review registry logs: `docker logs mcp-gateway-registry-registry-1`
+3. Review registry logs: `docker logs mcp-registry-gateway-registry-1`
 
 ## Additional Resources
 

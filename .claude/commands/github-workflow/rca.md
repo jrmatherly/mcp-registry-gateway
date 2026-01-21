@@ -1,19 +1,60 @@
 ---
+name: rca
 description: Root Cause Analysis for GitHub issue
+category: analysis
+complexity: standard
 argument-hint: <github-issue-number>
+mcp-servers: [serena]
+personas: [arch-analyzer, security-auditor]
 ---
 
-# Root Cause Analysis: GitHub Issue #$ARGUMENTS
+# /rca - Root Cause Analysis
 
-## Objective
+## Triggers
 
-Investigate GitHub issue #$ARGUMENTS, identify the root cause, and document findings for implementation.
+- GitHub issue requiring investigation
+- Bug reports needing systematic analysis
+- Production incidents requiring root cause identification
+- Unclear issues needing reproduction and analysis
 
-**Prerequisites:**
+## Usage
 
-- Working in MCP Registry Gateway repository
-- GitHub CLI installed and authenticated (`gh auth status`)
-- Valid GitHub issue number from this repository
+```
+/rca <github-issue-number>
+```
+
+**Examples:**
+- `/rca 123` - Analyze GitHub issue #123
+- `/rca 456` - Investigate bug report #456
+
+## Behavioral Flow
+
+1. **Fetch**: Retrieve GitHub issue details via CLI
+2. **Search**: Use Serena to find related code
+3. **Analyze**: Trace issue through codebase
+4. **Assess**: Determine impact and severity
+5. **Document**: Create comprehensive RCA document
+
+Key behaviors:
+- Evidence-based analysis with code references
+- Systematic investigation using symbolic tools
+- Impact assessment with security considerations
+
+## MCP Integration
+
+- **Serena MCP**: Codebase analysis and pattern search
+  - `search_for_pattern`: Find error messages or related code
+  - `find_symbol`: Locate specific functions/classes
+  - `get_symbols_overview`: Understand file structure
+  - `find_referencing_symbols`: Trace call chains
+
+## Tool Coordination
+
+- **Bash**: GitHub CLI (`gh issue view`), git history
+- **Serena Tools**: Symbol search, pattern matching
+- **Read**: Detailed code analysis
+- **Write**: RCA document creation
+- **Grep/Glob**: File and pattern discovery
 
 ## Investigation Process
 
@@ -98,19 +139,17 @@ Look for:
 - What testing is needed?
 - Any risks or side effects?
 
-## Output: Create RCA Document
+## Output Format
 
-Save to: `.claude/output/rca/issue-$ARGUMENTS.md`
-
-### RCA Document Structure
+Save to: `.claude/output/rca/issue-{number}.md`
 
 ```markdown
-# Root Cause Analysis: GitHub Issue #$ARGUMENTS
+# Root Cause Analysis: GitHub Issue #{number}
 
 ## Issue Summary
 
-- **GitHub Issue**: #$ARGUMENTS
-- **Issue URL**: https://github.com/{owner}/{repo}/issues/$ARGUMENTS
+- **GitHub Issue**: #{number}
+- **Issue URL**: https://github.com/{owner}/{repo}/issues/{number}
 - **Title**: {Issue title}
 - **Reporter**: {GitHub username}
 - **Severity**: [Critical / High / Medium / Low]
@@ -159,10 +198,6 @@ Save to: `.claude/output/rca/issue-$ARGUMENTS.md`
 {Relevant code snippet}
 ```
 
-### Related Issues
-
-- {Any related issues or patterns}
-
 ## Impact Assessment
 
 **Scope:**
@@ -171,37 +206,18 @@ Save to: `.claude/output/rca/issue-$ARGUMENTS.md`
 **Affected Features:**
 - {List features}
 
-**Severity Justification:**
-{Why this severity}
-
 **Security/Data Concerns:**
 {Any security implications}
 
 ## Proposed Fix
 
 ### Fix Strategy
-
 {High-level approach}
 
 ### Files to Modify
-
 1. **`registry/path/to/file.py`**
    - Changes: {What needs to change}
    - Reason: {Why this fixes it}
-
-2. **`tests/path/to/test.py`**
-   - Changes: {Test additions}
-   - Reason: {Coverage for fix}
-
-### Alternative Approaches
-
-{Other possible solutions and why proposed is better}
-
-### Risks and Considerations
-
-- {Risks with this fix}
-- {Side effects to watch}
-- {Breaking changes if any}
 
 ### Testing Requirements
 
@@ -210,30 +226,24 @@ Save to: `.claude/output/rca/issue-$ARGUMENTS.md`
 2. {Test: verify no regression}
 3. {Test: edge cases}
 
-**Validation Commands:**
-```bash
-uv run pytest tests/unit/test_affected_module.py -v
-uv run pytest tests/ -n 8
-```
-
-## Implementation Plan
-
-1. {Step 1}
-2. {Step 2}
-3. {Step 3}
-
 ## Next Steps
 
 1. Review this RCA document
-2. Run: `/implement-fix $ARGUMENTS` to implement
+2. Run: `/implement-fix {number}` to implement
 3. Run validation commands
-4. Create PR with `Fixes #$ARGUMENTS`
+4. Create PR with `Fixes #{number}`
 ```
 
-## After Creating RCA
+## Boundaries
 
-1. Confirm RCA file path
-2. Summarize root cause in 1-2 sentences
-3. Confirm proposed fix approach
-4. Note any blockers or questions
-5. Suggest next command: `/implement-fix $ARGUMENTS`
+**Will:**
+- Perform systematic investigation with evidence
+- Use Serena symbolic tools for precise code analysis
+- Assess security and data integrity implications
+- Document findings comprehensively
+
+**Will Not:**
+- Implement fixes during RCA phase
+- Make assumptions without code evidence
+- Skip impact assessment
+- Ignore security implications of issues

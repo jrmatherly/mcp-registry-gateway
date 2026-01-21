@@ -1,22 +1,44 @@
 ---
+name: system-review
 description: Analyze implementation against plan for process improvements
+category: validation
+complexity: standard
 argument-hint: <plan-file> <execution-report-file>
+mcp-servers: [serena]
+personas: [arch-analyzer, quality-engineer]
 ---
 
-# System Review
+# /system-review - Process Improvement Analysis
 
-Perform a meta-level analysis of how well the implementation followed the plan and identify process improvements.
+## Triggers
 
-## Purpose
+- After completing a feature implementation cycle
+- When execution report shows significant divergences
+- Periodic review of development processes
+- After implementing major features
 
-**System review is NOT code review.** You're not looking for bugs in the code - you're looking for bugs in the process.
+## Usage
 
-**Your job:**
+```
+/system-review <plan-file> <execution-report-file>
+```
 
-- Analyze plan adherence and divergence patterns
-- Identify which divergences were justified vs problematic
-- Surface process improvements that prevent future issues
-- Suggest updates to Layer 1 assets (CLAUDE.md, commands, skills)
+**Examples:**
+- `/system-review .claude/output/plans/add-user-auth.md .claude/output/execution-reports/add-user-auth-report.md`
+- `/system-review .claude/output/plans/server-monitoring.md .claude/output/execution-reports/server-monitoring-report.md`
+
+## Behavioral Flow
+
+1. **Understand**: Read plan and execution report
+2. **Compare**: Identify divergences between planned and actual
+3. **Classify**: Categorize divergences as justified or problematic
+4. **Trace**: Find root causes of problematic divergences
+5. **Improve**: Suggest concrete asset updates
+
+Key behaviors:
+- Meta-level analysis (process, not code)
+- Pattern recognition across divergences
+- Action-oriented improvement suggestions
 
 **Philosophy:**
 
@@ -24,21 +46,18 @@ Perform a meta-level analysis of how well the implementation followed the plan a
 - Bad divergence reveals unclear requirements -> improve communication
 - Repeated issues reveal missing automation -> create commands/skills
 
-## Context & Inputs
+## MCP Integration
 
-You will analyze these artifacts:
+- **Serena MCP**: Memory and context access
+  - `read_memory`: Access code_style_conventions, development_workflow
+  - `write_memory`: Document recurring patterns for future reference
 
-**Plan Command:**
-`.claude/commands/piv-loop/plan-feature.md`
+## Tool Coordination
 
-**Generated Plan:**
-`$1` (first argument - the plan file)
-
-**Execute Command:**
-`.claude/commands/piv-loop/execute.md`
-
-**Execution Report:**
-`$2` (second argument - the execution report)
+- **Read**: Plan files, execution reports, CLAUDE.md
+- **Write**: System review document
+- **Serena Tools**: Memory access for conventions
+- **Grep/Glob**: Find patterns across multiple implementations
 
 ## Analysis Workflow
 
@@ -99,8 +118,6 @@ Based on patterns, suggest:
 ## Output Format
 
 Save to: `.claude/output/system-reviews/{feature-name}-review.md`
-
-### Report Structure
 
 ```markdown
 # System Review: {Feature Name}
@@ -178,16 +195,16 @@ Save to: `.claude/output/system-reviews/{feature-name}-review.md`
 - {Concrete improvements to try}
 ```
 
-## Important
+## Boundaries
 
-- **Be specific**: Don't say "plan was unclear" - say "plan didn't specify which auth pattern to use"
-- **Focus on patterns**: One-off issues aren't actionable. Look for repeated problems.
-- **Action-oriented**: Every finding should have a concrete asset update suggestion
-- **Suggest improvements**: Don't just analyze - actually suggest the text to add
+**Will:**
+- Perform meta-level analysis of development process
+- Identify patterns across multiple divergences
+- Suggest concrete asset updates with specific text
+- Focus on actionable process improvements
 
-## Example Usage
-
-```bash
-# After completing a feature implementation
-/system-review .claude/output/plans/add-user-auth.md .claude/output/execution-reports/add-user-auth.md
-```
+**Will Not:**
+- Review code quality (that's code-reviewer's job)
+- Implement suggested improvements directly
+- Focus on one-off issues (patterns only)
+- Skip root cause analysis for problematic divergences

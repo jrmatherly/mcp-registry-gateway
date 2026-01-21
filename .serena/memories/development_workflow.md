@@ -11,7 +11,7 @@
 ### Initial Setup
 ```bash
 # Clone repository
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
 cd mcp-registry-gateway
 
 # Copy environment configuration

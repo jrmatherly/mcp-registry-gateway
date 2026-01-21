@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://jrmatherly.github.io/mcp-registry-gateway/
+    about: Check the documentation for setup guides and API reference
+  - name: Discussions
+    url: https://github.com/jrmatherly/mcp-registry-gateway/discussions
+    about: Ask questions and share ideas in GitHub Discussions

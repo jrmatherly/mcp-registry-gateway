@@ -66,8 +66,8 @@ sudo apt-get install -y git jq curl wget
 ## Step 1: Clone and Setup
 
 ```bash
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 cp .env.example .env
 
 # Setup Python virtual environment

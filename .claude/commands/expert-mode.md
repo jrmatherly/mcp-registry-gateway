@@ -1,10 +1,38 @@
 ---
-description: Initialize expert mode for MCP Registry Gateway with optimized context loading and component-aware assistance
+name: expert-mode
+description: Initialize expert mode with optimized context loading and component-aware assistance
+category: initialization
+complexity: standard
+mcp-servers: [serena]
+personas: [arch-analyzer]
 ---
 
-# Expert Mode - MCP Registry Gateway
+# /expert-mode - Expert Session Initialization
 
-Quick initialization with intelligent, on-demand context loading for the MCP Registry Gateway project.
+## Triggers
+
+- Starting intensive development session
+- Working on complex, multi-component features
+- Performance-critical sessions requiring minimal context overhead
+- Sessions requiring deep architectural understanding
+
+## Usage
+
+```
+/expert-mode
+```
+
+## Behavioral Flow
+
+1. **Activate**: Initialize Serena project context
+2. **Assess**: Check git state and running services
+3. **Identify**: Determine component focus from user task
+4. **Ready**: Confirm readiness with on-demand context strategy
+
+Key behaviors:
+- Intelligent, on-demand context loading
+- Component-aware assistance
+- Token-efficient session management
 
 **Context Architecture:**
 
@@ -13,6 +41,21 @@ Quick initialization with intelligent, on-demand context loading for the MCP Reg
 - `AGENTS.md` - Universal agent guidelines, quick commands, code patterns
 
 Both CLAUDE.md and AGENTS.md are automatically injected by Claude Code. Use Serena memories for deep context.
+
+## MCP Integration
+
+- **Serena MCP**: Project activation and memory management
+  - `activate_project`: Initialize project context
+  - `list_memories`: View available project knowledge
+  - `read_memory`: Load specific context on-demand
+  - `check_onboarding_performed`: Verify project setup
+
+## Tool Coordination
+
+- **Bash**: Git status, docker status, service checks
+- **Serena Tools**: Project activation, memory loading
+- **Read**: Documentation loading (selective)
+- **TodoWrite**: Session task tracking
 
 ## Initialization Steps
 
@@ -66,10 +109,6 @@ Confirm readiness:
 - Component focus identified
 - Ready to load component-specific context on-demand
 
-**What would you like to work on?**
-
----
-
 ## On-Demand Context Loading
 
 **Core Principle:** Load context only when the task requires it.
@@ -98,18 +137,6 @@ These rules auto-activate based on file patterns:
 | `**/*.tf` | `terraform.md` |
 | `**/Dockerfile*` | `docker.md` |
 
-### Task-Specific Documentation
-
-| Task Type | Load |
-|-----------|------|
-| API Development | `api_reference` memory + `api-endpoints.md` rule |
-| Authentication | `docs/auth.md` or `docs/keycloak-integration.md` |
-| Testing | `testing-standards.md` instruction |
-| Security Audit | `security-guidelines.md` instruction |
-| Architecture | `project_overview` memory |
-| New Feature | `docs/configuration.md` for config patterns |
-| Bug Fix | Component-specific docs based on area |
-
 ### Deep Context: docs/llms.txt
 
 `docs/llms.txt` (~2,500 lines) contains comprehensive project documentation for LLMs. **Load selectively by section, not the entire file:**
@@ -124,8 +151,6 @@ These rules auto-activate based on file patterns:
 | Testing Patterns | 2000-2200 | Writing complex tests |
 
 **Usage:** `Read docs/llms.txt with offset=X limit=Y` for specific sections.
-
----
 
 ## Common Operations
 
@@ -169,18 +194,6 @@ docker compose up -d --build registry
 curl http://localhost:8000/health
 ```
 
-### Database Operations
-
-```bash
-# Connect to MongoDB
-docker exec -it mcp-mongodb mongosh
-
-# Initialize indexes (if needed)
-uv run python scripts/init-mongodb-ce.py
-```
-
----
-
 ## Specialized Agents
 
 | Agent | Use Case |
@@ -189,47 +202,21 @@ uv run python scripts/init-mongodb-ce.py
 | `test-runner` | Execute and validate tests |
 | `security-auditor` | Security scanning, vulnerability check |
 | `arch-analyzer` | Architecture analysis, design review |
+| `devops-architect` | Infrastructure, CI/CD, deployment |
+| `quality-engineer` | Test strategy, edge case identification |
+| `performance-engineer` | Optimization, profiling, caching |
+| `technical-writer` | Documentation, guides, API docs |
 
----
+## Token Efficiency
 
-## Skills
+| Session Type | Expected Tokens |
+|--------------|-----------------|
+| Quick fix | ~2,500 (CLAUDE.md + 1 rule) |
+| API work | ~3,200 (+ api_reference) |
+| Full review | ~4,000 (+ multiple memories) |
+| Architecture | ~3,500 (+ project_overview) |
 
-| Skill | Use Case |
-|-------|----------|
-| `validate-project` | Pre-commit validation checklist |
-| `code-review` | Comprehensive code review |
-| `new-endpoint` | Create new API endpoint |
-| `add-test` | Add test for component |
-| `docker-services` | Docker service configuration |
-
----
-
-## Usage Patterns
-
-### Quick Fix (Minimal Context)
-
-1. Activate Serena
-2. Check git status
-3. Load only affected component's context
-4. Make fix, run relevant tests
-
-### Feature Development (Full Context)
-
-1. Activate Serena
-2. Check git status
-3. Load `project_overview` memory
-4. Load component-specific docs
-5. Use `new-endpoint` or similar skill
-6. Run `validate-project` skill before commit
-
-### Code Review
-
-1. Activate Serena
-2. Load `code_style_conventions` memory
-3. Run `code-reviewer` agent
-4. Load `task_completion_checklist` before approval
-
----
+**Target**: Stay under 4,500 tokens for typical sessions.
 
 ## Anti-Patterns to Avoid
 
@@ -247,31 +234,16 @@ uv run python scripts/init-mongodb-ce.py
 - Load memories selectively based on task
 - Use `CLAUDE.slim.md` for context-constrained sessions
 
----
+## Boundaries
 
-## Token Efficiency
+**Will:**
+- Initialize session with intelligent context loading
+- Identify component focus from user task
+- Provide token-efficient assistance
+- Use Serena MCP for project context
 
-| Session Type | Expected Tokens |
-|--------------|-----------------|
-| Quick fix | ~2,500 (CLAUDE.md + 1 rule) |
-| API work | ~3,200 (+ api_reference) |
-| Full review | ~4,000 (+ multiple memories) |
-| Architecture | ~3,500 (+ project_overview) |
-
-**Target**: Stay under 4,500 tokens for typical sessions.
-
----
-
-## When Stuck
-
-| Issue | Solution |
-|-------|----------|
-| Which component? | Ask user directly |
-| What context to load? | Start minimal, load more as needed |
-| Pre-commit steps? | Load `task_completion_checklist` memory |
-| Command reference? | Load `suggested_commands` memory |
-| Setup issues? | Reference `docs/macos-setup-guide.md` |
-
----
-
-**Then wait for the user's specific task.**
+**Will Not:**
+- Load all context upfront
+- Re-read already-injected documentation
+- Ignore component-specific context needs
+- Proceed without understanding user's focus area

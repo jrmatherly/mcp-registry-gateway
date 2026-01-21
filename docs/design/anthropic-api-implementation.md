@@ -673,7 +673,7 @@ See [docs/design/anthropic-api-test-commands.md](anthropic-api-test-commands.md)
 
 ## References
 
-- **Issue**: [#175 - Support Anthropic MCP Registry REST API v0](https://github.com/agentic-community/mcp-gateway-registry/issues/175)
+- **Issue**: [#175 - Support Anthropic MCP Registry REST API v0](https://github.com/jrmatherly/mcp-registry-gateway/issues/175)
 - **OpenAPI Spec**: https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/openapi.yaml
 - **API Guide**: https://github.com/modelcontextprotocol/registry/blob/main/docs/guides/consuming/use-rest-api.md
 - **Test Commands**: [anthropic-api-test-commands.md](anthropic-api-test-commands.md)

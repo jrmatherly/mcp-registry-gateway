@@ -106,20 +106,20 @@ aws logs describe-log-groups \
 
 # Get specific log streams
 aws logs describe-log-streams \
-  --log-group-name "/aws/ecs/mcp-gateway-registry" \
+  --log-group-name "/aws/ecs/mcp-registry-gateway" \
   --order-by LastEventTime \
   --descending \
   --max-items 5 \
   --region us-east-1
 
 # Tail logs in real-time
-aws logs tail "/aws/ecs/mcp-gateway-registry" \
+aws logs tail "/aws/ecs/mcp-registry-gateway" \
   --follow \
   --region us-east-1
 
 # Filter and query logs
 aws logs filter-log-events \
-  --log-group-name "/aws/ecs/mcp-gateway-registry" \
+  --log-group-name "/aws/ecs/mcp-registry-gateway" \
   --start-time $(date -u -d '30 minutes ago' +%s)000 \
   --filter-pattern "ERROR" \
   --region us-east-1
@@ -164,7 +164,7 @@ aws sts get-caller-identity
 
 ```bash
 # From repository root
-cd /path/to/mcp-gateway-registry
+cd /path/to/mcp-registry-gateway
 
 # ==============================================================================
 # BUILD ONLY (Local Testing)
@@ -233,7 +233,7 @@ make push-agents
 [INFO] Processing all 12 images...
 
 [INFO] ==========================================
-[INFO] Processing: registry (mcp-gateway-registry)
+[INFO] Processing: registry (mcp-registry-gateway)
 [INFO] ==========================================
 [INFO] Building registry...
 [+] Building 480.2s (20/20) FINISHED
@@ -243,7 +243,7 @@ make push-agents
  ...
 [INFO] Successfully built registry
 [INFO] Pushing registry to ECR...
-[INFO] Successfully pushed: 123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-gateway-registry:latest
+[INFO] Successfully pushed: 123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-registry-gateway:latest
 
 ...
 [INFO] ==========================================
@@ -361,7 +361,7 @@ aws ecs describe-tasks \
 # ============================================================================
 # STEP 1: Make Code Changes
 # ============================================================================
-cd /path/to/mcp-gateway-registry
+cd /path/to/mcp-registry-gateway
 vim registry/api/server_routes.py  # Fix bug
 
 # ============================================================================
@@ -387,7 +387,7 @@ make build-push IMAGE=registry
 
 # Verify push succeeded
 aws ecr describe-images \
-  --repository-name mcp-gateway-registry \
+  --repository-name mcp-registry-gateway \
   --region $AWS_REGION \
   --query 'imageDetails[0].{Tags:imageTags,Pushed:imagePushedAt,Size:imageSizeInBytes}'
 
@@ -470,7 +470,7 @@ aws ecs describe-tasks \
 # Method 1: Rollback to specific task definition revision
 # List recent task definitions
 aws ecs list-task-definitions \
-  --family-prefix mcp-gateway-registry \
+  --family-prefix mcp-registry-gateway \
   --sort DESC \
   --max-items 10 \
   --region $AWS_REGION
@@ -479,7 +479,7 @@ aws ecs list-task-definitions \
 aws ecs update-service \
   --cluster mcp-gateway-ecs-cluster \
   --service mcp-gateway-v2-registry \
-  --task-definition mcp-gateway-registry:42 \
+  --task-definition mcp-registry-gateway:42 \
   --region $AWS_REGION
 
 # Method 2: Redeploy current task definition (if image was bad)

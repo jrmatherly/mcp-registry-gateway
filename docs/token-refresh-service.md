@@ -358,10 +358,10 @@ Wants=network.target
 [Service]
 Type=simple
 User=mcp-gateway
-WorkingDirectory=${HOME}/mcp-gateway-registry
+WorkingDirectory=${HOME}/mcp-registry-gateway
 Environment=TOKEN_REFRESH_INTERVAL=300
 Environment=TOKEN_EXPIRY_BUFFER=3600
-ExecStart=${HOME}/mcp-gateway-registry/.venv/bin/python credentials-provider/token_refresher.py
+ExecStart=${HOME}/mcp-registry-gateway/.venv/bin/python credentials-provider/token_refresher.py
 Restart=always
 RestartSec=10
 
@@ -456,5 +456,5 @@ For issues with the token refresh service:
 
 1. Check the [Troubleshooting Guide](FAQ.md)
 2. Enable debug logging to gather detailed information
-3. Search existing [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
+3. Search existing [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)
 4. Create a new issue with logs and configuration details

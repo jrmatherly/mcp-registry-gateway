@@ -1088,7 +1088,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 ```json
 {
   "status": "healthy",
-  "service": "mcp-gateway-registry"
+  "service": "mcp-registry-gateway"
 }
 ```
 

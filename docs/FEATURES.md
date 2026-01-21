@@ -76,14 +76,14 @@ This document provides a comprehensive overview of the MCP Gateway & Registry so
 
 ## Development Roadmap
 
-- **[Virtual MCP Server Support - Dynamic Tool Aggregation and Intelligent Routing](https://github.com/agentic-community/mcp-gateway-registry/issues/129)**: Enable logical grouping of tools from multiple backend servers with intelligent routing using Lua/JavaScript scripting. Provides purpose-built virtual servers that abstract away backend complexity.
+- **[Virtual MCP Server Support - Dynamic Tool Aggregation and Intelligent Routing](https://github.com/jrmatherly/mcp-registry-gateway/issues/129)**: Enable logical grouping of tools from multiple backend servers with intelligent routing using Lua/JavaScript scripting. Provides purpose-built virtual servers that abstract away backend complexity.
 
-- **[Add Microsoft Entra ID (Azure AD) Authentication Provider](https://github.com/agentic-community/mcp-gateway-registry/issues/128)**: Extend authentication support beyond Keycloak to include Microsoft Entra ID integration. Enables enterprise SSO for organizations using Azure Active Directory.
+- **[Add Microsoft Entra ID (Azure AD) Authentication Provider](https://github.com/jrmatherly/mcp-registry-gateway/issues/128)**: Extend authentication support beyond Keycloak to include Microsoft Entra ID integration. Enables enterprise SSO for organizations using Azure Active Directory.
 
-- **[Migrate to OpenSearch for Server Storage and Vector Search](https://github.com/agentic-community/mcp-gateway-registry/issues/121)**: Replace current storage with OpenSearch to provide advanced vector search capabilities and improved scalability for large server registries.
+- **[Migrate to OpenSearch for Server Storage and Vector Search](https://github.com/jrmatherly/mcp-registry-gateway/issues/121)**: Replace current storage with OpenSearch to provide advanced vector search capabilities and improved scalability for large server registries.
 
-- **[CLI Tool for MCP Server Registration and Health Validation](https://github.com/agentic-community/mcp-gateway-registry/issues/120)**: Command-line interface for automated server registration, health checks, and registry management. Streamlines DevOps workflows and CI/CD integration.
+- **[CLI Tool for MCP Server Registration and Health Validation](https://github.com/jrmatherly/mcp-registry-gateway/issues/120)**: Command-line interface for automated server registration, health checks, and registry management. Streamlines DevOps workflows and CI/CD integration.
 
-- **[Implement Well-Known URL for MCP Server Discovery](https://github.com/agentic-community/mcp-gateway-registry/issues/119)**: Standardized discovery mechanism using /.well-known/mcp-servers endpoint for automatic server detection and federation across organizations.
+- **[Implement Well-Known URL for MCP Server Discovery](https://github.com/jrmatherly/mcp-registry-gateway/issues/119)**: Standardized discovery mechanism using /.well-known/mcp-servers endpoint for automatic server detection and federation across organizations.
 
-- **[Agent-as-Tool Integration: Dynamic MCP Server Generation](https://github.com/agentic-community/mcp-gateway-registry/issues/118)**: Convert existing AI agents into MCP servers dynamically, enabling legacy agent ecosystems to participate in the MCP protocol without code rewrites.
+- **[Agent-as-Tool Integration: Dynamic MCP Server Generation](https://github.com/jrmatherly/mcp-registry-gateway/issues/118)**: Convert existing AI agents into MCP servers dynamically, enabling legacy agent ecosystems to participate in the MCP protocol without code rewrites.

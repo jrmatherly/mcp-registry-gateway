@@ -155,8 +155,8 @@ except AuthenticationError as e:
 1. **Set up local environment**:
 
    ```bash
-   git clone https://github.com/agentic-community/mcp-gateway-registry.git
-   cd mcp-gateway-registry
+   git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+   cd mcp-registry-gateway
    cp .env.template .env
    # Configure your .env file
    ./build_and_run.sh
@@ -240,8 +240,8 @@ AWS_REGION=us-east-1
 1. **Clone and configure**:
 
    ```bash
-   git clone https://github.com/agentic-community/mcp-gateway-registry.git
-   cd mcp-gateway-registry
+   git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+   cd mcp-registry-gateway
    cp .env.template .env
    # Edit .env with your configuration
    ```
@@ -566,7 +566,7 @@ async def call_mcp_server(server_url: str):
 
 **A:** **Contributing**:
 
-1. **GitHub Repository**: [agentic-community/mcp-gateway-registry](https://github.com/agentic-community/mcp-gateway-registry)
+1. **GitHub Repository**: [jrmatherly/mcp-registry-gateway](https://github.com/jrmatherly/mcp-registry-gateway)
 2. **Issues**: Report bugs or request features via GitHub Issues
 3. **Pull Requests**: Submit code contributions following the project guidelines
 4. **Documentation**: Help improve documentation and examples
@@ -580,18 +580,18 @@ async def call_mcp_server(server_url: str):
 **Development Setup**:
 
 ```bash
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 # Follow development setup in README.md
 ```
 
 ### Q24: What's on the roadmap for future development?
 
-**A:** **Major Features** (from [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)):
+**A:** **Major Features** (from [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)):
 
-- **[Multi-Level Registry Support](https://github.com/agentic-community/mcp-gateway-registry/issues/37)**: Federated registries with cross-IdP authentication
-- **[Usage Metrics and Analytics](https://github.com/agentic-community/mcp-gateway-registry/issues/38)**: Comprehensive usage tracking and analytics
-- **[Tool Popularity Scoring](https://github.com/agentic-community/mcp-gateway-registry/issues/39)**: Rating system for tools and servers
+- **[Multi-Level Registry Support](https://github.com/jrmatherly/mcp-registry-gateway/issues/37)**: Federated registries with cross-IdP authentication
+- **[Usage Metrics and Analytics](https://github.com/jrmatherly/mcp-registry-gateway/issues/38)**: Comprehensive usage tracking and analytics
+- **[Tool Popularity Scoring](https://github.com/jrmatherly/mcp-registry-gateway/issues/39)**: Rating system for tools and servers
 
 **Authentication & Identity Enhancements**:
 
@@ -606,7 +606,7 @@ cd mcp-gateway-registry
 
 - **Documentation**: Check the [`docs/`](.) folder for detailed guides
 - **Examples**: See [`agents/`](../agents/) for working code examples
-- **Issues**: Report problems on [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
+- **Issues**: Report problems on [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)
 - **Community**: Join discussions and get support from the community
 
 ---

@@ -218,7 +218,7 @@ terraform version
 **Setup Python environment:**
 
 ```bash
-cd mcp-gateway-registry
+cd mcp-registry-gateway
 uv sync
 source .venv/bin/activate
 aws --version
@@ -343,7 +343,7 @@ session_cookie_secure = true   # Always true for HTTPS
 session_cookie_domain = ""     # Empty for CloudFront mode
 
 # ECR image URIs (after running sed commands above)
-registry_image_uri               = "123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-gateway-registry:latest"
+registry_image_uri               = "123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-registry-gateway:latest"
 auth_server_image_uri            = "123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-gateway-auth-server:latest"
 currenttime_image_uri            = "123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-gateway-currenttime:latest"
 mcpgw_image_uri                  = "123456789012.dkr.ecr.us-east-1.amazonaws.com/mcp-gateway-mcpgw:latest"
@@ -541,7 +541,7 @@ open "$KEYCLOAK_ADMIN_URL"
 Now let's register some example MCP servers using the CLI tool:
 
 ```bash
-cd ../../mcp-gateway-registry
+cd ../../mcp-registry-gateway
 
 # Load URLs from terraform outputs (both REGISTRY_URL and KEYCLOAK_URL are required)
 OUTPUTS_FILE="terraform/aws-ecs/scripts/terraform-outputs.json"
@@ -1288,7 +1288,7 @@ export AWS_REGION=us-east-1
 
 # Delete all ECR repositories (WARNING: This deletes all container images!)
 aws ecr delete-repository --repository-name keycloak --force --region $AWS_REGION
-aws ecr delete-repository --repository-name mcp-gateway-registry --force --region $AWS_REGION
+aws ecr delete-repository --repository-name mcp-registry-gateway --force --region $AWS_REGION
 aws ecr delete-repository --repository-name mcp-gateway-auth-server --force --region $AWS_REGION
 aws ecr delete-repository --repository-name mcp-gateway-currenttime --force --region $AWS_REGION
 aws ecr delete-repository --repository-name mcp-gateway-mcpgw --force --region $AWS_REGION
@@ -1351,10 +1351,10 @@ terraform/aws-ecs/
 |--------------|----------------|---------|
 | ECS Cluster | `mcp-gateway-ecs-cluster` | - |
 | ECS Service | `mcp-gateway-v2-{service}` | `mcp-gateway-v2-registry` |
-| ECR Repository | `mcp-gateway-{image}` | `mcp-gateway-registry` |
+| ECR Repository | `mcp-gateway-{image}` | `mcp-registry-gateway` |
 | RDS Cluster | `mcp-gateway-keycloak-cluster` | - |
 | ALB | `mcp-gateway-{type}-alb` | `mcp-gateway-alb` |
-| Log Group | `/aws/ecs/mcp-gateway-{service}` | `/aws/ecs/mcp-gateway-registry` |
+| Log Group | `/aws/ecs/mcp-gateway-{service}` | `/aws/ecs/mcp-registry-gateway` |
 
 ## Support
 
@@ -1384,4 +1384,4 @@ For issues or questions:
    - Check [AWS ECS Troubleshooting Guide](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/troubleshooting.html)
 
 5. **Community Support:**
-   - [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
+   - [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)

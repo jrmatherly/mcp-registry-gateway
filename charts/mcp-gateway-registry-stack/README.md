@@ -40,8 +40,8 @@ The ai-on-eks blueprints provide:
 ## Setup
 
 ```
-git clone https://github.com/agentic-community/mcp-gateway-registry
-cd mcp-gateway-registry/charts/mcp-gateway-registry-stack
+git clone https://github.com/jrmatherly/mcp-registry-gateway
+cd mcp-registry-gateway/charts/mcp-registry-gateway-stack
 ```
 
 ## Values file
@@ -61,7 +61,7 @@ installed):
 
 ```bash
 helm dependency build && helm dependency update
-helm install mcp-gateway-registry -n MYNAMESPACE --create-namespace . 
+helm install mcp-registry-gateway -n MYNAMESPACE --create-namespace . 
 ```
 
 This will deploy the necessary resources for a Kubernetes deployment of the MCP Gateway Registry

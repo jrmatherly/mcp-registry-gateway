@@ -498,7 +498,7 @@ Beyond initial registration security checks, the registry supports comprehensive
 ### Command to Run Periodic Scans
 
 ```bash
-cd /home/ubuntu/repos/mcp-gateway-registry
+cd /home/ubuntu/repos/mcp-registry-gateway
 uv run cli/scan_all_servers.py --base-url https://mcpgateway.example.com
 ```
 

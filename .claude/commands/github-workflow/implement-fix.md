@@ -1,24 +1,62 @@
 ---
+name: implement-fix
 description: Implement fix from RCA document for GitHub issue
+category: development
+complexity: standard
 argument-hint: <github-issue-number>
+mcp-servers: [serena]
+personas: [arch-analyzer, code-reviewer, test-runner]
 ---
 
-# Implement Fix: GitHub Issue #$ARGUMENTS
+# /implement-fix - Bug Fix Implementation
 
-## Prerequisites
+## Triggers
 
-- RCA document exists at `.claude/output/rca/issue-$ARGUMENTS.md`
-- If RCA doesn't exist, run `/rca $ARGUMENTS` first
+- After completing RCA with `/rca`
+- Bug fixes with documented root cause
+- GitHub issue resolution requiring code changes
 
-## RCA Document to Reference
+## Usage
 
-Read RCA: `.claude/output/rca/issue-$ARGUMENTS.md`
-
-**Optional - View GitHub issue for context:**
-
-```bash
-gh issue view $ARGUMENTS
 ```
+/implement-fix <github-issue-number>
+```
+
+**Examples:**
+- `/implement-fix 123` - Implement fix for issue #123
+- `/implement-fix 456` - Fix bug documented in RCA for #456
+
+**Prerequisites:**
+- RCA document exists at `.claude/output/rca/issue-{number}.md`
+- If RCA doesn't exist, run `/rca {number}` first
+
+## Behavioral Flow
+
+1. **Read**: Load RCA document and understand root cause
+2. **Verify**: Confirm issue still exists (reproduction)
+3. **Implement**: Make code changes per RCA recommendations
+4. **Test**: Add regression tests and run validation
+5. **Document**: Generate fix report and commit message
+
+Key behaviors:
+- Follow RCA recommendations precisely
+- Add regression tests for the specific issue
+- Validate fix resolves the reported problem
+
+## MCP Integration
+
+- **Serena MCP**: Precise code modifications
+  - `find_symbol`: Locate code to modify
+  - `replace_symbol_body`: Modify affected functions/classes
+  - `insert_after_symbol`: Add new validation or handling
+
+## Tool Coordination
+
+- **Serena Tools**: Symbolic reading and editing
+- **Write/Edit**: Code modifications
+- **Bash**: Validation commands, git operations, gh CLI
+- **Read**: RCA document, affected files
+- **TodoWrite**: Track fix implementation steps
 
 ## Implementation Instructions
 
@@ -82,10 +120,10 @@ Following "Testing Requirements" from RCA:
 
 ```python
 @pytest.mark.asyncio
-async def test_issue_$ARGUMENTS_fix():
-    """Test that issue #$ARGUMENTS is fixed.
+async def test_issue_{number}_fix():
+    """Test that issue #{number} is fixed.
 
-    Regression test for: https://github.com/{owner}/{repo}/issues/$ARGUMENTS
+    Regression test for: https://github.com/{owner}/{repo}/issues/{number}
     """
     # Arrange - set up scenario that caused bug
 
@@ -127,22 +165,14 @@ uv run pytest tests/ -n 8
 - Test edge cases
 - Check for unintended side effects
 
-### 7. Update Documentation
+## Output Format
 
-If needed:
+```markdown
+## Fix Implementation Summary
 
-- Update code comments
-- Update API documentation
-- Update README if user-facing
-- Add notes about the fix
+**GitHub Issue #{number}**: {Brief title}
 
-## Output Report
-
-### Fix Implementation Summary
-
-**GitHub Issue #$ARGUMENTS**: {Brief title}
-
-**Issue URL**: https://github.com/{owner}/{repo}/issues/$ARGUMENTS
+**Issue URL**: https://github.com/{owner}/{repo}/issues/{number}
 
 **Root Cause** (from RCA):
 {One-line summary}
@@ -155,23 +185,13 @@ If needed:
    - Change: {What was changed}
    - Lines: {Line numbers}
 
-2. **`tests/path/to/test.py`**
-   - Change: {Tests added}
-   - Lines: {Line numbers}
-
 ### Tests Added
 
 **Test Files Created/Modified:**
 
 1. **`tests/unit/test_affected_module.py`**
-   - `test_issue_$ARGUMENTS_fix` - Regression test
+   - `test_issue_{number}_fix` - Regression test
    - `test_edge_case` - Edge case coverage
-
-**Test Coverage:**
-
-- [x] Fix verification test
-- [x] Edge case tests
-- [x] Regression prevention
 
 ### Validation Results
 
@@ -195,47 +215,43 @@ Success: no issues found
 - [x] No new issues introduced
 - [x] Original functionality preserved
 
-### Files Summary
-
-- X files modified
-- Y test files created/updated
-- +Z lines added
-- -W lines removed
-
 ### Ready for Commit
-
-All changes complete and validated.
 
 **Suggested commit message:**
 
 ```text
-fix(component): resolve issue #$ARGUMENTS - {brief description}
+fix(component): resolve issue #{number} - {brief description}
 
 {Summary of what was fixed and how}
 
-Fixes #$ARGUMENTS
+Fixes #{number}
+```
 ```
 
-**Note:** Using `Fixes #$ARGUMENTS` will auto-close the issue when merged.
-
-### Optional: Update GitHub Issue
+## GitHub Integration
 
 **Add implementation comment:**
 
 ```bash
-gh issue comment $ARGUMENTS --body "Fix implemented. PR incoming with commit that references this issue."
+gh issue comment {number} --body "Fix implemented. PR incoming with commit that references this issue."
 ```
 
 **Update labels:**
 
 ```bash
-gh issue edit $ARGUMENTS --add-label "fixed" --remove-label "bug"
+gh issue edit {number} --add-label "fixed" --remove-label "bug"
 ```
 
-## Notes
+## Boundaries
 
-- If RCA was incorrect, document findings and update RCA
-- If additional issues found, create separate GitHub issues
-- Follow project coding standards exactly
-- Ensure all validation passes before declaring complete
-- The commit message `Fixes #$ARGUMENTS` links to the GitHub issue
+**Will:**
+- Follow RCA recommendations for fix implementation
+- Add regression tests for the specific issue
+- Run full validation before declaring complete
+- Link commit to GitHub issue with `Fixes #{number}`
+
+**Will Not:**
+- Implement fixes without RCA documentation
+- Skip regression test creation
+- Ignore edge cases identified in RCA
+- Proceed with failing validation

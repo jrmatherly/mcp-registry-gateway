@@ -68,8 +68,8 @@ Get up and running in 5 minutes with Docker Compose:
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 
 # 2. Configure environment
 cp .env.example .env
@@ -267,12 +267,12 @@ Accelerate development workflows with integrated tooling:
 **Getting Help**
 
 - [FAQ & Troubleshooting](FAQ.md) - Common questions and solutions
-- [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues) - Bug reports and feature requests
-- [GitHub Discussions](https://github.com/agentic-community/mcp-gateway-registry/discussions) - Community support and ideas
+- [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues) - Bug reports and feature requests
+- [GitHub Discussions](https://github.com/jrmatherly/mcp-registry-gateway/discussions) - Community support and ideas
 
 **Resources**
 
-- [Demo Videos](https://github.com/agentic-community/mcp-gateway-registry#demo-videos) - See the platform in action
+- [Demo Videos](https://github.com/jrmatherly/mcp-registry-gateway#demo-videos) - See the platform in action
 
 **Contributing**
 

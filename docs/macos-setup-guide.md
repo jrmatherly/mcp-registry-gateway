@@ -82,8 +82,8 @@ mkdir -p ~/workspace
 cd ~/workspace
 
 # Clone the repository
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 
 # Verify you're in the right directory
 ls -la
@@ -99,7 +99,7 @@ source .venv/bin/activate
 
 # Verify virtual environment is active
 which python
-# Should show: /Users/[username]/workspace/mcp-gateway-registry/.venv/bin/python
+# Should show: /Users/[username]/workspace/mcp-registry-gateway/.venv/bin/python
 ```
 
 ---
@@ -640,8 +640,8 @@ Follow the same steps as the Docker guide (Sections 3-8), but use Podman command
 
 ```bash
 # Clone repository
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 
 # Configure environment
 cp .env.example .env
@@ -669,11 +669,11 @@ podman compose logs -f keycloak
 
 ```bash
 # Disable SSL requirement
-podman exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials \
+podman exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials \
   --server http://localhost:8080 --realm master \
   --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
 
-podman exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh \
+podman exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh \
   update realms/master -s sslRequired=NONE
 
 # Run Keycloak setup scripts
@@ -744,7 +744,7 @@ podman compose ps
 # View logs
 podman compose logs -f
 podman compose logs -f registry
-podman logs mcp-gateway-registry-registry-1
+podman logs mcp-registry-gateway-registry-1
 
 # Stop services
 podman compose down
@@ -753,7 +753,7 @@ podman compose down
 podman compose restart registry
 
 # Execute commands in container
-podman exec -it mcp-gateway-registry-registry-1 bash
+podman exec -it mcp-registry-gateway-registry-1 bash
 ```
 
 **Resource Management:**
@@ -779,7 +779,7 @@ podman machine start
 podman volume ls
 
 # Inspect volume
-podman volume inspect mcp-gateway-registry_metrics-db-data
+podman volume inspect mcp-registry-gateway_metrics-db-data
 
 # Remove unused volumes
 podman volume prune
@@ -973,12 +973,12 @@ chmod +x build_and_run.sh
 # This was fixed in Section 4, but if it persists:
 
 # Re-run SSL disable commands (use your actual admin password)
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
 
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
 
 # Also disable for the mcp-gateway realm after it's created
-docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/mcp-gateway -s sslRequired=NONE
+docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh update realms/mcp-gateway -s sslRequired=NONE
 ```
 
 #### Services Won't Start
@@ -1115,6 +1115,6 @@ You now have a fully functional MCP Gateway & Registry running on macOS! The sys
 
 ### Getting Help
 
-- **GitHub Issues**: https://github.com/agentic-community/mcp-gateway-registry/issues
+- **GitHub Issues**: https://github.com/jrmatherly/mcp-registry-gateway/issues
 - **Documentation**: Check `/docs` folder for additional guides
 - **Logs**: Always check `docker-compose logs` for troubleshooting

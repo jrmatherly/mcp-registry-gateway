@@ -45,7 +45,7 @@ env:
 phases:
   pre_build:
     commands:
-      - echo "=== Building from upstream agentic-community/mcp-gateway-registry ==="
+      - echo "=== Building from upstream jrmatherly/mcp-registry-gateway ==="
       - echo "Source version - $CODEBUILD_RESOLVED_SOURCE_VERSION"
       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - export ECR_REGISTRY="$${AWS_ACCOUNT_ID}.dkr.ecr.$${AWS_DEFAULT_REGION}.amazonaws.com"
@@ -172,7 +172,7 @@ resource "aws_iam_role_policy" "codebuild" {
 resource "aws_codebuild_project" "upstream" {
   count         = var.create_codebuild ? 1 : 0
   name          = "mcp-gateway-upstream-build-tf"
-  description   = "Build containers from upstream agentic-community/mcp-gateway-registry"
+  description   = "Build containers from upstream jrmatherly/mcp-registry-gateway"
   build_timeout = 60
   service_role  = aws_iam_role.codebuild[0].arn
 

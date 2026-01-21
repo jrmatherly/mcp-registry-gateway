@@ -121,7 +121,7 @@ Gets detailed information about a specific server version.
   "version": "1.0.0",
   "description": "Financial information and market data",
   "vendor": "MCP Gateway",
-  "sourceUrl": "https://github.com/mcpgateway/mcp-gateway-registry",
+  "sourceUrl": "https://github.com/mcpgateway/mcp-registry-gateway",
   "configuration": {
     "mcpVersion": "2024-11-05",
     "capabilities": {

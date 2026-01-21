@@ -21,7 +21,7 @@ The import functionality allows you to quickly add these servers to your gateway
 ### Import a Single Server
 
 ```bash
-cd /home/ubuntu/repos/mcp-gateway-registry
+cd /home/ubuntu/repos/mcp-registry-gateway
 ./cli/import_from_anthropic_registry.sh ai.smithery/smithery-ai-github
 ```
 
@@ -337,5 +337,5 @@ Add to cron or systemd timer for automatic updates:
 
 For issues or questions:
 
-- GitHub Issues: [mcp-gateway-registry/issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
+- GitHub Issues: [mcp-registry-gateway/issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)
 - Anthropic Registry: [modelcontextprotocol.io](https://modelcontextprotocol.io/)

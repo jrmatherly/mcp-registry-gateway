@@ -17,8 +17,8 @@ Complete installation instructions for the MCP Gateway & Registry on various pla
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 cp .env.example .env
 
 # 2. Setup Python virtual environment
@@ -107,8 +107,8 @@ For the complete step-by-step guide with detailed explanations, see the [Quick S
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 cp .env.example .env
 
 # 2. Install Podman (macOS)
@@ -341,7 +341,7 @@ podman compose version
 
 ```bash
 # Navigate to repository
-cd mcp-gateway-registry
+cd mcp-registry-gateway
 
 # Configure environment
 cp .env.example .env

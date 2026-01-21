@@ -1,25 +1,75 @@
-# Project Mode Command
+---
+name: project-mode
+description: Initialize Claude Code session with intelligent context loading
+category: initialization
+complexity: standard
+mcp-servers: [serena]
+personas: [arch-analyzer]
+---
 
-Initialize a Claude Code session with intelligent context loading for the MCP Registry Gateway project.
+# /project-mode - Project Session Initialization
+
+## Triggers
+
+- Starting a new Claude Code session
+- Switching between projects or contexts
+- Beginning work after extended time away
+- Light-weight session initialization (vs expert-mode)
+
+## Usage
+
+```
+/project-mode
+```
+
+## Behavioral Flow
+
+1. **Activate**: Initialize Serena project
+2. **Check**: Verify project status (git, docker)
+3. **Identify**: Determine work context from user task
+4. **Load**: Selective context loading based on task
+
+Key behaviors:
+- Minimal upfront context loading
+- Task-driven context acquisition
+- Rule auto-activation for common patterns
+
+## MCP Integration
+
+- **Serena MCP**: Project activation and memory access
+  - `activate_project`: Initialize project context
+  - `read_memory`: Load specific context on-demand
+  - `list_memories`: View available project knowledge
+
+## Tool Coordination
+
+- **Bash**: Git status, docker status
+- **Serena Tools**: Project activation, memory loading
+- **Read**: Documentation loading (selective)
 
 ## Activation Steps
 
-1. **Activate Serena Project**
-   ```
-   mcp__plugin_serena_serena__activate_project with project: "mcp-registry-gateway"
-   ```
+### 1. Activate Serena Project
 
-2. **Check Project Status**
-   ```bash
-   git status --short
-   docker ps --format "{{.Names}}: {{.Status}}" | grep mcp
-   ```
+```
+mcp__plugin_serena_serena__activate_project with project: "mcp-registry-gateway"
+```
 
-3. **Identify Work Context** based on user's task
+### 2. Check Project Status
+
+```bash
+git status --short
+docker ps --format "{{.Names}}: {{.Status}}" | grep mcp
+```
+
+### 3. Identify Work Context
+
+Based on user's task, determine context to load.
 
 ## Context Loading Rules
 
 ### Auto-Loaded (Always Available)
+
 - CLAUDE.md (~2,000 tokens) - **Do NOT re-read**
 - Path-specific rules - Auto-activate based on open files
 
@@ -41,6 +91,7 @@ Load specific memories when user mentions:
 ## Task-Specific Context
 
 ### API Development
+
 ```
 Load: api_reference memory
 Auto: api-endpoints.md rule (when opening api/ files)
@@ -48,6 +99,7 @@ Agent: code-reviewer for review
 ```
 
 ### Test Writing
+
 ```
 Auto: python-tests.md rule (when opening test files)
 Agent: test-runner for execution
@@ -55,6 +107,7 @@ Skill: validate-project before commit
 ```
 
 ### Security Work
+
 ```
 Load: (none initially)
 Agent: security-auditor for scanning
@@ -62,12 +115,14 @@ Instruction: security-guidelines.md if needed
 ```
 
 ### Architecture Analysis
+
 ```
 Load: project_overview memory
 Agent: arch-analyzer for deep analysis
 ```
 
 ### Bug Fixing
+
 ```
 Style: debugging output style
 Load: Based on affected component
@@ -90,20 +145,6 @@ Read docs/llms.txt offset=500 limit=150
 ```
 
 **Warning:** Do not load the entire file - it will consume significant context.
-
-## Anti-Patterns to Avoid
-
-### Don't
-- Re-read CLAUDE.md (already in context)
-- Load all memories at session start
-- Read entire files when symbolic tools work
-- Duplicate information from auto-loaded context
-
-### Do
-- Use Serena tools (`find_symbol`, `get_symbols_overview`)
-- Let rules auto-activate based on file patterns
-- Load memories selectively based on task
-- Reference already-loaded context
 
 ## Quick Commands
 
@@ -142,3 +183,33 @@ docker compose logs -f registry
 | Architecture | ~3,000 (+ project_overview) |
 
 **Target**: Stay under 4,000 tokens for typical sessions.
+
+## Anti-Patterns to Avoid
+
+### Don't
+
+- Re-read CLAUDE.md (already in context)
+- Load all memories at session start
+- Read entire files when symbolic tools work
+- Duplicate information from auto-loaded context
+
+### Do
+
+- Use Serena tools (`find_symbol`, `get_symbols_overview`)
+- Let rules auto-activate based on file patterns
+- Load memories selectively based on task
+- Reference already-loaded context
+
+## Boundaries
+
+**Will:**
+- Initialize session with minimal required context
+- Use task-driven context loading
+- Leverage auto-activation rules
+- Stay within token budget
+
+**Will Not:**
+- Load unnecessary context upfront
+- Re-read already-injected documentation
+- Ignore user's stated task focus
+- Exceed token efficiency targets

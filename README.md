@@ -3,11 +3,11 @@
 
 **Unified Agent & MCP Server Registry – Enterprise-Ready Gateway for AI Development Tools**
 
-[![GitHub stars](https://img.shields.io/github/stars/agentic-community/mcp-gateway-registry?style=flat&logo=github)](https://github.com/agentic-community/mcp-gateway-registry/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/agentic-community/mcp-gateway-registry?style=flat&logo=github)](https://github.com/agentic-community/mcp-gateway-registry/network)
-[![GitHub issues](https://img.shields.io/github/issues/agentic-community/mcp-gateway-registry?style=flat&logo=github)](https://github.com/agentic-community/mcp-gateway-registry/issues)
-[![License](https://img.shields.io/github/license/agentic-community/mcp-gateway-registry?style=flat)](https://github.com/agentic-community/mcp-gateway-registry/blob/main/LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/agentic-community/mcp-gateway-registry?style=flat&logo=github)](https://github.com/agentic-community/mcp-gateway-registry/releases)
+[![GitHub stars](https://img.shields.io/github/stars/jrmatherly/mcp-registry-gateway?style=flat&logo=github)](https://github.com/jrmatherly/mcp-registry-gateway/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/jrmatherly/mcp-registry-gateway?style=flat&logo=github)](https://github.com/jrmatherly/mcp-registry-gateway/network)
+[![GitHub issues](https://img.shields.io/github/issues/jrmatherly/mcp-registry-gateway?style=flat&logo=github)](https://github.com/jrmatherly/mcp-registry-gateway/issues)
+[![License](https://img.shields.io/github/license/jrmatherly/mcp-registry-gateway?style=flat)](https://github.com/jrmatherly/mcp-registry-gateway/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/jrmatherly/mcp-registry-gateway?style=flat&logo=github)](https://github.com/jrmatherly/mcp-registry-gateway/releases)
 
 [🚀 Get Running Now](#option-a-pre-built-images-instant-setup) | [Production Deployment](terraform/aws-ecs/README.md) | [Quick Start](#quick-start) | [Documentation](docs/) | [Enterprise Features](#enterprise-features) | [Community](#community)
 
@@ -426,8 +426,8 @@ Get running with pre-built Docker containers in minutes. This is the recommended
 
 ```bash
 # Clone and configure
-git clone https://github.com/agentic-community/mcp-gateway-registry.git
-cd mcp-gateway-registry
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
 cp .env.example .env
 
 # Edit .env with your passwords (KEYCLOAK_ADMIN_PASSWORD, etc.)
@@ -724,8 +724,8 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 
 **Join the Discussion**
 
-- [GitHub Discussions](https://github.com/agentic-community/mcp-gateway-registry/discussions) - Feature requests and general discussion
-- [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues) - Bug reports and feature requests
+- [GitHub Discussions](https://github.com/jrmatherly/mcp-registry-gateway/discussions) - Feature requests and general discussion
+- [GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues) - Bug reports and feature requests
 
 **Contributing**
 
@@ -735,7 +735,7 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 
 ### Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=agentic-community/mcp-gateway-registry&type=Date)](https://star-history.com/#agentic-community/mcp-gateway-registry&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=jrmatherly/mcp-registry-gateway&type=Date)](https://star-history.com/#jrmatherly/mcp-registry-gateway&Date)
 
 ### Roadmap
 
@@ -743,9 +743,9 @@ Our development roadmap is organized into weekly milestones with clear deliverab
 
 | Milestone | Due Date | Progress | Status | Key Issues |
 | ----------- | ---------- | ---------- | -------- | ------------ |
-| **January 2026 Week 3** | 2026-01-23 | 50% (1/2) | 🚧 In Progress | **Open:** [#295 - Multi-Level Rate Limiting](https://github.com/agentic-community/mcp-gateway-registry/issues/295)<br/>**Closed:** [#316 - Entra ID IAM APIs](https://github.com/agentic-community/mcp-gateway-registry/issues/316) |
-| **January 2026 Week 4** | 2026-01-30 | 0% (0/3) | 📅 Planned | **Open:** [#269 - AgentCore IAM Authentication](https://github.com/agentic-community/mcp-gateway-registry/issues/269), [#260 - Federation Between Registries](https://github.com/agentic-community/mcp-gateway-registry/issues/260), [#129 - Virtual MCP Server Support](https://github.com/agentic-community/mcp-gateway-registry/issues/129) |
-| **Parking Lot** | — | 100% (2/2) | 🗂️ Backlog | **Closed:** [#316 - Entra ID IAM APIs](https://github.com/agentic-community/mcp-gateway-registry/issues/316), [#315 - Distroless Docker Images](https://github.com/agentic-community/mcp-gateway-registry/issues/315) |
+| **January 2026 Week 3** | 2026-01-23 | 50% (1/2) | 🚧 In Progress | **Open:** [#295 - Multi-Level Rate Limiting](https://github.com/jrmatherly/mcp-registry-gateway/issues/295)<br/>**Closed:** [#316 - Entra ID IAM APIs](https://github.com/jrmatherly/mcp-registry-gateway/issues/316) |
+| **January 2026 Week 4** | 2026-01-30 | 0% (0/3) | 📅 Planned | **Open:** [#269 - AgentCore IAM Authentication](https://github.com/jrmatherly/mcp-registry-gateway/issues/269), [#260 - Federation Between Registries](https://github.com/jrmatherly/mcp-registry-gateway/issues/260), [#129 - Virtual MCP Server Support](https://github.com/jrmatherly/mcp-registry-gateway/issues/129) |
+| **Parking Lot** | — | 100% (2/2) | 🗂️ Backlog | **Closed:** [#316 - Entra ID IAM APIs](https://github.com/jrmatherly/mcp-registry-gateway/issues/316), [#315 - Distroless Docker Images](https://github.com/jrmatherly/mcp-registry-gateway/issues/315) |
 
 **Status Legend:** 🚧 In Progress • 📅 Planned • 🗂️ Backlog • ✅ Complete
 
@@ -755,59 +755,59 @@ Our development roadmap is organized into weekly milestones with clear deliverab
 
 The following major features span multiple milestones and represent significant architectural improvements:
 
-- **[#129 - Virtual MCP Server Support](https://github.com/agentic-community/mcp-gateway-registry/issues/129)** 🚧 **IN PROGRESS** (Jan 2026 Week 3)
+- **[#129 - Virtual MCP Server Support](https://github.com/jrmatherly/mcp-registry-gateway/issues/129)** 🚧 **IN PROGRESS** (Jan 2026 Week 3)
   Dynamic tool aggregation and intelligent routing using Lua/JavaScript scripting. Enables logical grouping of tools from multiple backend servers.
 
-- **[#232 - A2A Curated Registry Discovery](https://github.com/agentic-community/mcp-gateway-registry/issues/232)** ✅ **COMPLETED**
+- **[#232 - A2A Curated Registry Discovery](https://github.com/jrmatherly/mcp-registry-gateway/issues/232)** ✅ **COMPLETED**
   Enable agent-to-agent discovery and tool invocation through curated registry patterns.
 
-- **[#260 - Federation Between MCP Registry Instances](https://github.com/agentic-community/mcp-gateway-registry/issues/260)** 📅 **PLANNED** (Jan 2026 Week 4)
+- **[#260 - Federation Between MCP Registry Instances](https://github.com/jrmatherly/mcp-registry-gateway/issues/260)** 📅 **PLANNED** (Jan 2026 Week 4)
   Support for federated registry discovery and access across multiple registry instances.
 
-- **[#295 - Multi-Level Tool Usage Rate Limiting](https://github.com/agentic-community/mcp-gateway-registry/issues/295)** 📅 **PLANNED** (Jan 2026 Week 3)
+- **[#295 - Multi-Level Tool Usage Rate Limiting](https://github.com/jrmatherly/mcp-registry-gateway/issues/295)** 📅 **PLANNED** (Jan 2026 Week 3)
   Comprehensive rate limiting architecture with detailed implementation guide for tool usage control.
 
-- **[#297 - Unified UI Registration Flow](https://github.com/agentic-community/mcp-gateway-registry/issues/297)** ✅ **COMPLETED**
+- **[#297 - Unified UI Registration Flow](https://github.com/jrmatherly/mcp-registry-gateway/issues/297)** ✅ **COMPLETED**
   Streamlined registration experience for both MCP servers and A2A agents through a unified interface.
 
 ---
 
 #### Recently Completed
 
-- **[#316 - Entra ID IAM APIs](https://github.com/agentic-community/mcp-gateway-registry/issues/316)** ✅ **COMPLETED**
+- **[#316 - Entra ID IAM APIs](https://github.com/jrmatherly/mcp-registry-gateway/issues/316)** ✅ **COMPLETED**
   Full IAM support for Microsoft Entra ID with harmonized API for user/group management. Includes M2M service accounts, self-signed JWT tokens, and fine-grained access control through scopes. [Authentication Design](docs/design/authentication-design.md) | [Scopes Management](docs/scopes-mgmt.md)
 
-- **[#297 - Unified UI Registration Flow](https://github.com/agentic-community/mcp-gateway-registry/issues/297)** ✅ **COMPLETED**
+- **[#297 - Unified UI Registration Flow](https://github.com/jrmatherly/mcp-registry-gateway/issues/297)** ✅ **COMPLETED**
   Streamlined registration experience for both MCP servers and A2A agents through a unified interface.
 
-- **[#232 - A2A Curated Registry Discovery](https://github.com/agentic-community/mcp-gateway-registry/issues/232)** ✅ **COMPLETED**
+- **[#232 - A2A Curated Registry Discovery](https://github.com/jrmatherly/mcp-registry-gateway/issues/232)** ✅ **COMPLETED**
   Agent-to-agent discovery and tool invocation through curated registry patterns.
 
-- **[#329 - Update llms.txt](https://github.com/agentic-community/mcp-gateway-registry/issues/329)** ✅ **COMPLETED** (v1.0.9)
+- **[#329 - Update llms.txt](https://github.com/jrmatherly/mcp-registry-gateway/issues/329)** ✅ **COMPLETED** (v1.0.9)
   Updated AI assistant reference documentation with recent architecture changes.
 
-- **[#221 - DocumentDB Implementation](https://github.com/agentic-community/mcp-gateway-registry/issues/221)** ✅ **COMPLETED** (v1.0.9)
+- **[#221 - DocumentDB Implementation](https://github.com/jrmatherly/mcp-registry-gateway/issues/221)** ✅ **COMPLETED** (v1.0.9)
   Production-grade distributed storage with MongoDB/DocumentDB backend implementation.
 
-- **[#70 - Docker Build & Runtime Performance Optimization](https://github.com/agentic-community/mcp-gateway-registry/issues/70)** ✅ **COMPLETED** (v1.0.9)
+- **[#70 - Docker Build & Runtime Performance Optimization](https://github.com/jrmatherly/mcp-registry-gateway/issues/70)** ✅ **COMPLETED** (v1.0.9)
   Multi-stage Docker builds with 66-80% image size reduction.
 
-- **[#287 - Filter Sidebar Buttons](https://github.com/agentic-community/mcp-gateway-registry/issues/287)** ✅ **COMPLETED**
+- **[#287 - Filter Sidebar Buttons](https://github.com/jrmatherly/mcp-registry-gateway/issues/287)** ✅ **COMPLETED**
   Fixed filter buttons to properly filter both MCP servers and A2A agent cards.
 
-- **[#284 - Statistics Count Fix](https://github.com/agentic-community/mcp-gateway-registry/issues/284)** ✅ **COMPLETED**
+- **[#284 - Statistics Count Fix](https://github.com/jrmatherly/mcp-registry-gateway/issues/284)** ✅ **COMPLETED**
   Sidebar statistics now correctly count both MCP servers and A2A agents.
 
-- **[#259 - Simplify JWT Token Generation](https://github.com/agentic-community/mcp-gateway-registry/issues/259)** ✅ **COMPLETED**
+- **[#259 - Simplify JWT Token Generation](https://github.com/jrmatherly/mcp-registry-gateway/issues/259)** ✅ **COMPLETED**
   Streamlined JWT token generation process in Registry UI.
 
-- **[#315 - Distroless Docker Images](https://github.com/agentic-community/mcp-gateway-registry/issues/315)** ✅ **COMPLETED**
+- **[#315 - Distroless Docker Images](https://github.com/jrmatherly/mcp-registry-gateway/issues/315)** ✅ **COMPLETED**
   Security hardening through migration to distroless/hardened base images.
 
 For the complete list of all issues, feature requests, and detailed release history, visit:
 
-- [All GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
-- [All GitHub Milestones](https://github.com/agentic-community/mcp-gateway-registry/milestones)
+- [All GitHub Issues](https://github.com/jrmatherly/mcp-registry-gateway/issues)
+- [All GitHub Milestones](https://github.com/jrmatherly/mcp-registry-gateway/milestones)
 - [Release Notes](release-notes/)
 
 ---

@@ -1,24 +1,63 @@
 ---
+name: execution-report
 description: Generate execution report after implementing a plan
+category: validation
+complexity: standard
 argument-hint: <plan-file> <feature-name>
+mcp-servers: [serena]
+personas: [code-reviewer, test-runner]
 ---
 
-# Execution Report Generator
+# /execution-report - Implementation Documentation
 
-Generate a comprehensive execution report documenting what was implemented, how it differed from the plan, and validation results.
+## Triggers
 
-## Purpose
+- After completing implementation with `/execute`
+- When documenting manual implementation work
+- Before creating pull requests
+- For system-review process input
 
-**The execution report serves two purposes:**
+## Usage
+
+```
+/execution-report <plan-file> <feature-name>
+```
+
+**Examples:**
+- `/execution-report .claude/output/plans/add-user-auth.md add-user-auth`
+- `/execution-report .claude/output/plans/server-monitoring.md server-monitoring`
+
+## Behavioral Flow
+
+1. **Review**: Analyze plan and completed implementation
+2. **Document**: Capture tasks completed, files changed
+3. **Capture**: Record divergences with justification
+4. **Validate**: Run and record validation results
+5. **Assess**: Evaluate against acceptance criteria
+
+Key behaviors:
+- Thorough documentation of all changes
+- Explicit divergence tracking with reasons
+- Complete validation command output capture
+
+**Purpose:**
 
 1. **Immediate**: Document implementation for PR review and team communication
 2. **Future**: Provide data for system-review to identify process improvements
 
-## Inputs
+## MCP Integration
 
-**Plan File:** `$1` (first argument - the plan that was executed)
+- **Serena MCP**: Verify implementation details
+  - `find_symbol`: Verify new code exists
+  - `get_symbols_overview`: Confirm file structure
 
-**Feature Name:** `$2` (second argument - kebab-case feature name for report filename)
+## Tool Coordination
+
+- **Read**: Plan file, implementation files
+- **Write**: Execution report document
+- **Bash**: Run validation commands, capture output
+- **Grep/Glob**: Inventory changes
+- **TodoWrite**: Track report generation steps
 
 ## Report Generation Process
 
@@ -79,8 +118,6 @@ Review against acceptance criteria from plan.
 ## Output Format
 
 Save to: `.claude/output/execution-reports/{feature-name}-report.md`
-
-### Report Template
 
 ```markdown
 # Execution Report: {Feature Name}
@@ -151,13 +188,6 @@ Save to: `.claude/output/execution-reports/{feature-name}-report.md`
 - **Actual**: {What was implemented instead}
 - **Reason**: {Why this change was necessary}
 - **Impact**: {Effect on the feature/codebase}
-
-### Divergence 2: {Title}
-
-- **Planned**: ...
-- **Actual**: ...
-- **Reason**: ...
-- **Impact**: ...
 
 ---
 
@@ -269,35 +299,18 @@ feat(resource): add resource management endpoints
 
 Implements: {link to issue or requirement}
 ```
-
----
-
-## Appendix
-
-### Test Coverage Details
-
-{If relevant, include coverage report}
-
-### Performance Notes
-
-{If relevant, include any performance observations}
 ```
 
-## After Generating Report
+## Boundaries
 
-1. Confirm report saved to `.claude/output/execution-reports/`
-2. Summarize key outcomes:
-   - Tasks completed: X of Y
-   - Divergences: Z (justified/unjustified)
-   - Tests: passing/failing
-3. Recommend next steps:
-   - If complete: Ready for commit and PR
-   - If incomplete: What remains to be done
-4. Suggest `/system-review` if there were significant divergences
+**Will:**
+- Document all implementation details thoroughly
+- Capture actual validation command output
+- Track and justify all divergences from plan
+- Assess completion against acceptance criteria
 
-## Notes
-
-- Be thorough in documenting divergences - they're learning opportunities
-- Include actual command output, not just "passed"
-- If tests failed, document why and what was done
-- This report feeds into system-review for process improvement
+**Will Not:**
+- Skip divergence documentation
+- Fabricate validation output (run actual commands)
+- Ignore partial completions
+- Proceed without running full validation

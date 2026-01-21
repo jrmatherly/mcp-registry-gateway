@@ -55,9 +55,9 @@ cd ai-on-eks/infra/custom
 
 2. **Deploy MCP Gateway Registry** using Helm charts:
    ```bash
-   cd /path/to/mcp-gateway-registry/charts/mcp-gateway-registry-stack
+   cd /path/to/mcp-registry-gateway/charts/mcp-registry-gateway-stack
    helm dependency build && helm dependency update
-   helm install mcp-gateway-registry . -n mcp-gateway --create-namespace --set global.domain "YOUR DOMAIN" --set global.secretKey "CHANGEME"
+   helm install mcp-registry-gateway . -n mcp-gateway --create-namespace --set global.domain "YOUR DOMAIN" --set global.secretKey "CHANGEME"
    ```
 
 This approach provides:

@@ -1,4 +1,4 @@
-# Temporarily here until https://github.com/agentic-community/mcp-gateway-registry/issues/234 is addressed
+# Temporarily here until https://github.com/jrmatherly/mcp-registry-gateway/issues/234 is addressed
 apiVersion: v1
 kind: Service
 metadata:
