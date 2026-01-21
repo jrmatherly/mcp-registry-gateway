@@ -150,6 +150,7 @@ When users authenticate via Entra ID, Microsoft issues:
 - **Access Token**: Scoped for Microsoft Graph API (not usable for our gateway)
 
 These tokens are:
+
 - RSA-signed (RS256) with Microsoft's keys
 - Validated against Microsoft's JWKS endpoint
 - Contain group Object IDs (not group names)
@@ -207,6 +208,7 @@ Getting tokens directly from IdP would require:
 3. **Entra issuing tokens for your API** - Instead of for Graph API
 
 This provides:
+
 - Tokens signed by Microsoft's keys (asymmetric RSA)
 - Centralized token revocation through Entra
 - Entra's audit logs for token issuance

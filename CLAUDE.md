@@ -1,9 +1,11 @@
 # Claude Coding Rules
 
 ## Overview
+
 This document contains coding standards and best practices that must be followed for all code development. These rules prioritize maintainability, simplicity, and modern Python development practices.
 
 ## Core Principles
+
 - Write code with minimal complexity for maximum maintainability and clarity
 - Choose simple, readable solutions over clever or complex implementations
 - Prioritize code that any team member can confidently understand, modify, and debug
@@ -24,10 +26,12 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
 ## Technology Stack
 
 ### Package Management
+
 - Always use `uv` and `pyproject.toml` for package management
 - Never use `pip` directly
 
 ### Modern Python Libraries
+
 - **Data Processing**: Use `polars` instead of `pandas`
 - **Web APIs**: Use `fastapi` instead of `flask`
 - **Code Formatting/Linting**: Use `ruff` for both linting and formatting
@@ -37,6 +41,7 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
 ## Code Style Guidelines
 
 ### Function Structure
+
 - All internal/private functions must start with an underscore (`_`)
 - Private functions should be placed at the top of the file, followed by public functions
 - Functions should be modular, containing no more than 30-50 lines
@@ -44,9 +49,11 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
 - One function parameter per line for better readability
 
 ### Type Annotations
+
 - Use clear type annotations for all function parameters
 - One function parameter per line for better readability
 - Example:
+
   ```python
   def process_data(
       input_file: str,
@@ -57,8 +64,10 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
   ```
 
 ### Type Hints for Optional Parameters
+
 - Always use `Optional[type]` for parameters that can be None
 - Be explicit about optional parameters, especially when they have special meanings:
+
   ```python
   from typing import Optional, List
   
@@ -84,9 +93,11 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
   ```
 
 ### Class Definitions with Pydantic
+
 - Consider using Pydantic BaseModel for all class definitions to leverage validation, serialization, and other powerful features
 - Pydantic provides automatic validation, type coercion, and serialization capabilities
 - Example:
+
   ```python
   from pydantic import BaseModel, Field, validator
   from typing import Optional
@@ -107,14 +118,17 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
   ```
 
 ### Main Function Pattern
+
 - The main function should act as a control flow orchestrator
 - Parse command line arguments and delegate to other functions
 - Avoid implementing business logic directly in main()
 
 ### Command-Line Interface Design
+
 When creating CLI applications:
 
 1. **Use argparse with comprehensive help**:
+
    ```python
    parser = argparse.ArgumentParser(
        description="Clear description of what the tool does",
@@ -132,6 +146,7 @@ When creating CLI applications:
    ```
 
 2. **Support both CLI args and environment variables**:
+
    ```python
    def _get_config_value(cli_value: Optional[str] = None) -> str:
        if cli_value:
@@ -145,6 +160,7 @@ When creating CLI applications:
    ```
 
 3. **Provide sensible defaults**:
+
    ```python
    parser.add_argument(
        "--sample-size",
@@ -154,6 +170,7 @@ When creating CLI applications:
    ```
 
 4. **Use special values for "all" options**:
+
    ```python
    if sample_size == 0 or sample_size is None:
        # Process entire dataset
@@ -162,8 +179,10 @@ When creating CLI applications:
    ```
 
 ### Imports
+
 - Write imports as multi-line imports for better readability
 - Example:
+
   ```python
   from .services.output_formatter import (
       _display_evaluation_results,
@@ -173,16 +192,21 @@ When creating CLI applications:
   ```
 
 ### Constants
+
 - Don't hard code constants within functions
 - For trivial constants, declare them at the top of the file:
+
   ```python
   STARTUP_DELAY: int = 10
   MAX_RETRIES: int = 3
   ```
+
 - For many constants, create a separate `constants.py` file with a class structure
 
 ### Logging Configuration
+
 - Always use the following logging configuration:
+
   ```python
   import logging
   
@@ -195,22 +219,28 @@ When creating CLI applications:
   ```
 
 ### Logging Best Practices
+
 - Add sufficient log messages throughout the code to aid in debugging and monitoring
 - Don't shy away from adding debug logs using `logging.debug()` for detailed tracing
 - When printing a dictionary as part of a trace message, always pretty print it:
+
   ```python
   logger.info(f"Processing data:\n{json.dumps(data_dict, indent=2, default=str)}")
   ```
+
 - Consider adding a `--debug` flag to the application that sets the logging level to DEBUG:
+
   ```python
   if args.debug:
       logging.getLogger().setLevel(logging.DEBUG)
   ```
 
 ### Performance Feedback
+
 Provide users with feedback on long-running operations:
 
 1. **Display elapsed time after completion**:
+
    ```python
    start_time = time.time()
    # ... perform operation ...
@@ -225,6 +255,7 @@ Provide users with feedback on long-running operations:
    ```
 
 2. **Warn about potentially long operations**:
+
    ```python
    if processing_full_dataset:
        logger.warning("Processing FULL dataset. This may take a long time.")
@@ -233,17 +264,21 @@ Provide users with feedback on long-running operations:
    ```
 
 3. **Show configuration at startup**:
+
    ```python
    logger.info(f"Configuration: {config.model_dump()}")
    ```
 
 ### Performance Optimization
+
 - Use `@lru_cache` decorator where appropriate for expensive computations
 
 ### External Resource Management
+
 When working with external data sources (APIs, datasets, databases):
 
 1. **Version/pin external dependencies**:
+
    ```python
    # Specify exact versions or commits for reproducibility
    API_VERSION = "v2"
@@ -251,6 +286,7 @@ When working with external data sources (APIs, datasets, databases):
    ```
 
 2. **Document external resources in code**:
+
    ```python
    # Constants file with clear documentation
    DATA_SOURCE: str = "source-name"  # Documentation URL: https://...
@@ -258,6 +294,7 @@ When working with external data sources (APIs, datasets, databases):
    ```
 
 3. **Handle data filtering and edge cases gracefully**:
+
    ```python
    def load_filtered_data(
        filters: Dict[str, Any],
@@ -282,6 +319,7 @@ When working with external data sources (APIs, datasets, databases):
    ```
 
 4. **Provide actionable error messages**:
+
    ```python
    if not data:
        raise ValueError(
@@ -296,11 +334,13 @@ When working with external data sources (APIs, datasets, databases):
 #### Guidelines for Using Decorators and Functional Patterns Appropriately
 
 **Use Decorators When:**
+
 - They're built-in or widely known (`@property`, `@staticmethod`, `@dataclass`)
 - They have a single, clear purpose (`@login_required`, `@cache`)
 - They don't change function behavior dramatically
 
 Example - Good use of decorators:
+
 ```python
 # Good - clear, single purpose
 @dataclass
@@ -314,11 +354,13 @@ def expensive_calculation(n: int) -> int:
 ```
 
 **Use Functional Patterns When:**
+
 - Simple transformations are clearer than loops
 - You need pure functions for testing
 - The functional approach is more readable
 
 Example - Good use of functional patterns:
+
 ```python
 # Good - simple and clear
 numbers = [1, 2, 3, 4, 5]
@@ -331,12 +373,14 @@ capitalized = list(map(str.capitalize, names))
 ```
 
 **Avoid When:**
+
 - You're chaining multiple complex operations
 - The code requires explaining how it works
 - An entry-level developer would struggle to modify it
 - You're using advanced functional programming concepts
 
 Example - Avoid complex patterns:
+
 ```python
 # Bad - too complex, hard to understand
 result = reduce(lambda x, y: x + y, 
@@ -352,11 +396,13 @@ for i in range(10):
 ```
 
 #### Avoid Deep Nesting
+
 - Limit nesting to 2-3 levels maximum
 - Extract nested logic into well-named functions
 - Use early returns to reduce nesting
 
 Example - Reducing nesting:
+
 ```python
 # Bad - too much nesting
 def process_data(data):
@@ -389,18 +435,21 @@ def _process_active_user(user):
 ```
 
 ### Code Validation
+
 - Always run `uv run python -m py_compile <filename>` after making changes to Python files
 - Always run `bash -n <filename>` after making changes to bash/shell scripts to check syntax
 
 ## Error Handling and Exceptions
 
 ### Exception Handling Principles
+
 - Use specific exception types, avoid bare `except:` clauses
 - Always log exceptions with proper context
 - Fail fast and fail clearly - don't suppress errors silently
 - Use custom exceptions for domain-specific errors
 
 ### Exception Pattern
+
 ```python
 import logging
 
@@ -424,6 +473,7 @@ def process_data(data: dict) -> dict:
 ```
 
 ### Error Messages
+
 - Write clear, actionable error messages
 - Include context about what was being attempted
 - Suggest possible solutions when appropriate
@@ -431,11 +481,13 @@ def process_data(data: dict) -> dict:
 ## Testing Standards
 
 ### Testing Framework
+
 - Use `pytest` as the primary testing framework
 - Maintain minimum 80% code coverage
 - Use `pytest-cov` for coverage reporting
 
 ### Test Structure
+
 ```python
 import pytest
 from unittest.mock import Mock, patch
@@ -465,6 +517,7 @@ class TestFeatureName:
 ```
 
 ### Testing Best Practices
+
 - Follow AAA pattern: Arrange, Act, Assert
 - One assertion per test when possible
 - Use descriptive test names that explain what is being tested
@@ -477,12 +530,14 @@ class TestFeatureName:
 **CRITICAL**: Always run the full test suite before submitting a pull request or after completing a major feature.
 
 #### When to Run Tests
+
 1. **Before submitting a pull request**: All tests must pass before creating a PR
 2. **After completing a major feature**: Verify no regressions were introduced
 3. **After making significant refactoring changes**: Ensure existing functionality still works
 4. **After updating dependencies**: Verify compatibility with new versions
 
 #### How to Run Tests
+
 Run the complete test suite with parallel execution:
 
 ```bash
@@ -497,6 +552,7 @@ uv run pytest tests/ -n 8
 ```
 
 #### Test Execution Options
+
 ```bash
 # Run tests serially (slower, but uses less memory)
 uv run pytest tests/
@@ -518,9 +574,11 @@ uv run pytest tests/ -n 8 --cov=registry --cov-report=term-missing
 ```
 
 #### Test Prerequisites
+
 Before running tests, ensure:
 
 1. **MongoDB is running** (for integration tests):
+
    ```bash
    docker ps | grep mongo
    # Should show: mcp-mongodb running on 0.0.0.0:27017
@@ -532,19 +590,23 @@ Before running tests, ensure:
    - Tests use `directConnection=true` for single-node MongoDB
 
 #### Continuous Integration
+
 Tests run automatically via GitHub Actions when:
+
 - Pull requests are created targeting `main` or `develop` branches
 - Code is pushed to `main` or `develop` branches
 
 See [.github/workflows/registry-test.yml](.github/workflows/registry-test.yml:7-8) for CI configuration.
 
 #### Acceptable Test Results
+
 - **All unit tests must pass** (no failures allowed in unit tests)
 - **Integration tests**: Some tests may be skipped due to known issues
 - **Coverage**: Minimum 35% coverage required (configured in pyproject.toml:87)
 - **Warnings**: Minor warnings are acceptable, but investigate new warnings
 
 #### What to Do If Tests Fail
+
 1. Review the test failure output carefully
 2. Fix the failing test(s) before submitting PR
 3. Re-run tests to verify the fix
@@ -554,6 +616,7 @@ See [.github/workflows/registry-test.yml](.github/workflows/registry-test.yml:7-
 ## Async/Await Best Practices
 
 ### Async Code Structure
+
 ```python
 import asyncio
 from typing import List
@@ -571,6 +634,7 @@ async def process_urls(urls: List[str]) -> List[dict]:
 ```
 
 ### Async Guidelines
+
 - Use `async with` for async context managers
 - Use `asyncio.gather()` for concurrent operations
 - Handle exceptions in async code properly
@@ -580,7 +644,9 @@ async def process_urls(urls: List[str]) -> List[dict]:
 ## Documentation Standards
 
 ### Docstring Format
+
 Use Google-style docstrings:
+
 ```python
 def calculate_metrics(
     data: List[float],
@@ -610,6 +676,7 @@ def calculate_metrics(
 ```
 
 ### Documentation Requirements
+
 - All public functions must have docstrings
 - Include type hints in function signatures
 - Document exceptions that can be raised
@@ -619,11 +686,13 @@ def calculate_metrics(
 ## Security Guidelines
 
 ### Input Validation
+
 - Always validate and sanitize user inputs
 - Use Pydantic models for request/response validation
 - Never trust external data
 
 ### Secrets Management
+
 ```python
 import os
 from typing import Optional
@@ -640,6 +709,7 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
 ```
 
 ### Security Best Practices
+
 - Never log sensitive information (passwords, tokens, PII)
 - Use environment variables for configuration
 - Validate all inputs, especially from external sources
@@ -647,9 +717,11 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
 - Keep dependencies updated for security patches
 
 ### Security Scanning with Bandit
+
 - Run Bandit regularly as part of the development workflow
 - Handle false positives with `# nosec` comments and clear justification
 - Common patterns to handle:
+
   ```python
   # When using random for ML reproducibility (not cryptography)
   # This is not for security/cryptographic purposes - nosec B311
@@ -660,12 +732,15 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
   # This is acceptable for evaluation tools using well-known datasets - nosec B615
   ds = load_dataset(DATASET_NAME, revision="main")  # nosec B615
   ```
+
 - Run security scans with: `uv run bandit -r src/`
 
 ### Server Binding Security
+
 - When starting a server, never bind it to `0.0.0.0` unless absolutely necessary
 - Prefer binding to `127.0.0.1` for local-only access
 - If external access is needed, bind to the specific private IP address:
+
   ```python
   # Bad - exposes to all interfaces
   app.run(host="0.0.0.0", port=8000)
@@ -682,12 +757,14 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
 ## Development Workflow
 
 ### Recommended Development Tools
+
 - **Ruff**: For linting and formatting (replaces multiple tools like isort and many flake8 plugins)
 - **Bandit**: For security vulnerability scanning
 - **MyPy**: For type checking
 - **Pytest**: For testing
 
 ### Pre-commit Workflow
+
 Before committing code, run these checks in order:
 
 ```bash
@@ -708,6 +785,7 @@ uv run ruff check --fix . && uv run ruff format . && uv run bandit -r src/ && uv
 ```
 
 ### Adding Development Dependencies
+
 ```bash
 # Add development dependencies
 uv add --dev ruff mypy bandit pytest pytest-cov
@@ -716,7 +794,9 @@ uv add --dev ruff mypy bandit pytest pytest-cov
 ## Dependency Management
 
 ### Project Configuration
+
 Always specify Python version in `pyproject.toml` to avoid warnings:
+
 ```toml
 [project]
 name = "project-name"
@@ -729,7 +809,9 @@ dependencies = [
 ```
 
 ### Version Pinning
+
 In `pyproject.toml`:
+
 ```toml
 [project]
 dependencies = [
@@ -748,6 +830,7 @@ dev-dependencies = [
 ```
 
 ### Dependency Guidelines
+
 - Pin exact versions for critical dependencies
 - Use version ranges for stable libraries
 - Separate dev dependencies from runtime dependencies
@@ -757,6 +840,7 @@ dev-dependencies = [
 ## Project Structure
 
 ### Standard Layout
+
 ```
 project_name/
 ├── src/
@@ -789,12 +873,14 @@ project_name/
 ```
 
 ### Module Organization
+
 - Keep related functionality together
 - Use clear, descriptive module names
 - Avoid circular imports
 - Keep modules focused on a single responsibility
 
 ### Comprehensive .gitignore
+
 Ensure your `.gitignore` includes all necessary entries:
 
 ```gitignore
@@ -851,6 +937,7 @@ output/
 The `.scratchpad/` folder contains intermediate and temporary documents used during development that are not meant for long-term storage or committed to the repository.
 
 **Contents:**
+
 - Design discussions and architecture sketches
 - Todo lists and task planning documents
 - GitHub issue creation planning
@@ -861,6 +948,7 @@ The `.scratchpad/` folder contains intermediate and temporary documents used dur
 - Any other context-specific content created during active work
 
 **Important:**
+
 - `.scratchpad/` is in `.gitignore` and will NOT be committed
 - These files are temporary and may be deleted at any time
 - Only relevant within the context of current work sessions
@@ -868,6 +956,7 @@ The `.scratchpad/` folder contains intermediate and temporary documents used dur
 - Use for active planning, not for finalized documentation
 
 **Naming Convention:**
+
 - Design files: `design-feature-name.md` or `design-YYYY-MM-DD.md`
 - Planning files: `plan-feature-name.md` or `task-status.md`
 - Drafts: `draft-linkedin-post.md`, `draft-github-issue.md`
@@ -877,6 +966,7 @@ The `.scratchpad/` folder contains intermediate and temporary documents used dur
 ## Environment Configuration
 
 ### Environment Variables
+
 ```python
 from pydantic import BaseSettings
 from typing import Optional
@@ -900,6 +990,7 @@ settings = Settings()
 ```
 
 ### Configuration Best Practices
+
 - Use Pydantic Settings for type-safe configuration
 - Provide `.env.example` with all required variables
 - Never commit `.env` files to version control
@@ -909,6 +1000,7 @@ settings = Settings()
 ## Data Validation with Pydantic
 
 ### Model Definition
+
 ```python
 from pydantic import BaseModel, Field, validator
 from typing import Optional
@@ -939,6 +1031,7 @@ class UserRequest(BaseModel):
 ```
 
 ### Validation Guidelines
+
 - Use Pydantic for all API request/response models
 - Define clear validation rules with Field()
 - Use custom validators for complex logic
@@ -946,9 +1039,11 @@ class UserRequest(BaseModel):
 - Return validation errors with clear messages
 
 ## Platform Naming
+
 - Always refer to the service as "Amazon Bedrock" (never "AWS Bedrock")
 
 ## GitHub Commit and Pull Request Guidelines
+
 - Never include auto-generated messages like "🤖 Generated with [Claude Code]"
 - Never include "Co-Authored-By: Claude <noreply@anthropic.com>"
 - Keep commit messages clean and professional
@@ -956,10 +1051,12 @@ class UserRequest(BaseModel):
 - Pull request descriptions should be professional and focus on the technical changes
 
 ## Documentation Guidelines
+
 - Never add emojis to README.md files in repositories
 - Keep README files professional and emoji-free
 
 ### Emoji Usage Guidelines
+
 - **Code**: Absolutely no emojis in source code, comments, or docstrings
 - **Documentation**: Avoid emojis in all documentation files (.md, .rst, etc.)
 - **Log Messages**: Use plain text only for log messages - no emojis
@@ -969,9 +1066,11 @@ class UserRequest(BaseModel):
 **Rationale**: Emojis can cause encoding issues, reduce accessibility, appear unprofessional in enterprise environments, and may not render consistently across different systems and terminals.
 
 ### README Best Practices
+
 A well-structured README should include:
 
 1. **Prerequisites Section**: List external dependencies and setup requirements
+
    ```markdown
    ## Prerequisites
    - Python 3.11+
@@ -980,12 +1079,14 @@ A well-structured README should include:
    ```
 
 2. **Links to External Resources**: Provide links to datasets, documentation, and services
+
    ```markdown
    - Evaluate performance on the [dataset-name](https://link-to-dataset)
    - See [AWS documentation](https://docs.aws.amazon.com/...) for setup
    ```
 
 3. **Clear Command Examples**: Show all command-line options with examples
+
    ```markdown
    ## Usage
    # Basic usage
@@ -1000,6 +1101,7 @@ A well-structured README should include:
    ```
 
 4. **Development Workflow**: Include a section on development practices
+
    ```markdown
    ## Development Workflow
    # Run all checks before committing
@@ -1007,6 +1109,7 @@ A well-structured README should include:
    ```
 
 5. **Performance Warnings**: Alert users about time-intensive operations
+
    ```markdown
    # Evaluate full dataset (warning: this may take a long time)
    uv run python -m module_name --sample-size 0
@@ -1015,6 +1118,7 @@ A well-structured README should include:
 ## Project Notes and Planning Guidelines
 
 ### Scratchpad Usage
+
 - Always create and maintain a `.scratchpad/` folder in each project root for temporary markdown files, task status, and planning documents
 - Add `.scratchpad/` to the project's `.gitignore` file to keep notes local
 - Use this folder to store:
@@ -1026,6 +1130,7 @@ A well-structured README should include:
   - Task status and temporary working documents
 
 ### Plan Documentation Process
+
 1. **Default Behavior**: When asked to create plans, create individual markdown files in `.scratchpad/` folder
 2. **File Naming**: Use descriptive names with dates when relevant:
    - `plan-agent-refactoring-2024-07-31.md`
@@ -1034,6 +1139,7 @@ A well-structured README should include:
 3. **Organization**: Each file should have clear headings, timestamps, and be self-contained
 
 ### Scratchpad Folder Structure Example
+
 ```
 project_root/
 ├── .scratchpad/
@@ -1047,6 +1153,7 @@ project_root/
 ```
 
 ### Individual File Structure Example
+
 ```markdown
 # Agent Name Refactoring Plan
 *Created: 2024-07-31*
@@ -1114,6 +1221,7 @@ echo "$ECR_REPO_URI:latest" > "$SCRIPT_DIR/.container_uri"
 ```
 
 ### Docker Script Best Practices
+
 - Always use `set -e` to exit on error
 - Use environment variables for configuration with sensible defaults
 - Login to ECR before pushing
@@ -1122,7 +1230,9 @@ echo "$ECR_REPO_URI:latest" > "$SCRIPT_DIR/.container_uri"
 - Save container URI to a file for reference by other scripts
 
 ### ARM64 Support
+
 For ARM64 builds, add QEMU setup:
+
 ```bash
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 DOCKER_BUILDKIT=0 docker build -f "$PARENT_DIR/Dockerfile" -t "$ECR_REPO_NAME" "$PARENT_DIR"
@@ -1131,9 +1241,11 @@ DOCKER_BUILDKIT=0 docker build -f "$PARENT_DIR/Dockerfile" -t "$ECR_REPO_NAME" "
 ## GitHub Issue Management
 
 ### Label Management Best Practices
+
 When creating GitHub issues:
 
 1. **Check Available Labels First**: Always get a list of available labels for the repository before creating issues
+
    ```bash
    gh label list
    ```
@@ -1145,6 +1257,7 @@ When creating GitHub issues:
 4. **Label Application**: Apply labels that are available and relevant to the issue type and scope
 
 **Example Workflow**:
+
 ```bash
 # First check available labels
 gh label list
@@ -1157,4 +1270,5 @@ gh issue comment 123 --body "Suggest adding 'agentcore' label for AgentCore-rela
 ```
 
 ## Summary
+
 These guidelines ensure consistent, maintainable, and modern Python code. Always prioritize simplicity and clarity over cleverness.

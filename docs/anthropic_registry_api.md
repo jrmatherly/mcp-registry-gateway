@@ -58,10 +58,12 @@ All endpoints are prefixed with the API version (currently `/v0.1`, defined in `
 Lists all MCP servers that the authenticated user has access to.
 
 **Parameters:**
+
 - `cursor` (optional): Pagination cursor from previous response
 - `limit` (optional): Maximum number of items (1-1000, default: 100)
 
 **Response:**
+
 ```json
 {
   "servers": [
@@ -83,9 +85,11 @@ Lists all MCP servers that the authenticated user has access to.
 Lists all available versions for a specific server.
 
 **Parameters:**
+
 - `server_name`: URL-encoded server name (e.g., `io.mcpgateway%2Ffininfo`)
 
 **Response:**
+
 ```json
 {
   "versions": [
@@ -105,10 +109,12 @@ Lists all available versions for a specific server.
 Gets detailed information about a specific server version.
 
 **Parameters:**
+
 - `server_name`: URL-encoded server name
 - `version`: Version identifier or "latest"
 
 **Response:**
+
 ```json
 {
   "name": "io.mcpgateway/fininfo",
@@ -300,6 +306,7 @@ The API returns standard HTTP status codes:
 - `500 Internal Server Error`: Server error
 
 Error responses follow this format:
+
 ```json
 {
   "error": {
@@ -312,6 +319,7 @@ Error responses follow this format:
 ## Rate Limiting
 
 The API may implement rate limiting. Check response headers for rate limit information:
+
 - `X-RateLimit-Limit`: Maximum requests per time window
 - `X-RateLimit-Remaining`: Remaining requests in current window
 - `X-RateLimit-Reset`: When the rate limit window resets

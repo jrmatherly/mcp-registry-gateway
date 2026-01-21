@@ -47,11 +47,13 @@ Then import all servers in the list:
 ### Automatic Environment Variable Substitution
 
 The import script automatically:
+
 - Loads environment variables from `.env` file
 - Substitutes authentication header placeholders with actual values
 - Stores the final configuration with real credentials in JSON files
 
 **Example:**
+
 ```json
 // Before substitution (from Anthropic registry):
 {
@@ -83,6 +85,7 @@ Server names from the Anthropic registry are automatically transformed to work w
 ### Automatic Configuration
 
 The import script automatically configures:
+
 - **Server name** and **description** from registry
 - **Proxy URL** to the remote server
 - **Authentication type** (oauth, api-key, or none)
@@ -109,16 +112,19 @@ The import script automatically configures:
 ### Examples
 
 **Import with dry run:**
+
 ```bash
 ./cli/import_from_anthropic_registry.sh --dry-run ai.smithery/smithery-ai-github
 ```
 
 **Import from custom list:**
+
 ```bash
 ./cli/import_from_anthropic_registry.sh --import-list my-servers.txt
 ```
 
 **Import to remote gateway:**
+
 ```bash
 GATEWAY_URL="https://mcpgateway.example.com" ./cli/import_from_anthropic_registry.sh ai.smithery/smithery-ai-github
 ```
@@ -150,6 +156,7 @@ ai.smithery/Hint-Services-obsidian-github-mcp
    - Other services: Check their documentation
 
 2. **Add to .env file**:
+
 ```bash
 # Smithery API Key
 SMITHERY_API_KEY=your-api-key-here
@@ -173,6 +180,7 @@ The import script recognizes and configures:
 ### Browse Anthropic's MCP Registry
 
 Visit [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io/) to:
+
 - Browse available servers
 - View server capabilities and tools
 - Check authentication requirements
@@ -216,6 +224,7 @@ curl http://localhost/mcpgw/mcp -X POST \
 ### View Server in UI
 
 Navigate to the gateway UI to see imported servers:
+
 - http://localhost/
 
 ### Check Health Status
@@ -233,6 +242,7 @@ docker compose logs registry | grep -i "health"
 **Problem**: Server requires authentication but key is missing
 
 **Solution**:
+
 1. Check if the server requires an API key
 2. Add the key to your `.env` file with the correct name
 3. Re-run the import
@@ -242,11 +252,13 @@ docker compose logs registry | grep -i "health"
 **Problem**: Imported server shows unhealthy in health checks
 
 **Possible causes**:
+
 - Invalid or expired API key
 - Network connectivity issues
 - Server is temporarily down
 
 **Check logs**:
+
 ```bash
 docker compose logs registry --tail 100 | grep -i "server-name"
 ```
@@ -256,6 +268,7 @@ docker compose logs registry --tail 100 | grep -i "server-name"
 **Problem**: Server JSON still shows `${VAR_NAME}` instead of actual value
 
 **Solution**:
+
 1. Ensure the variable is defined in `.env`
 2. Variable names are case-sensitive
 3. Re-run the import after updating `.env`
@@ -265,6 +278,7 @@ docker compose logs registry --tail 100 | grep -i "server-name"
 **Problem**: Server already exists with same path
 
 **Solution**:
+
 ```bash
 # Delete existing server
 ./cli/service_mgmt.sh delete /server-path "server-name"
@@ -322,5 +336,6 @@ Add to cron or systemd timer for automatic updates:
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: [mcp-gateway-registry/issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
 - Anthropic Registry: [modelcontextprotocol.io](https://modelcontextprotocol.io/)

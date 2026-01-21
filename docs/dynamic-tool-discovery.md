@@ -329,6 +329,7 @@ _embedding_model_mcpgw = SentenceTransformer(EMBEDDINGS_MODEL_NAME, cache_folder
 **User Query**: "What's the current time in Tokyo?"
 
 **Agent Process**:
+
 1. Agent recognizes need for time information
 2. Calls `intelligent_tool_finder("current time in Tokyo")`
 3. Discovers `current_time_by_timezone` tool from `/currenttime` server
@@ -339,7 +340,7 @@ _embedding_model_mcpgw = SentenceTransformer(EMBEDDINGS_MODEL_NAME, cache_folder
 
 ### Performance Metrics
 
-_Coming soon._
+*Coming soon.*
 
 ## Best Practices
 

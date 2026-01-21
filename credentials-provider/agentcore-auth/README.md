@@ -25,6 +25,7 @@ This utility extracts the essential token generation functionality from the main
 
 1. Copy the `agentcore` folder to your desired location
 2. Install dependencies:
+
    ```bash
    cd agentcore
    uv install
@@ -134,6 +135,7 @@ The utility uses the following priority order for configuration:
 ## Output
 
 The utility generates:
+
 - `.access_token` file containing the access token (default)
 - Console output with token expiration information
 - Logs showing the generation process
@@ -154,21 +156,27 @@ The utility generates:
 ### Common Issues
 
 1. **Missing environment variables**
+
    ```
    ERROR: Missing required parameters: COGNITO_CLIENT_SECRET
    ```
+
    Solution: Ensure all required environment variables are set in your `.env` file.
 
 2. **Invalid User Pool ID**
+
    ```
    ERROR: Invalid User Pool ID format: invalid_pool_id
    ```
+
    Solution: Ensure the User Pool ID follows the format `region_poolId` (e.g., `us-west-2_abcdef123`).
 
 3. **Authentication failed**
+
    ```
    ERROR: Error getting token: 401 Client Error: Unauthorized
    ```
+
    Solution: Verify your client ID and client secret are correct and that the client has the necessary permissions.
 
 ### Debug Mode
@@ -182,6 +190,7 @@ python generate_access_token.py --debug
 ## Dependencies
 
 Minimal dependencies for easy deployment:
+
 - `requests` - HTTP client for OAuth requests
 - `python-dotenv` - Environment variable loading
 - `pyyaml` - YAML configuration file parsing
@@ -206,6 +215,7 @@ curl -H "Authorization: Bearer $TOKEN" https://your-gateway-url/api/endpoint
 ## Support
 
 For issues related to:
+
 - Gateway creation: See the main SRE Agent documentation
 - OAuth configuration: Consult your OAuth provider documentation
 - This utility: Check the troubleshooting section above

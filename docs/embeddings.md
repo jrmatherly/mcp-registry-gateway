@@ -35,6 +35,7 @@ EMBEDDINGS_MODEL_DIMENSIONS=384
 ```
 
 **Characteristics:**
+
 - Runs locally on your infrastructure
 - No API costs
 - No external network calls required
@@ -55,6 +56,7 @@ EMBEDDINGS_API_KEY=sk-your-openai-api-key
 ```
 
 **Characteristics:**
+
 - Cloud-based service
 - Requires API key
 - API costs per 1K tokens
@@ -76,6 +78,7 @@ EMBEDDINGS_AWS_REGION=us-east-1
 ```
 
 **Characteristics:**
+
 - Cloud-based service
 - Uses IAM authentication (no API key required)
 - Integrates with AWS security model
@@ -147,20 +150,24 @@ Any model from [Hugging Face sentence-transformers](https://huggingface.co/model
 LiteLLM supports 100+ embedding models from various providers:
 
 #### OpenAI
+
 - `openai/text-embedding-3-small` (1536 dimensions)
 - `openai/text-embedding-3-large` (3072 dimensions)
 - `openai/text-embedding-ada-002` (1536 dimensions)
 
 #### Cohere
+
 - `cohere/embed-english-v3.0` (1024 dimensions)
 - `cohere/embed-multilingual-v3.0` (1024 dimensions)
 
 #### Amazon Bedrock
+
 - `bedrock/amazon.titan-embed-text-v1` (1536 dimensions)
 - `bedrock/cohere.embed-english-v3` (1024 dimensions)
 - `bedrock/cohere.embed-multilingual-v3` (1024 dimensions)
 
 #### Other Providers
+
 - Azure OpenAI
 - Anthropic (Claude)
 - Google Vertex AI
@@ -233,6 +240,7 @@ For Amazon Bedrock embeddings, ensure your ECS task role has the following permi
 ### Authentication Methods
 
 **IAM Roles (Recommended for ECS/EC2/EKS)**
+
 ```bash
 # No additional configuration needed
 # ECS task, EC2 instance, or EKS pod automatically uses attached IAM role
@@ -270,6 +278,7 @@ class FaissService:
 ## Performance Considerations
 
 ### Local Models (Sentence Transformers)
+
 - Runs on your infrastructure (CPU/GPU)
 - No external API calls
 - No per-request costs
@@ -277,6 +286,7 @@ class FaissService:
 - Network-independent operation
 
 ### Cloud APIs (LiteLLM)
+
 - Runs on provider infrastructure
 - Requires network connectivity
 - API costs apply (varies by provider)
@@ -292,6 +302,7 @@ RuntimeError: LiteLLM is not installed. Install it with: uv add litellm
 ```
 
 **Solution:**
+
 ```bash
 uv add litellm
 ```
@@ -307,6 +318,7 @@ WARNING: Embedding dimension mismatch: expected 384, got 1536
 ### API Authentication Errors
 
 **OpenAI:**
+
 ```bash
 # Verify API key is set correctly
 echo $EMBEDDINGS_API_KEY
@@ -314,6 +326,7 @@ echo $EMBEDDINGS_API_KEY
 ```
 
 **Bedrock:**
+
 ```bash
 # Verify AWS credentials
 aws sts get-caller-identity
@@ -350,12 +363,14 @@ client = create_embeddings_client(
 ### Client Methods
 
 **Generate Embeddings:**
+
 ```python
 embeddings = client.encode(["text1", "text2"])
 # Returns: numpy array of shape (n_texts, embedding_dim)
 ```
 
 **Get Dimension:**
+
 ```python
 dim = client.get_embedding_dimension()
 # Returns: int (e.g., 384, 1536)

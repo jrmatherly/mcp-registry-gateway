@@ -11,6 +11,7 @@ The MCP Gateway Registry supports authentication through both traditional userna
 ## Design Decision: Single-Tenant Architecture
 
 This implementation is designed for **single-tenant deployments** where:
+
 - All subdomains are owned and controlled by a single organization
 - Cross-subdomain cookie sharing is a desired feature, not a security risk
 - Users authenticate once and access multiple services on different subdomains
@@ -48,6 +49,7 @@ Two key environment variables control cookie security behavior:
 - **Behavior**: Cookie `secure` flag is set based on **original request protocol**, not backend protocol
 
 **Code Logic** ([`auth_server/server.py:1797-1803`](../auth_server/server.py)):
+
 ```python
 x_forwarded_proto = request.headers.get("x-forwarded-proto", "")
 is_https = x_forwarded_proto == "https" or request.url.scheme == "https"
@@ -58,6 +60,7 @@ cookie_secure = cookie_secure_config and is_https
 ```
 
 **Important**:
+
 - If `SESSION_COOKIE_SECURE=true` but `is_https=False`, the secure flag will NOT be set
 - This prevents login failures when HTTPS termination is misconfigured
 - Check server logs for `is_https=True` in production to verify HTTPS detection is working
@@ -84,6 +87,7 @@ This design is **SAFE** for:
    - Example: `auth.company.com` and `registry.company.com`
    - All subdomains owned by the same organization
    - Configuration:
+
      ```bash
      SESSION_COOKIE_SECURE=true
      SESSION_COOKIE_DOMAIN=.company.com
@@ -92,10 +96,12 @@ This design is **SAFE** for:
 2. **Local Development (localhost)**
    - Local development on `localhost` via HTTP
    - Configuration:
+
      ```bash
      SESSION_COOKIE_SECURE=false  # MUST be false for HTTP
      SESSION_COOKIE_DOMAIN=       # Leave unset/empty
      ```
+
    - **Important:** Setting `SESSION_COOKIE_SECURE=true` on localhost will cause login to fail because cookies with `secure=true` are only sent over HTTPS, and localhost typically runs over HTTP.
 
 ### ⚠️ Unsafe Deployment Scenarios
@@ -139,21 +145,25 @@ If you need multi-tenant deployment, consider these alternatives:
 ## Attack Scenarios Mitigated
 
 ### 1. Session Hijacking (MITM)
+
 - **Threat:** Attacker intercepts session cookies over unencrypted HTTP
 - **Mitigation:** `secure=True` flag in production
 - **Status:** ✅ Mitigated when `SESSION_COOKIE_SECURE=true`
 
 ### 2. Cross-Site Scripting (XSS)
+
 - **Threat:** Malicious JavaScript reads session cookies
 - **Mitigation:** `httponly=True` flag
 - **Status:** ✅ Always mitigated
 
 ### 3. Cross-Site Request Forgery (CSRF)
+
 - **Threat:** Malicious site triggers authenticated requests
 - **Mitigation:** `samesite="lax"` flag
 - **Status:** ✅ Always mitigated
 
 ### 4. Subdomain Cookie Theft (Single-Tenant)
+
 - **Threat:** Attacker controls a subdomain and steals cookies
 - **Mitigation:** Only valid in trusted single-tenant environments
 - **Status:** ⚠️ Acceptable risk for single-tenant deployments
@@ -179,6 +189,7 @@ Before deploying to production:
 ### Example Production Configurations
 
 **Single-Domain Deployment (RECOMMENDED - Most Secure):**
+
 ```bash
 # .env for production - single domain (e.g., mcpgateway.example.com)
 SESSION_COOKIE_SECURE=true  # REQUIRED for HTTPS
@@ -190,6 +201,7 @@ AUTH_SERVER_EXTERNAL_URL=https://mcpgateway.example.com  # External URL
 ```
 
 **Cross-Subdomain Deployment:**
+
 ```bash
 # .env for production - cross-subdomain (e.g., auth.example.com + registry.example.com)
 SESSION_COOKIE_SECURE=true  # REQUIRED for HTTPS
@@ -230,6 +242,7 @@ logger.info(f"Auth server setting session cookie: secure={cookie_secure} (config
 ```
 
 Key logging details:
+
 - **secure**: Final secure flag value (after protocol detection)
 - **config**: Configured SESSION_COOKIE_SECURE value
 - **is_https**: Whether the original request was HTTPS (based on X-Forwarded-Proto or request scheme)
@@ -246,6 +259,7 @@ logger.info(f"User '{username}' logged in successfully.")
 ### Security Auditing
 
 Periodically review:
+
 1. Cookie flags are properly set in browser developer tools
 2. Cookies are NOT transmitted over HTTP in production
 3. `secure` flag is enabled in production environments
@@ -272,6 +286,7 @@ In your browser's developer tools (Application/Storage → Cookies), verify:
 ## Contact
 
 For questions or security concerns regarding this implementation, please:
+
 - Open an issue in the GitHub repository
 - Tag the issue with `security` label
 - Provide details about your deployment scenario

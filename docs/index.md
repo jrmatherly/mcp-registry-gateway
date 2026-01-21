@@ -30,24 +30,28 @@ A comprehensive solution for managing, securing, and accessing Model Context Pro
 ## Key Features
 
 ### Enterprise-Ready Architecture
+
 - **Reverse Proxy**: Centralized access point for all MCP servers
 - **Service Discovery**: Automatic registration and health monitoring
 - **Load Balancing**: Intelligent request distribution across server instances
 - **High Availability**: Production-ready deployment patterns
 
 ### Advanced Security & Authentication
+
 - **OAuth 2.0 Integration**: Amazon Cognito, Google, GitHub, and custom providers
 - **Fine-Grained Access Control**: Role-based permissions with scope management
 - **JWT Token Vending**: Secure token generation and validation
 - **Audit Logging**: Comprehensive security event tracking
 
 ### AI Agent Optimization
+
 - **Dynamic Tool Discovery**: Runtime MCP server and tool enumeration
 - **Intelligent Tool Finder**: AI-powered tool recommendation and selection
 - **Autonomous Access Control**: Context-aware permission management
 - **Multi-Agent Coordination**: Shared resource access with conflict resolution
 
 ### Developer Experience
+
 - **React Web Interface**: Intuitive server management and monitoring
 - **REST API**: Programmatic registry management and integration
 - **AI Coding Assistant Integration**: VS Code, Cursor, Claude Code support
@@ -218,6 +222,7 @@ The MCP Gateway & Registry acts as a centralized hub that:
 ## Use Cases
 
 ### Enterprise Integration
+
 Transform how both autonomous AI agents and development teams access enterprise systems:
 
 - **Unified Access Point**: Single endpoint for all MCP servers across your organization
@@ -226,6 +231,7 @@ Transform how both autonomous AI agents and development teams access enterprise 
 - **Scalable Architecture**: Support for hundreds of MCP servers and thousands of concurrent users
 
 ### AI Agent Workflows
+
 Enable sophisticated AI agent interactions with enterprise systems:
 
 - **Dynamic Tool Discovery**: Agents discover and utilize tools based on current context
@@ -234,6 +240,7 @@ Enable sophisticated AI agent interactions with enterprise systems:
 - **Context-Aware Permissions**: Dynamic access control based on agent capabilities and current task
 
 ### Development Team Productivity
+
 Accelerate development workflows with integrated tooling:
 
 - **IDE Integration**: Native support for VS Code, Cursor, and Claude Code
@@ -258,14 +265,17 @@ Accelerate development workflows with integrated tooling:
 ## Community & Support
 
 **Getting Help**
+
 - [FAQ & Troubleshooting](FAQ.md) - Common questions and solutions
 - [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues) - Bug reports and feature requests
 - [GitHub Discussions](https://github.com/agentic-community/mcp-gateway-registry/discussions) - Community support and ideas
 
 **Resources**
+
 - [Demo Videos](https://github.com/agentic-community/mcp-gateway-registry#demo-videos) - See the platform in action
 
 **Contributing**
+
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute code and documentation
 - [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines and expectations
 

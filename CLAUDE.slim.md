@@ -1,9 +1,11 @@
 # Claude Coding Rules
 
 ## Overview
+
 This document contains coding standards for the MCP Gateway & Registry project. Detailed guidance is available in `.claude/instructions/` - load on-demand based on your task.
 
 ## Core Principles
+
 - Write code with minimal complexity for maximum maintainability and clarity
 - Choose simple, readable solutions over clever or complex implementations
 - Prioritize code that any team member can confidently understand, modify, and debug
@@ -23,6 +25,7 @@ Detailed guidance is organized in `.claude/instructions/` for on-demand loading:
 | Token optimization | `.claude/instructions/context-optimization-guide.md` |
 
 **Auto-Activated Rules** (load when opening matching files):
+
 - `python-tests.md` - `**/*_test.py`
 - `api-endpoints.md` - `**/api/**/*.py`
 - `pydantic-models.md` - `**/schemas/**/*.py`
@@ -32,10 +35,12 @@ Detailed guidance is organized in `.claude/instructions/` for on-demand loading:
 ## Technology Stack
 
 ### Package Management
+
 - Always use `uv` and `pyproject.toml` for package management
 - Never use `pip` directly
 
 ### Modern Python Libraries
+
 - **Web APIs**: FastAPI (not Flask)
 - **Data Processing**: Polars (not Pandas)
 - **Code Quality**: Ruff for linting and formatting
@@ -43,6 +48,7 @@ Detailed guidance is organized in `.claude/instructions/` for on-demand loading:
 - **Testing**: pytest with pytest-asyncio, pytest-xdist
 
 ### Project Dependencies
+
 - **Database**: MongoDB CE (local) / Amazon DocumentDB (prod)
 - **Auth**: Keycloak, Amazon Cognito, Microsoft Entra ID
 - **Search**: FAISS, sentence-transformers, LiteLLM
@@ -51,6 +57,7 @@ Detailed guidance is organized in `.claude/instructions/` for on-demand loading:
 ## Code Style Essentials
 
 ### Function Structure
+
 - Private functions prefixed with `_`, placed at top of file
 - Functions: 30-50 lines max, modular
 - One parameter per line with type annotations
@@ -66,10 +73,12 @@ def process_data(
 ```
 
 ### Constants
+
 - No hardcoded values in functions
 - Declare at module level or in `constants.py`
 
 ### Logging
+
 ```python
 import logging
 
@@ -82,11 +91,13 @@ logging.basicConfig(
 ## Quick Reference
 
 ### Pre-Commit Workflow
+
 ```bash
 uv run ruff check --fix . && uv run ruff format . && uv run pytest tests/ -n 8
 ```
 
 ### Full Validation
+
 ```bash
 uv run ruff check --fix . && \
 uv run ruff format . && \
@@ -96,6 +107,7 @@ uv run pytest tests/ -n 8
 ```
 
 ### Run Tests
+
 ```bash
 # All tests (parallel)
 uv run pytest tests/ -n 8
@@ -108,6 +120,7 @@ uv run pytest tests/unit/test_server_service.py -v
 ```
 
 ### Docker Services
+
 ```bash
 # Start all
 docker compose up -d
@@ -120,6 +133,7 @@ docker compose logs -f registry
 ```
 
 ## Project Structure
+
 ```
 mcp-registry-gateway/
 ├── registry/             # Main application
@@ -166,15 +180,18 @@ Progressive disclosure skills in `.claude/skills/`:
 | `code-review` | Structured code review |
 
 ## Pull Request Guidelines
+
 - Never include auto-generated messages or Claude attribution
 - All tests must pass before merge
 - Follow conventional commit format
 - Keep commit messages clean and professional
 
 ## Platform Naming
+
 - Always refer to "Amazon Bedrock" (never "AWS Bedrock")
 
 ## Key Don'ts
+
 - Never hardcode secrets or credentials
 - Never use `pip` directly (use `uv`)
 - Never bind servers to `0.0.0.0` unless required

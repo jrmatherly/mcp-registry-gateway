@@ -3,6 +3,7 @@
 This guide documents how to interact with MCP servers and manage A2A agents using the command-line interface.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [A2A Agent Management](#a2a-agent-management)
 - [MCP Client Authentication](#mcp-client-authentication)
@@ -14,6 +15,7 @@ This guide documents how to interact with MCP servers and manage A2A agents usin
 ## Overview
 
 Two CLI tools are available:
+
 1. **`agent_mgmt.py`** - A2A agent management (register, modify, delete, list)
 2. **`mcp_client.py`** - MCP server interaction (list tools, call tools, etc.)
 
@@ -22,6 +24,7 @@ Two CLI tools are available:
 For complete A2A agent management documentation, see: [A2A Agent Management Guide](a2a-agent-management.md)
 
 Quick start with the `mcp-gateway-m2m` service account:
+
 ```bash
 # Register an agent
 uv run python cli/agent_mgmt.py register cli/examples/code_reviewer_agent.json
@@ -38,7 +41,9 @@ uv run python cli/agent_mgmt.py test /code-reviewer
 The client supports two authentication methods:
 
 ### 1. M2M (Machine-to-Machine) Authentication with `mcp-gateway-m2m`
+
 The primary M2M account `mcp-gateway-m2m` is auto-configured. Set environment variables:
+
 ```bash
 export CLIENT_ID=mcp-gateway-m2m
 export CLIENT_SECRET=<generated-during-init>
@@ -47,16 +52,19 @@ export KEYCLOAK_REALM=mcp-gateway
 ```
 
 Or use the auto-generated token from `mcp-gateway-m2m`:
+
 ```bash
 source <(python3 -c "import json; d=json.load(open('.oauth-tokens/ingress.json')); print('TOKEN=' + d['access_token'])")
 ```
 
 ### 2. Ingress Token Authentication
+
 The client will automatically load ingress tokens from `.oauth-tokens/ingress.json` if M2M credentials are not available. This token comes from the `mcp-gateway-m2m` service account.
 
 ## Basic Commands
 
 ### Test Connectivity (Ping)
+
 ```bash
 # Ping the default gateway
 uv run cli/mcp_client.py ping
@@ -66,6 +74,7 @@ uv run cli/mcp_client.py --url http://localhost/currenttime/mcp ping
 ```
 
 ### List Available Tools
+
 ```bash
 # List tools from the default gateway
 uv run cli/mcp_client.py list
@@ -77,6 +86,7 @@ uv run cli/mcp_client.py --url http://localhost/currenttime/mcp list
 ## Server Management Commands
 
 ### List All Registered Services
+
 ```bash
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
   --tool list_services \
@@ -84,10 +94,12 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 Returns a dictionary containing:
+
 - `services`: List of service information with details like name, path, status
 - `total_count`: Total number of registered services
 
 ### Register a New Service
+
 ```bash
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
   --tool register_service \
@@ -105,6 +117,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 **Register from a JSON file:**
+
 ```bash
 # Register a service using configuration from a JSON file
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
@@ -113,11 +126,13 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 **Required parameters:**
+
 - `server_name`: Display name for the server
 - `path`: Unique URL path prefix (must start with '/')
 - `proxy_pass_url`: Internal URL where the MCP server is running
 
 **Optional parameters:**
+
 - `description`: Description of the server (default: "")
 - `tags`: List of tags for categorization (default: null)
 - `num_tools`: Number of tools provided (default: 0)
@@ -126,6 +141,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 - `license`: License information (default: "N/A")
 
 ### Remove a Service
+
 ```bash
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
   --tool remove_service \
@@ -133,6 +149,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 **Example:**
+
 ```bash
 # Remove minimal-server
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
@@ -141,6 +158,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 ### Toggle Service State (Enable/Disable)
+
 ```bash
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
   --tool toggle_service \
@@ -148,7 +166,9 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 ### Health Check
+
 Get health status for all registered servers:
+
 ```bash
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
   --tool healthcheck \
@@ -158,6 +178,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ## Tool Discovery
 
 ### Find Tools Using Natural Language
+
 Use the intelligent tool finder to discover tools based on natural language queries:
 
 ```bash
@@ -183,6 +204,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 **Parameters:**
+
 - `natural_language_query`: Natural language description (optional if tags provided)
 - `tags`: List of tags to filter by (optional)
 - `top_k_services`: Number of top services to consider (default: 3)
@@ -193,6 +215,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ### Call Tools on Specific Servers
 
 #### Current Time Service
+
 ```bash
 # Get current time in a specific timezone
 uv run cli/mcp_client.py --url http://localhost/currenttime/mcp call \
@@ -208,11 +231,13 @@ uv run cli/mcp_client.py --url http://localhost/currenttime/mcp call \
 ## Command Structure
 
 ### General Format
+
 ```bash
 uv run cli/mcp_client.py [--url URL] COMMAND [--tool TOOL_NAME] [--args JSON_ARGS]
 ```
 
 ### Parameters
+
 - `--url`: Gateway or server URL (default: `http://localhost/mcpgw/mcp`)
 - `command`: One of `ping`, `list`, or `call`
 - `--tool`: Tool name (required for `call` command)
@@ -221,6 +246,7 @@ uv run cli/mcp_client.py [--url URL] COMMAND [--tool TOOL_NAME] [--args JSON_ARG
 ## Examples Summary
 
 ### Quick Server Management
+
 ```bash
 # List all services
 uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call --tool list_services --args '{}'
@@ -245,6 +271,7 @@ uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call --tool healthchec
 ```
 
 ### Tool Discovery and Invocation
+
 ```bash
 # Find relevant tools
 uv run cli/mcp_client.py call --tool intelligent_tool_finder \

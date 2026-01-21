@@ -37,11 +37,13 @@ uv run python api/registry_management.py \
 ```
 
 **What this does:**
+
 - Creates scope configuration in DocumentDB
 - If `"create_in_idp": true` is in the JSON, it also creates the IdP group (Keycloak/Entra)
 - Defines server access rules, UI permissions, and group mappings
 
 **Example JSON structure** (cli/examples/currenttime-users.json):
+
 ```json
 {
   "scope_name": "currenttime-users",
@@ -105,6 +107,7 @@ uv run python api/registry_management.py \
 ```
 
 **Important:**
+
 - Password is only set during creation
 - If user already exists, this fails with "User already exists"
 - Users can be assigned to multiple groups by comma-separating them: `--groups group1,group2`
@@ -125,6 +128,7 @@ uv run python api/registry_management.py \
 ```
 
 **Important:**
+
 - Save the client_id and client_secret immediately - the secret is only shown once
 - Service accounts use OAuth2 client credentials flow
 
@@ -178,6 +182,7 @@ uv run python api/registry_management.py \
 If you get "User already exists" error:
 
 1. Check if user exists:
+
    ```bash
    uv run python api/registry_management.py \
      --registry-url $REGISTRY_URL \
@@ -187,6 +192,7 @@ If you get "User already exists" error:
    ```
 
 2. Either use the existing user or delete and recreate:
+
    ```bash
    # Delete existing user
    uv run python api/registry_management.py \
@@ -217,6 +223,7 @@ uv run python api/registry_management.py \
 Currently, password reset must be done through Keycloak admin UI or by deleting and recreating the user with a new password.
 
 **Note:** For the existing user `ctuser`, if the password is unknown, you'll need to either:
+
 - Delete and recreate the user with a known password
 - Use Keycloak admin UI to reset the password
 - Contact an administrator
@@ -224,6 +231,7 @@ Currently, password reset must be done through Keycloak admin UI or by deleting 
 ## Current Status for ctuser
 
 The user `ctuser` currently exists with:
+
 - **Username:** ctuser
 - **Email:** ctuser@example.com
 - **Name:** CT User

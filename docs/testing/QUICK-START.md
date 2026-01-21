@@ -13,6 +13,7 @@ python scripts/test.py full
 ## Problem Solved
 
 Previously, running tests would crash EC2 instances due to:
+
 - Heavy ML model loading (sentence-transformers, FAISS)
 - Parallel execution spawning multiple model copies
 - Memory multiplication across workers
@@ -53,6 +54,7 @@ python scripts/test.py unit -n 4
 ### 1. Mocked Dependencies (Automatic)
 
 All tests now automatically use mocked versions of:
+
 - FAISS vector database
 - Sentence-transformers embedding models
 - PyTorch model loading
@@ -152,23 +154,28 @@ open htmlcov/index.html
 If tests still crash:
 
 1. **Check you're on the latest version:**
+
    ```bash
    git pull
    uv sync --extra dev
    ```
 
 2. **Verify mocking is enabled:**
+
    ```bash
    pytest tests/unit/core/test_config.py -v
    ```
+
    Should pass quickly (< 1 second) without loading models
 
 3. **Run completely serially:**
+
    ```bash
    pytest -x  # Stop on first failure
    ```
 
 4. **Check memory before running:**
+
    ```bash
    free -h  # Should have several GB free
    ```

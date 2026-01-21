@@ -25,11 +25,13 @@ cd terraform/aws-ecs
 ```
 
 The script automatically:
+
 - Finds the first running task for the specified service
 - Establishes an interactive session using AWS Systems Manager
 - No SSH keys or bastion hosts required
 
 **Requirements:**
+
 - Session Manager plugin installed: `aws ssm install-plugin`
 - IAM permissions for `ecs:ExecuteCommand` and `ssm:StartSession`
 - ECS tasks must have `enableExecuteCommand` enabled (already configured)
@@ -146,6 +148,7 @@ The repository uses a unified container build system with `build-config.yaml` as
 ### Building Container Images
 
 **Prerequisites:**
+
 ```bash
 # Verify Docker is running
 docker ps
@@ -221,6 +224,7 @@ make push-agents
 ```
 
 **Example Output:**
+
 ```
 [INFO] AWS Account: 123456789012
 [INFO] ECR Registry: 123456789012.dkr.ecr.us-east-1.amazonaws.com
@@ -299,6 +303,7 @@ aws ecs update-service \
 ```
 
 **What `--force-new-deployment` does:**
+
 1. Stops existing tasks gracefully (30 second drain period)
 2. Pulls latest image from ECR (even if tag is same)
 3. Starts new tasks with new container
@@ -426,6 +431,7 @@ curl https://registry.us-east-1.your.domain/api/your-fixed-endpoint
 ### Deployment Troubleshooting
 
 **Deployment stuck / tasks not starting:**
+
 ```bash
 # Check service events for errors
 aws ecs describe-services \

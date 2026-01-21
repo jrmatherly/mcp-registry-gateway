@@ -86,6 +86,7 @@ Follow the [Complete Setup Guide - Initial Environment Configuration](complete-s
 ### 1.2 Verify Registry is Running
 
 Open your browser and navigate to:
+
 ```
 http://localhost:7860
 ```
@@ -110,6 +111,7 @@ cd amazon-bedrock-agentcore-samples/02-use-cases/customer-support-assistant
 Follow the instructions in the [Customer Support Assistant README](https://github.com/awslabs/amazon-bedrock-agentcore-samples/tree/main/02-use-cases/customer-support-assistant) to deploy the AgentCore gateway in your AWS account. You can do this in a separate terminal on the same EC2 machine.
 
 This will create:
+
 - Amazon Bedrock AgentCore Gateway
 - Cognito User Pool for authentication
 - Lambda functions for warranty status and customer profile lookup
@@ -131,6 +133,7 @@ EOF
 ```
 
 **To find your Client Secret:**
+
 1. Go to AWS Cognito Console
 2. Find the User Pool with prefix `customersupport-`
 3. Navigate to App Integration → App clients
@@ -253,6 +256,7 @@ Create a file named `gateway-config.json` in your AgentCore project directory wi
 | `tool_list` | Array of tool definitions | Defines the available tools/functions with their schemas, descriptions, and parameters. Each tool includes a name, parsed description, and JSON schema for arguments. This metadata enables the registry to catalog and expose tools for dynamic discovery by AI agents. |
 
 **Important Notes:**
+
 - The `auth_provider: "bedrock-agentcore"` field enables passthrough authentication, which means:
   - The registry does not validate the Cognito access token
   - The token is passed directly to the AgentCore Gateway
@@ -397,6 +401,7 @@ uv run cli/mcp_client.py \
 The integration uses **two separate authentication layers**:
 
 #### Ingress Authentication (Gateway Access Control)
+
 - **Purpose**: Verifies the AI agent has permission to access the MCP Gateway Registry itself
 - **Identity Provider**: Keycloak (MCP Gateway's IdP)
 - **Token**: Keycloak JWT access token (5-minute TTL by default)
@@ -404,6 +409,7 @@ The integration uses **two separate authentication layers**:
 - **Scope**: Controls which services and tools the agent can access through the gateway
 
 #### Egress Authentication (AgentCore Access Control)
+
 - **Purpose**: Verifies the request has permission to call the AgentCore Gateway
 - **Identity Provider**: Amazon Cognito (AgentCore's IdP)
 - **Token**: Cognito JWT access token (1-hour TTL by default)
@@ -485,22 +491,24 @@ sequenceDiagram
 ### Key Points
 
 **Ingress Authentication (Keycloak)**
+
 - Validates AI agent's access to the MCP Gateway Registry
 - Checked by the MCP Gateway's Auth Server
 - Required for all gateway requests
 - Token refresh: `./credentials-provider/generate_creds.sh`
 
 **Egress Authentication (Cognito)**
+
 - Validates access to the AgentCore Gateway
 - **Passthrough mode**: Gateway does NOT validate this token
 - Validated by the AgentCore Gateway itself
 - Token refresh: Re-run the curl command in Section 4.2
 
 **Why Two Tokens?**
+
 - **Security in depth**: Both layers must authenticate successfully
 - **Separation of concerns**: Gateway controls access to its services; AgentCore controls access to its tools
 - **Flexibility**: Each layer can use its own IdP and policies
-
 
 ## Next Steps
 
@@ -517,6 +525,7 @@ cd ${HOME}/workspace/mcp-gateway-registry
 ```
 
 **Learn More:** Follow the [Service Management Guide - Complete Example: LOB1 Services Group](service-management.md#complete-example-lob1-line-of-business-1-services-group) for detailed instructions on:
+
 - Creating groups and scopes
 - Assigning users to groups
 - Configuring service-level access control
@@ -534,6 +543,7 @@ cd ${HOME}/workspace/mcp-gateway-registry
 ### 404 Not Found Error
 
 If you get a 404 error, verify:
+
 1. Service is registered: `uv run cli/mcp_client.py --url http://localhost/mcpgw/mcp call --tool list_services --args '{}'`
 2. Path matches: Use `/customer-support-assistant/` (with trailing slash)
 3. Health status is healthy in the UI
@@ -541,6 +551,7 @@ If you get a 404 error, verify:
 ### 401 Authentication Error
 
 If you get a 401 error:
+
 1. Refresh your Cognito access token
 2. Verify token file path is correct
 3. Check token hasn't expired

@@ -70,6 +70,7 @@ def test_server_registration(server_service, sample_server):
 ### When You Need Real Models (Use Sparingly)
 
 Only use real models when:
+
 1. Testing the actual ML model functionality
 2. Testing embeddings quality or accuracy
 3. Integration testing with real vector search

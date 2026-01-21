@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Last Updated:** 2026-01-18
 
-## Related Documentation
+## Quick Links
 
 - [Multi-Provider IdP Support](./idp-provider-support.md) - Architecture for supporting multiple identity providers
 - [Authentication & Authorization Guide](../auth.md) - Operational guide with setup instructions
@@ -128,11 +128,13 @@ From `cli/examples/public-mcp-users.json`:
 ```
 
 **What this user CAN do:**
+
 - View all MCP servers in the dashboard (`list_service: ["all"]`)
 - View the flight-booking agent details (`list_agents`, `get_agent` for `/flight-booking`)
 - Access public MCP servers: context7, cloudflare-docs (via `server_access` rules)
 
 **What this user CANNOT do:**
+
 - Publish, modify, or delete agents
 - Register or modify MCP servers
 - Toggle services on/off

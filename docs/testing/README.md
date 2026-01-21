@@ -162,6 +162,7 @@ uv run pytest --ff
 Integration and E2E tests may require:
 
 1. **Authentication tokens**: Generate tokens before running:
+
    ```bash
    ./keycloak/setup/generate-agent-token.sh admin-bot
    ./keycloak/setup/generate-agent-token.sh lob1-bot
@@ -169,11 +170,13 @@ Integration and E2E tests may require:
    ```
 
 2. **Running services**: Ensure Docker containers are running:
+
    ```bash
    docker-compose up -d
    ```
 
 3. **Environment variables**:
+
    ```bash
    export BASE_URL="http://localhost"
    export TOKEN_FILE=".oauth-tokens/admin-bot-token.json"
@@ -252,13 +255,15 @@ addopts = [
 ### What Gets Covered
 
 Coverage includes:
+
 - All source code in `registry/` directory
-- Excludes: tests, migrations, __init__.py files
+- Excludes: tests, migrations, **init**.py files
 - Reports missing lines for easy identification
 
 ## CI/CD Integration
 
 Tests run automatically in CI/CD pipelines on:
+
 - Every pull request
 - Every push to main branch
 - Nightly scheduled runs
@@ -298,6 +303,7 @@ pre-commit run --all-files
 **Error**: `Token file not found: .oauth-tokens/admin-bot-token.json`
 
 **Solution**: Generate authentication tokens:
+
 ```bash
 ./keycloak/setup/generate-agent-token.sh admin-bot
 ```
@@ -307,6 +313,7 @@ pre-commit run --all-files
 **Error**: `Cannot connect to gateway at http://localhost`
 
 **Solution**: Start Docker containers:
+
 ```bash
 docker-compose up -d
 ```
@@ -316,6 +323,7 @@ docker-compose up -d
 **Error**: `ModuleNotFoundError: No module named 'registry'`
 
 **Solution**: Ensure you're using `uv run`:
+
 ```bash
 uv run pytest  # Correct
 pytest         # May fail if environment not activated
@@ -326,6 +334,7 @@ pytest         # May fail if environment not activated
 **Error**: `fixture 'some_fixture' not found`
 
 **Solution**: Check fixture is defined in:
+
 - `tests/conftest.py` (shared fixtures)
 - Test file's conftest.py
 - Imported from fixtures module
@@ -335,6 +344,7 @@ pytest         # May fail if environment not activated
 **Issue**: Tests taking too long
 
 **Solution**: Skip slow tests during development:
+
 ```bash
 uv run pytest -m "not slow"
 ```
@@ -344,6 +354,7 @@ uv run pytest -m "not slow"
 **Error**: `RuntimeError: Event loop is closed`
 
 **Solution**: Check async fixtures are properly defined:
+
 ```python
 @pytest.fixture
 async def async_client():
@@ -356,6 +367,7 @@ async def async_client():
 **Error**: `FAIL Required test coverage of 80% not reached`
 
 **Solution**: Add tests for uncovered code:
+
 ```bash
 # Check which lines are missing
 uv run pytest --cov=registry --cov-report=term-missing

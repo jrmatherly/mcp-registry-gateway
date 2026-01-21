@@ -123,6 +123,7 @@ When a token is generated, it contains:
 ```
 
 The critical fields are:
+
 - `groups`: List of Keycloak groups the account belongs to (controls what agents it can access)
 - `exp`: Expiration timestamp (checked for token validity)
 
@@ -155,6 +156,7 @@ a2a-agent-admin:
 ```
 
 The auth-server returns:
+
 ```json
 {
   "groups": ["mcp-servers-unrestricted", "a2a-agent-admin"],
@@ -307,12 +309,14 @@ An agent card is a JSON document that describes what an agent does, how to reach
 ### Field Descriptions
 
 **Core A2A Fields** (required):
+
 - `protocol_version`: A2A protocol version (currently "1.0")
 - `name`: Human-readable agent name
 - `description`: What the agent does
 - `url`: Direct URL to reach the agent (used by other agents after discovery)
 
 **Capabilities**:
+
 - `skills`: List of capabilities the agent offers. Each skill has:
   - `id`: Unique identifier within the agent
   - `name`: Human-readable name
@@ -321,11 +325,13 @@ An agent card is a JSON document that describes what an agent does, how to reach
   - `tags`: Categorization for discovery
 
 **Security**:
+
 - `security_schemes`: How to authenticate with the agent (bearer, OAuth2, etc.)
 - `security`: Which schemes are required
 - `trust_level`: Verification status (unverified, community, verified, trusted)
 
 **Registry Metadata**:
+
 - `path`: Registry path (like `/code-reviewer`)
 - `visibility`: Who can see it (public, private, group-restricted)
 - `is_enabled`: Whether it's active in the registry
@@ -335,6 +341,7 @@ An agent card is a JSON document that describes what an agent does, how to reach
 ### Why the Agent Card Matters
 
 The agent card is the contract between agents. When Agent B discovers Agent A, it gets the agent card which tells it:
+
 - How to reach Agent A (`url`)
 - What Agent A can do (`skills`)
 - How to authenticate with Agent A (`security_schemes`)
@@ -373,6 +380,7 @@ curl -X POST http://localhost/api/agents/register \
 8. **Response**: 201 Created with registered agent info
 
 **Success Response**:
+
 ```json
 {
   "message": "Agent registered successfully",
@@ -388,6 +396,7 @@ curl -X POST http://localhost/api/agents/register \
 ```
 
 **Error Responses**:
+
 - 400 Bad Request: Invalid agent card format
 - 409 Conflict: Agent path already exists
 - 403 Forbidden: User lacks `a2a-agent-admin` scope
@@ -396,6 +405,7 @@ curl -X POST http://localhost/api/agents/register \
 ### Reading: GET /api/agents/{path} and GET /api/agents
 
 **Get Single Agent**:
+
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   http://localhost/api/agents/code-reviewer
@@ -404,12 +414,14 @@ curl -H "Authorization: Bearer $TOKEN" \
 Returns the complete agent card (if user has permission).
 
 **List All Agents**:
+
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   http://localhost/api/agents
 ```
 
 **What Happens**:
+
 1. Auth checks what groups the user belongs to
 2. Loads all agents from `agent_state.json`
 3. **Filters by access control**: Only returns agents the user is authorized to see
@@ -429,6 +441,7 @@ curl -X PUT http://localhost/api/agents/code-reviewer \
 ```
 
 **What Happens**:
+
 1. **Check permissions**: User must have `modify_agent` scope for this path
 2. **Validate new card**: Same validation as registration
 3. **Update in storage**: Modify `agent_state.json`
@@ -446,6 +459,7 @@ curl -X DELETE http://localhost/api/agents/code-reviewer \
 ```
 
 **What Happens**:
+
 1. **Check permissions**: User must have `delete_agent` scope
 2. **Remove from storage**: Delete from `agent_state.json`
 3. **Remove from FAISS**: Delete from semantic search index
@@ -461,6 +475,7 @@ curl -X POST http://localhost/api/agents/code-reviewer/toggle?enabled=true \
 ```
 
 **What Happens**:
+
 1. **Check permissions**: User must have modify permissions
 2. **Toggle state**: Set `is_enabled` to true or false
 3. **Update FAISS**: Enabled status affects search results
@@ -496,6 +511,7 @@ curl -X POST http://localhost/api/agents/discover/semantic \
 5. **Return**: Agents with `relevance_score`
 
 **Response**:
+
 ```json
 {
   "entities": [
@@ -611,6 +627,7 @@ UI-Scopes:
 ```
 
 This says:
+
 - `mcp-registry-admin` can list ALL agents
 - `registry-users-lob1` can ONLY list `/code-reviewer` and `/test-automation`
 
@@ -667,6 +684,7 @@ registry-users-lob1:
 ```
 
 This defines:
+
 - Which MCP servers the group can access (currenttime, mcpgw)
 - Which agent actions are allowed (list, get, publish, modify, delete)
 - Which agent paths apply (only /code-reviewer and /test-automation)
@@ -999,6 +1017,7 @@ The token is generated every 5 minutes and stored in `.oauth-tokens/ingress.json
 Here's what happens when an agent registers itself:
 
 **1. Agent Prepares Card**
+
 ```json
 {
   "name": "Code Reviewer Agent",
@@ -1024,12 +1043,14 @@ Here's what happens when an agent registers itself:
 ```
 
 **2. Agent Gets JWT Token**
+
 ```bash
 $ ./credentials-provider/generate_creds.sh
 # Generates .oauth-tokens/ingress.json with 5-minute TTL
 ```
 
 **3. Agent POSTs to Registry**
+
 ```bash
 curl -X POST http://localhost/api/agents/register \
   -H "Authorization: Bearer $TOKEN" \
@@ -1038,11 +1059,13 @@ curl -X POST http://localhost/api/agents/register \
 ```
 
 **4. Nginx Intercepts**
+
 - Extracts JWT from Authorization header
 - Calls auth-server:/validate with the token
 - Auth-server decodes JWT and returns scopes
 
 **5. Auth-Server Returns**
+
 ```json
 {
   "username": "service-account-mcp-gateway-m2m",
@@ -1052,6 +1075,7 @@ curl -X POST http://localhost/api/agents/register \
 ```
 
 **6. Nginx Forwards to FastAPI**
+
 ```
 POST /api/agents/register HTTP/1.1
 Authorization: Bearer $TOKEN
@@ -1059,23 +1083,27 @@ X-Scopes: mcp-servers-unrestricted/read,mcp-servers-unrestricted/execute,a2a-age
 ```
 
 **7. FastAPI Endpoint Executes**
+
 - Checks `a2a-agent-admin` in scopes ✓
 - Validates agent card with Pydantic ✓
 - Checks path `/code-reviewer` doesn't exist ✓
 - Calls agent_service.register_agent()
 
 **8. Agent Service Saves**
+
 - Loads current agent_state.json
 - Adds `/code-reviewer` entry
 - Saves back to disk
 - Returns registered agent
 
 **9. FAISS Indexing**
+
 - Generates embedding text from agent card
 - Converts to vector using embedding model
 - Adds to FAISS index with metadata
 
 **10. Response to Agent**
+
 ```json
 {
   "message": "Agent registered successfully",
@@ -1091,6 +1119,7 @@ X-Scopes: mcp-servers-unrestricted/read,mcp-servers-unrestricted/execute,a2a-age
 ```
 
 **11. Agent Enables Itself (Optional)**
+
 ```bash
 curl -X POST http://localhost/api/agents/code-reviewer/toggle?enabled=true \
   -H "Authorization: Bearer $TOKEN"
@@ -1107,6 +1136,7 @@ Now the agent is discoverable by other agents and will appear in semantic search
 **Authentication Layer**: All requests require a valid JWT token from a Keycloak service account. Tokens are validated at three points: Nginx, Auth-Server, and FastAPI.
 
 **Three-Tier Access Control**:
+
 1. UI-Scopes define high-level actions
 2. Group Mappings connect Keycloak groups to scopes
 3. Individual Group Scopes define detailed permissions

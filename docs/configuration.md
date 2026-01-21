@@ -69,6 +69,7 @@ cd keycloak/setup
 ```
 
 The script will:
+
 1. Create the clients with the IDs you specify (`mcp-gateway-web` and `mcp-gateway-m2m`)
 2. Generate secure random secrets for each client
 3. Display the generated secrets at the end of the script output
@@ -119,17 +120,21 @@ cat keycloak/setup/keycloak-client-secrets.txt
 **YOU MUST SET THIS CORRECTLY OR LOGIN WILL FAIL:**
 
 **For Local Development (localhost via HTTP):**
+
 ```bash
 SESSION_COOKIE_SECURE=false  # MUST be false
 ```
+
 - Localhost runs over HTTP (not HTTPS)
 - Cookies with `secure=true` are ONLY sent over HTTPS
 - Setting this to `true` on localhost = **login will fail** ❌
 
 **For Production with HTTPS:**
+
 ```bash
 SESSION_COOKIE_SECURE=true  # MUST be true
 ```
+
 - Production deployments use HTTPS
 - Cookies must have `secure=true` to prevent session hijacking
 - Setting this to `false` in production = **security vulnerability** ❌
@@ -151,6 +156,7 @@ SESSION_COOKIE_DOMAIN=  # Empty string or unset
 | **Multi-level domains** | `registry.region-1.corp.company.internal` | `.corp.company.internal` |
 
 **Important Security Notes:**
+
 - Empty domain = cookie scoped to exact host only (safest)
 - Set domain only when you control ALL subdomains
 - Never set to public suffixes (`.com`, `.net`, `.ddns.net`)
@@ -181,6 +187,7 @@ The MCP Gateway Registry supports three storage backends for servers, agents, an
 **Backend Options:**
 
 #### File Backend (Deprecated)
+
 - **Status**: **DEPRECATED** - Will be removed in a future release
 - **Migration Path**: Switch to MongoDB CE for local development or DocumentDB for production
 - **Pros**: Simple, no external dependencies, human-readable JSON files
@@ -191,12 +198,14 @@ STORAGE_BACKEND=file  # DEPRECATED - Use mongodb-ce instead
 ```
 
 **Data stored in:**
+
 - Servers: `~/mcp-gateway/servers/*.json`
 - Agents: `~/mcp-gateway/agents/*.json`
 - Scopes: `auth_server/scopes.yml`
 - Security scans: `~/mcp-gateway/security_scans/*.json`
 
 #### MongoDB CE Backend (Recommended for Local Development)
+
 - **Status**: **RECOMMENDED** for all local development and testing
 - **Best for**: Local development, feature development, testing, CI/CD pipelines
 - **Pros**: Docker-based, no cloud dependencies, replica set support, application-level vector search, production-like environment
@@ -212,6 +221,7 @@ DOCUMENTDB_USE_TLS=false      # No TLS for local dev
 ```
 
 **MongoDB Collections Created:**
+
 - `mcp_servers_{namespace}` - Server definitions
 - `mcp_agents_{namespace}` - A2A agent cards
 - `mcp_scopes_{namespace}` - Authorization scopes
@@ -238,6 +248,7 @@ docker-compose restart registry
 ```
 
 #### DocumentDB Backend (Production, Recommended)
+
 - **Best for**: Production deployments, high concurrency, large-scale systems
 - **Pros**: Native HNSW vector search, distributed storage, AWS-managed, clustering support
 - **Cons**: Requires AWS infrastructure, uses AWS pricing
@@ -277,6 +288,7 @@ mongosh --host <cluster-endpoint> \
 ```
 
 **Important Notes:**
+
 - MongoDB CE uses application-level vector search (Python cosine similarity)
 - DocumentDB uses native HNSW vector indexes for production performance
 - Both backends use the same repository code (`DocumentDBServerRepository`, etc.)
@@ -318,30 +330,36 @@ docker-compose restart registry
 **Note: Container Registry Credentials (Completely Optional)**
 
 These credentials are **entirely optional** and only needed if you want to:
+
 - **Publish container images**: Automatically via GitHub Actions or manually via scripts
 - **Contribute pre-built containers**: For easier deployment by other users
 
 **What happens if these are not configured:**
+
 - ✅ **The MCP Gateway Registry will work perfectly** - all core functionality remains intact
 - ✅ **GitHub Actions will succeed** - builds will complete successfully, just without publishing to Docker Hub
 - ✅ **Local development is unaffected** - no scripts will fail or produce errors
 - ✅ **Only container publishing is skipped** - everything else continues normally
 
 **When you might want to configure these:**
+
 - **Contributing to the project**: Publishing official container images
 - **Custom deployments**: Creating your own container registry for internal use
 - **Development workflow**: Testing container builds locally
 
 **How to obtain credentials (only if needed):**
+
 - **Docker Hub**: Get access token from [Docker Hub Security Settings](https://hub.docker.com/settings/security)
 - **GitHub Container Registry**: Generate Personal Access Token with `packages:write` scope from [GitHub Token Settings](https://github.com/settings/tokens)
 
 **Setup instructions (only if publishing containers):**
+
 - **In GitHub Actions**: Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` as repository secrets
 - **For local builds**: Add credentials to your `.env` file and use `scripts/publish_containers.sh`
 - **GITHUB_TOKEN**: Automatically provided in GitHub Actions, manually generated for local use
 
 **Organization vs Personal Account Publishing:**
+
 - **Personal Account** (Free): Leave `DOCKERHUB_ORG` and `GITHUB_ORG` empty
   - Images published as: `username/image-name`
   - Example: `aarora79/registry:latest`
@@ -365,6 +383,7 @@ cd keycloak/setup
 ```
 
 This script will:
+
 1. Create the `mcp-gateway` realm
 2. Set up web and M2M clients with proper configurations
 3. Create necessary groups (`mcp-servers-unrestricted`, `mcp-servers-restricted`)
@@ -469,6 +488,7 @@ Support for multiple gateways using numbered suffixes (`_1`, `_2`, `_3`, etc., u
 | `AGENTCORE_SERVER_NAME_N` | MCP server name for AgentCore gateway N | `my-gateway-1` | ✅ |
 
 **Example Configuration:**
+
 ```bash
 # Configuration Set 1
 AGENTCORE_CLIENT_ID_1=your_client_id_here

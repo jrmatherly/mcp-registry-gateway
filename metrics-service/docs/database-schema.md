@@ -81,6 +81,7 @@ The metrics service uses SQLite as its primary data store with a carefully desig
 ### Core Tables
 
 #### api_keys
+
 Stores API key information and configuration.
 
 ```sql
@@ -104,6 +105,7 @@ CREATE INDEX idx_api_keys_service ON api_keys(service_name);
 ```
 
 **Sample Data**:
+
 ```sql
 INSERT INTO api_keys VALUES (
     1,
@@ -121,6 +123,7 @@ INSERT INTO api_keys VALUES (
 ```
 
 #### metrics
+
 Primary table for all metrics data.
 
 ```sql
@@ -146,6 +149,7 @@ CREATE INDEX idx_metrics_type_timestamp ON metrics(metric_type, timestamp);
 ```
 
 **Sample Data**:
+
 ```sql
 INSERT INTO metrics VALUES (
     1,
@@ -166,6 +170,7 @@ INSERT INTO metrics VALUES (
 ### Specialized Metric Tables
 
 #### auth_metrics
+
 Authentication-specific metrics with optimized schema.
 
 ```sql
@@ -190,6 +195,7 @@ CREATE INDEX idx_auth_user ON auth_metrics(user_hash, timestamp);
 ```
 
 #### discovery_metrics
+
 Tool discovery operation metrics.
 
 ```sql
@@ -214,6 +220,7 @@ CREATE INDEX idx_discovery_results ON discovery_metrics(results_count, timestamp
 ```
 
 #### tool_metrics
+
 Tool execution metrics.
 
 ```sql
@@ -242,6 +249,7 @@ CREATE INDEX idx_tool_success ON tool_metrics(success, timestamp);
 ### Aggregation Tables
 
 #### metrics_hourly
+
 Pre-computed hourly aggregates for performance.
 
 ```sql
@@ -268,6 +276,7 @@ CREATE INDEX idx_hourly_hour ON metrics_hourly(hour_timestamp);
 ```
 
 #### metrics_daily
+
 Pre-computed daily aggregates for long-term analysis.
 
 ```sql
@@ -296,6 +305,7 @@ CREATE INDEX idx_daily_date ON metrics_daily(date);
 ### System Tables
 
 #### schema_migrations
+
 Tracks applied database migrations.
 
 ```sql
@@ -307,6 +317,7 @@ CREATE TABLE schema_migrations (
 ```
 
 #### retention_policies
+
 Configures data retention for different tables.
 
 ```sql
@@ -331,6 +342,7 @@ INSERT INTO retention_policies (table_name, retention_days) VALUES
 ```
 
 #### api_key_usage_log
+
 Detailed API key usage tracking.
 
 ```sql
@@ -358,6 +370,7 @@ CREATE INDEX idx_usage_endpoint ON api_key_usage_log(endpoint, timestamp);
 ### Migration Architecture
 
 The migration system provides:
+
 - **Version Control**: Sequential migration numbering
 - **Rollback Support**: Down migrations for reverting changes
 - **Transaction Safety**: Atomic migration application
@@ -388,21 +401,25 @@ python migrate.py create "add_user_preferences"
 ### Migration Versions
 
 #### Migration 0001: Initial Schema
+
 - Creates all core tables
 - Establishes indexes
 - Sets up initial constraints
 
 #### Migration 0002: Aggregation Tables
+
 - Adds `metrics_hourly` table
 - Adds `metrics_daily` table
 - Creates aggregation indexes
 
 #### Migration 0003: Retention Policies
+
 - Creates `retention_policies` table
 - Inserts default retention settings
 - Enables automated cleanup
 
 #### Migration 0004: API Key Usage Tracking
+
 - Extends `api_keys` table with usage fields
 - Creates `api_key_usage_log` table
 - Adds usage tracking indexes

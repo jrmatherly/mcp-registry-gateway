@@ -68,6 +68,7 @@
 - **Summary:** Detected 1 threat: sql injection
 
 **Taxonomy:**
+
 ```json
 {
   "scanner_category": "INJECTION ATTACK",
@@ -94,6 +95,7 @@ Returns:
 Raises:
     Exception: If the API call fails or data cannot be retrieved
 ```
+
 </details>
 
 **Error:** Scanner exit code: 1

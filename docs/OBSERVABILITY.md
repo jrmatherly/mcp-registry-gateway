@@ -76,6 +76,7 @@ sqlite3 ./metrics.db
 ```
 
 **Output:**
+
 ```
 _health            auth_metrics       metrics
 api_keys           discovery_metrics  tool_metrics
@@ -94,6 +95,7 @@ SELECT 'metrics', COUNT(*) FROM metrics;
 ```
 
 **Sample Output:**
+
 ```
 table_name         count
 -----------------  -----
@@ -122,6 +124,7 @@ LIMIT 20;
 ```
 
 **Sample Output:**
+
 ```
 time                 server               success  method   duration_ms       user_hash  error_code
 -------------------  -------------------  -------  -------  ----------------  ---------  ----------
@@ -176,6 +179,7 @@ LIMIT 20;
 ```
 
 **Sample Output:**
+
 ```
 time                 tool_name   server_name          success  dur_ms  method      client_name
 -------------------  ----------  -------------------  -------  ------  ----------  -----------
@@ -230,6 +234,7 @@ LIMIT 20;
 ```
 
 **Sample Output:**
+
 ```
 tool_name                  server_name          duration_ms  time                 success
 -------------------------  -------------------  -----------  -------------------  -------
@@ -353,6 +358,7 @@ curl http://localhost:9465/metrics
 ```
 
 **Available Metrics:**
+
 - `mcp_auth_requests_total` - Counter of authentication requests
 - `mcp_auth_request_duration_seconds` - Histogram of auth request durations
 - `mcp_tool_executions_total` - Counter of tool executions
@@ -368,6 +374,7 @@ curl http://localhost:9465/metrics
 If configured, metrics are also exported to an OTLP endpoint (e.g., OpenTelemetry Collector).
 
 Configuration in `.env`:
+
 ```bash
 OTEL_OTLP_ENDPOINT=http://otel-collector:4318
 ```
@@ -590,6 +597,7 @@ exporters:
 ```
 
 **Required IAM Permissions:**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -606,6 +614,7 @@ exporters:
 ```
 
 **Environment Variables:**
+
 ```bash
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your-access-key
@@ -626,6 +635,7 @@ exporters:
 ```
 
 **Environment Variables:**
+
 ```bash
 DATADOG_API_KEY=your-datadog-api-key
 ```
@@ -641,11 +651,13 @@ exporters:
 ```
 
 **Setup:**
+
 1. Get OTLP endpoint from Grafana Cloud console
 2. Create service account and get API key
 3. Base64 encode: `echo -n "instance_id:api_key" | base64`
 
 **Environment Variables:**
+
 ```bash
 GRAFANA_CLOUD_OTLP_ENDPOINT=https://otlp-gateway-prod-us-central-0.grafana.net/otlp
 GRAFANA_CLOUD_AUTH=base64_encoded_credentials
@@ -662,6 +674,7 @@ exporters:
 ```
 
 **Environment Variables:**
+
 ```bash
 NEW_RELIC_API_KEY=your-new-relic-license-key
 ```
@@ -684,6 +697,7 @@ docker compose exec otel-collector wget -qO- http://localhost:13133/
 #### Common Issues
 
 **Metrics not flowing to backend:**
+
 ```bash
 # Enable debug logging in collector config
 exporters:
@@ -695,6 +709,7 @@ docker compose logs otel-collector | grep -i error
 ```
 
 **Connection refused to OTLP endpoint:**
+
 ```bash
 # Verify collector is reachable from metrics-service
 docker compose exec metrics-service ping otel-collector
@@ -704,6 +719,7 @@ docker compose exec metrics-service nc -zv otel-collector 4318
 ```
 
 **Authentication failures:**
+
 ```bash
 # Verify API keys are set
 docker compose exec otel-collector env | grep -i key
@@ -714,6 +730,7 @@ docker compose exec otel-collector env | grep -i key
 ### Best Practices
 
 1. **Use Batch Processor**: Reduces network overhead
+
    ```yaml
    processors:
      batch:
@@ -722,6 +739,7 @@ docker compose exec otel-collector env | grep -i key
    ```
 
 2. **Add Resource Attributes**: Tag metrics with environment/deployment info
+
    ```yaml
    processors:
      resource:
@@ -732,6 +750,7 @@ docker compose exec otel-collector env | grep -i key
    ```
 
 3. **Filter Metrics**: Only export what you need
+
    ```yaml
    processors:
      filter:
@@ -744,6 +763,7 @@ docker compose exec otel-collector env | grep -i key
    ```
 
 4. **Enable Health Check**: Monitor collector itself
+
    ```yaml
    extensions:
      health_check:
@@ -767,6 +787,7 @@ See `config/otel-collector-config.example.yaml` for a complete production-ready 
 Access Grafana dashboards at: `http://localhost:3000`
 
 **Default credentials:**
+
 - Username: `admin`
 - Password: `admin`
 
@@ -846,16 +867,19 @@ Configure alerts in Grafana or Prometheus for:
 ### No Metrics Being Collected
 
 1. Check metrics service is running:
+
    ```bash
    docker compose ps metrics-service
    ```
 
 2. Verify API keys are configured:
+
    ```bash
    docker compose logs metrics-service | grep "API key"
    ```
 
 3. Check middleware is enabled in auth-server logs:
+
    ```bash
    docker compose logs auth-server | grep "metrics"
    ```

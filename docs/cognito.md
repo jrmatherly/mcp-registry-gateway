@@ -61,7 +61,7 @@ This setup is for users who will authenticate through the web interface and for 
 
 2. **Copy Client Credentials**
    - Copy and paste the **Client ID** and **Client Secret**
-   - Note them separately - you'll need them later for `.env` files for the MCP Gateway and agent. 
+   - Note them separately - you'll need them later for `.env` files for the MCP Gateway and agent.
 
 3. **Configure Login Pages**
    - Click on **"Login Pages"** and then **"Edit"**
@@ -145,7 +145,6 @@ This setup is for agents that have their own identity and authenticate using cli
      - `mcp-servers-unrestricted/execute`
    - Click **"Save changes"**
 
-
 ## Agent Uses User Identity Mode
 
 This mode enables agents to act on behalf of users, using their Cognito identity and group memberships for authorization.
@@ -155,6 +154,7 @@ This mode enables agents to act on behalf of users, using their Cognito identity
 #### 1. Cognito User Pool Configuration
 
 Ensure your Cognito User Pool is configured with:
+
 - **PKCE-enabled app client** (public client without secret)
 - **Hosted UI enabled** with appropriate callback URLs
 - **User groups** mapped to MCP scopes via [`scopes.yml`](../auth_server/scopes.yml)
@@ -189,6 +189,7 @@ sequenceDiagram
 #### 3. Session Cookie Authentication
 
 The session cookie contains:
+
 - **Username**: Cognito username
 - **Groups**: User's Cognito group memberships
 - **Expiration**: 8-hour validity (configurable)
@@ -280,6 +281,7 @@ The M2M flow is implemented in [`auth_server/cognito_utils.py`](../auth_server/c
 #### 3. JWT Token Handling
 
 JWT tokens contain:
+
 - **Issuer**: Cognito User Pool issuer URL
 - **Client ID**: M2M app client identifier
 - **Scopes**: Granted scopes for MCP server access
@@ -318,6 +320,7 @@ python agent.py \
 **Problem**: `redirect_uri_mismatch` error during OAuth flow
 
 **Solution**: Ensure all 4 callback URLs are present in your Cognito configuration:
+
 - `http://localhost:9090/callback` - for creating a session cookie for auth flow where the agent uses a user's identity
 - `http://localhost/oauth2/callback/cognito` - for testing without an https endpoint and cert
 - `http://localhost:8888/oauth2/callback/cognito` - for local development and testing with frontend
@@ -328,6 +331,7 @@ python agent.py \
 **Problem**: Session cookie validation fails
 
 **Solution**: Ensure `SECRET_KEY` in `.env.user` matches the registry's `SECRET_KEY` in `.env` in the project root directory:
+
 ```bash
 # Generate a new secret key
 python -c 'import secrets; print(secrets.token_hex(32))'
@@ -340,6 +344,7 @@ python -c 'import secrets; print(secrets.token_hex(32))'
 **Problem**: Access denied errors despite valid authentication
 
 **Solution**: Verify scope mappings in [`scopes.yml`](../auth_server/scopes.yml):
+
 - Check group mappings match Cognito groups
 - Ensure server/tool permissions are correctly defined
 - Verify M2M client has required custom scopes
@@ -349,6 +354,7 @@ python -c 'import secrets; print(secrets.token_hex(32))'
 **Problem**: M2M authentication fails with token validation errors
 
 **Solution**: Check the following:
+
 - Client ID and secret are correct
 - User Pool ID format is correct (e.g., `us-east-1_ABC123DEF`)
 - AWS region matches User Pool region
@@ -409,6 +415,7 @@ python agent.py --message "test message"
 **Cause**: Callback URL not registered in Cognito app client
 
 **Solution**:
+
 1. Go to Cognito console → App integration → App clients
 2. Edit your app client
 3. Add the correct callback URL to "Allowed callback URLs"
@@ -418,6 +425,7 @@ python agent.py --message "test message"
 **Cause**: Session cookie is older than 8 hours
 
 **Solution**:
+
 ```bash
 # Re-authenticate to get fresh session cookie
 python cli_user_auth.py
@@ -428,6 +436,7 @@ python cli_user_auth.py
 **Cause**: User/agent lacks required scopes for the requested resource
 
 **Solution**:
+
 1. Check user's group membership in Cognito
 2. Verify group mappings in [`scopes.yml`](../auth_server/scopes.yml)
 3. For M2M, check client's assigned scopes in Cognito
@@ -437,6 +446,7 @@ python cli_user_auth.py
 **Cause**: Token signature validation or claims validation failed
 
 **Solution**:
+
 1. Verify client credentials are correct
 2. Check User Pool ID format and region
 3. Ensure token hasn't expired

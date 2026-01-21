@@ -5,6 +5,7 @@ Two AI agents built with AWS Bedrock AgentCore and the Strands framework for fli
 ## Agents
 
 **Travel Assistant Agent** (`travel_assistant_agent`)
+
 - Searches for available flights between cities
 - Provides flight recommendations based on price and preferences
 - Returns detailed flight information (times, prices, airlines)
@@ -12,6 +13,7 @@ Two AI agents built with AWS Bedrock AgentCore and the Strands framework for fli
 - [Full specification](https://github.com/agentic-community/mcp-gateway-registry/issues/196)
 
 **Flight Booking Agent** (`flight_booking_agent`)
+
 - Checks flight availability and seat counts
 - Creates flight reservations
 - Manages booking database
@@ -24,11 +26,13 @@ Two AI agents built with AWS Bedrock AgentCore and the Strands framework for fli
 Run agents locally with full FastAPI server including custom API endpoints.
 
 **Prerequisites:**
+
 - Docker and Docker Compose
 - AWS credentials configured (via AWS_PROFILE, EC2 IAM role, or ~/.aws/credentials)
 - `uv sync --extra dev` to install main dependencies and development ones
 
 **Deploy:**
+
 ```bash
 # 1. Get AWS credentials (for Isengard users)
 isengard credentials --account YOUR_ACCOUNT --role YOUR_ROLE --export
@@ -46,10 +50,12 @@ agents/a2a/deploy_local.sh
 
 **Architecture Support:**
 The script automatically detects your system architecture:
+
 - **Intel/AMD Macs and Linux:** Uses `docker-compose.local.yml` (x86_64)
 - **Apple Silicon Macs:** Uses `docker-compose.arm.yml` (ARM64)
 
 To override auto-detection:
+
 ```bash
 # Force ARM64 (Apple Silicon) - from repo root
 agents/a2a/deploy_local.sh --arm64
@@ -67,6 +73,7 @@ agents/a2a/deploy_local.sh --help
 ```
 
 **Endpoints:**
+
 - Travel Assistant: `http://localhost:9001`
 - Flight Booking: `http://localhost:9002`
 - Custom APIs: `/api/search-flights`, `/api/recommendations`, `/api/check-availability`
@@ -77,10 +84,12 @@ agents/a2a/deploy_local.sh --help
 Deploy agents to AWS managed infrastructure with automatic scaling.
 
 **Prerequisites:**
+
 - AWS credentials configured (via AWS_PROFILE, EC2 IAM role, or ~/.aws/credentials)
 - AgentCore CLI: `pip install bedrock-agentcore-starter-toolkit`
 
 **Deploy:**
+
 ```bash
 # Configure AWS credentials (one of these methods)
 export AWS_PROFILE=your_profile_name
@@ -94,6 +103,7 @@ export AWS_PROFILE=your_profile_name
 **Note:** The deployment script automatically builds ARM64 images for AgentCore Runtime compatibility. The `docker-compose.arm.yml` file defines the ARM64 build targets used during deployment.
 
 **Access:**
+
 - Agents accessible via A2A protocol only
 - ARNs shown in deployment output
 - CloudWatch logs for monitoring
@@ -118,10 +128,12 @@ cd agents/a2a
 **Output Files:**
 
 Agent cards are saved to the `agents/a2a/test/` directory:
+
 - `travel_assistant_agent_card.json` - Travel Assistant agent metadata
 - `flight_booking_agent_card.json` - Flight Booking agent metadata
 
 These files contain:
+
 - Agent name and description
 - Available tools and capabilities
 - API endpoints and methods
@@ -134,6 +146,7 @@ These files contain:
 Run comprehensive tests against local or live deployments to verify agent functionality:
 
 **Test Coverage:**
+
 - **Health Checks:** Verify agents are responsive via `/ping` endpoint
 - **Agent Communication (A2A Protocol):** Send natural language requests to agents and verify responses
   - Travel Assistant: Flight search queries
@@ -171,6 +184,7 @@ uv run python test/simple_agents_test.py --endpoint local --debug
 ```
 
 This displays:
+
 - Complete JSON-RPC request payloads
 - Full agent response bodies with artifacts
 - Response timing and HTTP status codes
@@ -179,15 +193,18 @@ This displays:
 ## Deployment Scripts
 
 ### deploy_local.sh
+
 Deploys and starts the agents locally in Docker containers.
 
 **Features:**
+
 - Auto-detects your system architecture (x86_64 or ARM64)
 - Validates AWS credentials using the credential chain
 - Removes and recreates containers and volumes for a clean deployment
 - Builds Docker images locally before starting
 
 **Usage (from repo root):**
+
 ```bash
 agents/a2a/deploy_local.sh                 # Auto-detect architecture
 agents/a2a/deploy_local.sh --arm64         # Force ARM64 (Apple Silicon)
@@ -196,6 +213,7 @@ agents/a2a/deploy_local.sh --help          # Show usage options
 ```
 
 **Usage (from agents/a2a directory):**
+
 ```bash
 ./deploy_local.sh                 # Auto-detect architecture
 ./deploy_local.sh --arm64         # Force ARM64 (Apple Silicon)
@@ -204,14 +222,17 @@ agents/a2a/deploy_local.sh --help          # Show usage options
 ```
 
 ### shutdown_local.sh
+
 Stops and removes all containers, networks, and volumes.
 
 **Usage (from repo root):**
+
 ```bash
 agents/a2a/shutdown_local.sh
 ```
 
 **Usage (from agents/a2a directory):**
+
 ```bash
 ./shutdown_local.sh
 ```
@@ -228,12 +249,14 @@ The Travel Assistant Agent can discover and invoke other agents at runtime using
 2. **Authentication configured** - one of the following options:
 
 **Option 1: Direct JWT Token (recommended for testing)**
+
 ```bash
 # Copy the token from .oauth-tokens/ingress.json into agents/a2a/.env
 REGISTRY_JWT_TOKEN=<your-jwt-token>
 ```
 
 **Option 2: M2M Client Credentials (recommended for production)**
+
 ```bash
 # Configure Keycloak M2M credentials in agents/a2a/.env
 M2M_CLIENT_ID=agent-test-agent-m2m
@@ -271,6 +294,7 @@ The Travel Assistant Agent provides three tools for agent discovery:
 ### Testing Discovery
 
 1. **Start the MCP Gateway Registry** (if not already running):
+
 ```bash
 docker-compose up -d
 ```
@@ -278,11 +302,13 @@ docker-compose up -d
 2. **Register the Flight Booking Agent** in the registry (via UI or CLI)
 
 3. **Deploy agents locally:**
+
 ```bash
 agents/a2a/deploy_local.sh
 ```
 
 4. **Test discovery via A2A protocol:**
+
 ```bash
 # Send a message that triggers discovery
 curl -X POST http://localhost:9001/a2a \
@@ -301,11 +327,13 @@ curl -X POST http://localhost:9001/a2a \
 ```
 
 5. **View agent logs** to see discovery in action:
+
 ```bash
 docker logs -f travel-assistant-agent
 ```
 
 You should see logs like:
+
 ```
 RegistryDiscoveryClient initialized with direct JWT token for http://registry
 Tool called: discover_remote_agents(query='book flights', max_results=5)

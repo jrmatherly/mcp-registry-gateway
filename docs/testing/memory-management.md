@@ -7,6 +7,7 @@ Running the full test suite with parallel execution can cause Out-of-Memory (OOM
 ### Root Cause
 
 The test suite includes:
+
 - **38 test files** with over 14,000 lines of test code
 - Heavy dependencies including:
   - Sentence-transformers embedding models (~120-200MB per process)
@@ -14,6 +15,7 @@ The test suite includes:
   - Full FastAPI application stack
 
 When using pytest-xdist with `-n auto`, pytest spawns one worker process per CPU core (4 workers on a 4-core EC2 instance). Each worker loads:
+
 - The embedding model
 - FAISS indexes
 - Test fixtures and data
@@ -180,6 +182,7 @@ To further reduce memory usage:
 2. Run tests serially: `python scripts/test.py full`
 3. Consider upgrading to a larger instance type
 4. Run tests in batches by domain:
+
    ```bash
    python scripts/test.py auth
    python scripts/test.py servers

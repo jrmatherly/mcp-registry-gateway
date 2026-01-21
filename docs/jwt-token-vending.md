@@ -1,6 +1,6 @@
 # JWT Token Vending Service for MCP Gateway
 
-The JWT Token Vending Service provides a user-friendly mechanism for generating personal access tokens _without the use of an external IdP_ that can be used for programmatic access to MCP servers. This service bridges the gap between human authentication (web UI sessions) and machine authentication (JWT tokens), enabling users to create tokens with scoped permissions for automation, scripting, and agent access.
+The JWT Token Vending Service provides a user-friendly mechanism for generating personal access tokens *without the use of an external IdP* that can be used for programmatic access to MCP servers. This service bridges the gap between human authentication (web UI sessions) and machine authentication (JWT tokens), enabling users to create tokens with scoped permissions for automation, scripting, and agent access.
 
 ## The Challenge with Token Management in Enterprise MCP Deployments
 
@@ -107,17 +107,20 @@ graph TB
 The JWT Token Vending Service extends the existing MCP Gateway infrastructure with new capabilities:
 
 #### Enhanced Registry Web UI
+
 - **Token Generation Interface**: User-friendly form for creating JWT tokens with custom scopes and expiration
 - **Scope Validation**: Real-time validation ensuring requested scopes are subset of user's current permissions
 - **Token Display**: Secure, one-time display of generated tokens with copy functionality and usage instructions
 
 #### Enhanced Auth Server
+
 - **Internal Token Endpoint**: New `/internal/tokens` endpoint for generating self-signed JWT tokens
 - **Scope Validation Logic**: Ensures generated tokens cannot exceed user's current permissions
 - **Rate Limiting**: Prevents token generation abuse with configurable limits per user
 - **Self-Signed JWT Support**: Validates both Cognito tokens and internally generated tokens
 
 #### Token Security Features
+
 - **HMAC-SHA256 Signing**: Uses shared secret key for token signing and validation
 - **Scope Inheritance**: Generated tokens can have same or fewer permissions than user's current scopes
 - **Configurable Expiration**: Token lifetime from 1-24 hours with 8-hour default
@@ -224,6 +227,7 @@ python agent.py --jwt-token "$(cat ~/.mcp/jwt_token)" --message "Help me analyze
 ### Token Storage Best Practices
 
 #### Secure Storage Options
+
 ```bash
 # Option 1: Encrypted environment file
 echo "JWT_TOKEN=your_token_here" | gpg --encrypt > ~/.mcp/token.gpg
@@ -237,6 +241,7 @@ chmod 600 ~/.mcp/jwt_token
 ```
 
 #### CI/CD Integration
+
 ```yaml
 # GitHub Actions example
 name: MCP Agent Workflow
@@ -258,18 +263,21 @@ jobs:
 ### Token Security Implementation
 
 #### Rate Limiting
+
 - **Per-User Limits**: Maximum 10 tokens per user per hour
 - **Sliding Window**: Uses hourly time slots for rate calculation
 - **Memory-Based**: Simple in-memory counter with automatic cleanup
 - **Configurable**: Limits adjustable via environment variables
 
 #### Scope Inheritance and Validation
+
 - **Subset Validation**: Generated tokens cannot exceed user's current permissions
 - **Real-Time Validation**: Scope checks performed at generation time
 - **Default Behavior**: Empty scope request defaults to user's full scope set
 - **JSON Validation**: Custom scope uploads validated for proper JSON format
 
 #### Token Lifecycle Management
+
 - **Configurable Expiration**: 1-24 hour range with 8-hour default
 - **No Refresh**: Tokens cannot be refreshed, must be regenerated
 - **Unique Identifiers**: Each token has a unique `jti` claim for tracking
@@ -278,6 +286,7 @@ jobs:
 ### Cryptographic Implementation
 
 #### HMAC-SHA256 Signing
+
 ```python
 # Token generation process
 payload = {
@@ -298,6 +307,7 @@ access_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 ```
 
 #### Token Validation Process
+
 ```python
 # Validation with issuer detection
 try:
@@ -319,6 +329,7 @@ except jwt.InvalidTokenError:
 ### Security Best Practices
 
 #### For Users
+
 1. **Minimal Scopes**: Generate tokens with only required permissions
 2. **Short Expiration**: Use shortest practical token lifetime
 3. **Secure Storage**: Store tokens in encrypted or protected locations
@@ -326,6 +337,7 @@ except jwt.InvalidTokenError:
 5. **Monitor Usage**: Track token usage in application logs
 
 #### For Administrators
+
 1. **Audit Logging**: Monitor token generation patterns and frequency
 2. **Scope Configuration**: Regularly review and update scope definitions
 3. **Rate Limit Tuning**: Adjust rate limits based on usage patterns
@@ -335,24 +347,29 @@ except jwt.InvalidTokenError:
 ### Threat Model and Mitigations
 
 #### Token Theft
+
 - **Risk**: Stolen tokens provide unauthorized access
 - **Mitigation**: Short expiration times, scope limitations, audit logging
 
 #### Scope Escalation
+
 - **Risk**: Users attempt to generate tokens with excessive permissions
 - **Mitigation**: Strict subset validation, real-time scope checking
 
 #### Rate Limit Bypass
+
 - **Risk**: Automated token generation for abuse
 - **Mitigation**: Per-user rate limiting, monitoring, account lockout policies
 
 #### Replay Attacks
+
 - **Risk**: Intercepted tokens used maliciously
 - **Mitigation**: HTTPS enforcement, short token lifetimes, unique token IDs
 
 ## Implementation Configuration
 
 ### Environment Variables
+
 ```bash
 # Token generation settings
 MAX_TOKEN_LIFETIME_HOURS=24          # Maximum token lifetime
@@ -366,6 +383,7 @@ SECRET_KEY="your-shared-secret"      # HMAC signing key (must be shared)
 ```
 
 ### Scope Configuration
+
 Generated tokens inherit scope validation from the existing `scopes.yml` configuration:
 
 ```yaml
@@ -393,12 +411,14 @@ mcp-registry-admin:
 The token generation interface provides:
 
 #### Token Configuration Options
+
 - **Description**: Optional human-readable token description
 - **Expiration**: Dropdown with 1, 8, and 24-hour options
 - **Scope Method**: Radio buttons for "Use current scopes" or "Custom JSON"
 - **Custom Scopes**: JSON textarea for advanced users
 
 #### User Experience Features
+
 - **Current Permissions Display**: Shows user's active scopes as badges
 - **Real-time Validation**: Client-side validation of JSON scope format
 - **Copy Functionality**: Multiple copy methods with fallbacks for different browsers
@@ -444,4 +464,4 @@ The combination of both services provides:
 3. **Client Integration** - MCP clients automatically use refreshed tokens
 4. **Continuous Operation** - No manual intervention required for token management
 
-For detailed setup and configuration of the token refresh service, see the [Token Refresh Service Documentation](token-refresh-service.md). 
+For detailed setup and configuration of the token refresh service, see the [Token Refresh Service Documentation](token-refresh-service.md).

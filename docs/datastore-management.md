@@ -579,6 +579,7 @@ rm -rf /tmp/restore-backup
 - **For production**: Use AWS automated backups for disaster recovery, manual exports for data migration
 - **S3 bucket**: Replace `mcp-gateway-backups` with your actual S3 bucket name
 - **Embeddings**: Vector embeddings are large; consider excluding from exports if not needed:
+
   ```bash
   mongodump --excludeCollection=mcp_embeddings_1536_default ...
   ```
@@ -696,11 +697,13 @@ python scripts/manage-documentdb.py inspect --collection mcp_embeddings_1536_def
 ### Connection Strings
 
 **Local MongoDB CE:**
+
 ```
 mongodb://localhost:27017/mcp_registry
 ```
 
 **Production DocumentDB:**
+
 ```
 mongodb://<username>:<password>@<cluster-endpoint>:27017/mcp_registry?tls=true&tlsCAFile=global-bundle.pem&replicaSet=rs0
 ```
@@ -722,6 +725,7 @@ mongodb://<username>:<password>@<cluster-endpoint>:27017/mcp_registry?tls=true&t
 ### Environment Variables Reference
 
 **Local (.env):**
+
 ```bash
 STORAGE_BACKEND=mongodb-ce
 DOCUMENTDB_HOST=mongodb
@@ -732,6 +736,7 @@ DOCUMENTDB_USE_TLS=false
 ```
 
 **Production (ECS Task Definition):**
+
 ```bash
 STORAGE_BACKEND=documentdb
 DOCUMENTDB_HOST=<cluster-endpoint>

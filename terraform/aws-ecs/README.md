@@ -28,6 +28,7 @@ The infrastructure is deployed within a dedicated VPC spanning two availability 
 ### Application Load Balancers
 
 **Main ALB (Internet-Facing)**
+
 - Deployed in public subnets across both availability zones
 - Routes traffic to Registry and Auth Server tasks
 - SSL termination with ACM certificates
@@ -35,6 +36,7 @@ The infrastructure is deployed within a dedicated VPC spanning two availability 
 - Target groups with dynamic port mapping
 
 **Keycloak ALB (Private Subnets)***
+
 - Internal load balancer for Keycloak services
 - Isolated from direct internet access
 - Dedicated SSL certificate for Keycloak domain
@@ -81,18 +83,21 @@ MCP Gateway supports three deployment modes. Choose based on your requirements:
 ### Recommended Deployment Path
 
 **Mode 1: CloudFront Only (Easiest - No Custom Domain Required):**
+
 - No custom domain or Route53 hosted zone required
 - Get HTTPS URLs immediately (`https://d1234abcd.cloudfront.net`)
 - Perfect for workshops, demos, evaluations, or any deployment where custom DNS isn't available
 - Simply set `enable_cloudfront = true` and `enable_route53_dns = false`
 
 **Mode 2: Custom Domain Only:**
+
 - Custom branded URLs without CloudFront
 - Direct ALB access with ACM certificates
 - Simpler architecture if CDN isn't needed
 - Set `enable_cloudfront = false` and `enable_route53_dns = true`
 
 **Mode 3: CloudFront + Custom Domain (Production Recommended):**
+
 - Custom branded URLs (`https://registry.us-east-1.yourdomain.com`)
 - CloudFront CDN for global edge caching and DDoS protection
 - Requires a Route53 hosted zone for your domain
@@ -162,6 +167,7 @@ dig NS your.domain
 ```
 
 When `use_regional_domains = true` (default), subdomains are automatically created based on region:
+
 - Keycloak: `kc.{region}.{base_domain}` (e.g., `kc.us-east-1.your.domain`)
 - Registry: `registry.{region}.{base_domain}` (e.g., `registry.us-east-1.your.domain`)
 
@@ -386,6 +392,7 @@ terraform apply
 ### Step 5: Post-Deployment Setup
 
 See [Post-Deployment](#post-deployment) section for:
+
 - Initializing Keycloak
 - Running scopes initialization
 - Restarting ECS tasks
@@ -420,6 +427,7 @@ export INITIAL_ADMIN_PASSWORD="YourSecureRealmAdminPassword"  # Password for 'ad
 ```
 
 **What the script does:**
+
 1. Saves terraform outputs to JSON file
 2. Validates all required resources were created
 3. Waits for DNS propagation (up to 10 minutes)
@@ -430,6 +438,7 @@ export INITIAL_ADMIN_PASSWORD="YourSecureRealmAdminPassword"  # Password for 'ad
 8. Verifies all endpoints are responding
 
 **Expected output:**
+
 ```
 ==========================================
 MCP Gateway Post-Deployment Setup
@@ -507,10 +516,12 @@ open "$REGISTRY_URL"
 ```
 
 You should see the login page. Login with the admin credentials for the **mcp-gateway** realm:
+
 - **Username**: `admin`
 - **Password**: The password you set via `INITIAL_ADMIN_PASSWORD` environment variable when running init-keycloak.sh
 
 **Important Password Distinction**:
+
 - **Realm Admin Password** (`INITIAL_ADMIN_PASSWORD`): Used to log into the MCP Gateway Registry
 - **Keycloak Master Admin Password** (`keycloak_admin_password` from terraform.tfvars): Used to access the Keycloak admin console
 
@@ -572,6 +583,7 @@ uv run python api/registry_management.py agent-register \
 **Verify Registration:**
 
 Refresh the browser and you should now see:
+
 - 4 MCP servers (Cloudflare Docs, Context7, MCPGW, CurrentTime)
 - 2 A2A agents (Flight Booking Agent, Travel Assistant Agent)
 
@@ -615,6 +627,7 @@ cd terraform/aws-ecs
 **Deployment Complete!** Your MCP Gateway Registry is now fully operational with example servers and agents registered.
 
 You can now:
+
 - Browse servers and agents in the Web UI
 - Use the "Get JWT Token" button in the UI to generate M2M tokens for API access
 - Test MCP server connections through the gateway
@@ -628,6 +641,7 @@ For advanced usage, see the [Operations and Maintenance](#operations-and-mainten
 The MCP Gateway Registry uses **DocumentDB** (MongoDB-compatible) for production storage backend.
 
 **DocumentDB provides:**
+
 - Multi-instance deployments (horizontal scaling)
 - High concurrent read/write operations
 - Distributed storage with automatic replication
@@ -663,6 +677,7 @@ When using Microsoft Entra ID as the authentication provider (`entra_enabled = t
 ```
 
 To find your Entra ID Group Object ID:
+
 1. Go to Azure Portal > Microsoft Entra ID > Groups
 2. Select your admin group (e.g., "mcp-gateway-admins")
 3. Copy the "Object ID" from the Overview page
@@ -691,6 +706,7 @@ uv run python scripts/load-scopes.py --scopes-file cli/examples/currenttime-user
 ```
 
 **Important Notes:**
+
 - Auth-server queries DocumentDB directly on every request for real-time scope validation
 - No cache refresh needed - scope changes are immediately effective
 - DocumentDB credentials are managed via AWS Secrets Manager
@@ -702,6 +718,7 @@ See [terraform/aws-ecs/scripts/README-DOCUMENTDB-CLI.md](terraform/aws-ecs/scrip
 ## User and Group Management
 
 After deployment, the system is bootstrapped with **minimal configuration**:
+
 - **`registry-admins`** group - Administrative group with full registry access
 - **Admin user** - Initial administrator account
 - **Admin scopes** - `registry-admins` scope mapped to the admin group
@@ -775,6 +792,7 @@ uv run python api/registry_management.py \
 ### Generating JWT Tokens
 
 **For Human Users:**
+
 1. Log in to the registry web UI
 2. Click the **"Get JWT Token"** button in the top-left sidebar
 3. Copy and use the generated token
@@ -817,6 +835,7 @@ For detailed user management documentation, see [docs/auth-mgmt.md](../../docs/a
 ## Operations and Maintenance
 
 See [OPERATIONS.md](OPERATIONS.md) for detailed operations and maintenance documentation, including:
+
 - Accessing ECS tasks via SSH
 - Viewing CloudWatch logs
 - Container build and deployment
@@ -828,6 +847,7 @@ See [OPERATIONS.md](OPERATIONS.md) for detailed operations and maintenance docum
 ### Common Issues
 
 #### DNS Not Resolving
+
 ```bash
 # Check Route53 hosted zone
 aws route53 list-hosted-zones --query "HostedZones[?Name=='YOUR.DOMAIN.']"
@@ -844,6 +864,7 @@ dig @1.1.1.1 registry.us-east-1.YOUR.DOMAIN
 ```
 
 #### ECS Tasks Not Starting
+
 ```bash
 # Check service events
 aws ecs describe-services \
@@ -868,6 +889,7 @@ aws ecs describe-tasks \
 ```
 
 #### SSL Certificate Validation Pending
+
 ```bash
 # Check certificate status
 aws acm list-certificates --region $AWS_REGION
@@ -883,6 +905,7 @@ aws acm describe-certificate \
 ```
 
 #### Database Connection Failures
+
 ```bash
 # Check RDS cluster status
 aws rds describe-db-clusters \
@@ -904,11 +927,13 @@ aws secretsmanager get-secret-value \
 ### Getting Help
 
 Check logs first:
+
 ```bash
 ./scripts/view-cloudwatch-logs.sh --filter "ERROR|FATAL|Exception"
 ```
 
 Review Terraform state:
+
 ```bash
 terraform show
 terraform state list
@@ -932,28 +957,33 @@ terraform state show aws_ecs_service.registry
 ### Cost Reduction Strategies
 
 **1. Use Aurora Serverless v2 auto-pause**
+
 ```hcl
 keycloak_database_min_acu = 0.5  # Scale down to minimum
 keycloak_database_max_acu = 1.0  # Lower max capacity
 ```
 
 **2. Reduce ECS task count for non-prod**
+
 ```hcl
 registry_replicas = 1    # Down from 2
 auth_server_replicas = 1 # Down from 2
 ```
 
 **3. Use internal ALB for Keycloak in production**
+
 ```hcl
 keycloak_alb_scheme = "internal"
 ```
 
 **4. Enable CloudWatch log retention**
+
 ```hcl
 # Already configured - logs expire after 7 days
 ```
 
 **5. Use Fargate Spot for non-critical workloads**
+
 ```hcl
 capacity_provider_strategy = {
   base = 1  # Keep 1 on-demand
@@ -964,12 +994,14 @@ capacity_provider_strategy = {
 ## Security Considerations
 
 ### Network Security
+
 - All traffic encrypted with TLS (ACM certificates)
 - Security groups restrict access to approved CIDR blocks only
 - Keycloak ALB can be internal-only for production
 - NAT Gateway for outbound internet access from private subnets
 
 ### Secrets Management
+
 - All credentials stored in AWS Secrets Manager
 - Automatic rotation supported (configure separately)
 - ECS tasks retrieve secrets at runtime
@@ -1014,12 +1046,14 @@ For running Terraform and the deployment scripts, your IAM user or role needs th
 **Note:** The `cloudfront:*` permission is required for CloudFront deployment modes (Mode 1: CloudFront Only, Mode 3: CloudFront + Custom Domain). If you are only using Mode 2 (Custom Domain Only), you can omit this permission.
 
 **ECS Task Role Security:**
+
 - ECS task roles follow principle of least privilege
 - Separate execution role for pulling images and secrets
 - Task role for application-specific AWS API access
 - Regular audit of IAM policies recommended
 
 ### Database Security
+
 - RDS in private subnets only
 - Encryption at rest enabled
 - Encryption in transit (SSL)
@@ -1027,6 +1061,7 @@ For running Terraform and the deployment scripts, your IAM user or role needs th
 - Security group limits access to ECS tasks only
 
 ### Best Practices
+
 ```bash
 # Rotate Keycloak admin password
 ./scripts/rotate-keycloak-web-client-secret.sh
@@ -1049,6 +1084,7 @@ aws ecs update-service --cluster mcp-gateway-ecs-cluster --service mcp-gateway-v
 ## Backup and Disaster Recovery
 
 ### RDS Automated Backups
+
 ```bash
 # Backups enabled by default (7 day retention)
 # Point-in-time recovery available
@@ -1068,6 +1104,7 @@ aws rds describe-db-cluster-snapshots \
 ```
 
 ### DocumentDB Backup
+
 ```bash
 # DocumentDB automated backups are enabled by default (7 day retention)
 # Create manual snapshot
@@ -1083,6 +1120,7 @@ aws docdb describe-db-cluster-snapshots \
 ```
 
 ### Terraform State Backup
+
 ```bash
 # Local state - backup manually
 cp terraform.tfstate terraform.tfstate.backup
@@ -1176,6 +1214,7 @@ terraform destroy
 ### Why Pre-Destroy Cleanup is Required
 
 Terraform destroy may fail due to:
+
 - **ECS Services**: Services must be scaled to 0 and deleted before clusters can be removed
 - **Service Discovery Namespaces**: Must delete services within namespaces before deleting namespaces
 - **ECS Cluster Capacity Providers**: Clusters with active capacity providers cannot be deleted
@@ -1322,16 +1361,19 @@ terraform/aws-ecs/
 For issues or questions:
 
 1. **Check Logs First:**
+
    ```bash
    ./scripts/view-cloudwatch-logs.sh --filter "ERROR"
    ```
 
 2. **Verify Service Status:**
+
    ```bash
    aws ecs describe-services --cluster mcp-gateway-ecs-cluster --services mcp-gateway-v2-registry --region us-east-1
    ```
 
 3. **Test DNS Resolution:**
+
    ```bash
    dig kc.us-east-1.YOUR.DOMAIN
    dig registry.us-east-1.YOUR.DOMAIN

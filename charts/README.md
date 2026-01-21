@@ -172,6 +172,7 @@ This project supports two deployment methods:
 ### 1. Kubernetes Deployment (This Directory)
 
 Deploy the MCP Gateway Registry on any Kubernetes cluster using Helm charts. Ideal for:
+
 - Multi-cloud deployments (AWS EKS, Google GKE, Azure AKS)
 - On-premises Kubernetes clusters
 - Organizations with existing Kubernetes infrastructure
@@ -184,6 +185,7 @@ Deploy the MCP Gateway Registry on any Kubernetes cluster using Helm charts. Ide
 ### 2. AWS ECS Deployment (Terraform)
 
 Deploy the MCP Gateway Registry on AWS ECS using Terraform for infrastructure-as-code. Ideal for:
+
 - AWS-native deployments with full AWS integration
 - Organizations using AWS Fargate for serverless containers
 - Teams preferring Terraform for infrastructure management

@@ -15,11 +15,13 @@
 ## The Problem
 
 ### Architecture Mismatch
+
 - **Pre-built images**: `linux/amd64` (Intel x86_64)
 - **Apple Silicon Macs**: `linux/arm64` (ARM64)
 - **Result**: Containers fail to start, Podman proxy gets stuck
 
 ### Symptoms
+
 ```
 WARNING: image platform (linux/amd64) does not match the expected platform (linux/arm64)
 ...
@@ -48,11 +50,13 @@ podman machine start
 ```
 
 **Pros:**
+
 - Native ARM64 images (better performance)
 - No architecture warnings
 - Reliable container startup
 
 **Cons:**
+
 - ⏱️ Slower first build (10-15 minutes)
 
 ### Option 2: Use Docker Desktop (Easiest)
@@ -73,11 +77,13 @@ podman machine stop
 ```
 
 **Pros:**
+
 - Fast deployment (2-3 minutes)
 - Pre-built images work reliably
 - Better multi-arch support
 
 **Cons:**
+
 - Requires Docker Desktop
 - Uses privileged ports (80/443)
 
@@ -172,6 +178,7 @@ podman inspect <container-name> | grep Architecture
 ## Future Improvements
 
 We're working on:
+
 - [ ] ARM64 pre-built images on Docker Hub
 - [ ] Multi-arch manifest support
 - [ ] Automatic architecture detection in script
@@ -214,4 +221,3 @@ podman machine start
 # Deploy correctly on Apple Silicon
 ./build_and_run.sh --podman  # NO --prebuilt!
 ```
-

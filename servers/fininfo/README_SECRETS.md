@@ -182,12 +182,14 @@ INFO: Successfully decrypted secrets file
 ```
 
 Example usage:
+
 - Plain text: `.keys.yml` → loaded directly
 - Encrypted: `.keys.yml.encrypted` → automatically decrypted
 
 ### Encryption Format
 
 Encrypted files are stored as base64-encoded Fernet tokens:
+
 - **Detection**: Files with `.encrypted` extension are treated as encrypted
 - **Encoding**: Base64 encoded for text file storage
 - **Key Derivation**: SHA256 hash of SECRET_KEY for consistent key generation

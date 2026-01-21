@@ -66,15 +66,18 @@ Scopes define what resources (MCP servers, agents) users can access and what act
 The `group_mappings` array contains IdP group identifiers that should be mapped to this scope. When a user authenticates, their IdP groups are matched against these mappings to determine their effective scopes.
 
 **Important for Entra ID:**
+
 - Entra ID uses Group Object IDs (GUIDs), not group names
 - You must include the Group Object ID from Azure Portal > Groups > Overview
 - Example: `"5f605d68-06bc-4208-b992-bb378eee12c5"`
 
 **For Keycloak:**
+
 - Use the group name as defined in Keycloak
 - Example: `"public-mcp-users"`
 
 **Example with both:**
+
 ```json
 {
   "group_mappings": [
@@ -107,6 +110,7 @@ The `server_access` array defines what MCP servers and methods users can access.
 | `tools` | List of allowed tool names or `["*"]` for all tools |
 
 **Standard MCP Methods:**
+
 - `initialize` - Initialize MCP session
 - `notifications/initialized` - Session initialized notification
 - `ping` - Health check
@@ -117,6 +121,7 @@ The `server_access` array defines what MCP servers and methods users can access.
 - `GET`, `POST`, `PUT`, `DELETE` - HTTP methods for REST API access
 
 **Example - Full MCP access to specific servers:**
+
 ```json
 {
   "server": "context7",
@@ -134,6 +139,7 @@ The `server_access` array defines what MCP servers and methods users can access.
 ```
 
 **Example - Wildcard access (admin):**
+
 ```json
 {
   "server": "*",
@@ -167,10 +173,12 @@ Agent actions define what operations users can perform on A2A agents.
 | `delete_agent` | Remove agents | `DELETE /api/agents/{path}` |
 
 **Resource Patterns:**
+
 - `/agent-name` - Specific agent path (e.g., `/flight-booking`)
 - `all` - All agents (wildcard access)
 
 **Example - Limited agent access:**
+
 ```json
 {
   "agents": {
@@ -183,6 +191,7 @@ Agent actions define what operations users can perform on A2A agents.
 ```
 
 **Example - Full agent admin access:**
+
 ```json
 {
   "agents": {
@@ -225,6 +234,7 @@ UI permissions control what actions users can perform in the web interface and R
 | `modify_service` | Edit server configurations | Server names or `"all"` |
 
 **Example - Read-only access:**
+
 ```json
 {
   "ui_permissions": {
@@ -236,6 +246,7 @@ UI permissions control what actions users can perform in the web interface and R
 ```
 
 **Example - Full admin access:**
+
 ```json
 {
   "ui_permissions": {
@@ -350,6 +361,7 @@ Access to specific MCP servers and one agent:
 ### Using the CLI
 
 Import a scope from JSON file:
+
 ```bash
 uv run python api/registry_management.py \
   --token-file .token \
@@ -358,6 +370,7 @@ uv run python api/registry_management.py \
 ```
 
 List all scopes:
+
 ```bash
 uv run python api/registry_management.py \
   --token-file .token \
@@ -368,6 +381,7 @@ uv run python api/registry_management.py \
 ### Bootstrap Admin Scope
 
 The `registry-admins` scope is automatically loaded during database initialization:
+
 - **Local (MongoDB CE)**: `docker compose up mongodb-init`
 - **Production (DocumentDB)**: `./terraform/aws-ecs/scripts/run-documentdb-init.sh`
 
@@ -386,6 +400,7 @@ When defining server access, you may need to include path variations to handle d
 ```
 
 This ensures access works regardless of whether the server is accessed as:
+
 - `context7`
 - `/context7`
 - `/context7/`
@@ -400,6 +415,7 @@ When using Microsoft Entra ID (Azure AD) as the identity provider:
    - Note the Group Object ID (GUID)
 
 2. **Add the Object ID to group_mappings:**
+
    ```json
    {
      "group_mappings": [

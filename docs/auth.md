@@ -348,16 +348,19 @@ Service account tokens from IdP:
 ### Common Issues
 
 **Token validation fails:**
+
 - Check token issuer matches expected provider
 - Verify JWKS endpoint is accessible
 - Ensure SECRET_KEY matches between auth server instances
 
 **Permission denied:**
+
 - Verify user's groups in IdP
 - Check group_mappings in scope configuration
 - Ensure scope includes required server/method access
 
 **Group not recognized:**
+
 - For Entra ID: Use Object ID, not group name
 - Verify group exists in group_mappings array
 - Reload scopes after configuration changes

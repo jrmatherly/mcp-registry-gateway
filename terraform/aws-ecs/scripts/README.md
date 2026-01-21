@@ -14,6 +14,7 @@ make build-push IMAGE=registry
 ```
 
 This command:
+
 - Builds the registry Docker image from the Dockerfile
 - Tags it with the ECR repository URL
 - Pushes to Amazon ECR
@@ -32,6 +33,7 @@ aws ecs update-service \
 ```
 
 This command:
+
 - Triggers a new deployment without changing task definition
 - ECS will pull the latest image from ECR
 - Old tasks are gracefully drained and replaced with new ones
@@ -50,6 +52,7 @@ watch -n 5 'aws ecs describe-services \
 ```
 
 This command:
+
 - Refreshes every 5 seconds
 - Shows deployment status in table format
 - Displays:
@@ -59,6 +62,7 @@ This command:
   - Deployment rollout state
 
 **Example Output:**
+
 ```
 ----------------------------------------------------------
 |                   DescribeServices                     |
@@ -115,6 +119,7 @@ The same commands can be used for other services by replacing `registry` with th
 ### Examples for Other Services
 
 **Auth Server:**
+
 ```bash
 # Build and push
 make build-push IMAGE=auth
@@ -136,6 +141,7 @@ watch -n 5 'aws ecs describe-services \
 ```
 
 **MCP Gateway:**
+
 ```bash
 # Build and push
 make build-push IMAGE=mcpgw

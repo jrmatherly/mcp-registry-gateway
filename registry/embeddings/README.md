@@ -85,12 +85,14 @@ EMBEDDINGS_AWS_REGION=us-east-1
 **Configure AWS credentials via standard methods:**
 
 **Option 1: IAM Roles (Recommended for EC2/EKS)**
+
 ```bash
 # No additional configuration needed
 # EC2 instance or EKS pod automatically uses attached IAM role
 ```
 
 **Option 2: Environment Variables**
+
 ```bash
 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
 export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
@@ -98,6 +100,7 @@ export AWS_REGION=us-east-1
 ```
 
 **Option 3: AWS Credentials File**
+
 ```bash
 # ~/.aws/credentials
 [default]
@@ -110,6 +113,7 @@ region = us-east-1
 ```
 
 **Python Usage:**
+
 ```python
 from registry.embeddings import create_embeddings_client
 
@@ -152,15 +156,18 @@ print(embeddings.shape)  # (2, 1536)
 #### LiteLLM (Cloud-based)
 
 **OpenAI:**
+
 - `openai/text-embedding-3-small` (1536 dimensions)
 - `openai/text-embedding-3-large` (3072 dimensions)
 - `openai/text-embedding-ada-002` (1536 dimensions)
 
 **Cohere:**
+
 - `cohere/embed-english-v3.0` (1024 dimensions)
 - `cohere/embed-multilingual-v3.0` (1024 dimensions)
 
 **Amazon Bedrock:**
+
 - `bedrock/amazon.titan-embed-text-v1` (1536 dimensions)
 - `bedrock/cohere.embed-english-v3` (1024 dimensions)
 - `bedrock/cohere.embed-multilingual-v3` (1024 dimensions)
@@ -172,6 +179,7 @@ print(embeddings.shape)  # (2, 1536)
 Base class for all embeddings clients.
 
 **Methods:**
+
 - `encode(texts: List[str]) -> np.ndarray`: Generate embeddings for texts
 - `get_embedding_dimension() -> int`: Get embedding dimension
 
@@ -180,6 +188,7 @@ Base class for all embeddings clients.
 Local embeddings using sentence-transformers library.
 
 **Constructor:**
+
 ```python
 SentenceTransformersClient(
     model_name: str,
@@ -189,6 +198,7 @@ SentenceTransformersClient(
 ```
 
 **Parameters:**
+
 - `model_name`: Hugging Face model identifier
 - `model_dir`: Local directory with pre-downloaded model (optional)
 - `cache_dir`: Cache directory for models (optional)
@@ -198,6 +208,7 @@ SentenceTransformersClient(
 Cloud-based embeddings via LiteLLM.
 
 **Constructor:**
+
 ```python
 LiteLLMClient(
     model_name: str,
@@ -210,6 +221,7 @@ LiteLLMClient(
 ```
 
 **Parameters:**
+
 - `model_name`: Provider-prefixed model (e.g., `openai/text-embedding-3-small`, `bedrock/amazon.titan-embed-text-v1`)
 - `api_key`: API key for the provider (OpenAI, Cohere, etc.; not used for Bedrock)
 - `api_base`: Custom API endpoint URL (optional)
@@ -217,6 +229,7 @@ LiteLLMClient(
 - `embedding_dimension`: Expected dimension for validation (optional)
 
 **AWS Bedrock Notes:**
+
 - Uses standard AWS credential chain for authentication (IAM roles, environment variables, ~/.aws/credentials)
 - The `api_key` parameter is not used for Bedrock authentication
 - The `aws_region` parameter is required for Bedrock
@@ -240,6 +253,7 @@ create_embeddings_client(
 Creates an embeddings client based on the provider type.
 
 **Parameters:**
+
 - `provider`: "sentence-transformers" or "litellm"
 - `model_name`: Model identifier
 - `model_dir`: Local model directory (sentence-transformers only)
@@ -271,6 +285,7 @@ class FaissService:
 ### From Direct SentenceTransformer Usage
 
 **Before:**
+
 ```python
 from sentence_transformers import SentenceTransformer
 
@@ -279,6 +294,7 @@ embeddings = model.encode(texts)
 ```
 
 **After:**
+
 ```python
 from registry.embeddings import create_embeddings_client
 
@@ -311,11 +327,13 @@ No code changes required!
 ## Performance Considerations
 
 ### Local Models (Sentence Transformers)
+
 - **Pros**: No API costs, privacy, no network latency
 - **Cons**: CPU/GPU requirements, model download size
 - **Best for**: High-volume usage, sensitive data, offline operation
 
 ### Cloud APIs (LiteLLM)
+
 - **Pros**: No local resources, higher quality models, instant availability
 - **Cons**: API costs, network dependency, data leaves premises
 - **Best for**: Low-volume usage, rapid prototyping, maximum quality
@@ -329,6 +347,7 @@ RuntimeError: LiteLLM is not installed. Install it with: uv add litellm
 ```
 
 **Solution:**
+
 ```bash
 uv add litellm
 ```
@@ -344,6 +363,7 @@ WARNING: Embedding dimension mismatch: expected 384, got 1536
 ### API Authentication Errors
 
 For cloud providers, ensure your API key is correctly set:
+
 - OpenAI: Set `EMBEDDINGS_API_KEY`
 - Cohere: Set `EMBEDDINGS_API_KEY`
 - Bedrock: Configure AWS credentials via standard AWS methods

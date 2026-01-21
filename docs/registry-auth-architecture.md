@@ -401,18 +401,21 @@ graph TB
 ### Role Definitions
 
 #### 1. Admin Role (`mcp-admin` group)
+
 - **Full system access**: Can view, modify, create, and delete all servers
 - **User management**: Can view all user sessions and permissions
 - **System configuration**: Can modify global settings
 - **Unrestricted scopes**: `mcp-servers-unrestricted/read`, `mcp-servers-unrestricted/execute`
 
 #### 2. User Role (`mcp-user` group)
+
 - **Read-only access**: Can view servers and tools they have permission for
 - **No modification rights**: Cannot toggle servers or edit configurations
 - **Filtered view**: Only sees servers they have explicit access to
 - **Restricted scopes**: Based on group mappings
 
 #### 3. Server-Specific Roles (`mcp-server-{name}` groups)
+
 - **Targeted access**: Access to specific servers based on group name
 - **Execute permissions**: Can use tools from assigned servers
 - **Limited modification**: May have toggle permissions for specific servers
@@ -694,6 +697,7 @@ CONTAINER_LOG_DIR=/app/logs
 ### Development vs Production Configuration
 
 #### Local Development (`settings.is_local_dev = True`)
+
 ```python
 # registry/core/config.py
 @property
@@ -708,6 +712,7 @@ def templates_dir(self) -> Path:
 ```
 
 #### Container/Production (`settings.is_local_dev = False`)
+
 - Paths point to `/app/registry/` structure
 - Optimized logging and security settings
 - External auth server integration
@@ -715,6 +720,7 @@ def templates_dir(self) -> Path:
 ### Authentication Provider Configuration
 
 #### Traditional Authentication
+
 ```python
 # registry/auth/dependencies.py
 def validate_login_credentials(username: str, password: str) -> bool:
@@ -723,6 +729,7 @@ def validate_login_credentials(username: str, password: str) -> bool:
 ```
 
 #### OAuth2 Provider Setup
+
 ```python
 # External auth server integration
 async def get_oauth2_providers():
@@ -741,6 +748,7 @@ async def get_oauth2_providers():
 #### 1. Session Cookie Problems
 
 **Issue**: User gets redirected to login page repeatedly
+
 ```python
 # Debug session cookie validation
 try:
@@ -753,6 +761,7 @@ except BadSignature:
 ```
 
 **Solutions**:
+
 - Check `SECRET_KEY` consistency across restarts
 - Verify cookie expiration settings
 - Ensure browser accepts cookies from the domain
@@ -760,6 +769,7 @@ except BadSignature:
 #### 2. OAuth2 Integration Issues
 
 **Issue**: OAuth2 login fails or redirects incorrectly
+
 ```python
 # Debug OAuth2 callback
 @router.get("/auth/callback")
@@ -774,6 +784,7 @@ async def oauth2_callback(request: Request, error: str = None):
 ```
 
 **Solutions**:
+
 - Verify `AUTH_SERVER_URL` and `AUTH_SERVER_EXTERNAL_URL` settings
 - Check auth server connectivity: `curl http://localhost:8888/oauth2/providers`
 - Ensure redirect URIs match in OAuth2 provider configuration
@@ -781,6 +792,7 @@ async def oauth2_callback(request: Request, error: str = None):
 #### 3. Permission Issues
 
 **Issue**: Users can't access servers they should have permission for
+
 ```python
 # Debug permission calculation
 def debug_user_permissions(user_context: dict):
@@ -792,6 +804,7 @@ def debug_user_permissions(user_context: dict):
 ```
 
 **Solutions**:
+
 - Verify group mappings in `auth_server/scopes.yml`
 - Check user group assignments in identity provider
 - Ensure scope configuration matches server names exactly
@@ -799,6 +812,7 @@ def debug_user_permissions(user_context: dict):
 #### 4. WebSocket Authentication Issues
 
 **Issue**: Real-time updates not working
+
 ```python
 # Debug WebSocket connections
 @router.websocket("/ws/health_status")
@@ -812,6 +826,7 @@ async def websocket_endpoint(websocket: WebSocket):
 ```
 
 **Solutions**:
+
 - Check browser console for WebSocket errors
 - Verify WebSocket URL scheme (ws:// vs wss://)
 - Ensure firewall/proxy allows WebSocket connections
@@ -819,6 +834,7 @@ async def websocket_endpoint(websocket: WebSocket):
 ### Logging and Debugging
 
 #### Enable Debug Logging
+
 ```python
 # registry/main.py
 logging.basicConfig(level=logging.DEBUG)
@@ -826,6 +842,7 @@ logger = logging.getLogger(__name__)
 ```
 
 #### Authentication Event Logging
+
 ```python
 # Custom auth logging
 def log_auth_event(event_type: str, username: str = None, details: dict = None):
@@ -843,6 +860,7 @@ log_auth_event('SESSION_EXPIRED', username='user')
 ```
 
 #### Health Check for Auth Components
+
 ```python
 @app.get("/health/auth")
 async def auth_health_check():
@@ -870,4 +888,4 @@ async def auth_health_check():
     return health_status
 ```
 
-This comprehensive authentication architecture ensures secure, scalable, and maintainable access control for the MCP Gateway Registry while providing flexibility for both local development and enterprise deployments. 
+This comprehensive authentication architecture ensures secure, scalable, and maintainable access control for the MCP Gateway Registry while providing flexibility for both local development and enterprise deployments.

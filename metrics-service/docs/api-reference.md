@@ -93,6 +93,7 @@ X-API-Key: your-api-key-here
 ```
 
 Response:
+
 ```json
 {
   "service": "auth-server",
@@ -285,9 +286,11 @@ All administrative endpoints require API key authentication and are designed for
 Preview data cleanup operations without executing them.
 
 **Parameters:**
+
 - `table_name` (optional): Specific table to preview
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -307,6 +310,7 @@ Preview data cleanup operations without executing them.
 Execute data cleanup operations with optional dry-run mode.
 
 **Request:**
+
 ```json
 {
   "table_name": "metrics",  // Optional: specific table
@@ -315,6 +319,7 @@ Execute data cleanup operations with optional dry-run mode.
 ```
 
 **Response:**
+
 ```json
 {
   "table": "metrics",
@@ -330,6 +335,7 @@ Execute data cleanup operations with optional dry-run mode.
 View current retention policies for all tables.
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -346,6 +352,7 @@ View current retention policies for all tables.
 Update retention policy for a specific table.
 
 **Request:**
+
 ```json
 {
   "retention_days": 120,
@@ -354,6 +361,7 @@ Update retention policy for a specific table.
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -369,6 +377,7 @@ Update retention policy for a specific table.
 Get comprehensive database table statistics.
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -387,6 +396,7 @@ Get comprehensive database table statistics.
 Get detailed database size and efficiency metrics.
 
 **Response:**
+
 ```json
 {
   "main_db_bytes": 104857600,
@@ -413,43 +423,52 @@ Get detailed database size and efficiency metrics.
 The service supports the following metric types:
 
 #### auth_request
+
 Authentication request metrics.
 
 **Dimensions**:
+
 - `method` (string): Authentication method ("jwt", "oauth", "basic")
 - `success` (boolean): Whether authentication succeeded
 - `server` (string): Server handling the request
 - `user_hash` (string): Hashed user identifier
 
 **Metadata**:
+
 - `error_code` (string): Error code if authentication failed
 - `request_size` (integer): Request size in bytes
 - `response_size` (integer): Response size in bytes
 
 #### tool_discovery
+
 Tool discovery operation metrics.
 
 **Dimensions**:
+
 - `query` (string): Search query or pattern
 - `results_count` (integer): Number of results returned
 - `top_k_services` (integer): Number of top services considered
 - `top_n_tools` (integer): Number of top tools returned
 
 **Metadata**:
+
 - `embedding_time_ms` (number): Time to generate embeddings
 - `faiss_search_time_ms` (number): FAISS search time
 - `cache_hit` (boolean): Whether results came from cache
 
 #### tool_execution
+
 Tool execution event metrics.
 
 **Dimensions**:
+
 - `tool_name` (string): Name of the executed tool
 - `server_path` (string): Server path or endpoint
 - `server_name` (string): Server identifier
 - `success` (boolean): Whether execution succeeded
 
 **Metadata**:
+
 - `error_code` (string): Error code if execution failed
 - `input_size_bytes` (integer): Input payload size
 - `output_size_bytes` (integer): Output payload size
@@ -458,22 +477,26 @@ Tool execution event metrics.
 ### Validation Rules
 
 #### Service Name Validation
+
 - **Pattern**: `^[a-zA-Z0-9_-]+$`
 - **Length**: 1-100 characters
 - **Examples**: ✅ `auth-server`, `metrics_service`, `tool123`
 - **Invalid**: ❌ `auth server` (space), `auth@server` (special char)
 
 #### Version Validation
+
 - **Recommended**: Semantic versioning (`x.y.z`)
 - **Examples**: ✅ `1.0.0`, `2.1.0-beta`, `0.1.0-alpha.1`
 - **Warnings**: `v1.0.0`, `latest`, `1.0` (non-semantic)
 
 #### Instance ID Validation
+
 - **Pattern**: `^[a-zA-Z0-9_.-]+$`
 - **Length**: 1-100 characters
 - **Examples**: ✅ `auth-01`, `server_1`, `pod.123`
 
 #### Dimensions Validation
+
 - **Max Count**: 20 key-value pairs
 - **Key Pattern**: `^[a-zA-Z_][a-zA-Z0-9_]*$`
 - **Key Length**: 1-50 characters
@@ -481,23 +504,27 @@ Tool execution event metrics.
 - **Value Types**: string, number, boolean (converted to string)
 
 #### Metadata Validation
+
 - **Max Count**: 30 key-value pairs
 - **Key Length**: 1-50 characters
 - **Value Length**: 0-1000 characters
 - **Value Types**: Any JSON-serializable type
 
 #### Timestamp Validation
+
 - **Format**: ISO 8601 with timezone
 - **Future Limit**: Max 5 minutes in the future
 - **Past Warning**: Warns if older than 7 days
 - **Examples**: ✅ `2024-01-01T12:00:00Z`, `2024-01-01T12:00:00+00:00`
 
 #### Value Validation
+
 - **Type**: Number (integer or float)
 - **Range**: -1e12 to +1e12
 - **Invalid**: NaN, Infinity, null/undefined
 
 #### Duration Validation
+
 - **Type**: Number (integer or float)
 - **Range**: 0 to 86400000 milliseconds (24 hours)
 - **Unit**: Milliseconds
@@ -518,6 +545,7 @@ All errors return a consistent JSON format:
 ### Error Codes
 
 #### 400 Bad Request
+
 Invalid request format or structure.
 
 ```json
@@ -528,6 +556,7 @@ Invalid request format or structure.
 ```
 
 #### 401 Unauthorized
+
 Missing or invalid API key.
 
 ```json
@@ -552,6 +581,7 @@ Missing or invalid API key.
 ```
 
 #### 422 Unprocessable Entity
+
 Data validation failed.
 
 ```json
@@ -569,6 +599,7 @@ Data validation failed.
 ```
 
 #### 429 Too Many Requests
+
 Rate limit exceeded.
 
 ```json
@@ -579,6 +610,7 @@ Rate limit exceeded.
 ```
 
 #### 500 Internal Server Error
+
 Server-side processing error.
 
 ```json
@@ -767,6 +799,7 @@ curl -X POST http://localhost:8890/metrics \
 ```
 
 Response:
+
 ```json
 {
   "status": "error",

@@ -33,6 +33,7 @@ AI Agent/Coding Assistant
 ```
 
 **Key Characteristics:**
+
 - Path-based routing (`/fininfo/`, `/mcpgw/`, etc.)
 - Nginx handles auth validation and proxying
 - Direct streaming connections to backend servers
@@ -63,6 +64,7 @@ AI Agent/Coding Assistant
 ```
 
 **Key Characteristics:**
+
 - Single endpoint with tool aggregation
 - Gateway implements MCP protocol parsing
 - Connection termination and re-establishment
@@ -138,20 +140,22 @@ AI Agent/Coding Assistant
 ## Implementation Considerations
 
 ### Protocol Independence Benefits
+
 The reverse proxy architecture provides protocol independence:
+
 - **Future Protocols**: Can support Agent-to-Agent (A2A), custom protocols without gateway changes
 - **Protocol Evolution**: MCP protocol changes don't require gateway modifications
 - **Mixed Environments**: Can proxy HTTP, WebSocket, gRPC, or custom protocols simultaneously
 
 ### Tools Gateway Implementation Challenges
+
 A tools gateway requires:
+
 - **Language Choice**: Python insufficient for performance; requires Go/Rust implementation
 - **MCP Client Library**: Must embed full MCP client for backend communication and keep client updated with evolving MCP specification changes
 - **Protocol Parsing**: Must understand and parse all MCP message types
 - **Connection Handling**: Complex connection lifecycle management
 - **Error Translation**: Convert backend MCP errors to client-readable format
-
-
 
 ## Conclusion
 

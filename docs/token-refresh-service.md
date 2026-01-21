@@ -32,6 +32,7 @@ graph TB
 ```
 
 The service integrates with:
+
 - **External OAuth services** (GitHub, Google, SRE Gateway, etc.)
 - **Local MCP servers** (Current Time, Real Server Fake Tools, etc.)
 - **MCP clients** (VS Code extensions, Claude Code, etc.)
@@ -129,7 +130,9 @@ The service creates a PID file (`token_refresher.pid`) for process management an
 The service automatically generates two MCP configuration files:
 
 #### Roocode/Claude Code Configuration
+
 **File**: `.oauth-tokens/mcp.json`
+
 ```json
 {
   "mcpServers": {
@@ -146,7 +149,9 @@ The service automatically generates two MCP configuration files:
 ```
 
 #### VS Code Extension Configuration  
+
 **File**: `.oauth-tokens/vscode_mcp.json`
+
 ```json
 {
   "mcpServers": {
@@ -240,12 +245,14 @@ sequenceDiagram
 #### Service Won't Start
 
 **Symptoms**: Service exits immediately or fails to start
-**Causes**: 
+**Causes**:
+
 - Missing dependencies
 - Invalid OAuth token files
 - Permission issues
 
 **Solutions**:
+
 ```bash
 # Check dependencies
 uv run python -c "import httpx, json, time, argparse, asyncio"
@@ -262,11 +269,13 @@ chmod +x start_token_refresher.sh
 
 **Symptoms**: Tokens not being refreshed, authentication errors
 **Causes**:
+
 - Expired refresh tokens
 - Invalid OAuth configuration
 - Network connectivity issues
 
 **Solutions**:
+
 ```bash
 # Check token validity
 cat .oauth-tokens/*egress.json | jq '.expires_at'
@@ -282,11 +291,13 @@ curl -v https://your-oauth-provider.com/token
 
 **Symptoms**: MCP clients can't connect, missing services
 **Causes**:
+
 - Invalid service configurations
 - Missing environment variables
 - Incorrect file paths
 
 **Solutions**:
+
 ```bash
 # Validate generated configs
 cat .oauth-tokens/mcp.json | jq '.'
@@ -359,6 +370,7 @@ WantedBy=multi-user.target
 ```
 
 Enable and start:
+
 ```bash
 sudo systemctl enable token-refresher
 sudo systemctl start token-refresher
@@ -409,6 +421,7 @@ The token refresher service provides these internal methods:
 ### Configuration Schema
 
 #### Egress Token File Format
+
 ```json
 {
   "access_token": "eyJ...",
@@ -420,6 +433,7 @@ The token refresher service provides these internal methods:
 ```
 
 #### MCP Server Configuration Format
+
 ```json
 {
   "server_name": "example-service",

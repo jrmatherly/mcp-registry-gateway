@@ -96,32 +96,38 @@ The metrics service serves as the central hub for collecting, validating, and st
 ### Installation
 
 1. **Clone and setup**:
+
 ```bash
 cd metrics-service
 uv sync
 ```
 
 2. **Start dependencies**:
+
 ```bash
 docker-compose up -d metrics-db
 ```
 
 3. **Initialize database**:
+
 ```bash
 uv run python migrate.py up
 ```
 
 4. **Create API keys**:
+
 ```bash
 uv run python create_api_key.py
 ```
 
 5. **Start the service**:
+
 ```bash
 uv run python -m app.main
 ```
 
 The service will be available at:
+
 - HTTP API: `http://localhost:8890`
 - Prometheus metrics: `http://localhost:9465/metrics`
 
@@ -161,6 +167,7 @@ X-API-Key: your-api-key-here
 ```
 
 API keys are:
+
 - SHA256 hashed for secure storage
 - Rate limited to 1000 requests/minute by default
 - Tracked for usage analytics
@@ -191,6 +198,7 @@ Retry-After: 60
 Submit metrics data for collection and processing.
 
 **Request Body**:
+
 ```json
 {
   "service": "string",           // Required: Service name (alphanumeric, -, _)
@@ -214,11 +222,13 @@ Submit metrics data for collection and processing.
 ```
 
 **Supported Metric Types**:
+
 - `auth_request`: Authentication requests
 - `tool_discovery`: Tool discovery operations
 - `tool_execution`: Tool execution events
 
 **Response**:
+
 ```json
 {
   "status": "success",
@@ -230,6 +240,7 @@ Submit metrics data for collection and processing.
 ```
 
 **Validation Rules**:
+
 - Service name: 100 chars max, alphanumeric with `-` and `_`
 - Metric value: Required, numeric, range ±1e12
 - Duration: Non-negative, max 24 hours in milliseconds
@@ -241,6 +252,7 @@ Submit metrics data for collection and processing.
 Force flush buffered metrics to storage.
 
 **Response**:
+
 ```json
 {
   "status": "success",
@@ -253,6 +265,7 @@ Force flush buffered metrics to storage.
 Get current rate limit status for your API key.
 
 **Response**:
+
 ```json
 {
   "service": "your-service",
@@ -267,6 +280,7 @@ Get current rate limit status for your API key.
 Health check endpoint.
 
 **Response**:
+
 ```json
 {
   "status": "healthy",
@@ -279,6 +293,7 @@ Health check endpoint.
 Service information and available endpoints.
 
 **Response**:
+
 ```json
 {
   "service": "MCP Metrics Collection Service",
@@ -305,6 +320,7 @@ All error responses follow this format:
 ```
 
 Common error codes:
+
 - `400`: Bad Request - Invalid data format
 - `401`: Unauthorized - Missing or invalid API key
 - `422`: Validation Error - Data validation failed
@@ -366,6 +382,7 @@ uv run python migrate.py list
 ```
 
 Current migrations:
+
 - **0001**: Initial schema with core tables
 - **0002**: Aggregation tables for performance
 - **0003**: Retention policies management
@@ -480,16 +497,19 @@ metrics-db:
 ### Setting Up Development Environment
 
 1. **Install dependencies**:
+
 ```bash
 uv sync --dev
 ```
 
 2. **Run tests**:
+
 ```bash
 uv run pytest -v
 ```
 
 3. **Run with hot reload**:
+
 ```bash
 uv run uvicorn app.main:app --reload --port 8890
 ```
@@ -549,6 +569,7 @@ uv run pytest tests/test_validator.py::TestValidationResult::test_add_error -v
 ```
 
 Test categories:
+
 - **API Tests**: HTTP endpoint functionality
 - **Validation Tests**: Data validation logic
 - **Rate Limiting Tests**: Token bucket algorithm
@@ -578,21 +599,25 @@ uv run ruff check app/ tests/
 ### Production Deployment
 
 1. **Build and deploy with Docker**:
+
 ```bash
 docker-compose up -d
 ```
 
 2. **Initialize database**:
+
 ```bash
 docker-compose exec metrics-service python migrate.py up
 ```
 
 3. **Create production API keys**:
+
 ```bash
 docker-compose exec metrics-service python create_api_key.py
 ```
 
 4. **Verify health**:
+
 ```bash
 curl http://localhost:8890/health
 ```
@@ -600,6 +625,7 @@ curl http://localhost:8890/health
 ### Environment-Specific Configuration
 
 **Development**:
+
 ```bash
 SQLITE_DB_PATH="./dev.db"
 METRICS_SERVICE_HOST="127.0.0.1"
@@ -607,6 +633,7 @@ OTEL_PROMETHEUS_ENABLED="true"
 ```
 
 **Production**:
+
 ```bash
 SQLITE_DB_PATH="/var/lib/sqlite/metrics.db"
 METRICS_SERVICE_HOST="0.0.0.0"

@@ -149,6 +149,7 @@ sequenceDiagram
 **Purpose**: Handles all authentication-related HTTP endpoints
 
 **Key Endpoints**:
+
 - `GET /login` - Login form with dynamic OAuth2 provider loading
 - `POST /login` - Traditional username/password authentication
 - `GET /auth/{provider}` - OAuth2 provider redirect
@@ -160,6 +161,7 @@ sequenceDiagram
 **Purpose**: FastAPI dependency injection for authentication and authorization
 
 **Key Functions**:
+
 - `get_current_user()` - Basic user identification
 - `get_user_session_data()` - Full session data extraction
 - `enhanced_auth()` - Complete user context with permissions
@@ -170,6 +172,7 @@ sequenceDiagram
 **Purpose**: Secure session cookie creation, validation, and management
 
 **Components**:
+
 - `URLSafeTimedSerializer` from `itsdangerous` library
 - Session cookie with configurable expiration
 - Automatic session validation on all protected routes
@@ -790,16 +793,19 @@ graph TB
 #### 1. Administrator Role (`mcp-admin` group)
 
 **Full System Access**:
+
 - View, create, edit, and delete all servers
 - Access to all MCP tools regardless of server
 - System configuration and user management
 - Complete audit trail visibility
 
 **Granted Scopes**:
+
 - `mcp-servers-unrestricted/read`
 - `mcp-servers-unrestricted/execute`
 
 **UI Capabilities**:
+
 - All server cards visible and interactive
 - Edit buttons on all servers
 - "Add New Server" functionality
@@ -809,15 +815,18 @@ graph TB
 #### 2. Regular User Role (`mcp-user` group)
 
 **Limited Read Access**:
+
 - View only servers explicitly assigned to user
 - Read-only access to server information
 - Cannot modify server configurations
 - Cannot toggle server states
 
 **Granted Scopes**:
+
 - `mcp-servers-restricted/read` (limited scope)
 
 **UI Capabilities**:
+
 - Filtered server list (only accessible servers)
 - Read-only status indicators instead of toggles
 - No edit buttons or admin controls
@@ -826,15 +835,18 @@ graph TB
 #### 3. Server-Specific Roles (`mcp-server-{name}` groups)
 
 **Targeted Access**:
+
 - Access to specific servers based on group name
 - Execute permissions for assigned servers
 - May include toggle permissions for specific services
 
 **Example Scopes**:
+
 - `mcp-servers-fininfo/read` + `mcp-servers-fininfo/execute`
 - `mcp-servers-currenttime/read` + `mcp-servers-currenttime/execute`
 
 **UI Capabilities**:
+
 - Filtered view showing only assigned servers
 - Toggle functionality for assigned servers
 - Edit access may be granted for specific servers
@@ -1588,6 +1600,7 @@ def validate_login_credentials(username: str, password: str) -> bool:
 #### OAuth2 Integration Setup
 
 1. **Configure Auth Server** (separate application):
+
    ```yaml
    # auth_server/config.yml
    providers:
@@ -1602,6 +1615,7 @@ def validate_login_credentials(username: str, password: str) -> bool:
    ```
 
 2. **Configure Group Mappings**:
+
    ```yaml
    # auth_server/scopes.yml
    group_mappings:
@@ -1699,6 +1713,7 @@ COGNITO_REGION=us-east-1
 **Issue**: Users get redirected to login page repeatedly
 
 **Diagnosis**:
+
 ```python
 # Add debug logging to session validation
 def get_user_session_data(session: str = None) -> Dict[str, Any]:
@@ -1717,6 +1732,7 @@ def get_user_session_data(session: str = None) -> Dict[str, Any]:
 ```
 
 **Common Solutions**:
+
 - **Inconsistent SECRET_KEY**: Ensure `SECRET_KEY` is consistent across application restarts
 - **Clock Skew**: Check system time if using multiple servers
 - **Cookie Domain Issues**: Verify cookie domain matches request domain
@@ -1727,6 +1743,7 @@ def get_user_session_data(session: str = None) -> Dict[str, Any]:
 **Issue**: OAuth2 login fails or redirects incorrectly
 
 **Diagnosis**:
+
 ```python
 # Debug OAuth2 callback handling
 @router.get("/auth/callback")
@@ -1753,6 +1770,7 @@ async def oauth2_callback(request: Request, error: str = None, details: str = No
 ```
 
 **Common Solutions**:
+
 - **Auth Server Connectivity**: Test auth server: `curl http://localhost:8888/oauth2/providers`
 - **URL Configuration**: Verify `AUTH_SERVER_URL` and `AUTH_SERVER_EXTERNAL_URL` settings
 - **Provider Configuration**: Check OAuth2 client configuration in identity provider
@@ -1763,6 +1781,7 @@ async def oauth2_callback(request: Request, error: str = None, details: str = No
 **Issue**: Users can't access servers they should have permission for
 
 **Diagnosis**:
+
 ```python
 # Debug permission calculation
 def debug_user_permissions(user_context: dict):
@@ -1789,6 +1808,7 @@ def enhanced_auth(session: str = None) -> Dict[str, Any]:
 ```
 
 **Common Solutions**:
+
 - **Group Mapping Issues**: Verify `auth_server/scopes.yml` configuration
 - **User Group Assignment**: Check user group assignments in identity provider (Cognito)
 - **Server Name Mismatch**: Ensure server names in scopes.yml exactly match server definitions
@@ -1799,6 +1819,7 @@ def enhanced_auth(session: str = None) -> Dict[str, Any]:
 **Issue**: Real-time updates not working, WebSocket connections failing
 
 **Diagnosis**:
+
 ```python
 # Debug WebSocket authentication
 @router.websocket("/ws/health_status")
@@ -1830,6 +1851,7 @@ async def websocket_endpoint(websocket: WebSocket):
 ```
 
 **Common Solutions**:
+
 - **Browser Cookie Issues**: Check browser developer tools for cookie presence
 - **WebSocket URL**: Verify WebSocket URL scheme (ws:// vs wss://)
 - **Proxy Configuration**: Ensure reverse proxy supports WebSocket upgrades
@@ -1950,6 +1972,7 @@ log_auth_event('OAUTH2_LOGIN_SUCCESS', username='user@example.com',
 ### Common Configuration Mistakes
 
 #### 1. Incorrect Path Configuration
+
 ```bash
 # Wrong - mixing local and container paths
 CONTAINER_REGISTRY_DIR=/app/registry
@@ -1960,6 +1983,7 @@ CONTAINER_REGISTRY_DIR=/app/registry
 ```
 
 #### 2. Secret Key Issues
+
 ```bash
 # Wrong - using a weak or default secret key
 SECRET_KEY=mysecret
@@ -1969,6 +1993,7 @@ SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
 ```
 
 #### 3. Auth Server URL Mismatch
+
 ```bash
 # Wrong - internal and external URLs are the same in Docker
 AUTH_SERVER_URL=http://localhost:8888
@@ -1979,4 +2004,4 @@ AUTH_SERVER_URL=http://auth-server:8888          # Internal Docker communication
 AUTH_SERVER_EXTERNAL_URL=http://localhost:8888   # Browser-accessible URL
 ```
 
-This comprehensive documentation provides complete coverage of the registry's authentication and authorization system, from high-level architecture to specific implementation details and troubleshooting guidance. 
+This comprehensive documentation provides complete coverage of the registry's authentication and authorization system, from high-level architecture to specific implementation details and troubleshooting guidance.

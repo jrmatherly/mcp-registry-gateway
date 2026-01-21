@@ -5,6 +5,7 @@ Universal guidelines for all agents working on this project.
 ## Project Context
 
 **MCP Gateway & Registry** is an enterprise platform for:
+
 1. **MCP Server Gateway** - Centralized access to MCP servers
 2. **MCP Server Registry** - Register, discover, and manage MCP servers
 3. **Agent Registry & A2A Hub** - Agent-to-agent communication
@@ -12,6 +13,7 @@ Universal guidelines for all agents working on this project.
 ## Commands Reference
 
 ### Development
+
 ```bash
 # Install dependencies
 uv sync
@@ -36,6 +38,7 @@ uv run bandit -r registry/
 ```
 
 ### Docker
+
 ```bash
 # Start all services
 docker compose up -d
@@ -51,6 +54,7 @@ docker compose down
 ```
 
 ### Git
+
 ```bash
 # Status
 git status
@@ -65,6 +69,7 @@ git commit -m "feat(api): add server search endpoint"
 ## Coding Patterns
 
 ### FastAPI Route
+
 ```python
 @router.get(
     "/{server_id}",
@@ -82,6 +87,7 @@ async def get_server(
 ```
 
 ### Pydantic Model
+
 ```python
 class ServerCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -91,6 +97,7 @@ class ServerCreate(BaseModel):
 ```
 
 ### Async Service
+
 ```python
 class ServerService:
     def __init__(self, repository: ServerRepository) -> None:
@@ -101,6 +108,7 @@ class ServerService:
 ```
 
 ### Test Pattern
+
 ```python
 @pytest.mark.asyncio
 async def test_get_server_returns_server(
@@ -121,6 +129,7 @@ async def test_get_server_returns_server(
 ## Do's and Don'ts
 
 ### Do
+
 - Use type annotations on all functions
 - Use `async/await` for I/O operations
 - Use `Depends()` for dependency injection
@@ -130,6 +139,7 @@ async def test_get_server_returns_server(
 - Use conventional commit messages
 
 ### Don't
+
 - Hardcode secrets or credentials
 - Use `pip` directly
 - Use blocking calls in async functions
@@ -202,6 +212,7 @@ Types: feat, fix, docs, style, refactor, test, chore
 ```
 
 Examples:
+
 - `feat(api): add server search endpoint`
 - `fix(auth): handle expired tokens correctly`
 - `test(services): add server service tests`

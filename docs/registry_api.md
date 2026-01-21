@@ -45,10 +45,12 @@ Authenticates a user and creates a session. **This endpoint must be called first
 **Method:** `POST`  
 **Content-Type:** `application/x-www-form-urlencoded`  
 **Parameters:**
+
 - `username` (required): Admin username
 - `password` (required): Admin password
 
 **Response:**
+
 - Success: Redirects to `/` with a session cookie
 - Failure: Redirects to `/login?error=Invalid+username+or+password`
 
@@ -90,6 +92,7 @@ Registers a new MCP service with the gateway.
 **Content-Type:** `application/x-www-form-urlencoded`  
 **Authentication:** Required (session cookie)  
 **Parameters:**
+
 - `name` (required): Display name of the service
 - `description` (required): Description of the service
 - `path` (required): URL path for the service
@@ -101,6 +104,7 @@ Registers a new MCP service with the gateway.
 - `license` (optional): License information
 
 **Response:**
+
 - Success: JSON response with status code 201
 - Failure: JSON response with error details
 
@@ -122,6 +126,7 @@ Enables or disables a registered service.
 **Content-Type:** `application/x-www-form-urlencoded`  
 **Authentication:** Required (session cookie)  
 **URL Parameters:**
+
 - `service_path`: Path of the service to toggle
 **Form Parameters:**
 - `enabled`: "on" to enable, omit to disable
@@ -150,6 +155,7 @@ Updates the details of an existing service.
 **Content-Type:** `application/x-www-form-urlencoded`  
 **Authentication:** Required (session cookie)  
 **URL Parameters:**
+
 - `service_path`: Path of the service to edit
 **Form Parameters:**
 - `name` (required): Display name of the service
@@ -184,6 +190,7 @@ Retrieves detailed information about a registered service.
 **Method:** `GET`  
 **Authentication:** Required (session cookie)  
 **URL Parameters:**
+
 - `service_path`: Path of the service to get details for, or "all" to get details for all services
 
 **Response:** JSON with server details
@@ -208,6 +215,7 @@ Retrieves the list of tools provided by a service.
 **Method:** `GET`  
 **Authentication:** Required (session cookie)  
 **URL Parameters:**
+
 - `service_path`: Path of the service to get tools for, or "all" to get tools from all services
 
 **Response:** JSON with tool details
@@ -232,6 +240,7 @@ Manually triggers a health check and tool discovery for a service.
 **Method:** `POST`  
 **Authentication:** Required (session cookie)  
 **URL Parameters:**
+
 - `service_path`: Path of the service to refresh
 
 **Response:** JSON with updated service status
@@ -308,6 +317,7 @@ asyncio.run(health_status_monitor())
 ## Authentication Flow
 
 1. **First Step**: Call the `/login` endpoint with valid credentials to obtain a session cookie:
+
    ```bash
    curl -X POST http://localhost:7860/login \
      -d "username=admin&password=password" \
@@ -315,6 +325,7 @@ asyncio.run(health_status_monitor())
    ```
 
 2. **Subsequent Requests**: Include the session cookie in all authenticated API calls:
+
    ```bash
    curl -X GET http://localhost:7860/api/server_details/all \
      -b cookies.txt
@@ -324,15 +335,15 @@ asyncio.run(health_status_monitor())
 
 ## API Summary
 
-* `GET /login`: Display login form.
-* `POST /login`: Authenticate user and obtain session cookie (required for all authenticated endpoints).
-* `POST /logout`: Log out user and invalidate session cookie.
-* `GET /`: Main dashboard (web UI, requires authentication).
-* `GET /edit/{service_path}`: Edit service form (web UI, requires authentication).
-* `POST /register`: Register a new service (requires authentication).
-* `POST /toggle/{service_path}`: Enable/disable a service (requires authentication).
-* `POST /edit/{service_path}`: Update service details (requires authentication).
-* `GET /api/server_details/{service_path}`: Get full details for a service (requires authentication).
-* `GET /api/tools/{service_path}`: Get the discovered tool list for a service (requires authentication).
-* `POST /api/refresh/{service_path}`: Manually trigger a health check/tool update (requires authentication).
-* `WebSocket /ws/health_status`: Real-time connection for receiving server health status updates.
+- `GET /login`: Display login form.
+- `POST /login`: Authenticate user and obtain session cookie (required for all authenticated endpoints).
+- `POST /logout`: Log out user and invalidate session cookie.
+- `GET /`: Main dashboard (web UI, requires authentication).
+- `GET /edit/{service_path}`: Edit service form (web UI, requires authentication).
+- `POST /register`: Register a new service (requires authentication).
+- `POST /toggle/{service_path}`: Enable/disable a service (requires authentication).
+- `POST /edit/{service_path}`: Update service details (requires authentication).
+- `GET /api/server_details/{service_path}`: Get full details for a service (requires authentication).
+- `GET /api/tools/{service_path}`: Get the discovered tool list for a service (requires authentication).
+- `POST /api/refresh/{service_path}`: Manually trigger a health check/tool update (requires authentication).
+- `WebSocket /ws/health_status`: Real-time connection for receiving server health status updates.

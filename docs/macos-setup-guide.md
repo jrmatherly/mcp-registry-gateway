@@ -3,6 +3,7 @@
 This guide provides a comprehensive, step-by-step walkthrough for setting up the MCP Gateway & Registry on macOS. Perfect for local development and testing.
 
 ## Table of Contents
+
 1. [Prerequisites](#1-prerequisites)
 2. [Container Runtime Choice](#2-container-runtime-choice)
 3. [Cloning and Initial Setup](#3-cloning-and-initial-setup)
@@ -20,6 +21,7 @@ This guide provides a comprehensive, step-by-step walkthrough for setting up the
 ## 1. Prerequisites
 
 ### System Requirements
+
 - **macOS**: 12.0 (Monterey) or later
 - **RAM**: At least 8GB (16GB recommended)
 - **Storage**: At least 10GB free space
@@ -28,6 +30,7 @@ This guide provides a comprehensive, step-by-step walkthrough for setting up the
 ### Required Software
 
 **Container Runtime (choose one):**
+
 - **Docker Desktop**: Install from https://www.docker.com/products/docker-desktop/
   - Includes Docker Compose
   - Requires privileged port access
@@ -38,6 +41,7 @@ This guide provides a comprehensive, step-by-step walkthrough for setting up the
   - See [Podman Deployment](#10-podman-deployment) section below
 
 **Other Requirements:**
+
 - **Node.js**: Version 20.x LTS - Install from https://nodejs.org/ or via Homebrew (not needed with `--prebuilt` flag)
 - **Python**: Version 3.12+ - Install via Homebrew (`brew install python@3.12`)
 - **UV Package Manager**: Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
@@ -51,12 +55,14 @@ This guide provides a comprehensive, step-by-step walkthrough for setting up the
 Choose between Docker and Podman based on your needs:
 
 ### Docker (Default)
+
 ✅ Best for: Standard deployment, familiar workflow  
 ✅ Uses privileged ports (80, 443)  
 ✅ Access at `http://localhost`  
 ⚠️ Requires Docker daemon running  
 
 ### Podman (Rootless Alternative)
+
 ✅ Best for: Rootless deployment, no Docker daemon  
 ✅ Uses non-privileged ports (8080, 8443)  
 ✅ Access at `http://localhost:8080`  
@@ -69,6 +75,7 @@ Choose between Docker and Podman based on your needs:
 ## 3. Cloning and Initial Setup
 
 ### Clone the Repository
+
 ```bash
 # Create workspace directory
 mkdir -p ~/workspace
@@ -84,6 +91,7 @@ ls -la
 ```
 
 ### Setup Python Virtual Environment
+
 ```bash
 # Create and activate Python virtual environment
 uv sync
@@ -99,6 +107,7 @@ which python
 ## 4. Environment Configuration
 
 ### Create Environment File
+
 ```bash
 # Copy the example environment file
 cp .env.example .env
@@ -112,6 +121,7 @@ nano .env
 ```
 
 ### Configure Essential Settings
+
 In the `.env` file, make these changes:
 
 ```bash
@@ -181,6 +191,7 @@ echo "DB Password: $KEYCLOAK_DB_PASSWORD"
 ### Start Database and Keycloak
 
 **With Docker:**
+
 ```bash
 # Start only the database and Keycloak services first
 docker compose up -d keycloak-db keycloak
@@ -197,6 +208,7 @@ docker-compose logs -f keycloak
 **Wait Time**: Allow 2-3 minutes for Keycloak to fully initialize.
 
 ### Verify Keycloak is Running
+
 ```bash
 # Test basic connectivity
 curl -s http://localhost:8080/realms/master | jq '.realm'
@@ -208,6 +220,7 @@ docker-compose ps keycloak
 ```
 
 ### Fix macOS SSL Requirement (Critical Step)
+
 **Why this is needed on macOS**: Docker on macOS runs in a virtualized environment, which causes Keycloak to treat localhost requests as external network traffic. This triggers Keycloak's default security policy requiring HTTPS for external connections.
 
 ```bash
@@ -270,6 +283,7 @@ chmod +x keycloak/setup/get-all-client-credentials.sh
 ```
 
 ### Fix SSL Requirement for mcp-gateway Realm
+
 **Important**: Now that the mcp-gateway realm is created, we need to disable SSL for it as well:
 
 ```bash
@@ -288,6 +302,7 @@ curl -s http://localhost:8080/realms/mcp-gateway | jq '.realm'
 ```
 
 ### Retrieve Client Credentials
+
 ```bash
 # Make the credentials script executable
 chmod +x keycloak/setup/get-all-client-credentials.sh
@@ -297,6 +312,7 @@ chmod +x keycloak/setup/get-all-client-credentials.sh
 ```
 
 **Expected Output:**
+
 ```
 Admin token obtained
 Found and saved: mcp-gateway-web (Secret: JyJzW00JeUBaCmH9Z5xtYDhE2MsGqOSv)
@@ -305,6 +321,7 @@ Files created in: .oauth-tokens/
 ```
 
 ### Update Environment with Client Secrets
+
 ```bash
 # View the retrieved client secrets
 cat .oauth-tokens/keycloak-client-secrets.txt
@@ -404,11 +421,13 @@ This will create access token files (both `.json` and `.env` formats) for all Ke
 ### Verify Keycloak is Running
 
 Open a web browser and navigate to:
+
 ```
 http://localhost:8080
 ```
 
 You should see the Keycloak login page. You can log in with:
+
 - Username: `admin`
 - Password: The password you set in KEYCLOAK_ADMIN_PASSWORD
 
@@ -421,6 +440,7 @@ You should see the Keycloak login page. You can log in with:
 **Important macOS Docker Volume Sharing**: On macOS, Docker Desktop only shares certain directories by default (like `/Users`, `/tmp`, `/private`). The `/opt` and `/var/log` directories we need are NOT shared by default, so we must create them with proper ownership for Docker containers to access them.
 
 **Note**: If you encounter permission issues, you may need to add `/opt` to Docker Desktop's shared directories:
+
 1. Open Docker Desktop
 2. Go to Settings > Resources > Virtual file shares
 3. Add `/opt` to the list of shared directories
@@ -446,12 +466,14 @@ chmod +x build_and_run.sh
 ```
 
 **Benefits of using `--prebuilt`:**
+
 - **Instant deployment**: No build time required
 - **No Node.js issues**: Pre-built frontend already included
 - **Consistent experience**: Same tested images for all users
 - **Bandwidth efficient**: Optimized, compressed images
 
 ### Verify All Services are Running
+
 ```bash
 # Check all services status
 docker-compose ps
@@ -469,6 +491,7 @@ docker-compose ps
 ```
 
 ### Monitor Service Logs
+
 ```bash
 # View all logs
 docker-compose logs -f
@@ -485,7 +508,9 @@ docker-compose logs -f registry
 ## 8. Verification and Testing
 
 ### Test Web Interface
+
 1. **Open your web browser** and navigate to:
+
    ```
    http://localhost
    ```
@@ -497,6 +522,7 @@ docker-compose logs -f registry
    - Password: The password you set in KEYCLOAK_ADMIN_PASSWORD
 
 ### Test API Access
+
 ```bash
 # Test registry health
 curl http://localhost/health
@@ -508,6 +534,7 @@ curl http://localhost:8080/realms/mcp-gateway | jq '.realm'
 ```
 
 ### Test Python MCP Client
+
 ```bash
 # Activate virtual environment
 source .venv/bin/activate
@@ -531,6 +558,7 @@ uv run cli/mcp_client.py --url http://localhost/currenttime/mcp call --tool curr
 ```
 
 ### Test Admin Console
+
 ```bash
 # Access Keycloak admin console
 open http://localhost:18080/admin/
@@ -598,6 +626,7 @@ podman machine list
 ```
 
 **Expected output:**
+
 ```
 NAME                     VM TYPE     CREATED      LAST UP            CPUS        MEMORY      DISK SIZE
 podman-machine-default*  qemu        2 hours ago  Currently running  4           8GiB        50GiB
@@ -670,6 +699,7 @@ cd ../..
 > **Apple Silicon Users:** Don't use `--prebuilt` with Podman on ARM64. The pre-built images are amd64 and will cause errors. Use `./build_and_run.sh --podman` to build natively. See [Podman on Apple Silicon Guide](podman-apple-silicon.md).
 
 **The script automatically:**
+
 - Detects Podman usage
 - Applies `docker-compose.podman.yml` overlay
 - Maps ports to non-privileged equivalents (8080/8443)
@@ -690,6 +720,7 @@ cd ../..
 | Grafana | `http://localhost:3000` |
 
 **Open in browser:**
+
 ```bash
 # Main interface (note port 8080)
 open http://localhost:8080
@@ -867,12 +898,14 @@ podman compose down
 ### Performance Considerations
 
 **Podman Machine on macOS:**
+
 - Runs in a QEMU VM (like Docker Desktop)
 - Performance similar to Docker Desktop
 - Recommended: 4+ CPUs, 8GB+ RAM
 - SSD recommended for disk operations
 
 **Tips for Better Performance:**
+
 1. Allocate sufficient resources to Podman machine
 2. Use `--prebuilt` flag to avoid local builds
 3. Keep Podman Desktop updated
@@ -887,6 +920,7 @@ podman compose down
 #### Docker/Podman Not Running
 
 **Docker:**
+
 ```bash
 # Check if Docker is running
 docker ps
@@ -896,6 +930,7 @@ docker ps
 ```
 
 **Podman:**
+
 ```bash
 # Check if Podman machine is running
 podman machine list
@@ -908,6 +943,7 @@ podman ps
 ```
 
 #### Port Conflicts
+
 ```bash
 # Check what's using ports
 lsof -i :80
@@ -919,6 +955,7 @@ sudo lsof -ti :80 | xargs kill
 ```
 
 #### Permission Issues
+
 ```bash
 # Fix Docker permissions
 sudo chown -R $(whoami) ~/.docker
@@ -931,6 +968,7 @@ chmod +x build_and_run.sh
 ```
 
 #### Keycloak "HTTPS Required" Error
+
 ```bash
 # This was fixed in Section 4, but if it persists:
 
@@ -944,6 +982,7 @@ docker exec mcp-gateway-registry-keycloak-1 /opt/keycloak/bin/kcadm.sh update re
 ```
 
 #### Services Won't Start
+
 ```bash
 # Check Docker memory/CPU limits in Docker Desktop preferences
 # Recommended: 4GB RAM, 2 CPUs minimum
@@ -957,6 +996,7 @@ docker-compose up -d
 ```
 
 #### Authentication Failures
+
 ```bash
 # Check client secrets match
 cat .oauth-tokens/keycloak-client-secrets.txt
@@ -969,6 +1009,7 @@ docker-compose restart auth-server
 ```
 
 #### "oauth2_callback_failed" Error
+
 ```bash
 # Check auth-server logs
 docker-compose logs auth-server | tail -20
@@ -985,7 +1026,9 @@ docker-compose restart auth-server
 ```
 
 ### Reset Everything
+
 If you need to start over completely:
+
 ```bash
 # Stop and remove all containers and data
 docker-compose down -v
@@ -1002,6 +1045,7 @@ cp .env.example .env
 ```
 
 ### View Service Status
+
 ```bash
 # Check all service status
 docker-compose ps
@@ -1014,6 +1058,7 @@ docker stats
 ```
 
 ### macOS-Specific Logs
+
 ```bash
 # Check Console.app for system logs
 # Check Docker Desktop logs via Docker Desktop > Troubleshoot > Get support
@@ -1038,24 +1083,28 @@ You now have a fully functional MCP Gateway & Registry running on macOS! The sys
 ### Key URLs
 
 **With Docker:**
+
 - **Registry**: http://localhost
 - **Keycloak Admin**: http://localhost:8080/admin
 - **API Gateway**: http://localhost/mcpgw/mcp
 - **Individual Services**: http://localhost/[service-name]/mcp
 
 **With Podman:**
+
 - **Registry**: http://localhost:8080
 - **Keycloak Admin**: http://localhost:18080/admin
 - **API Gateway**: http://localhost:8080/mcpgw/mcp
 - **Individual Services**: http://localhost:8080/[service-name]/mcp
 
 ### Key Files
+
 - **Configuration**: `.env`
 - **Client Credentials**: `.oauth-tokens/keycloak-client-secrets.txt`
 - **Agent Tokens**: `.oauth-tokens/agent-*-m2m.env`
 - **Podman Overlay**: `docker-compose.podman.yml` (auto-applied with `--podman` flag)
 
 ### Next Steps
+
 1. **Configure your AI coding assistant** with the generated MCP configuration
 2. **Create additional agents** using the setup-agent-service-account.sh script
 3. **Add custom MCP servers** by editing docker-compose.yml
@@ -1065,6 +1114,7 @@ You now have a fully functional MCP Gateway & Registry running on macOS! The sys
 **Remember**: Save your credentials securely and keep Docker Desktop running when using the system!
 
 ### Getting Help
+
 - **GitHub Issues**: https://github.com/agentic-community/mcp-gateway-registry/issues
 - **Documentation**: Check `/docs` folder for additional guides
 - **Logs**: Always check `docker-compose logs` for troubleshooting

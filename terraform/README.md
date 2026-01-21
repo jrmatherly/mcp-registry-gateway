@@ -11,6 +11,7 @@ Deploy the MCP Gateway Registry on AWS ECS using Fargate for serverless containe
 **Location:** [`aws-ecs/`](aws-ecs/)
 
 **Features:**
+
 - Serverless containers with AWS Fargate
 - Application Load Balancer (ALB) for traffic routing
 - Amazon EFS for persistent storage
@@ -22,6 +23,7 @@ Deploy the MCP Gateway Registry on AWS ECS using Fargate for serverless containe
 - NAT Gateway for outbound connectivity
 
 **Quick Start:**
+
 ```bash
 cd terraform/aws-ecs
 terraform init
@@ -40,12 +42,15 @@ For Kubernetes deployments on Amazon EKS, we recommend using the Helm charts wit
 The [awslabs/ai-on-eks](https://github.com/awslabs/ai-on-eks) project provides production-ready, battle-tested Terraform blueprints specifically designed for AI/ML workloads on EKS. Rather than duplicate this excellent work, we recommend:
 
 1. **Provision EKS cluster** using ai-on-eks blueprints:
+
    ```bash
    git clone https://github.com/awslabs/ai-on-eks.git
+
 # Until https://github.com/awslabs/ai-on-eks/pull/232 is merged, the custom stack can be used
 
 cd ai-on-eks/infra/custom
 ./install.sh
+
    ```
 
 2. **Deploy MCP Gateway Registry** using Helm charts:
@@ -56,6 +61,7 @@ cd ai-on-eks/infra/custom
    ```
 
 This approach provides:
+
 - GPU support for AI/ML workloads
 - Karpenter for efficient auto-scaling
 - EKS-optimized AMIs
@@ -65,6 +71,7 @@ This approach provides:
 - Proven blueprints maintained by AWS Labs
 
 **Reference:**
+
 - ai-on-eks Repository: https://github.com/awslabs/ai-on-eks
 - ai-on-eks Blueprints: https://github.com/awslabs/ai-on-eks/tree/main/blueprints
 - MCP Gateway Helm Charts: [`/charts`](../charts/)
@@ -87,6 +94,7 @@ This approach provides:
 ## Choosing Your Deployment Method
 
 ### Use AWS ECS (Terraform) if
+
 - You want the simplest AWS-native deployment
 - Your team is familiar with AWS services but not Kubernetes
 - You prefer managed infrastructure with less operational overhead
@@ -94,6 +102,7 @@ This approach provides:
 - You're already using ECS in your organization
 
 ### Use AWS EKS (ai-on-eks + Helm) if
+
 - You need Kubernetes for portability or multi-cloud strategy
 - Your team has Kubernetes expertise
 - You require GPU support for AI/ML workloads

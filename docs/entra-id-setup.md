@@ -171,6 +171,7 @@ If you plan to use machine-to-machine (M2M) authentication:
 ### Step 1: Update .env File
 
 1. Copy `.env.example` to `.env` if you haven't already:
+
    ```bash
    cp .env.example .env
    ```
@@ -282,11 +283,13 @@ group_mappings:
 ### Step 1: Start the Services
 
 1. Build and start the Docker containers:
+
    ```bash
    docker-compose up -d --build
    ```
 
 2. Check that services are running:
+
    ```bash
    docker-compose ps
    ```
@@ -294,6 +297,7 @@ group_mappings:
 ### Step 2: Test User Authentication
 
 1. Open your browser and navigate to:
+
    ```
    http://localhost
    ```
@@ -311,11 +315,13 @@ group_mappings:
 ### Step 3: Verify User Information
 
 1. Check the auth server logs to verify user information is being received:
+
    ```bash
    docker-compose logs auth-server | grep "Raw user info"
    ```
 
 2. You should see output similar to:
+
    ```
    Raw user info from entra: {
      'sub': 'abc123...',
@@ -327,11 +333,13 @@ group_mappings:
    ```
 
 3. Verify the mapped scopes:
+
    ```bash
    docker-compose logs auth-server | grep "Mapped user info"
    ```
 
 4. You should see:
+
    ```
    Mapped user info: {
      'username': 'user@yourdomain.onmicrosoft.com',
@@ -361,12 +369,14 @@ group_mappings:
 If you configured API access for M2M authentication:
 
 1. Create a service principal for your AI agent:
+
    ```bash
    # This is done in Azure Portal → App registrations
    # Create a new app registration for the AI agent
    ```
 
 2. Test M2M token generation:
+
    ```bash
    curl -X POST "https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
@@ -385,12 +395,14 @@ If you configured API access for M2M authentication:
 ### Issue: Missing email and groups claims
 
 **Symptoms:**
+
 ```
 Raw user info from entra: {'sub': '...', 'name': 'User Name', 'family_name': '...', 'given_name': '...'}
 Mapped user info: {'username': None, 'email': None, 'groups': []}
 ```
 
 **Solution:**
+
 1. Verify you completed [Step 5: Add API Permissions](#step-5-add-api-permissions)
 2. Ensure you clicked **Grant admin consent**
 3. Complete [Step 6: Configure Optional Claims](#step-6-configure-optional-claims)
@@ -401,6 +413,7 @@ Mapped user info: {'username': None, 'email': None, 'groups': []}
 ### Issue: Token validation fails with "Invalid issuer"
 
 **Symptoms:**
+
 ```
 Token validation failed: Invalid issuer: https://sts.windows.net/{tenant}/
 ```
@@ -418,10 +431,12 @@ The Entra ID provider supports both v1.0 and v2.0 token formats. This error shou
 User can log in but sees "Access Denied" or "Insufficient Permissions"
 
 **Solution:**
+
 1. Verify the user is added to at least one security group in Azure AD
 2. Check that group Object IDs in `scopes.yml` match the groups in Azure Portal
 3. Verify the group mappings include the necessary scopes
 4. Check auth server logs to see what groups are being received:
+
    ```bash
    docker-compose logs auth-server | grep "groups"
    ```
@@ -429,11 +444,13 @@ User can log in but sees "Access Denied" or "Insufficient Permissions"
 ### Issue: Redirect URI mismatch error
 
 **Symptoms:**
+
 ```
 AADSTS50011: The redirect URI 'http://localhost/auth/callback' does not match the redirect URIs configured for the application
 ```
 
 **Solution:**
+
 1. Go to Azure Portal → App registrations → Your app → Authentication
 2. Verify the redirect URI exactly matches what's in the error message
 3. Add any missing redirect URIs
@@ -453,15 +470,18 @@ This occurs when a user is a member of more than 200 groups. You need to:
 ### Issue: Client secret expired
 
 **Symptoms:**
+
 ```
 AADSTS7000215: Invalid client secret provided
 ```
 
 **Solution:**
+
 1. Go to Azure Portal → App registrations → Your app → Certificates & secrets
 2. Create a new client secret
 3. Update `ENTRA_CLIENT_SECRET` in `.env`
 4. Restart the services:
+
    ```bash
    docker-compose restart auth-server
    ```
@@ -472,6 +492,7 @@ AADSTS7000215: Invalid client secret provided
 You don't see the "Grant admin consent" button or get an error when clicking it
 
 **Solution:**
+
 1. You need Global Administrator, Application Administrator, or Cloud Application Administrator role
 2. Contact your Azure AD administrator to grant the permissions
 3. Alternatively, users can consent individually (not recommended for production)
@@ -493,6 +514,7 @@ You don't see the "Grant admin consent" button or get an error when clicking it
 ### Update Redirect URIs
 
 For production, update redirect URIs:
+
 ```
 https://your-domain.com/oauth2/callback/entra
 ```
@@ -500,6 +522,7 @@ https://your-domain.com/oauth2/callback/entra
 ### Environment Variables
 
 Update production `.env`:
+
 ```bash
 ENTRA_REDIRECT_URI=https://your-domain.com/oauth2/callback/entra
 AUTH_SERVER_EXTERNAL_URL=https://your-domain.com:8888
@@ -516,6 +539,7 @@ Ensure your production deployment uses HTTPS for all OAuth flows.
 ### Custom Claims
 
 To add custom claims to tokens:
+
 1. Go to **Token configuration**
 2. Click **Add optional claim**
 3. Select token type and claims
@@ -524,13 +548,15 @@ To add custom claims to tokens:
 ### Group Filtering
 
 To limit which groups are included in tokens:
-1. Go to **Token configuration** 
+
+1. Go to **Token configuration**
 2. Click **Add groups claim**
 3. Configure **Groups assigned to the application**
 
 ### Enterprise Applications
 
 For advanced management:
+
 1. Go to **Enterprise applications**
 2. Find your app registration
 3. Configure:
@@ -545,6 +571,7 @@ For advanced management:
 ### Option 1: Add User to Existing Group (Recommended)
 
 **In Azure Portal:**
+
 1. Go to **Microsoft Entra ID** → **Groups**
 2. Click on **MCP Registry Admins** (or appropriate group)
 3. Click **Members** → **Add members**
@@ -564,6 +591,7 @@ For advanced management:
 2. **Get the group Object ID** from the group overview page
 
 3. **Add to scopes.yml:**
+
 ```yaml
 group_mappings:
   # Add new group mapping
@@ -572,6 +600,7 @@ group_mappings:
 ```
 
 4. **Restart auth server:**
+
 ```bash
 cp auth_server/scopes.yml ~/mcp-gateway/auth_server/scopes.yml
 docker-compose restart auth-server
@@ -582,16 +611,19 @@ docker-compose restart auth-server
 ## API Reference
 
 ### Token Endpoint
+
 ```
 POST https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token
 ```
 
 ### Authorization Endpoint
+
 ```
 GET https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize
 ```
 
 ### User Info Endpoint
+
 ```
 GET https://graph.microsoft.com/v1.0/me
 ```
@@ -645,6 +677,7 @@ Before using the IAM API commands, you need:
 3. **Admin group membership**: Your user must be in the `registry-admins` group
 
 Save your token to a file for CLI usage:
+
 ```bash
 # Save token from UI sidebar to a file
 echo "eyJhbGci..." > api/.token
@@ -655,6 +688,7 @@ echo "eyJhbGci..." > api/.token
 Groups define access permissions for users and M2M accounts. Create a group definition JSON file:
 
 **Example: `cli/examples/public-mcp-users.json`**
+
 ```json
 {
   "scope_name": "public-mcp-users",
@@ -690,6 +724,7 @@ Groups define access permissions for users and M2M accounts. Create a group defi
 ```
 
 **Import the group:**
+
 ```bash
 uv run python api/registry_management.py \
   --token-file api/.token \
@@ -751,6 +786,7 @@ uv run python api/registry_management.py \
 ```
 
 **Output:**
+
 ```
 Client ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 Client Secret: xxxxx~xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -803,6 +839,7 @@ curl -X POST "https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token" \
 ```
 
 **Example with placeholder values:**
+
 ```bash
 curl -X POST "https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -813,6 +850,7 @@ curl -X POST "https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token
 ```
 
 **Response:**
+
 ```json
 {
   "token_type": "Bearer",
@@ -828,6 +866,7 @@ The `generate_creds.sh` script automates token generation for multiple identitie
 **Step 1: Configure identities file**
 
 Create or edit `.oauth-tokens/entra-identities.json`:
+
 ```json
 [
   {
@@ -851,6 +890,7 @@ Create or edit `.oauth-tokens/entra-identities.json`:
 | `scope` | Yes | OAuth2 scope in format `api://{APP_CLIENT_ID}/.default` |
 
 **Multiple Identities Example:**
+
 ```json
 [
   {
@@ -881,6 +921,7 @@ Ensure `AUTH_PROVIDER=entra` is set in your `.env` file.
 ```
 
 Or with a custom identities file:
+
 ```bash
 uv run credentials-provider/entra/generate_tokens.py \
   --identities-file /path/to/my-identities.json \
@@ -889,17 +930,20 @@ uv run credentials-provider/entra/generate_tokens.py \
 ```
 
 **Output:**
+
 - Tokens are saved to `.oauth-tokens/{identity_name}.json`
 - Each file contains the access token, expiration time, and metadata
 
 ### Token Scope Format
 
 The scope for Entra ID M2M tokens follows this format:
+
 ```
 api://{APP_CLIENT_ID}/.default
 ```
 
 Where:
+
 - `{APP_CLIENT_ID}` is the Application (client) ID of your MCP Gateway app registration
 - `.default` requests all scopes that admin consent has been granted for
 
@@ -912,6 +956,7 @@ Once you have a JWT token, you can use it in AI coding assistants like Cursor or
 3. **The token** grants access based on the M2M account's group membership
 
 Example configuration for an AI assistant:
+
 ```json
 {
   "mcp_registry_url": "https://your-registry-url.example.com",
@@ -929,6 +974,7 @@ Users can also generate personal JWT tokens from the MCP Gateway Registry web UI
 4. Copy the generated token
 
 These self-signed tokens:
+
 - Are signed with HS256 using the server's secret key
 - Include the user's groups and scopes
 - Can be used for programmatic API access
@@ -947,6 +993,7 @@ After completing the setup:
 5. **Production Deployment**: Deploy to your production environment
 
 For more information, see:
+
 - [Complete Setup Guide](./complete-setup-guide.md)
 - [Observability Documentation](./OBSERVABILITY.md)
 - [FAQ](./FAQ.md)

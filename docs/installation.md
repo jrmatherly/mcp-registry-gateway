@@ -202,6 +202,7 @@ open http://localhost:8080  # macOS
 > **Note for Apple Silicon:** Don't use `--prebuilt` with Podman on ARM64. Use `./build_and_run.sh --podman` instead. See [Podman on Apple Silicon Guide](podman-apple-silicon.md).
 
 **Podman Port Mapping:**
+
 - Main interface: `http://localhost:8080` (HTTP) or `https://localhost:8443` (HTTPS)
 - Registry API: `http://localhost:7860` (unchanged)
 - Keycloak: `http://localhost:18080` (instead of 8080)
@@ -212,11 +213,13 @@ open http://localhost:8080  # macOS
 ### System Requirements
 
 **Minimum (Development)**:
+
 - EC2 Instance: `t3.large` (2 vCPU, 8GB RAM)
 - Storage: 20GB SSD
 - Network: Ports 80, 443, 7860, 8080 accessible
 
 **Recommended (Production)**:
+
 - EC2 Instance: `t3.2xlarge` (8 vCPU, 32GB RAM)  
 - Storage: 50GB+ SSD
 - Network: Multi-AZ with load balancer
@@ -224,6 +227,7 @@ open http://localhost:8080  # macOS
 ### Detailed Setup Steps
 
 1. **Create Local Directories**
+
    ```bash
    mkdir -p ${HOME}/mcp-gateway/{servers,auth_server,secrets,logs}
    cp -r registry/servers ${HOME}/mcp-gateway/
@@ -231,6 +235,7 @@ open http://localhost:8080  # macOS
    ```
 
 2. **Configure Environment Variables**
+
    ```bash
    cp .env.example .env
    nano .env  # Configure required values
@@ -244,6 +249,7 @@ open http://localhost:8080  # macOS
    - `AWS_REGION`: AWS region for Cognito
 
 3. **Generate Authentication Credentials**
+
    ```bash
    # Configure OAuth credentials
    cp credentials-provider/oauth/.env.example credentials-provider/oauth/.env
@@ -254,6 +260,7 @@ open http://localhost:8080  # macOS
    ```
 
 4. **Install Dependencies**
+
    ```bash
    # Install uv (Python package manager)
    curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -269,6 +276,7 @@ open http://localhost:8080  # macOS
    ```
 
 5. **Deploy Services**
+
    ```bash
    ./build_and_run.sh
    ```
@@ -351,6 +359,7 @@ nano .env  # Configure required values
 ```
 
 After initial deployment, you must complete the MongoDB and Keycloak initialization steps. See the [Podman Installation Quick Start](#podman-installation-rootless-alternative) above for the complete sequence including:
+
 - MongoDB initialization (`podman compose up mongodb-init`)
 - Keycloak realm setup (using port 18080)
 - Client credential retrieval and .env update
@@ -376,6 +385,7 @@ Podman uses non-privileged host ports to avoid requiring root access:
 | Grafana | `http://localhost:3000` | `http://localhost:3000` | Dashboards (unchanged) |
 
 **Access the registry:**
+
 ```bash
 # With Podman
 open http://localhost:8080
@@ -439,6 +449,7 @@ By default, MCP Gateway runs on HTTP (port 80). To enable HTTPS for production d
 #### 1. Obtain SSL Certificates
 
 **Option A: Let's Encrypt (Recommended)**
+
 ```bash
 # Install certbot
 sudo apt-get update
@@ -510,6 +521,7 @@ sudo crontab -e
 #### Troubleshooting
 
 **HTTPS not working?**
+
 - Check certificate files exist: `ls -la ${HOME}/mcp-gateway/ssl/certs/ ${HOME}/mcp-gateway/ssl/private/`
 - Verify certificates are present: `${HOME}/mcp-gateway/ssl/certs/fullchain.pem` and `${HOME}/mcp-gateway/ssl/private/privkey.pem`
 - Check container logs: `docker compose logs registry | grep -i ssl`
@@ -573,6 +585,7 @@ graph TB
 ### Verify Installation
 
 1. **Check Service Status**
+
    ```bash
    docker-compose ps
    docker-compose logs -f
@@ -584,6 +597,7 @@ graph TB
    - Verify MCP server health status
 
 3. **Test Authentication**
+
    ```bash
    cd tests
    ./mcp_cmds.sh ping
@@ -592,17 +606,20 @@ graph TB
 ### Configure AI Coding Assistants
 
 1. **Generate Client Configurations**
+
    ```bash
    ./credentials-provider/generate_creds.sh
    ls .oauth-tokens/  # View generated configurations
    ```
 
 2. **Setup VS Code**
+
    ```bash
    cp .oauth-tokens/vscode-mcp.json ~/.vscode/settings.json
    ```
 
 3. **Setup Roo Code**
+
    ```bash
    cp .oauth-tokens/mcp.json ~/.vscode/mcp-settings.json
    ```
@@ -614,6 +631,7 @@ For detailed AI assistant setup, see [AI Coding Assistants Setup Guide](ai-codin
 ### Common Issues
 
 **Services won't start:**
+
 ```bash
 # Check Docker daemon
 sudo systemctl status docker
@@ -626,6 +644,7 @@ docker-compose logs --tail=50
 ```
 
 **Authentication failures:**
+
 ```bash
 # Verify Cognito configuration
 aws cognito-idp describe-user-pool --user-pool-id YOUR_POOL_ID
@@ -635,6 +654,7 @@ cd credentials-provider && ./generate_creds.sh --verbose
 ```
 
 **Network connectivity issues:**
+
 ```bash
 # Check port availability
 sudo netstat -tlnp | grep -E ':(80|443|7860|8080)'

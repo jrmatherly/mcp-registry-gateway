@@ -71,6 +71,7 @@ For detailed information about the MongoDB and DocumentDB backends, see:
 **[Storage Architecture: MongoDB CE & AWS DocumentDB](./design/storage-architecture-mongodb-documentdb.md)**
 
 This comprehensive guide covers:
+
 - MongoDB CE local development setup
 - AWS DocumentDB production deployment
 - Vector search implementation (app-level vs. native)
@@ -291,6 +292,7 @@ Stores vector embeddings for semantic search across servers and agents.
 - `path` (unique) - Primary key
 - `entity_type` - Filter by entity type
 - `embedding` (vector) - **DocumentDB only:** HNSW vector index for fast similarity search
+
   ```javascript
   // HNSW index configuration (DocumentDB)
   {
@@ -425,6 +427,7 @@ Stores federation configuration for external registries (Anthropic, ASOR).
 ### Hybrid Search
 
 Both backends combine:
+
 - **Vector similarity** (semantic matching) - Primary ranking
 - **Text matching** (keyword boosting) - Secondary bonus
 
@@ -537,18 +540,21 @@ else:
 ### To MongoDB CE (Local Development)
 
 1. **Update configuration:**
+
    ```bash
    # In .env
    STORAGE_BACKEND=mongodb-ce
    ```
 
 2. **Start MongoDB:**
+
    ```bash
    docker compose up -d mongodb
    docker compose up mongodb-init
    ```
 
 3. **Re-register servers and agents:**
+
    ```bash
    # Use API to register from backup files
    for file in backup/*.json; do
@@ -561,12 +567,14 @@ else:
 ### To AWS DocumentDB (Production)
 
 1. **Deploy infrastructure:**
+
    ```bash
    cd terraform/aws-ecs
    terraform apply
    ```
 
 2. **Update configuration:**
+
    ```bash
    STORAGE_BACKEND=documentdb
    DOCUMENTDB_HOST=<cluster-endpoint>
@@ -576,6 +584,7 @@ else:
    ```
 
 3. **Import data:**
+
    ```bash
    # Use mongodump/mongorestore or API
    mongorestore --host=<cluster> --ssl --db=mcp_registry ./backup

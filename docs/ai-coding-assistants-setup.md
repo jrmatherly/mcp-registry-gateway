@@ -19,6 +19,7 @@ The MCP Gateway automatically generates configuration files for various AI codin
 Microsoft's popular editor with native MCP support.
 
 **Setup:**
+
 ```bash
 # Copy generated configuration
 cp .oauth-tokens/vscode-mcp.json ~/.vscode/settings.json
@@ -28,6 +29,7 @@ cat .oauth-tokens/vscode-mcp.json >> ~/.vscode/settings.json
 ```
 
 **Configuration Format:**
+
 ```json
 {
   "mcp": {
@@ -52,12 +54,14 @@ cat .oauth-tokens/vscode-mcp.json >> ~/.vscode/settings.json
 Roo Code demonstrates the power of enterprise governance for AI development tools.
 
 **Setup:**
+
 ```bash
 # Copy Roo Code configuration
 cp .oauth-tokens/mcp.json ~/.vscode/mcp_settings.json
 ```
 
 **Alternative Setup Options:**
+
 ```bash
 # Option 1: Direct copy (recommended)
 cp .oauth-tokens/mcp.json ~/.vscode/mcp_settings.json
@@ -75,6 +79,7 @@ ln -sf "$(pwd)/.oauth-tokens/mcp.json" ~/.vscode/mcp_settings.json
 ![Roo Code MCP Configuration](img/roo.png)
 
 **Enterprise Tool Catalog**
+
 - Curated MCP servers approved by IT
 - Consistent across all developer environments  
 - Centralized authentication and governance
@@ -86,6 +91,7 @@ ln -sf "$(pwd)/.oauth-tokens/mcp.json" ~/.vscode/mcp_settings.json
 ![Roo Code Agent in Action](img/roo_agent.png)
 
 **AI Assistant in Action**
+
 - Natural language tool discovery
 - Secure execution of enterprise tools
 - Complete audit trail for compliance
@@ -98,21 +104,25 @@ ln -sf "$(pwd)/.oauth-tokens/mcp.json" ~/.vscode/mcp_settings.json
 **Key Enterprise Benefits:**
 
 **Centralized Control**
+
 - IT teams manage approved MCP servers across all development environments
 - Consistent tool availability regardless of developer setup
 - Rapid deployment of new tools to entire organization
 
 **Secure Authentication**  
+
 - All tool access routes through enterprise identity systems (Amazon Cognito)
 - No individual API key management required
 - Automatic token refresh and rotation via [Token Refresh Service](token-refresh-service.md)
 
 **Usage Analytics & Compliance**
+
 - Track which developers use which tools and when
 - Generate compliance reports for audit requirements
 - Monitor tool adoption and usage patterns across teams
 
 **Developer Productivity**
+
 - Zero configuration required for approved tools
 - Instant access to new enterprise tools as they're approved
 - Same experience across VS Code, Cursor, Claude Code, and other assistants
@@ -122,12 +132,14 @@ ln -sf "$(pwd)/.oauth-tokens/mcp.json" ~/.vscode/mcp_settings.json
 Anthropic's coding assistant with standardized MCP configurations.
 
 **Setup:**
+
 ```bash
 # Claude Code uses similar JSON format
 cp .oauth-tokens/vscode-mcp.json ~/.claude-code/mcp-config.json
 ```
 
 **Features:**
+
 - Natural language interaction with MCP tools
 - Context-aware tool suggestions
 - Integrated code generation and tool execution
@@ -137,12 +149,14 @@ cp .oauth-tokens/vscode-mcp.json ~/.claude-code/mcp-config.json
 AI-first code editor with advanced MCP integration.
 
 **Setup:**
+
 ```bash
 # Cursor configuration (similar to VS Code)
 cp .oauth-tokens/vscode-mcp.json ~/.cursor/mcp-settings.json
 ```
 
 **Advanced Features:**
+
 - Multi-file context for tool operations
 - Predictive tool suggestions based on code context
 - Integrated diff view for tool-generated changes
@@ -152,12 +166,14 @@ cp .oauth-tokens/vscode-mcp.json ~/.cursor/mcp-settings.json
 Autonomous coding agent compatible with VS Code.
 
 **Setup:**
+
 ```bash
 # Cline uses VS Code-style configuration
 cp .oauth-tokens/vscode-mcp.json ~/.vscode/settings.json
 ```
 
 **Autonomous Capabilities:**
+
 - Goal-directed tool usage
 - Multi-step task execution
 - Error handling and retry logic
@@ -167,12 +183,14 @@ cp .oauth-tokens/vscode-mcp.json ~/.vscode/settings.json
 For custom applications or other MCP clients:
 
 **Use Raw Authentication:**
+
 ```bash
 # Access authentication details directly
 cat .oauth-tokens/ingress.json
 ```
 
 **Example Integration:**
+
 ```python
 import json
 import mcp
@@ -214,6 +232,7 @@ The MCP Gateway includes an [Automated Token Refresh Service](token-refresh-serv
 ```
 
 **Key Benefits:**
+
 - **Zero Downtime**: Tokens refresh automatically before expiration
 - **Continuous Operation**: AI assistants never lose access due to expired tokens
 - **Multiple Client Support**: Updates configurations for VS Code, Roo Code, Claude Code, etc.
@@ -236,6 +255,7 @@ If you need to manually regenerate configurations:
 ### Environment-Specific Configurations
 
 **Development Environment:**
+
 ```bash
 # Generate development configurations
 ENVIRONMENT=dev ./credentials-provider/generate_creds.sh
@@ -243,6 +263,7 @@ cp .oauth-tokens/dev-* ~/.vscode/
 ```
 
 **Production Environment:**
+
 ```bash
 # Generate production configurations  
 ENVIRONMENT=prod ./credentials-provider/generate_creds.sh
@@ -256,6 +277,7 @@ cp .oauth-tokens/prod-* ~/.vscode/
 **Token Expired:**
 
 *If using Token Refresh Service (recommended):*
+
 ```bash
 # Check if token refresh service is running
 ps aux | grep token_refresher
@@ -268,6 +290,7 @@ tail -f token_refresher.log
 ```
 
 *Manual token refresh:*
+
 ```bash
 # Regenerate credentials
 ./credentials-provider/generate_creds.sh
@@ -275,6 +298,7 @@ tail -f token_refresher.log
 ```
 
 **Permission Denied:**
+
 ```bash
 # Check user permissions in Cognito
 aws cognito-idp admin-list-groups-for-user \
@@ -288,6 +312,7 @@ cat auth_server/scopes.yml
 ### Configuration Issues
 
 **Tools Not Appearing:**
+
 ```bash
 # Verify MCP server health
 curl -H "Authorization: Bearer TOKEN" \
@@ -298,6 +323,7 @@ tail -f ~/.vscode/logs/mcp.log
 ```
 
 **Connection Failures:**
+
 ```bash
 # Test gateway connectivity
 ./tests/mcp_cmds.sh ping
@@ -328,6 +354,7 @@ openssl s_client -connect your-gateway.com:443
 ### Development Workflow
 
 1. **Team Onboarding**
+
    ```bash
    # Create onboarding script
    #!/bin/bash
@@ -342,6 +369,7 @@ openssl s_client -connect your-gateway.com:443
    - Share useful tool combinations with team
 
 3. **Automation**
+
    ```bash
    # Automate configuration updates
    crontab -e

@@ -41,16 +41,19 @@ This document provides a comprehensive overview of all 49 API endpoints availabl
 **Used by:** A2A Agent APIs, Anthropic Registry API v0
 
 **How it works:**
+
 - Client sends JWT token in `Authorization: Bearer <token>` header
 - Nginx validates token via `/validate` endpoint against auth-server
 - Auth-server validates token against Keycloak
 - Token scopes determine user permissions
 
 **Token Sources:**
+
 - Keycloak M2M service account (`mcp-gateway-m2m`)
 - User tokens generated via `/api/tokens/generate`
 
 **Example:**
+
 ```bash
 curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ..." \
   http://localhost/v0.1/agents
@@ -63,12 +66,14 @@ curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ..." \
 **Used by:** UI Server Management, Health Monitoring (WebSocket), Auth status endpoints
 
 **How it works:**
+
 - User logs in via OAuth2 (Keycloak)
 - Auth-server sets `mcp_gateway_session` cookie
 - Browser automatically includes cookie in subsequent requests
 - Registry validates cookie against auth-server
 
 **Example:**
+
 ```bash
 curl -b "mcp_gateway_session=<session_value>" \
   http://localhost/api/servers
@@ -81,11 +86,13 @@ curl -b "mcp_gateway_session=<session_value>" \
 **Used by:** Internal Admin Endpoints
 
 **How it works:**
+
 - Credentials: `ADMIN_USER:ADMIN_PASSWORD` from environment
 - Sent in `Authorization: Basic <base64>` header
 - Used for internal mcpgw-server operations
 
 **Example:**
+
 ```bash
 curl -u admin:password http://localhost/api/internal/register \
   -d "service_path=/example"
@@ -98,6 +105,7 @@ curl -u admin:password http://localhost/api/internal/register \
 **Used by:** Discovery endpoints, login page, OAuth2 providers list
 
 **Endpoints:**
+
 - `GET /.well-known/mcp-servers`
 - `GET /api/auth/login`
 - `GET /api/auth/providers`
@@ -120,6 +128,7 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Requires `publish_agent` scope
 
 **Request Body:**
+
 ```json
 {
   "name": "string",
@@ -148,6 +157,7 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "message": "Agent registered successfully",
@@ -163,6 +173,7 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Error Codes:**
+
 - `409 Conflict` - Agent path already exists
 - `422 Unprocessable Entity` - Validation error (invalid JSON, missing fields)
 - `403 Forbidden` - User lacks `publish_agent` permission
@@ -178,11 +189,13 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Optional (results filtered by user permissions)
 
 **Query Parameters:**
+
 - `query` (optional, string) - Search query string
 - `enabled_only` (optional, boolean, default: false) - Show only enabled agents
 - `visibility` (optional, string) - Filter by visibility level
 
 **Response:** `200 OK`
+
 ```json
 {
   "agents": [
@@ -208,9 +221,11 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** JWT Bearer Token required
 
 **Path Parameter:**
+
 - `path` - Agent path (e.g., `/code-reviewer`)
 
 **Response:** `200 OK`
+
 ```json
 {
   "name": "Code Reviewer Agent",
@@ -229,6 +244,7 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Error Codes:**
+
 - `404 Not Found` - Agent doesn't exist
 - `403 Forbidden` - User not authorized
 
@@ -243,6 +259,7 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Requires `modify_service` permission and ownership
 
 **Path Parameter:**
+
 - `path` - Agent path
 
 **Request Body:** Same as registration request
@@ -250,6 +267,7 @@ curl -u admin:password http://localhost/api/internal/register \
 **Response:** `200 OK` with updated agent card
 
 **Error Codes:**
+
 - `404 Not Found` - Agent doesn't exist
 - `403 Forbidden` - User lacks modify permission
 - `422 Unprocessable Entity` - Validation error
@@ -265,11 +283,13 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Requires admin permission or agent ownership
 
 **Path Parameter:**
+
 - `path` - Agent path
 
 **Response:** `204 No Content`
 
 **Error Codes:**
+
 - `404 Not Found` - Agent doesn't exist
 - `403 Forbidden` - User lacks delete permission
 
@@ -284,12 +304,15 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Requires `toggle_service` permission
 
 **Path Parameter:**
+
 - `path` - Agent path
 
 **Query Parameter:**
+
 - `enabled` (boolean) - True to enable, false to disable
 
 **Response:** `200 OK`
+
 ```json
 {
   "path": "/agent-name",
@@ -299,6 +322,7 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Error Codes:**
+
 - `404 Not Found` - Agent doesn't exist
 - `403 Forbidden` - User lacks toggle permission
 
@@ -313,6 +337,7 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Optional
 
 **Request Body:**
+
 ```json
 {
   "skills": ["skill1", "skill2"],
@@ -321,9 +346,11 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Query Parameter:**
+
 - `max_results` (optional, integer, default: 10, max: 100)
 
 **Response:** `200 OK`
+
 ```json
 {
   "agents": [
@@ -338,6 +365,7 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Error Codes:**
+
 - `400 Bad Request` - No skills provided
 
 ---
@@ -351,10 +379,12 @@ curl -u admin:password http://localhost/api/internal/register \
 **Authentication:** Optional
 
 **Query Parameters:**
+
 - `query` (required, string) - Natural language query (e.g., "Find agents that can analyze code")
 - `max_results` (optional, integer, default: 10, max: 100)
 
 **Response:** `200 OK`
+
 ```json
 {
   "agents": [
@@ -369,6 +399,7 @@ curl -u admin:password http://localhost/api/internal/register \
 ```
 
 **Error Codes:**
+
 - `400 Bad Request` - Empty query
 - `500 Internal Server Error` - Search error
 
@@ -391,10 +422,12 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** List all MCP servers with cursor-based pagination
 
 **Query Parameters:**
+
 - `cursor` (optional, string) - Pagination cursor from previous response
 - `limit` (optional, integer, default: 100, max: 1000) - Max items per page
 
 **Response:** `200 OK`
+
 ```json
 {
   "servers": [
@@ -429,11 +462,13 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** List all versions for a specific server
 
 **Path Parameter:**
+
 - `serverName` - URL-encoded reverse-DNS name (e.g., `io.mcpgateway%2Fexample-server`)
 
 **Response:** `200 OK` with versions array (currently one version per server)
 
 **Error Codes:**
+
 - `404 Not Found` - Server not found or user lacks access
 
 ---
@@ -445,12 +480,14 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Get detailed information about a specific server version
 
 **Path Parameters:**
+
 - `serverName` - URL-encoded server name
 - `version` - Version string or `latest`
 
 **Response:** `200 OK` with complete server details including tools
 
 **Error Codes:**
+
 - `404 Not Found` - Server/version not found or user lacks access
 
 ---
@@ -470,6 +507,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Main dashboard showing services based on user permissions
 
 **Query Parameters:**
+
 - `query` (optional, string) - Search services
 
 **Response:** HTML page with filtered service list
@@ -483,9 +521,11 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Get servers data as JSON for React frontend
 
 **Query Parameters:**
+
 - `query` (optional, string)
 
 **Response:** `200 OK`
+
 ```json
 {
   "servers": [
@@ -511,11 +551,13 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Authentication:** Requires `toggle_service` UI permission
 
 **Form Parameters:**
+
 - `enabled` (boolean)
 
 **Response:** `200 OK` with new status
 
 **Error Codes:**
+
 - `404 Not Found` - Service doesn't exist
 - `403 Forbidden` - User lacks toggle permission
 - `500 Internal Server Error` - Toggle operation failed
@@ -531,11 +573,13 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Authentication:** Requires `register_service` UI permission
 
 **Form Parameters:**
+
 - `name`, `description`, `path`, `proxy_pass_url`, `tags`, `num_tools`, `num_stars`, `is_python`, `license`
 
 **Response:** `201 Created`
 
 **Error Codes:**
+
 - `400 Bad Request` - Service already exists
 - `403 Forbidden` - User lacks register permission
 
@@ -584,6 +628,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Get detailed server info by path or all servers
 
 **Path Parameter:**
+
 - `service_path` - Service path or `all`
 
 **Response:** `200 OK` with server details
@@ -597,9 +642,11 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Get tools list for service
 
 **Path Parameter:**
+
 - `service_path` - Service path or `all`
 
 **Response:** `200 OK`
+
 ```json
 {
   "tools": [
@@ -613,6 +660,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 ```
 
 **Error Codes:**
+
 - `404 Not Found` - Service not found
 - `400 Bad Request` - Service disabled
 - `403 Forbidden` - User lacks access
@@ -682,6 +730,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Endpoint:** `POST /api/internal/add-to-groups`
 
 **Form Parameters:**
+
 - `server_name` - Server name
 - `group_names` - Comma-separated group names
 
@@ -712,6 +761,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Endpoint:** `POST /api/internal/create-group`
 
 **Form Parameters:**
+
 - `group_name`
 - `description` (optional)
 - `create_in_idp` (optional)
@@ -725,6 +775,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Endpoint:** `POST /api/internal/delete-group`
 
 **Form Parameters:**
+
 - `group_name`
 - `delete_from_idp` (optional)
 - `force` (optional)
@@ -740,6 +791,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Endpoint:** `GET /api/internal/list-groups`
 
 **Query Parameters:**
+
 - `include_keycloak` (default: true)
 - `include_scopes` (default: true)
 
@@ -754,6 +806,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Generate JWT token for authenticated user
 
 **Request Body:**
+
 ```json
 {
   "requested_scopes": ["optional", "scopes"],
@@ -763,6 +816,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "access_token": "string",
@@ -786,6 +840,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Response:** `200 OK` with access token
 
 **Error Codes:**
+
 - `403 Forbidden` - Non-admin user
 - `500 Internal Server Error` - Configuration error
 
@@ -803,6 +858,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Show login form with OAuth2 providers
 
 **Query Parameters:**
+
 - `error` (optional) - Error message
 
 **Response:** HTML login form
@@ -816,6 +872,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Redirect to auth server for OAuth2 login
 
 **Path Parameter:**
+
 - `provider` - OAuth2 provider (e.g., `keycloak`, `cognito`)
 
 **Response:** `302 Redirect` to auth server
@@ -829,6 +886,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Handle OAuth2 callback
 
 **Query Parameters:**
+
 - `error` (optional)
 - `details` (optional)
 
@@ -843,6 +901,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Handle login form submission
 
 **Form Parameters:**
+
 - `username`
 - `password`
 
@@ -879,6 +938,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Authentication:** None (public)
 
 **Response:** `200 OK`
+
 ```json
 {
   "providers": [
@@ -909,6 +969,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Messages:** Periodic health status broadcasts
 
 **Features:**
+
 - Authenticated connections only
 - Ping/pong keep-alive
 - Graceful disconnect handling
@@ -934,6 +995,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Get WebSocket performance statistics
 
 **Response:** `200 OK`
+
 ```json
 {
   "active_connections": 5,
@@ -957,6 +1019,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Purpose:** Public MCP server discovery for client tools
 
 **Response:** `200 OK`
+
 ```json
 {
   "servers": [
@@ -978,6 +1041,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 ```
 
 **Features:**
+
 - Server filtering by enabled status
 - Authentication info included
 - Tools preview
@@ -996,6 +1060,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Authentication:** Session cookie (enhanced_auth)
 
 **Response:** `200 OK`
+
 ```json
 {
   "username": "admin",
@@ -1019,6 +1084,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 **Authentication:** None (public)
 
 **Response:** `200 OK`
+
 ```json
 {
   "status": "healthy",
@@ -1077,16 +1143,19 @@ This section implements the official [Anthropic MCP Registry API specification](
 FastAPI automatically generates OpenAPI (Swagger) specifications:
 
 **Available Endpoints:**
+
 - **OpenAPI JSON:** `GET /openapi.json`
 - **Swagger UI:** `GET /docs`
 - **ReDoc:** `GET /redoc`
 
 **Local Access:**
+
 ```bash
 curl http://localhost:7860/openapi.json
 ```
 
 **Browser Access:**
+
 - Swagger UI: http://localhost:7860/docs
 - ReDoc: http://localhost:7860/redoc
 
@@ -1110,6 +1179,7 @@ curl -s http://localhost:7860/openapi.json | \
 ### Using Generated Specs
 
 1. **Code Generation:**
+
    ```bash
    # Generate Python client
    openapi-generator-cli generate -i openapi.json -g python -o ./python-client
@@ -1144,27 +1214,32 @@ curl -s http://localhost:7860/openapi.json | \
 ## Quick Reference by Use Case
 
 ### I want to register an agent
+
 - **Endpoint:** `POST /api/agents/register`
 - **Auth:** JWT Bearer Token with `publish_agent` scope
 - **Documentation:** See [A2A Agent Management APIs > Register Agent](#1-register-agent)
 
 ### I want to discover agents by capability
+
 - **Endpoint:** `POST /api/agents/discover/semantic`
 - **Auth:** Optional
 - **Query:** Natural language query
 - **Documentation:** See [A2A Agent Management APIs > Discover Agents Semantically](#8-discover-agents-semantically)
 
 ### I want to list all servers (Anthropic API format)
+
 - **Endpoint:** `GET /v0/servers`
 - **Auth:** JWT Bearer Token
 - **Documentation:** See [Anthropic MCP Registry API v0 > List MCP Servers](#1-list-mcp-servers)
 
 ### I want to generate a JWT token
+
 - **Endpoint:** `POST /api/tokens/generate`
 - **Auth:** Session Cookie
 - **Documentation:** See [Internal Server Management APIs > Generate JWT Token](#21-generate-jwt-token)
 
 ### I want to find servers I have access to
+
 - **Endpoint:** `GET /api/servers`
 - **Auth:** Session Cookie
 - **Documentation:** See [Internal Server Management APIs > Get Servers JSON](#2-get-servers-json)
@@ -1176,4 +1251,3 @@ curl -s http://localhost:7860/openapi.json | \
 | Date | Version | Changes |
 |------|---------|---------|
 | 2025-11-01 | 1.0 | Initial API reference documentation, 49 endpoints cataloged |
-

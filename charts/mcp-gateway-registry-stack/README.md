@@ -20,6 +20,7 @@ cd infra/custom
 ```
 
 The ai-on-eks blueprints provide:
+
 - GPU support for AI/ML workloads
 - Karpenter for efficient auto-scaling
 - EKS-optimized configurations

@@ -42,6 +42,7 @@ echo "Token loaded: ${TOKEN:0:50}..."
 ```
 
 **Important Notes**:
+
 - Tokens expire after 5 minutes - if you get authentication errors, regenerate with `./credentials-provider/generate_creds.sh`
 - The `generate_creds.sh` script creates a new M2M token in `.oauth-tokens/ingress.json`
 - This token has full access to all MCP servers (unrestricted + restricted scopes)
@@ -68,6 +69,7 @@ curl -X GET "http://localhost/v0.1/servers" \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "servers": [
@@ -144,6 +146,7 @@ curl -X GET "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions" \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "servers": [
@@ -185,6 +188,7 @@ curl -X GET "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions/late
 ```
 
 **Expected Response**:
+
 ```json
 {
   "server": {
@@ -249,6 +253,7 @@ curl -X GET "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions/2.0.
 ```
 
 **Expected Response**:
+
 ```json
 {
   "detail": "Version 2.0.0 not found"
@@ -268,6 +273,7 @@ curl -X GET "http://localhost/v0.1/servers/io.mcpgateway%2Fnon-existent/versions
 ```
 
 **Expected Response**:
+
 ```json
 {
   "detail": "Server not found"
@@ -287,6 +293,7 @@ curl -X GET "http://localhost/v0.1/servers/com.example%2Fserver/versions" \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "detail": "Server not found"
@@ -305,6 +312,7 @@ curl -X GET "http://localhost/v0.1/servers" \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "detail": "Not authenticated"
@@ -324,6 +332,7 @@ curl -X GET "http://localhost/v0.1/servers" \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "detail": "Could not validate credentials"
@@ -375,6 +384,7 @@ curl -v -X GET "http://localhost/v0.1/servers?limit=5" \
 ```
 
 **Expected Headers**:
+
 - `HTTP/1.1 200 OK`
 - `Content-Type: application/json`
 
@@ -445,6 +455,7 @@ curl -s -X GET "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions/l
 **Description**: Verify that users with restricted permissions only see authorized servers
 
 **Setup**: Create restricted bot account if it doesn't exist
+
 ```bash
 # Check if test-restricted-bot already exists
 if [ ! -f .oauth-tokens/test-restricted-bot.json ]; then
@@ -463,6 +474,7 @@ fi
 ```
 
 **Test Commands**:
+
 ```bash
 # Step 1: Refresh the restricted bot's token
 ./scripts/refresh_m2m_token.sh test-restricted-bot
@@ -498,6 +510,7 @@ echo "Full access sees: $(curl -s "http://localhost/v0.1/servers" -H "Authorizat
 ```
 
 **Expected Results**:
+
 - **Restricted bot** (`mcp-servers-restricted` group): ~3 servers (currenttime, auth_server, mcpgw)
 - **Full access** (`ingress.json` token): ~7+ servers (all servers including fininfo, fininfo, sre-gateway)
 
@@ -542,6 +555,7 @@ curl -o /tmp/anthropic-openapi.yaml \
 **Symptom**: 401 Unauthorized or "Token has expired" error
 
 **Solution**: Generate fresh credentials and reload token
+
 ```bash
 # Step 1: Generate new token
 ./generate_creds.sh
@@ -559,6 +573,7 @@ curl -s -X GET "http://localhost/v0.1/servers?limit=1" \
 **Symptom**: 404 errors when server name contains `/`
 
 **Solution**: Always URL-encode the server name
+
 ```bash
 # Wrong: io.mcpgateway/server-name
 # Correct: io.mcpgateway%2Fserver-name
@@ -569,6 +584,7 @@ curl -s -X GET "http://localhost/v0.1/servers?limit=1" \
 **Symptom**: `{"servers": [], "metadata": {"count": 0}}`
 
 **Solution**: Check if servers are registered and enabled
+
 ```bash
 # List server files
 ls ~/mcp-gateway/servers/*.json

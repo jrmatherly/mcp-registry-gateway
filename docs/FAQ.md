@@ -19,6 +19,7 @@ This FAQ addresses common questions from different user personas working with th
 **A:** You can discover tools in several ways:
 
 1. **Dynamic Tool Discovery** (Recommended): Use the [`intelligent_tool_finder`](dynamic-tool-discovery.md) tool with natural language queries:
+
    ```python
    tools = await intelligent_tool_finder(
        natural_language_query="get current time in different timezones",
@@ -78,6 +79,7 @@ All requests go through the same gateway with authentication handled centrally.
 ### Q4: What authentication headers do I need to include in my MCP requests?
 
 **A:** For **M2M Authentication** (Agent Identity):
+
 ```python
 headers = {
     'Authorization': f'Bearer {jwt_token}',
@@ -88,6 +90,7 @@ headers = {
 ```
 
 For **Session Cookie Authentication** (User Identity):
+
 ```python
 headers = {
     'Cookie': f'mcp_gateway_session={session_cookie}',
@@ -102,6 +105,7 @@ headers = {
 **A:** Use the Dynamic Tool Discovery feature:
 
 1. **In your agent code**:
+
    ```python
    # Let your agent discover tools autonomously
    tools = await intelligent_tool_finder(
@@ -149,6 +153,7 @@ except AuthenticationError as e:
 **A:** Follow these steps:
 
 1. **Set up local environment**:
+
    ```bash
    git clone https://github.com/agentic-community/mcp-gateway-registry.git
    cd mcp-gateway-registry
@@ -158,6 +163,7 @@ except AuthenticationError as e:
    ```
 
 2. **Test authentication**:
+
    ```bash
    # For user identity mode
    cd agents/
@@ -177,12 +183,14 @@ except AuthenticationError as e:
 ### Q8: What are the minimum system requirements for deploying the MCP Gateway & Registry?
 
 **A:** **Minimum Requirements**:
+
 - **EC2 Instance**: `t3.large` or larger (2 vCPU, 8GB RAM)
 - **Operating System**: Ubuntu 20.04 LTS or newer
 - **Storage**: 20GB+ available disk space
 - **Network**: Ports 80, 443, 7860, 8080 accessible
 
 **Recommended for Production**:
+
 - **EC2 Instance**: `t3.2xlarge` (8 vCPU, 32GB RAM)
 - **Storage**: 50GB+ SSD storage
 - **Load Balancer**: Application Load Balancer for high availability
@@ -199,6 +207,7 @@ except AuthenticationError as e:
 5. **Configure Environment Variables** in your `.env` file
 
 Key environment variables needed:
+
 ```bash
 COGNITO_USER_POOL_ID=us-east-1_XXXXXXXXX
 COGNITO_CLIENT_ID=your-client-id
@@ -209,16 +218,19 @@ AWS_REGION=us-east-1
 ### Q10: What ports need to be open in my security group?
 
 **A:** **For HTTP Deployment**:
+
 - Port 80 (HTTP traffic)
 - Port 7860 (Registry web interface)
 - Port 8080 (Auth server)
 
 **For HTTPS Deployment**:
+
 - Port 443 (HTTPS traffic)
 - Port 7860 (Registry web interface, if needed)
 - Port 8080 (Auth server, if needed)
 
 **For Development/Testing**:
+
 - All above ports plus any custom MCP server ports (8000-8003 by default)
 
 ### Q11: How do I deploy the solution using Docker Compose?
@@ -226,6 +238,7 @@ AWS_REGION=us-east-1
 **A:** The deployment is automated with the provided script:
 
 1. **Clone and configure**:
+
    ```bash
    git clone https://github.com/agentic-community/mcp-gateway-registry.git
    cd mcp-gateway-registry
@@ -234,6 +247,7 @@ AWS_REGION=us-east-1
    ```
 
 2. **Create required directories**:
+
    ```bash
    mkdir -p ${HOME}/mcp-gateway/{servers,auth_server,logs}
    cp -r registry/servers ${HOME}/mcp-gateway/
@@ -241,6 +255,7 @@ AWS_REGION=us-east-1
    ```
 
 3. **Deploy**:
+
    ```bash
    ./build_and_run.sh
    ```
@@ -252,6 +267,7 @@ The script handles Docker image building, service orchestration, and health chec
 **A:** For production HTTPS deployment:
 
 1. **Prepare SSL certificates**:
+
    ```bash
    # Create the ssl directory structure
    mkdir -p ${HOME}/mcp-gateway/ssl/certs
@@ -270,6 +286,7 @@ The script handles Docker image building, service orchestration, and health chec
 2. **Update security group** to allow port 443
 
 3. **Deploy normally** - the `build_and_run.sh` script automatically detects and configures SSL certificates:
+
    ```bash
    ./build_and_run.sh
    ```
@@ -295,6 +312,7 @@ The script handles Docker image building, service orchestration, and health chec
    - **Tags**: Optional categorization tags
 
 The registry will automatically:
+
 - Update the Nginx configuration
 - Perform health checks
 - Discover available tools
@@ -312,6 +330,7 @@ The registry will automatically:
 2. **Manual Health Checks**: Click the refresh icon (🔄) on any server card
 
 3. **Logs**: Monitor service logs:
+
    ```bash
    # View all service logs
    docker-compose logs -f
@@ -333,12 +352,14 @@ The registry will automatically:
    - Ensure callback URLs match exactly
 
 2. **Check Environment Variables**:
+
    ```bash
    # Verify .env file has all required variables
    cat .env | grep -E "(COGNITO|AWS_REGION|SECRET_KEY)"
    ```
 
 3. **Test Authentication Flows**:
+
    ```bash
    # Test user authentication
    cd agents/
@@ -349,6 +370,7 @@ The registry will automatically:
    ```
 
 4. **Review Logs**:
+
    ```bash
    docker-compose logs -f auth-server | grep -i error
    ```
@@ -367,22 +389,24 @@ The registry will automatically:
 **A:** The MCP Gateway uses a **Reverse Proxy Pattern** with **Path-Based Routing**:
 
 **Architecture**:
+
 - **Nginx** as the reverse proxy layer
 - **Path-based routing** (`/server-name/*` → backend server)
 - **Centralized authentication** via dedicated auth server
 - **Service discovery** through registry MCP server
-
 
 ### Q17: How does the fine-grained access control system work, and how can it be extended?
 
 **A:** The FGAC system uses a **Scope-Based Authorization Model**:
 
 **Core Components**:
+
 1. **Scope Configuration** ([`scopes.yml`](../auth_server/scopes.yml)): Defines permissions
 2. **Group Mappings**: Maps IdP groups to scopes
 3. **Validation Engine**: Enforces access decisions
 
 **Authorization Flow**:
+
 ```mermaid
 graph LR
     A[Request] --> B[Extract Credentials]
@@ -397,6 +421,7 @@ graph LR
 **Extension Points**:
 
 1. **Custom Scope Types**:
+
    ```yaml
    # Add new scope categories
    Custom-Scopes:
@@ -407,6 +432,7 @@ graph LR
    ```
 
 2. **Dynamic Scope Resolution**:
+
    ```python
    # Implement custom scope resolver
    def resolve_dynamic_scopes(user_context, request_context):
@@ -415,6 +441,7 @@ graph LR
    ```
 
 3. **Attribute-Based Access Control (ABAC)**:
+
    ```python
    # Extend validation with attributes
    def validate_with_attributes(user_attrs, resource_attrs, env_attrs):
@@ -427,11 +454,13 @@ graph LR
 **A:** **Performance Profile**:
 
 **Throughput**:
+
 - **Nginx Proxy**: Metrics TBD and would be updated soon
 - **Auth Validation**: Metrics TBD and would be updated soon
 - **Tool Discovery**: Metrics TBD and would be updated soon
 
 **Latency Breakdown**:
+
 - **Proxy Overhead**: Metrics TBD and would be updated soon
 - **Auth Validation**: Metrics TBD and would be updated soon
 - **MCP Server Call**: Variable (depends on tool complexity)
@@ -455,6 +484,7 @@ graph LR
    - **Scaling**: Dynamic upstream configuration
 
 **Optimization Opportunities**:
+
 ```python
 # 1. Implement connection pooling
 async def create_connection_pool():
@@ -482,6 +512,7 @@ async def call_mcp_server(server_url: str):
 **A:** **Model Context Protocol (MCP)** is an open standard that allows AI models to connect with external systems, tools, and data sources.
 
 **Why You Need a Gateway**:
+
 - **Service Discovery**: Find approved MCP servers in your organization
 - **Centralized Access Control**: Secure, governed access to tools
 - **Dynamic Tool Discovery**: Agents can find new tools autonomously
@@ -496,12 +527,14 @@ async def call_mcp_server(server_url: str):
 **A:** They are complementary components:
 
 **Registry**:
+
 - **Purpose**: Service discovery and management
 - **Features**: Web UI, server registration, health monitoring, tool catalog
 - **Users**: Platform administrators, developers
 - **Access**: Web browser at `:7860`
 
 **Gateway**:
+
 - **Purpose**: Secure proxy for MCP protocol traffic
 - **Features**: Authentication, authorization, request routing
 - **Users**: AI agents, MCP clients
@@ -514,12 +547,14 @@ async def call_mcp_server(server_url: str):
 **A:** Currently, the system is designed for **Amazon Cognito**, but the architecture supports other OAuth2/OIDC providers.
 
 **Supported Patterns**:
+
 - OAuth 2.0 Authorization Code flow (PKCE)
 - OAuth 2.0 Client Credentials flow (M2M)
 - JWT token validation
 - Group-based authorization
 
 **To Add New IdP**:
+
 1. Implement IdP-specific authentication in [`auth_server/`](../auth_server/)
 2. Update token validation logic
 3. Map IdP groups/roles to MCP scopes
@@ -530,17 +565,20 @@ async def call_mcp_server(server_url: str):
 ### Q23: How do I contribute to the project or report issues?
 
 **A:** **Contributing**:
+
 1. **GitHub Repository**: [agentic-community/mcp-gateway-registry](https://github.com/agentic-community/mcp-gateway-registry)
 2. **Issues**: Report bugs or request features via GitHub Issues
 3. **Pull Requests**: Submit code contributions following the project guidelines
 4. **Documentation**: Help improve documentation and examples
 
 **Getting Help**:
+
 - **GitHub Issues**: For bugs and feature requests
 - **Discussions**: For questions and community support
 - **Documentation**: Check existing docs first
 
 **Development Setup**:
+
 ```bash
 git clone https://github.com/agentic-community/mcp-gateway-registry.git
 cd mcp-gateway-registry
@@ -556,6 +594,7 @@ cd mcp-gateway-registry
 - **[Tool Popularity Scoring](https://github.com/agentic-community/mcp-gateway-registry/issues/39)**: Rating system for tools and servers
 
 **Authentication & Identity Enhancements**:
+
 - Additional IdP integrations
 - Enhanced RBAC capabilities
 

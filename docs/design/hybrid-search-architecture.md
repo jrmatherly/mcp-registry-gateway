@@ -75,11 +75,13 @@ When a search query arrives:
 ### 2. Dual Search Strategy
 
 **Vector Search (Semantic)**
+
 - Uses HNSW index on DocumentDB (production) or application-level cosine similarity on MongoDB CE
 - Finds conceptually similar content even with different wording
 - Returns results sorted by cosine similarity
 
 **Keyword Search (Lexical)**
+
 - Regex matching on path, name, description, tags, and tool names/descriptions
 - Catches explicit references that semantic search might miss
 - Runs as separate query due to DocumentDB limitations (no `$unionWith` support)
@@ -93,6 +95,7 @@ relevance_score = normalized_vector_score + (text_boost * 0.1)
 ```
 
 Text boost values:
+
 | Match Location | Boost Value |
 |----------------|-------------|
 | Path           | +5.0        |
@@ -133,6 +136,7 @@ Search returns grouped results:
 ### MCP Servers
 
 **What's included in the embedding:**
+
 - Server name
 - Server description
 - Tags (prefixed with "Tags: ")
@@ -140,11 +144,13 @@ Search returns grouped results:
 - Tool descriptions (each tool's description)
 
 **What's NOT included in the embedding:**
+
 - Tool inputSchema (JSON schema is stored but not embedded)
 - Server path
 - Server metadata
 
 **Stored document fields:**
+
 - `path`, `name`, `description`, `tags`, `is_enabled`
 - `tools[]` array with `name`, `description`, `inputSchema` per tool
 - `embedding` vector
@@ -153,6 +159,7 @@ Search returns grouped results:
 ### A2A Agents
 
 **What's included in the embedding:**
+
 - Agent name
 - Agent description
 - Tags (prefixed with "Tags: ")
@@ -161,11 +168,13 @@ Search returns grouped results:
 - Skill descriptions (each skill's description)
 
 **What's NOT included in the embedding:**
+
 - Agent path
 - Agent card metadata (stored but not embedded)
 - Skill IDs, tags, and examples
 
 **Stored document fields:**
+
 - `path`, `name`, `description`, `tags`, `is_enabled`
 - `capabilities[]` array
 - `embedding` vector
@@ -181,11 +190,13 @@ Search returns grouped results:
 ## Backend Implementations
 
 ### DocumentDB (Production)
+
 - Native HNSW vector index with `$search` aggregation pipeline
 - Keyword query runs separately and merges results (no `$unionWith` support)
 - Text boost calculated in aggregation pipeline using `$regexMatch`
 
 ### MongoDB CE (Development/Local)
+
 - No native vector search support (`$vectorSearch` not available)
 - Falls back to application-level search (in Python backend, not the calling agent):
   1. Fetch all documents with embeddings from collection

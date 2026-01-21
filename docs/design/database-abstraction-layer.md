@@ -120,6 +120,7 @@ async def load_all() -> None  # Load/reload from storage at startup
 ```
 
 **Implementations:**
+
 - [`registry/repositories/file/server_repository.py`](../../registry/repositories/file/server_repository.py) - File-based
 - [`registry/repositories/documentdb/server_repository.py`](../../registry/repositories/documentdb/server_repository.py) - DocumentDB/MongoDB
 
@@ -147,6 +148,7 @@ async def load_all() -> None  # Load/reload from storage
 ```
 
 **Implementations:**
+
 - [`registry/repositories/file/agent_repository.py`](../../registry/repositories/file/agent_repository.py) - File-based
 - [`registry/repositories/documentdb/agent_repository.py`](../../registry/repositories/documentdb/agent_repository.py) - DocumentDB/MongoDB
 
@@ -214,6 +216,7 @@ async def load_all() -> None  # Load/reload from storage
 ```
 
 **Implementations:**
+
 - [`registry/repositories/file/scope_repository.py`](../../registry/repositories/file/scope_repository.py) - File-based (YAML)
 - [`registry/repositories/documentdb/scope_repository.py`](../../registry/repositories/documentdb/scope_repository.py) - DocumentDB/MongoDB
 
@@ -241,6 +244,7 @@ async def load_all() -> None  # Load/reload from storage
 ```
 
 **Implementations:**
+
 - [`registry/repositories/file/security_scan_repository.py`](../../registry/repositories/file/security_scan_repository.py) - File-based
 - [`registry/repositories/documentdb/security_scan_repository.py`](../../registry/repositories/documentdb/security_scan_repository.py) - DocumentDB/MongoDB
 
@@ -281,6 +285,7 @@ async def remove_entity(path: str) -> None
 ```
 
 **Implementations:**
+
 - [`registry/repositories/file/search_repository.py`](../../registry/repositories/file/search_repository.py) - FAISS (Facebook AI Similarity Search)
 - [`registry/repositories/documentdb/search_repository.py`](../../registry/repositories/documentdb/search_repository.py) - DocumentDB/MongoDB Hybrid Search (BM25 + k-NN)
 
@@ -307,6 +312,7 @@ async def list_configs() -> List[Dict[str, Any]]
 ```
 
 **Implementations:**
+
 - [`registry/repositories/file/federation_config_repository.py`](../../registry/repositories/file/federation_config_repository.py) - File-based (JSON)
 - [`registry/repositories/documentdb/federation_config_repository.py`](../../registry/repositories/documentdb/federation_config_repository.py) - DocumentDB/MongoDB
 
@@ -319,12 +325,14 @@ async def list_configs() -> List[Dict[str, Any]]
 **Purpose:** Local file system storage for development, testing, and backwards compatibility
 
 **Characteristics:**
+
 - **Simplicity**: JSON/YAML files, no external dependencies (except FAISS for search)
 - **Isolation**: No network calls required
 - **State Management**: Separate state files for enabled/disabled status
 - **Search**: FAISS (Facebook AI Similarity Search) for vector similarity
 
 **Storage Structure:**
+
 ```
 registry/
 ├── servers/
@@ -348,6 +356,7 @@ registry/
 ```
 
 **Implementation Classes:**
+
 - [`FileServerRepository`](../../registry/repositories/file/server_repository.py)
 - [`FileAgentRepository`](../../registry/repositories/file/agent_repository.py)
 - [`FileScopeRepository`](../../registry/repositories/file/scope_repository.py)
@@ -356,12 +365,14 @@ registry/
 - [`FileFederationConfigRepository`](../../registry/repositories/file/federation_config_repository.py)
 
 **Advantages:**
+
 - No infrastructure setup needed
 - Good for development and testing
 - Human-readable file formats
 - Git-friendly for version control
 
 **Limitations:**
+
 - Single-node only (no distributed deployment)
 - Limited query capabilities
 - File locking issues in concurrent scenarios
@@ -375,6 +386,7 @@ registry/
 **Purpose:** Distributed document database for production deployments
 
 **Characteristics:**
+
 - **Scalability**: Clustered deployment for high availability (DocumentDB) or replica sets (MongoDB)
 - **Query Capabilities**: Rich aggregation pipelines, complex filtering, projections
 - **Vector Search**: Native vector search (DocumentDB) or application-level (MongoDB CE)
@@ -383,6 +395,7 @@ registry/
 - **Strong Consistency**: ACID transactions and strong consistency guarantees
 
 **Collection Structure:**
+
 ```
 DocumentDB/MongoDB Cluster
 ├── mcp_servers_{namespace}         # Server definitions
@@ -394,6 +407,7 @@ DocumentDB/MongoDB Cluster
 ```
 
 **Implementation Classes:**
+
 - [`DocumentDBServerRepository`](../../registry/repositories/documentdb/server_repository.py)
 - [`DocumentDBAgentRepository`](../../registry/repositories/documentdb/agent_repository.py)
 - [`DocumentDBScopeRepository`](../../registry/repositories/documentdb/scope_repository.py)
@@ -404,12 +418,14 @@ DocumentDB/MongoDB Cluster
 **DocumentDB Client:** [`registry/repositories/documentdb/client.py`](../../registry/repositories/documentdb/client.py)
 
 Provides:
+
 - Async MongoDB client singleton
 - Connection pooling and authentication
 - Index name management with namespace support
 - Client lifecycle management (initialization and cleanup)
 
 **Advantages:**
+
 - Distributed, highly available
 - Rich query capabilities
 - Hybrid search (BM25 + k-NN) for semantic understanding
@@ -418,6 +434,7 @@ Provides:
 - Production-ready
 
 **Limitations:**
+
 - Requires DocumentDB cluster or MongoDB CE instance
 - Higher operational complexity
 - More network I/O
@@ -438,6 +455,7 @@ DocumentDB/MongoDB vector search provides semantic similarity:
    - Uses neural embeddings (sentence-transformers or Bedrock Titan)
 
 **Default Weighting:**
+
 ```python
 # Legacy - removed: float = 0.4
 # Legacy - removed: float = 0.6
@@ -477,6 +495,7 @@ def get_server_repository() -> ServerRepositoryBase:
 ```
 
 **Similar factory functions exist for:**
+
 - `get_agent_repository()`
 - `get_scope_repository()`
 - `get_security_scan_repository()`
@@ -513,6 +532,7 @@ async def list_servers():
 ```
 
 **Benefits:**
+
 - No hardcoded dependencies
 - Easy to swap implementations
 - Test isolation via `reset_repositories()`
@@ -560,21 +580,25 @@ The repository pattern addresses several critical concerns:
 ### Benefits of Repository Abstraction
 
 **For Development:**
+
 - Develop with file backend (fast, no setup)
 - Test with mocks (no I/O overhead)
 - Easy to add new storage backends
 
 **For Deployment:**
+
 - Production uses DocumentDB/MongoDB (scalable)
 - Backwards compatible with file storage
 - Can migrate gradually
 
 **For Testing:**
+
 - Mock repositories easily
 - Test services without actual storage
 - Test data isolation via `reset_repositories()`
 
 **For Maintenance:**
+
 - Storage logic centralized in repository classes
 - Changes to storage don't affect business logic
 - Clear interfaces make code changes safer
@@ -594,6 +618,7 @@ async def delete(id) -> bool          # Remove entity
 ```
 
 This consistent interface means:
+
 - Easier onboarding for engineers
 - Less mental overhead switching between repositories
 - Standardized error handling
@@ -601,12 +626,14 @@ This consistent interface means:
 ### Data Consistency Strategy
 
 **File Backend:**
+
 - Atomic file operations
 - Separate state file for enabled/disabled status
 - No transactions (file-by-file consistency)
 - Best effort on concurrent writes
 
 **DocumentDB/MongoDB Backend:**
+
 - Document-level consistency
 - Index operations with refresh flags
 - No distributed transactions
@@ -648,6 +675,7 @@ registry/repositories/
 ### Naming Conventions
 
 **Abstract Base Classes** (in `interfaces.py`):
+
 - `ServerRepositoryBase`
 - `AgentRepositoryBase`
 - `ScopeRepositoryBase`
@@ -656,6 +684,7 @@ registry/repositories/
 - `FederationConfigRepositoryBase`
 
 **File Implementations** (in `file/`):
+
 - `FileServerRepository`
 - `FileAgentRepository`
 - `FileScopeRepository`
@@ -664,6 +693,7 @@ registry/repositories/
 - `FileFederationConfigRepository`
 
 **DocumentDB/MongoDB Implementations** (in `documentdb/`):
+
 - `DocumentDBServerRepository`
 - `DocumentDBAgentRepository`
 - `DocumentDBScopeRepository`
@@ -722,6 +752,7 @@ documentdb_namespace: str = "default"
 ```
 
 **Use Cases:**
+
 - Multiple registry instances on shared DocumentDB/MongoDB cluster
 - Isolated test environments
 - Customer separation in SaaS deployments
@@ -739,11 +770,13 @@ def get_index_name(base_name: str) -> str:
 Both implementations handle errors gracefully:
 
 **File Backend:**
+
 - Missing files → return None or empty list
 - Parse errors → log and skip
 - I/O errors → raised to caller
 
 **DocumentDB/MongoDB Backend:**
+
 - Connection errors → log and attempt retry
 - Index not found → initialize index
 - Query errors → log and raise
@@ -751,18 +784,21 @@ Both implementations handle errors gracefully:
 ### Performance Considerations
 
 **File Backend:**
+
 - Fast for small datasets (<1000 entities)
 - No network latency
 - FAISS search: O(n) linear scan (not scalable)
 - Not suitable for high concurrency
 
 **DocumentDB/MongoDB Backend:**
+
 - Scalable to millions of entities
 - Network latency (typically <100ms)
 - BM25 + k-NN: O(log n) with proper indexing
 - Built for high concurrency (lock-free reads)
 
 **Recommendations:**
+
 - Use file backend for development only
 - Use DocumentDB/MongoDB for production
 - Monitor DocumentDB/MongoDB query latency
@@ -847,6 +883,7 @@ The database abstraction layer provides a **clean, extensible architecture** for
 | **Cost** | Free | Infrastructure cost |
 
 The **repository pattern** with factory ensures:
+
 - Clean separation of concerns
 - Easy backend switching
 - Comprehensive testability
@@ -854,4 +891,3 @@ The **repository pattern** with factory ensures:
 - Future extensibility
 
 All implementations maintain **identical behavior**, making backend selection purely an operational decision rather than a code architecture choice.
-

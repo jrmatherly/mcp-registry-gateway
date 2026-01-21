@@ -9,6 +9,7 @@ This directory contains example JSON files for registering A2A agents using the 
 The agent management CLI uses the **`mcp-gateway-m2m`** service account for all operations.
 
 **Token Details:**
+
 - **Service Account ID:** `mcp-gateway-m2m`
 - **Token Location:** `.oauth-tokens/ingress.json`
 - **Token Generation:** `./credentials-provider/generate_creds.sh`
@@ -58,6 +59,7 @@ All example files use the complete A2A agent schema with all fields documented:
 Comprehensive code review agent analyzing code quality, bugs, and improvements.
 
 **Skills:**
+
 - Analyze Code Quality
 - Detect Bugs
 - Suggest Improvements
@@ -66,6 +68,7 @@ Comprehensive code review agent analyzing code quality, bugs, and improvements.
 **Features:** Streaming enabled, verified trust level
 
 **Usage:**
+
 ```bash
 uv run python cli/agent_mgmt.py register cli/examples/code_reviewer_agent.json
 ```
@@ -75,6 +78,7 @@ uv run python cli/agent_mgmt.py register cli/examples/code_reviewer_agent.json
 Intelligent test automation agent for generating and executing test cases.
 
 **Skills:**
+
 - Generate Unit Tests
 - Execute Tests
 - Analyze Test Coverage
@@ -84,6 +88,7 @@ Intelligent test automation agent for generating and executing test cases.
 **Features:** Streaming enabled, community trust level
 
 **Usage:**
+
 ```bash
 uv run python cli/agent_mgmt.py register cli/examples/test_automation_agent.json
 ```
@@ -93,6 +98,7 @@ uv run python cli/agent_mgmt.py register cli/examples/test_automation_agent.json
 Advanced data analysis agent for statistical analysis and visualization.
 
 **Skills:**
+
 - Statistical Analysis
 - Data Visualization
 - Predictive Modeling
@@ -103,6 +109,7 @@ Advanced data analysis agent for statistical analysis and visualization.
 **Features:** GPU-enabled, verified trust level, supports large datasets
 
 **Usage:**
+
 ```bash
 uv run python cli/agent_mgmt.py register cli/examples/data_analysis_agent.json
 ```
@@ -112,6 +119,7 @@ uv run python cli/agent_mgmt.py register cli/examples/data_analysis_agent.json
 Comprehensive security analysis agent for vulnerability detection and compliance.
 
 **Skills:**
+
 - Scan for Vulnerabilities
 - Check Compliance
 - Analyze Authentication
@@ -122,6 +130,7 @@ Comprehensive security analysis agent for vulnerability detection and compliance
 **Features:** Trusted level, comprehensive CVE database
 
 **Usage:**
+
 ```bash
 uv run python cli/agent_mgmt.py register cli/examples/security_analyzer_agent.json
 ```
@@ -131,6 +140,7 @@ uv run python cli/agent_mgmt.py register cli/examples/security_analyzer_agent.js
 Documentation agent for generating and maintaining API docs and guides.
 
 **Skills:**
+
 - Generate API Documentation
 - Extract and Format Docstrings
 - Generate README
@@ -141,6 +151,7 @@ Documentation agent for generating and maintaining API docs and guides.
 **Features:** Supports multiple documentation formats, community trust level
 
 **Usage:**
+
 ```bash
 uv run python cli/agent_mgmt.py register cli/examples/documentation_agent.json
 ```
@@ -150,6 +161,7 @@ uv run python cli/agent_mgmt.py register cli/examples/documentation_agent.json
 DevOps automation agent for infrastructure and deployment management.
 
 **Skills:**
+
 - Deploy Application
 - Manage Infrastructure
 - Configure CI/CD Pipeline
@@ -161,6 +173,7 @@ DevOps automation agent for infrastructure and deployment management.
 **Features:** Multi-cloud support, verified trust level, 99.95% SLA
 
 **Usage:**
+
 ```bash
 uv run python cli/agent_mgmt.py register cli/examples/devops_deployment_agent.json
 ```
@@ -170,6 +183,7 @@ uv run python cli/agent_mgmt.py register cli/examples/devops_deployment_agent.js
 All example files include the complete A2A agent schema:
 
 **Required Fields:**
+
 - `protocol_version`: A2A protocol version (e.g., "1.0")
 - `name`: Agent display name
 - `description`: What the agent does
@@ -177,6 +191,7 @@ All example files include the complete A2A agent schema:
 - `path`: Registry path (must start with `/`)
 
 **Optional A2A Fields:**
+
 - `version`: Semantic version
 - `provider`: Agent provider/author
 - `security_schemes`: Authentication methods (http, apiKey, oauth2, openIdConnect)
@@ -186,6 +201,7 @@ All example files include the complete A2A agent schema:
 - `metadata`: Additional metadata key-value pairs
 
 **Registry Extensions:**
+
 - `tags`: Array of categorization tags
 - `is_enabled`: Whether agent is enabled
 - `num_stars`: Community rating

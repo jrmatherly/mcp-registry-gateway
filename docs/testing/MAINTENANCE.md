@@ -38,6 +38,7 @@ open htmlcov/index.html
 ### Coverage Reports
 
 Coverage reports show:
+
 - Overall coverage percentage
 - Coverage per module
 - Missing lines (not covered by tests)
@@ -76,6 +77,7 @@ Add coverage badge to README:
 ### Identifying Uncovered Code
 
 1. **Run coverage report**:
+
    ```bash
    uv run pytest --cov=registry --cov-report=html
    open htmlcov/index.html
@@ -227,6 +229,7 @@ uv run pytest -m slow
 ### Optimizing Test Performance
 
 1. **Use appropriate fixtures**:
+
    ```python
    # Good - Function-scoped for isolation
    @pytest.fixture
@@ -244,6 +247,7 @@ uv run pytest -m slow
    ```
 
 2. **Mock expensive operations**:
+
    ```python
    # Slow - Real API calls
    def test_fetch_data():
@@ -259,6 +263,7 @@ uv run pytest -m slow
    ```
 
 3. **Run tests in parallel**:
+
    ```bash
    # Install pytest-xdist
    uv add --dev pytest-xdist
@@ -268,6 +273,7 @@ uv run pytest -m slow
    ```
 
 4. **Skip slow tests during development**:
+
    ```python
    # Mark slow tests
    @pytest.mark.slow
@@ -337,6 +343,7 @@ When tests fail in CI/CD:
    - Review stack traces
 
 2. **Reproduce locally**:
+
    ```bash
    # Run the same test
    uv run pytest tests/path/to/test.py::test_name
@@ -362,6 +369,7 @@ When tests fail in CI/CD:
 ### Identifying Flaky Tests
 
 Flaky tests pass/fail intermittently. Signs:
+
 - Tests fail randomly in CI/CD
 - Tests pass when run individually
 - Tests fail when run with others
@@ -385,6 +393,7 @@ uv run pytest --count=10 tests/test_file.py
 ### Common Causes of Flaky Tests
 
 1. **Timing issues**:
+
    ```python
    # Flaky - Depends on timing
    def test_async_operation():
@@ -400,6 +409,7 @@ uv run pytest --count=10 tests/test_file.py
    ```
 
 2. **Shared state**:
+
    ```python
    # Flaky - Modifies global state
    def test_with_global_state():
@@ -414,6 +424,7 @@ uv run pytest --count=10 tests/test_file.py
    ```
 
 3. **Order dependencies**:
+
    ```python
    # Flaky - Depends on test order
    def test_first():
@@ -434,6 +445,7 @@ uv run pytest --count=10 tests/test_file.py
    ```
 
 4. **Non-deterministic data**:
+
    ```python
    # Flaky - Random data
    def test_with_random_data():
@@ -530,6 +542,7 @@ def database():
 ### When to Deprecate Tests
 
 Deprecate tests when:
+
 - Feature is removed
 - API is changed significantly
 - Test is replaced by better test
@@ -538,6 +551,7 @@ Deprecate tests when:
 ### How to Deprecate Tests
 
 1. **Mark as deprecated**:
+
    ```python
    @pytest.mark.skip(reason="Deprecated - Use test_new_feature instead")
    def test_old_feature():
@@ -545,6 +559,7 @@ Deprecate tests when:
    ```
 
 2. **Add deprecation warning**:
+
    ```python
    import warnings
 
@@ -557,6 +572,7 @@ Deprecate tests when:
    ```
 
 3. **Document migration path**:
+
    ```python
    # DEPRECATED: This test is deprecated as of v1.5.0
    # Use test_new_implementation in test_new_feature.py instead
@@ -612,5 +628,6 @@ Key maintenance tasks:
 7. Clean up obsolete tests
 
 For more information, see:
+
 - [Testing Guide](./README.md)
 - [Writing Tests Guide](./WRITING_TESTS.md)

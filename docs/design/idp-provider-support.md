@@ -186,32 +186,38 @@ class IAMManager(Protocol):
 ### Keycloak Provider
 
 **Authentication Flow:**
+
 - Uses OIDC Authorization Code flow
 - Tokens issued by Keycloak realm
 - JWKS endpoint: `{keycloak_url}/realms/{realm}/protocol/openid-connect/certs`
 
 **Group Identifier in Tokens:**
+
 - Group names (e.g., `registry-admins`, `public-mcp-users`)
 - Stored in `groups` claim of JWT
 
 **IAM Operations:**
+
 - Uses Keycloak Admin REST API
 - Requires admin credentials or service account with realm-admin role
 
 ### Microsoft Entra ID Provider
 
 **Authentication Flow:**
+
 - Uses OAuth2 Authorization Code flow (users)
 - Uses OAuth2 Client Credentials flow (M2M)
 - Tokens issued by Microsoft STS
 - JWKS endpoint: `https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys`
 
 **Group Identifier in Tokens:**
+
 - Group Object IDs (GUIDs) like `5f605d68-06bc-4208-b992-bb378eee12c5`
 - Stored in `groups` claim of JWT
 - Object IDs must be mapped to scope names in MongoDB
 
 **IAM Operations:**
+
 - Uses Microsoft Graph API
 - Requires App Registration with appropriate permissions:
   - `Application.ReadWrite.All`

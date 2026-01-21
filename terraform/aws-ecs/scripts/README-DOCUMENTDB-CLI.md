@@ -5,6 +5,7 @@ Command-line tools for inspecting and managing DocumentDB collections in the MCP
 ## Overview
 
 The DocumentDB CLI provides commands to:
+
 - List all collections in the database
 - Inspect collection schemas and statistics
 - Count documents in collections
@@ -34,6 +35,7 @@ The DocumentDB CLI provides commands to:
 ```
 
 **Output:**
+
 ```
 Found 6 collections in database 'mcp_registry'
 ================================================================================
@@ -62,6 +64,7 @@ Collection: mcp_servers_default
 ```
 
 **Output:**
+
 ```
 Collection: mcp_servers_default
 ================================================================================
@@ -107,6 +110,7 @@ Index: path_1
 ```
 
 **Output:**
+
 ```
 Collection: mcp_servers_default
 Document Count: 24
@@ -123,6 +127,7 @@ Document Count: 24
 ```
 
 **Output:**
+
 ```
 Collection: mcp_servers_default
 Showing 10 documents (limit: 10)
@@ -150,6 +155,7 @@ Showing 10 documents (limit: 10)
 ```
 
 **Output:**
+
 ```
 Collection: mcp_servers_default
 Sample Document:
@@ -178,6 +184,7 @@ Sample Document:
 ```
 
 **Output:**
+
 ```
 Collection: mcp_servers_default
 Filter: {"enabled": true}
@@ -227,6 +234,7 @@ Found 18 documents (limit: 10)
 ### No logs found
 
 If you see "No logs found", the task may have failed to start. Check:
+
 1. Task definition exists: `aws ecs describe-task-definition --task-definition mcp-gateway-v2-registry`
 2. Network configuration is correct
 3. DocumentDB credentials are valid
@@ -234,6 +242,7 @@ If you see "No logs found", the task may have failed to start. Check:
 ### Connection timeout
 
 If the task hangs or times out:
+
 1. Verify security groups allow traffic to DocumentDB on port 27017
 2. Verify task is running in the same VPC as DocumentDB
 3. Check DocumentDB cluster status
@@ -241,6 +250,7 @@ If the task hangs or times out:
 ### Invalid filter JSON
 
 For query commands, ensure the filter is valid JSON:
+
 ```bash
 # Correct
 ./run-documentdb-cli.sh query mcp_servers_default '{"enabled": true}'

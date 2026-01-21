@@ -226,6 +226,7 @@ mongodb:
 **What It Does:**
 
 1. **Initializes Replica Set**
+
    ```python
    # Initialize rs0 replica set (required for transactions)
    config = {
@@ -244,6 +245,7 @@ mongodb:
    - Federation config (`mcp_federation_config_default`)
 
 3. **Creates Indexes** for query performance
+
    ```python
    # Server indexes
    await collection.create_index([("path", ASCENDING)], unique=True)
@@ -256,6 +258,7 @@ mongodb:
    ```
 
 4. **Loads OAuth Scopes** from `auth_server/scopes.yml`
+
    ```python
    # Reads scopes.yml and populates mcp_scopes_default collection
    # Includes server scopes and group mappings
@@ -372,6 +375,7 @@ results = await collection.aggregate(pipeline).to_list(max_results)
 **The same code works for both MongoDB CE and AWS DocumentDB!**
 
 The key difference:
+
 - **MongoDB CE:** No vector index → slow full scan
 - **DocumentDB:** HNSW vector index → fast indexed search
 
@@ -403,6 +407,7 @@ The application code is identical, but DocumentDB executes it much faster.
 **Key Resources:**
 
 1. **DocumentDB Cluster** (`modules/documentdb/main.tf`)
+
    ```hcl
    resource "aws_docdb_cluster" "main" {
      cluster_identifier      = "mcp-registry-${var.environment}"
@@ -425,6 +430,7 @@ The application code is identical, but DocumentDB executes it much faster.
    ```
 
 2. **DocumentDB Instance(s)** (read/write nodes)
+
    ```hcl
    resource "aws_docdb_cluster_instance" "main" {
      count              = var.instance_count
@@ -617,6 +623,7 @@ async def search(self, query: str, max_results: int = 10):
 ### Hybrid Search (Text + Vector)
 
 Both backends support hybrid search combining:
+
 - **Vector similarity** (semantic matching)
 - **Text matching** (keyword boosting)
 
@@ -804,6 +811,7 @@ def get_server_repository() -> ServerRepositoryBase:
 ```
 
 **Key Point:** `mongodb-ce` and `documentdb` use the **same repository implementation**. The only difference is:
+
 - **mongodb-ce:** Connects to local MongoDB container
 - **documentdb:** Connects to AWS DocumentDB cluster
 
@@ -1008,6 +1016,7 @@ variable "backup_retention_period" {
 **Steps:**
 
 1. **Export existing data**
+
    ```bash
    # Servers
    cp ~/mcp-gateway/servers/*.json /tmp/servers-backup/
@@ -1017,18 +1026,21 @@ variable "backup_retention_period" {
    ```
 
 2. **Update configuration**
+
    ```bash
    # In .env
    sed -i 's/STORAGE_BACKEND=file/STORAGE_BACKEND=mongodb-ce/' .env
    ```
 
 3. **Start MongoDB**
+
    ```bash
    docker compose up -d mongodb
    docker compose up mongodb-init
    ```
 
 4. **Import data via API**
+
    ```bash
    # Re-register servers
    for file in /tmp/servers-backup/*.json; do
@@ -1046,6 +1058,7 @@ variable "backup_retention_period" {
    ```
 
 5. **Verify**
+
    ```bash
    # Check server count
    curl http://localhost:7860/servers | jq 'length'
@@ -1061,6 +1074,7 @@ variable "backup_retention_period" {
 **Steps:**
 
 1. **Export from MongoDB CE**
+
    ```bash
    # Dump all collections
    docker exec mcp-mongodb mongodump \
@@ -1072,6 +1086,7 @@ variable "backup_retention_period" {
    ```
 
 2. **Deploy DocumentDB with Terraform**
+
    ```bash
    cd terraform/aws-ecs
    terraform apply
@@ -1081,6 +1096,7 @@ variable "backup_retention_period" {
    ```
 
 3. **Import to DocumentDB**
+
    ```bash
    # From bastion host or ECS task
    mongorestore \
@@ -1094,6 +1110,7 @@ variable "backup_retention_period" {
    ```
 
 4. **Update application configuration**
+
    ```bash
    # In .env
    STORAGE_BACKEND=documentdb
@@ -1105,11 +1122,13 @@ variable "backup_retention_period" {
    ```
 
 5. **Deploy application**
+
    ```bash
    terraform apply
    ```
 
 6. **Verify vector search**
+
    ```bash
    # Test search endpoint
    curl "https://api.example.com/search?q=financial" | jq '.servers'

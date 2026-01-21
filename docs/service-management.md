@@ -3,6 +3,7 @@
 This guide documents how to manage MCP servers, users, and access groups in the MCP Gateway Registry using the **Registry Management API**.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [What's New](#whats-new)
 - [Prerequisites](#prerequisites)
@@ -38,6 +39,7 @@ The MCP Gateway Registry provides a comprehensive **Registry Management API** fo
 3. **REST API Endpoints**: Direct HTTP API access at `/api/management/*`
 
 These tools work together to provide:
+
 - **Server Registration**: Validates config and registers new servers
 - **Access Control**: Fine-grained permissions via groups
 - **User Management**: M2M service accounts and human users
@@ -47,6 +49,7 @@ These tools work together to provide:
 ## What's New
 
 **Registry Management API** (New in v1.0.7):
+
 - Modern Python API for all registry operations
 - Type-safe interfaces using Pydantic models
 - Automatic FAISS indexing on server registration
@@ -61,11 +64,13 @@ The new API provides the same functionality as the previous shell scripts but wi
 Before using the Registry Management API, ensure:
 
 1. **MCP Gateway is running**: All containers should be up
+
    ```bash
    docker compose ps
    ```
 
 2. **Authentication is configured**: You need admin credentials
+
    ```bash
    # Admin credentials from .env file
    export ADMIN_USER=admin
@@ -73,6 +78,7 @@ Before using the Registry Management API, ensure:
    ```
 
 3. **Python environment**: Use `uv` for package management
+
    ```bash
    # Ensure uv is installed
    uv --version
@@ -222,6 +228,7 @@ client.create_group(
 ```
 
 **What this does:**
+
 - Creates the group in Keycloak
 - Adds the group to scopes.yml
 - Reloads the auth server to apply changes immediately
@@ -287,6 +294,7 @@ print(f"Client Secret: {credentials['client_secret']}")
 ```
 
 **What this does:**
+
 - Creates a new Keycloak M2M client with service account
 - Assigns the service account to specified groups
 - Generates client credentials
@@ -424,11 +432,13 @@ print("\nWorkflow complete!")
 ### Field Constraints
 
 **Required Fields:**
+
 - `server_name`: Non-empty string
 - `path`: Must start with `/` and be more than just `/`
 - `proxy_pass_url`: Must start with `http://` or `https://`
 
 **Optional Fields:**
+
 - `description`: String description
 - `tags`: Array of strings
 - `num_tools`: Non-negative integer
@@ -441,27 +451,35 @@ print("\nWorkflow complete!")
 ### Common Issues
 
 #### Authentication Errors
+
 ```
 ERROR: Authentication failed: 401 Unauthorized
 ```
+
 **Solution**: Verify admin credentials in `.env` file
 
 #### Server Already Exists
+
 ```
 ERROR: Server already exists: /my-server
 ```
+
 **Solution**: Delete the existing server first or use a different path
 
 #### Group Not Found
+
 ```
 ERROR: Group not found: mcp-servers-custom/read
 ```
+
 **Solution**: Create the group first using `create_group()`
 
 #### Connection Refused
+
 ```
 ERROR: Connection refused to http://localhost
 ```
+
 **Solution**: Ensure MCP Gateway is running (`docker compose ps`)
 
 ### Debug Tips
@@ -482,6 +500,7 @@ servers = client.list_servers()
 ### API Documentation
 
 For complete API reference, see:
+
 - Registry Management API: `api/registry_management.py`
 - Registry Client: `api/registry_client.py`
 - REST API endpoints: `http://localhost/api/management/docs` (OpenAPI/Swagger)

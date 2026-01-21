@@ -52,6 +52,7 @@ flowchart TB
 **Use when:** You have a Route53 hosted zone and want custom domain URLs.
 
 **Configuration:**
+
 ```hcl
 enable_cloudfront   = false
 enable_route53_dns  = true
@@ -59,10 +60,12 @@ base_domain         = "mycorp.click"
 ```
 
 **URLs:**
+
 - Registry: `https://registry.us-west-2.mycorp.click`
 - Keycloak: `https://kc.us-west-2.mycorp.click`
 
 **Features:**
+
 - ACM certificates for HTTPS
 - Custom domain names
 - Route53 DNS records
@@ -72,16 +75,19 @@ base_domain         = "mycorp.click"
 **Use when:** You need HTTPS but don't have a custom domain or Route53 hosted zone. Ideal for workshops, demos, evaluations, or any deployment where custom DNS isn't available.
 
 **Configuration:**
+
 ```hcl
 enable_cloudfront   = true
 enable_route53_dns  = false
 ```
 
 **URLs:**
+
 - Registry: `https://d1234abcd.cloudfront.net`
 - Keycloak: `https://d5678efgh.cloudfront.net`
 
 **Features:**
+
 - Default CloudFront certificates (`*.cloudfront.net`)
 - No custom domain required
 - HTTPS via CloudFront TLS termination
@@ -92,16 +98,19 @@ enable_route53_dns  = false
 **Use when:** Testing locally or in non-production environments.
 
 **Configuration:**
+
 ```hcl
 enable_cloudfront   = false
 enable_route53_dns  = false
 ```
 
 **URLs:**
+
 - Registry: `http://<alb-dns-name>`
 - Keycloak: `http://<keycloak-alb-dns-name>`
 
 **Features:**
+
 - HTTP only (no HTTPS)
 - Direct ALB access
 - Simplest configuration
@@ -111,6 +120,7 @@ enable_route53_dns  = false
 **Use when:** You need both CloudFront and custom domain access paths.
 
 **Configuration:**
+
 ```hcl
 enable_cloudfront   = true
 enable_route53_dns  = true
@@ -118,6 +128,7 @@ base_domain         = "mycorp.click"
 ```
 
 **URLs:**
+
 - Registry (CloudFront): `https://d1234abcd.cloudfront.net`
 - Registry (Custom): `https://registry.us-west-2.mycorp.click`
 - Keycloak (CloudFront): `https://d5678efgh.cloudfront.net`
@@ -162,14 +173,17 @@ CloudFront is configured to send `X-Forwarded-Proto: https` as a custom origin h
 
 **Cause:** The CloudFront URL is not in Keycloak's allowed redirect URIs for the `mcp-gateway-web` client.
 
-**Solution:** 
+**Solution:**
+
 1. Re-run `init-keycloak.sh` after generating fresh terraform outputs:
+
    ```bash
    cd terraform/aws-ecs
    terraform output -json > scripts/terraform-outputs.json
    export INITIAL_ADMIN_PASSWORD="your-password"
    ./scripts/init-keycloak.sh
    ```
+
 2. Or manually add the CloudFront URL to Keycloak:
    - Go to Keycloak Admin → mcp-gateway realm → Clients → mcp-gateway-web
    - Add `https://<cloudfront-domain>/*` and `https://<cloudfront-domain>/oauth2/callback/keycloak` to Valid Redirect URIs
@@ -182,11 +196,13 @@ CloudFront is configured to send `X-Forwarded-Proto: https` as a custom origin h
 **Cause:** The MCP Gateway ECS task doesn't have the correct `REGISTRY_URL` environment variable set.
 
 **Solution:** Ensure `domain_name` is passed to the MCP Gateway module in `main.tf`:
+
 ```hcl
 domain_name = var.enable_route53_dns ? "registry.${local.root_domain}" : (
   var.enable_cloudfront ? aws_cloudfront_distribution.mcp_gateway[0].domain_name : ""
 )
 ```
+
 Then run `terraform apply` to update the ECS task definition.
 
 ### Keycloak shows "HTTPS required" error
@@ -196,12 +212,14 @@ Then run `terraform apply` to update the ECS task definition.
 **Cause:** Keycloak doesn't recognize it's behind HTTPS when accessed via CloudFront.
 
 **Solution:** Ensure CloudFront is sending `X-Forwarded-Proto: https` header (not a custom header name). In `cloudfront.tf`:
+
 ```hcl
 custom_header {
   name  = "X-Forwarded-Proto"
   value = "https"
 }
 ```
+
 Also ensure Keycloak is configured with `KC_HOSTNAME_URL` (full URL with `https://`) instead of just `KC_HOSTNAME`.
 
 ### API returns 403 Forbidden after login
@@ -211,13 +229,17 @@ Also ensure Keycloak is configured with `KC_HOSTNAME_URL` (full URL with `https:
 **Cause:** Either the user doesn't have required group memberships, or the MCP scopes haven't been initialized on EFS.
 
 **Solution:**
+
 1. Check user groups in Keycloak Admin → mcp-gateway realm → Users → select user → Groups
 2. Ensure user is in `mcp-registry-admin` or `mcp-registry-user` group
 3. Run the scopes init task:
+
    ```bash
    ./scripts/run-scopes-init-task.sh --skip-build
    ```
+
 4. Restart the registry and auth services:
+
    ```bash
    aws ecs update-service --cluster mcp-gateway-ecs-cluster --service mcp-gateway-v2-registry --force-new-deployment --region us-west-2
    aws ecs update-service --cluster mcp-gateway-ecs-cluster --service mcp-gateway-v2-auth --force-new-deployment --region us-west-2
@@ -230,9 +252,11 @@ Also ensure Keycloak is configured with `KC_HOSTNAME_URL` (full URL with `https:
 **Cause:** The nginx default site configuration is intercepting requests before they reach the registry.
 
 **Solution:** The `docker/registry-entrypoint.sh` should remove the default site:
+
 ```bash
 rm -f /etc/nginx/sites-enabled/default
 ```
+
 Rebuild and redeploy the registry container.
 
 ### Certificate validation timeout
@@ -241,7 +265,8 @@ Rebuild and redeploy the registry container.
 
 **Cause:** Route53 hosted zone doesn't exist or DNS propagation is slow.
 
-**Solution:** 
+**Solution:**
+
 1. Verify the hosted zone exists: `aws route53 list-hosted-zones`
 2. Check the `base_domain` matches your hosted zone
 3. Wait for DNS propagation (up to 5 minutes)
@@ -253,6 +278,7 @@ Rebuild and redeploy the registry container.
 **Cause:** ALB is not responding or security group blocks CloudFront.
 
 **Solution:**
+
 1. Verify ALB health checks are passing
 2. Ensure ALB security group allows inbound from CloudFront (via prefix list or `0.0.0.0/0`)
 3. Check ECS service is running and healthy

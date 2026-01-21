@@ -13,11 +13,13 @@ This guide demonstrates the complete lifecycle of IAM and resource management us
 ### For Local Testing (Docker Compose)
 
 1. Ensure the registry and Keycloak services are running:
+
    ```bash
    docker-compose up -d
    ```
 
 2. Generate authentication tokens:
+
    ```bash
    cd credentials-provider
    ./generate_creds.sh
@@ -25,11 +27,13 @@ This guide demonstrates the complete lifecycle of IAM and resource management us
    ```
 
 3. Verify token file exists:
+
    ```bash
    ls -la .oauth-tokens/ingress.json
    ```
 
 **Note:** The script automatically validates that:
+
 - The token file exists and is readable
 - The token contains a valid `access_token` field
 - The token has not expired (checks JWT expiration time)
@@ -164,9 +168,11 @@ The script requires the `--token-file` parameter and optionally accepts `--regis
 ```
 
 **Required Arguments:**
+
 - `--token-file <path>` - Path to the OAuth token file (e.g., `.oauth-tokens/ingress.json`)
 
 **Optional Arguments:**
+
 - `--registry-url <url>` - Registry URL (default: `http://localhost`)
 - `--aws-region <region>` - AWS region (e.g., `us-east-1`)
 - `--keycloak-url <url>` - Keycloak base URL (e.g., `https://kc.us-east-1.aroraai.people.aws.dev`)
@@ -221,6 +227,7 @@ cd api
 ```
 
 Output:
+
 ```
 Usage: ./test-management-api-e2e.sh --token-file <path-to-token-file> [--registry-url <url>] [--aws-region <region>] [--keycloak-url <url>] [--quiet]
 
@@ -333,6 +340,7 @@ Cleanup complete!
 ### Error: Missing --token-file argument
 
 **Problem:**
+
 ```
 Error: --token-file is required
 
@@ -340,6 +348,7 @@ Usage: ./test-management-api-e2e.sh --token-file <path-to-token-file> [--registr
 ```
 
 **Solution:** Provide the required `--token-file` parameter:
+
 ```bash
 ./test-management-api-e2e.sh --token-file ../.oauth-tokens/ingress.json
 ```
@@ -347,6 +356,7 @@ Usage: ./test-management-api-e2e.sh --token-file <path-to-token-file> [--registr
 ### Error: Token file not found
 
 **Problem:**
+
 ```
 Error: Token file not found: .oauth-tokens/ingress.json
 
@@ -355,6 +365,7 @@ To generate tokens for local testing:
 ```
 
 **Solution:** Generate tokens first:
+
 ```bash
 cd credentials-provider
 ./generate_creds.sh
@@ -372,6 +383,7 @@ cd ..
 **Problem:** Invalid input data in the request.
 
 **Solution:** Check that:
+
 - Group names are valid (alphanumeric with hyphens/underscores)
 - Email addresses are properly formatted
 - All required fields are provided
@@ -381,6 +393,7 @@ cd ..
 **Problem:** JSON configuration file is missing or invalid.
 
 **Solution:** Ensure the JSON files exist:
+
 ```bash
 ls -la cli/examples/cloudflare-docs-server-config.json
 ls -la cli/examples/flight_booking_agent_card.json
@@ -399,11 +412,13 @@ If missing, the script will attempt to create them automatically.
 **Problem:** Cleanup phase reports errors when deleting resources.
 
 **Solution:** This can happen if:
+
 - Resources were manually deleted during the test
 - Network connectivity issues
 - Permission issues
 
 You can manually clean up remaining resources:
+
 ```bash
 # List and delete remaining resources
 uv run python registry_management.py --registry-url http://localhost --token-file ../.oauth-tokens/ingress.json user-list
@@ -421,23 +436,27 @@ uv run python registry_management.py --registry-url http://localhost --token-fil
 This test script exercises the following Management API endpoints:
 
 ### User Management
+
 - `POST /api/management/iam/users/human` - Create human user
 - `POST /api/management/iam/users/m2m` - Create M2M service account
 - `GET /api/management/iam/users` - List users
 - `DELETE /api/management/iam/users/{username}` - Delete user
 
 ### Group Management
+
 - `POST /api/management/iam/groups` - Create group
 - `GET /api/management/iam/groups` - List groups
 - `DELETE /api/management/iam/groups/{group_name}` - Delete group
 
 ### Server Management
+
 - `POST /api/servers/register` - Register server
 - `GET /api/servers` - List servers
 - `GET /api/servers/health` - Check server health
 - `DELETE /api/servers/{path}` - Remove server
 
 ### Agent Management
+
 - `POST /api/agents/register` - Register agent
 - `GET /api/agents` - List agents
 - `DELETE /api/agents/{path}` - Delete agent

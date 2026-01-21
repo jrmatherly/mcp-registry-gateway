@@ -38,11 +38,13 @@ This project uses `react-scripts` v5.0.1, which has a compatibility issue with `
 **Patch Location**: `patches/react-scripts+5.0.1.patch`
 
 **How it Works**:
+
 1. The patch modifies `node_modules/react-scripts/config/webpackDevServer.config.js`
 2. Replaces deprecated hooks with `setupMiddlewares` function
 3. The patch is automatically applied after `npm install` via the postinstall script
 
 **If you encounter webpack-dev-server errors**:
+
 1. Delete `node_modules` and `package-lock.json`
 2. Run `npm install` to reinstall dependencies and reapply the patch
 3. If the patch fails, check the `patches/react-scripts+5.0.1.patch` file for conflicts

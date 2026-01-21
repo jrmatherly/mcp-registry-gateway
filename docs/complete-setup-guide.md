@@ -3,6 +3,7 @@
 This guide provides a comprehensive, step-by-step walkthrough for setting up the MCP Gateway & Registry on a fresh AWS EC2 instance. Perfect for first-time users who want to get the system running from zero.
 
 ## Table of Contents
+
 1. [AWS EC2 Instance Setup](#1-aws-ec2-instance-setup)
 2. [Initial System Configuration](#2-initial-system-configuration)
 3. [Installing Prerequisites](#3-installing-prerequisites)
@@ -34,6 +35,7 @@ This guide provides a comprehensive, step-by-step walkthrough for setting up the
    - VPC: Default or your custom VPC
    - Subnet: Public subnet with auto-assign public IP
    - **Security Group**: Create new with following rules:
+
      ```
      Inbound Rules:
      - SSH (22): Your IP address
@@ -254,6 +256,7 @@ SESSION_COOKIE_DOMAIN=  # Empty = cookie scoped to exact host only
 ```
 
 **Important**:
+
 - Remember the passwords you set here - you'll need to use the same ones in Step 5!
 - **CRITICAL**: `KEYCLOAK_ADMIN_PASSWORD` and `INITIAL_ADMIN_PASSWORD` MUST be set to the same value. See Step 5 for details about why this is important.
 - **SESSION_COOKIE_SECURE**: For local development (HTTP), this MUST be `false`. Setting it to `true` will cause login to fail because cookies with `secure=true` are only sent over HTTPS connections.
@@ -313,6 +316,7 @@ INITIAL_ADMIN_PASSWORD=YourSecureAdminPassword123!  # MUST match KEYCLOAK_ADMIN_
 ```
 
 If these passwords don't match:
+
 - The Keycloak admin user will be created with `INITIAL_ADMIN_PASSWORD`
 - But API authentication during setup uses `KEYCLOAK_ADMIN_PASSWORD`
 - This mismatch will cause authentication failures during realm initialization
@@ -324,6 +328,7 @@ If these passwords don't match:
 First, ensure Docker is installed by following the [Installing Prerequisites](#3-installing-prerequisites) section.
 
 **Fresh Install Recommended**: If you've previously run the stack with different credentials, you should remove the old database volume to avoid password mismatch errors:
+
 ```bash
 # Remove any existing keycloak database volume (skip if this is a fresh install)
 docker compose down keycloak keycloak-db
@@ -346,12 +351,14 @@ docker compose logs -f keycloak
 **Important**: Wait at least 2-3 minutes for Keycloak to fully initialize before proceeding.
 
 **Note about Health Status**: The Keycloak container may show as "unhealthy" in `docker ps` output when running in development mode. This is normal and won't affect functionality. You can verify Keycloak is working by running:
+
 ```bash
 curl http://localhost:8080/realms/master
 # Should return JSON with realm information
 ```
 
 ### Disable SSL Requirement for Master Realm
+
 ```bash
 # Note: KEYCLOAK_ADMIN defaults to "admin" - ensure KEYCLOAK_ADMIN_PASSWORD is set
 export KEYCLOAK_ADMIN="${KEYCLOAK_ADMIN:-admin}"
@@ -439,6 +446,7 @@ chmod +x ./cli/bootstrap_user_and_m2m_setup.sh
 ```
 
 This script creates:
+
 - **3 Keycloak groups**: `registry-users-lob1`, `registry-users-lob2`, `registry-admins`
 - **6 users for different roles**:
   - **LOB1 users**: `lob1-bot` (M2M service account) and `lob1-user` (human user)
@@ -448,6 +456,7 @@ This script creates:
 All credentials are automatically generated and saved to the `.oauth-tokens/` directory. User passwords default to the `INITIAL_USER_PASSWORD` value from your `.env` file.
 
 **Next steps**:
+
 - Review the generated credentials in `.oauth-tokens/`
 - Configure appropriate access scopes in your `scopes.yml` file
 - Use these credentials for testing M2M client flows and human user authentication
@@ -536,11 +545,13 @@ This will create access token files (both `.json` and `.env` formats) for all Ke
 ### Verify Keycloak is Running
 
 Open a web browser and navigate to:
+
 ```
 http://localhost:8080
 ```
 
 You should see the Keycloak login page. You can log in with:
+
 - Username: `admin`
 - Password: The `KEYCLOAK_ADMIN_PASSWORD` you set earlier
 
@@ -617,6 +628,7 @@ The MCP Gateway Registry supports multiple storage backends for production and d
 **DEPRECATION WARNING**: The file-based storage backend is deprecated and will be removed in a future release. MongoDB CE is now the recommended approach for local development.
 
 **Storage Backend Options:**
+
 - **MongoDB CE**: Recommended for local development (see below)
 - **DocumentDB**: Used automatically in production (AWS ECS/EKS deployments)
 - **File-based**: Deprecated - will be removed in future releases
@@ -628,6 +640,7 @@ The MCP Gateway Registry supports multiple storage backends for production and d
 MongoDB CE provides a production-like environment for local development with replica set support and application-level vector search capabilities.
 
 **Why use MongoDB CE (Recommended):**
+
 - Production-like environment for local development
 - Testing production workflows locally
 - Multi-instance development environments
@@ -672,6 +685,7 @@ docker compose restart auth-server registry
 **Important**: The auth-server must be restarted after mongodb-init to load the JWT token scopes from MongoDB. Without this step, JWT token generation from the UI will fail with "no scopes configured" error.
 
 **MongoDB CE Features:**
+
 - Replica set configuration for production-like testing
 - Automatic collection and index management
 - Application-level vector search for semantic queries
@@ -687,6 +701,7 @@ For detailed MongoDB CE architecture and configuration options, see [Storage Arc
 ### Test the Registry Web Interface
 
 1. Open your web browser and navigate to:
+
    ```bash
    # On macOS:
    open http://localhost:7860
@@ -789,6 +804,7 @@ The method to access the web UI depends on where you're running the MCP Gateway:
 #### Option A: Local Machine (Linux/macOS)
 
 If you're running on your local machine, simply open a browser and navigate to:
+
 - **Registry UI**: http://localhost:7860
 - **Keycloak Admin**: http://localhost:8080
 
@@ -838,6 +854,7 @@ sudo apt install -y firefox
 **AWS Security Group**: Add inbound rule for port 3389 (RDP) from your IP.
 
 **Connect from Windows**: Use Remote Desktop Connection (mstsc.exe) with:
+
 - Computer: `your-ec2-public-ip:3389`
 - Username: `ubuntu`
 - Password: The password you set above
@@ -895,6 +912,7 @@ tail -f token_refresher.log
 ```
 
 **Example Token Refresh Output:**
+
 ```
 2025-09-17 03:09:43,391,p455210,{token_refresher.py:370},INFO,Successfully refreshed OAuth token: agent-test-agent-m2m-token.json
 2025-09-17 03:09:43,391,p455210,{token_refresher.py:898},INFO,Token successfully updated at: /home/ubuntu/repos/mcp-gateway-registry/.oauth-tokens/agent-test-agent-m2m-token.json
@@ -914,6 +932,7 @@ ls -la .oauth-tokens/
 ```
 
 **Key Files Generated:**
+
 - **Agent Tokens**: `agent-*-m2m-token.json` and `agent-*-m2m.env` files for each Keycloak agent
 - **External Service Tokens**: `*-egress.json` files for external providers (GitHub, etc.)
 - **AI Coding Assistant Configurations**:
@@ -922,6 +941,7 @@ ls -la .oauth-tokens/
 - **Raw Token Files**: `ingress.json`, individual service token files
 
 **Example AI Coding Assistant Configuration (mcp.json):**
+
 ```json
 {
   "mcpServers": {
@@ -946,6 +966,7 @@ ls -la .oauth-tokens/
 For VS Code or similar editors, you'll need to:
 
 1. Copy the configuration to your local machine:
+
    ```bash
    # From your local machine (not the EC2 instance)
    scp -i your-key.pem ubuntu@your-instance-ip:~/workspace/mcp-gateway-registry/.oauth-tokens/mcp.json ~/
@@ -986,6 +1007,7 @@ uv run python agent.py --config agent_config.json
 ### Common Issues and Solutions
 
 #### Services Won't Start
+
 ```bash
 # Check Docker daemon
 sudo systemctl status docker
@@ -1001,6 +1023,7 @@ sudo systemctl stop apache2  # If Apache is running
 ```
 
 #### Keycloak Initialization Fails
+
 ```bash
 # Check Keycloak logs
 docker-compose logs keycloak | tail -50
@@ -1013,43 +1036,52 @@ docker-compose restart keycloak
 ```
 
 **Password Mismatch Issue**: If you see authentication failures during initialization:
+
 1. Verify that `KEYCLOAK_ADMIN_PASSWORD` and `INITIAL_ADMIN_PASSWORD` are set to the SAME VALUE in your `.env` file
 2. If they don't match, fix them:
+
    ```bash
    # Edit your .env file and ensure these match:
    nano .env
    # KEYCLOAK_ADMIN_PASSWORD=your-password
    # INITIAL_ADMIN_PASSWORD=your-password  (MUST be identical)
    ```
+
 3. Restart Keycloak and try initialization again:
+
    ```bash
    docker-compose restart keycloak
    # Wait 2-3 minutes, then:
    ./keycloak/setup/init-keycloak.sh
    ```
 
-#### Login Redirects Back to Login Page
+#### Login Redirects Back to Login Page Issues
 
 **Most Common Cause**: Incorrect `SESSION_COOKIE_SECURE` setting
 
 **Symptoms**:
+
 - You enter username/password
 - Page redirects back to login page without error message
 - No session cookie is stored in browser
 
 **Solution**:
+
 1. Check your `.env` file:
+
    ```bash
    grep SESSION_COOKIE_SECURE .env
    ```
 
 2. **For localhost (HTTP) access**:
+
    ```bash
    # MUST be false
    SESSION_COOKIE_SECURE=false
    ```
 
 3. **For HTTPS access**:
+
    ```bash
    # MUST be true
    SESSION_COOKIE_SECURE=true
@@ -1063,6 +1095,7 @@ docker-compose restart keycloak
    - For HTTPS: `Secure` flag should be CHECKED
 
 5. **After fixing, rebuild and restart**:
+
    ```bash
    docker compose down
    docker compose build --no-cache auth-server registry
@@ -1072,6 +1105,7 @@ docker-compose restart keycloak
 **Why this happens**: Cookies with `secure=true` are ONLY sent over HTTPS connections. If you access via HTTP (like `http://localhost:7860`), the browser will reject the cookie and login will fail.
 
 #### Authentication Issues
+
 ```bash
 # Verify Keycloak is accessible
 curl http://localhost:8080/realms/mcp-gateway
@@ -1086,6 +1120,7 @@ docker-compose logs auth-server | tail -50
 ```
 
 #### Login Redirects Back to Login Page
+
 This usually indicates a session cookie issue between auth-server and registry:
 
 ```bash
@@ -1106,9 +1141,11 @@ docker-compose up -d auth-server registry
 ```
 
 #### Configure Token Lifetime
+
 By default, Keycloak generates tokens with a 5-minute (300 seconds) lifetime. To change this for longer-lived tokens:
 
 **Method 1: Via Keycloak Admin Console**
+
 1. Go to `http://localhost:8080/admin` (or your Keycloak URL)
 2. Login with admin credentials
 3. Select the `mcp-gateway` realm
@@ -1117,6 +1154,7 @@ By default, Keycloak generates tokens with a 5-minute (300 seconds) lifetime. To
 6. Click **Save**
 
 **Method 2: Via Keycloak Admin API**
+
 ```bash
 # Get admin token
 ADMIN_TOKEN=$(curl -s -X POST "http://localhost:8080/realms/master/protocol/openid-connect/token" \
@@ -1140,6 +1178,7 @@ curl -X GET "http://localhost:8080/admin/realms/mcp-gateway" \
 **Note**: New tokens generated after this change will use the updated lifetime. Existing tokens retain their original expiration time.
 
 #### OAuth2 Callback Failed
+
 If you see "oauth2_callback_failed" error:
 
 ```bash
@@ -1156,6 +1195,7 @@ docker-compose exec auth-server curl -f http://keycloak:8080/health/ready
 ```
 
 #### Registry Not Loading
+
 ```bash
 # Check registry logs
 docker-compose logs registry | tail -50
@@ -1169,6 +1209,7 @@ docker-compose restart registry
 ```
 
 ### View Real-time Logs
+
 ```bash
 # All services
 docker-compose logs -f
@@ -1194,7 +1235,9 @@ docker-compose stop
 ```
 
 ### Reset Everything
+
 If you need to start over completely:
+
 ```bash
 # Stop all services and remove volumes
 docker-compose down -v
@@ -1276,6 +1319,7 @@ curl -f https://mcpgateway.mycorp.com/realms/mcp-gateway
 ### Add More MCP Servers
 
 1. Check available MCP servers:
+
    ```bash
    ls ~/workspace/mcp-gateway-registry/registry/servers/
    ```
@@ -1283,6 +1327,7 @@ curl -f https://mcpgateway.mycorp.com/realms/mcp-gateway
 2. Edit `docker-compose.yml` to enable additional servers
 
 3. Restart services:
+
    ```bash
    docker-compose up -d
    ```
@@ -1335,26 +1380,31 @@ The `scripts/publish_containers.sh` script automates building and publishing all
 ### Publishing Commands
 
 **Test build locally (no push):**
+
 ```bash
 ./scripts/publish_containers.sh --local
 ```
 
 **Publish to Docker Hub:**
+
 ```bash
 ./scripts/publish_containers.sh --dockerhub
 ```
 
 **Publish to GitHub Container Registry:**
+
 ```bash
 ./scripts/publish_containers.sh --ghcr
 ```
 
 **Publish to both registries:**
+
 ```bash
 ./scripts/publish_containers.sh --dockerhub --ghcr
 ```
 
 **Build specific component:**
+
 ```bash
 ./scripts/publish_containers.sh --dockerhub --component registry
 ```
@@ -1377,6 +1427,7 @@ GITHUB_ORG=agentic-community
 ### Generated Image Names
 
 **Docker Hub (Organization Account):**
+
 - `mcpgateway/registry:latest`
 - `mcpgateway/auth-server:latest`
 - `mcpgateway/currenttime-server:latest`
@@ -1385,6 +1436,7 @@ GITHUB_ORG=agentic-community
 - `mcpgateway/mcpgw-server:latest`
 
 **GitHub Container Registry:**
+
 - `ghcr.io/agentic-community/mcp-registry:latest`
 - `ghcr.io/agentic-community/mcp-auth-server:latest`
 - `ghcr.io/agentic-community/mcp-currenttime-server:latest`
@@ -1402,6 +1454,7 @@ Once published, anyone can use the pre-built images with:
 ```
 
 This deployment method:
+
 - Skips the build process entirely
 - Pulls pre-built images from container registries
 - Starts services in under 2 minutes
@@ -1419,6 +1472,7 @@ You now have a fully functional MCP Gateway & Registry running on your AWS EC2 i
 - Offer a web-based registry for managing configurations
 
 Remember to:
+
 - Save all generated credentials securely
 - Monitor service logs regularly
 - Keep the system updated with latest releases

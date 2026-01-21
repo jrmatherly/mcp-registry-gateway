@@ -168,18 +168,24 @@ mcp-servers-restricted/execute:
 ### Access Control Scenarios
 
 #### Scenario 1: Method Access Only
+
 User has permission for `tools/list` but not `tools/call`:
+
 - ✅ Can list available tools
 - ❌ Cannot execute any tools
 
 #### Scenario 2: Method + Specific Tool Access
+
 User has permission for `tools/call` and specific tools:
+
 - ✅ Can call `get_stock_aggregates`
 - ✅ Can call `print_stock_data`
 - ❌ Cannot call `advanced_analytics_tool` (not in allowed tools list)
 
 #### Scenario 3: Unrestricted Access
+
 User has unrestricted execute permissions:
+
 - ✅ Can call any method
 - ✅ Can call any tool listed in the scope configuration
 
@@ -208,11 +214,13 @@ For agents using their own identity:
 ### Cognito Configuration Requirements
 
 #### User Pool Setup
+
 - Create user groups matching the scope system (e.g., `mcp-registry-admin`)
 - Assign users to appropriate groups
 - Configure OAuth2 flows for web application access
 
 #### Resource Server Setup (for M2M)
+
 - Create resource server with identifier (e.g., `mcp-gateway-api`)
 - Define custom scopes matching server scope names
 - Configure client credentials flow for agent applications
@@ -298,6 +306,7 @@ mcp-servers-restricted/read:
 ```
 
 **Cognito Setup:**
+
 1. Create group: `mcp-registry-basic-user`
 2. Assign users to this group
 3. Users can list and read time tools but cannot execute them
@@ -340,6 +349,7 @@ mcp-servers-restricted/execute:
 ```
 
 **Cognito Setup:**
+
 1. Create resource server: `mcp-gateway-api`
 2. Create custom scope: `mcp-servers-restricted/execute`
 3. Assign scope to agent client
@@ -378,21 +388,25 @@ The access control system is designed around the principle of least privilege:
 ### Best Practices
 
 #### 1. Group Design
+
 - Create specific groups for different roles (admin, user, developer, operator)
 - Avoid overly broad permissions
 - Regularly review group memberships
 
 #### 2. Scope Configuration
+
 - Use restricted scopes for most users
 - Reserve unrestricted access for administrators only
 - Implement tool-level restrictions for sensitive operations
 
 #### 3. Monitoring and Auditing
+
 - Enable detailed logging for access decisions
 - Monitor failed access attempts
 - Regularly audit scope configurations
 
 #### 4. Production Deployment
+
 - Use separate Cognito user pools for different environments
 - Implement proper secret management for client credentials
 - Enable MFA for administrative accounts
@@ -413,15 +427,18 @@ The system enforces several security boundaries:
 #### Issue 1: User Cannot Access Server
 
 **Symptoms:**
+
 - User receives "Access denied" errors
 - Server appears unavailable to user
 
 **Diagnosis:**
+
 1. Check user's Cognito group membership
 2. Verify group mapping in `scopes.yml`
 3. Confirm server is listed in user's scopes
 
 **Solution:**
+
 ```yaml
 # Ensure user's group has appropriate server scope
 group_mappings:
@@ -432,15 +449,18 @@ group_mappings:
 #### Issue 2: Tool Call Fails Despite Method Access
 
 **Symptoms:**
+
 - User can list tools but cannot call specific tools
 - `tools/call` method fails with permission error
 
 **Diagnosis:**
+
 1. Verify user has `tools/call` method permission
 2. Check if specific tool is listed in allowed tools
 3. Confirm tool name matches exactly
 
 **Solution:**
+
 ```yaml
 mcp-servers-restricted/execute:
   - server: server-name
@@ -453,15 +473,18 @@ mcp-servers-restricted/execute:
 #### Issue 3: Scope Configuration Not Loading
 
 **Symptoms:**
+
 - All access is allowed (fallback behavior)
 - Scope validation logs show "No scopes configuration loaded"
 
 **Diagnosis:**
+
 1. Check `scopes.yml` file exists in `auth_server/` directory
 2. Verify YAML syntax is valid
 3. Check file permissions
 
 **Solution:**
+
 ```bash
 # Validate YAML syntax
 python -c "import yaml; yaml.safe_load(open('auth_server/scopes.yml'))"
@@ -473,15 +496,18 @@ ls -la auth_server/scopes.yml
 #### Issue 4: Group Mapping Not Working
 
 **Symptoms:**
+
 - User has correct Cognito group but wrong scopes
 - Scope mapping appears incorrect
 
 **Diagnosis:**
+
 1. Verify group name matches exactly in Cognito and `scopes.yml`
 2. Check for typos in group names
 3. Confirm group mapping syntax
 
 **Solution:**
+
 ```yaml
 # Ensure exact match between Cognito group name and mapping key
 group_mappings:
@@ -535,6 +561,7 @@ test_scope_config()
 - **Logging Overhead**: Verbose logging can impact performance in production
 
 For production deployments, consider:
+
 - Reducing log verbosity
 - Monitoring validation performance
 - Optimizing scope configuration structure

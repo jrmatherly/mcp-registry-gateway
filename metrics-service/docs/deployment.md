@@ -50,28 +50,33 @@ The metrics service can be deployed in several ways:
 ### Quick Start
 
 1. **Clone and setup**:
+
 ```bash
 cd metrics-service
 uv sync --dev
 ```
 
 2. **Initialize database**:
+
 ```bash
 uv run python migrate.py up
 ```
 
 3. **Create development API key**:
+
 ```bash
 uv run python create_api_key.py
 # Save the generated API key for testing
 ```
 
 4. **Start development server**:
+
 ```bash
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8890
 ```
 
 5. **Verify deployment**:
+
 ```bash
 curl http://localhost:8890/health
 ```
@@ -91,6 +96,7 @@ METRICS_RATE_LIMIT="100"  # Lower for development
 ```
 
 Load environment:
+
 ```bash
 uv run --env-file .env uvicorn app.main:app --reload
 ```
@@ -131,6 +137,7 @@ Before deploying to production, ensure:
 ### Direct Production Deployment
 
 1. **System setup**:
+
 ```bash
 # Create dedicated user
 sudo useradd -m -s /bin/bash metrics
@@ -142,12 +149,14 @@ source ~/.bashrc
 ```
 
 2. **Application setup**:
+
 ```bash
 cd /opt/metrics-service
 uv sync --no-dev
 ```
 
 3. **Database initialization**:
+
 ```bash
 # Ensure data directory exists with proper permissions
 sudo mkdir -p /var/lib/sqlite
@@ -159,12 +168,14 @@ uv run python migrate.py up
 ```
 
 4. **Create production API keys**:
+
 ```bash
 uv run python create_api_key.py
 # Store keys securely in your secrets management system
 ```
 
 5. **Create systemd service**:
+
 ```ini
 # /etc/systemd/system/metrics-service.service
 [Unit]
@@ -193,6 +204,7 @@ WantedBy=multi-user.target
 ```
 
 6. **Production configuration**:
+
 ```bash
 # /etc/metrics-service/config
 SQLITE_DB_PATH="/var/lib/sqlite/metrics.db"
@@ -207,6 +219,7 @@ FLUSH_INTERVAL_SECONDS="10"
 ```
 
 7. **Start and enable service**:
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable metrics-service
@@ -588,6 +601,7 @@ spec:
 ```
 
 Deploy to Kubernetes:
+
 ```bash
 kubectl apply -f k8s/
 ```
@@ -613,6 +627,7 @@ kubectl apply -f k8s/
 ### Environment-Specific Configurations
 
 #### Development
+
 ```bash
 SQLITE_DB_PATH="./dev.db"
 METRICS_SERVICE_HOST="127.0.0.1"
@@ -623,6 +638,7 @@ FLUSH_INTERVAL_SECONDS="5"
 ```
 
 #### Staging
+
 ```bash
 SQLITE_DB_PATH="/var/lib/sqlite/staging_metrics.db"
 METRICS_SERVICE_HOST="0.0.0.0"
@@ -633,6 +649,7 @@ FLUSH_INTERVAL_SECONDS="15"
 ```
 
 #### Production
+
 ```bash
 SQLITE_DB_PATH="/var/lib/sqlite/metrics.db"
 METRICS_SERVICE_HOST="0.0.0.0"
@@ -647,17 +664,20 @@ FLUSH_INTERVAL_SECONDS="10"
 ### Database Initialization
 
 1. **Run migrations**:
+
 ```bash
 uv run python migrate.py status
 uv run python migrate.py up
 ```
 
 2. **Verify schema**:
+
 ```bash
 sqlite3 /var/lib/sqlite/metrics.db ".schema"
 ```
 
 3. **Create initial API keys**:
+
 ```bash
 uv run python create_api_key.py
 ```
@@ -690,6 +710,7 @@ echo "Backup completed: metrics_$DATE.db.gz"
 ```
 
 Schedule backups:
+
 ```bash
 # Add to crontab
 0 2 * * * /opt/scripts/backup-metrics-db.sh
@@ -850,17 +871,20 @@ groups:
 #### Service Won't Start
 
 1. **Check logs**:
+
 ```bash
 journalctl -u metrics-service -f
 ```
 
 2. **Verify database permissions**:
+
 ```bash
 ls -la /var/lib/sqlite/
 sudo chown metrics:metrics /var/lib/sqlite/metrics.db
 ```
 
 3. **Test database connection**:
+
 ```bash
 sqlite3 /var/lib/sqlite/metrics.db "SELECT 1;"
 ```
@@ -868,12 +892,14 @@ sqlite3 /var/lib/sqlite/metrics.db "SELECT 1;"
 #### High Memory Usage
 
 1. **Check SQLite cache settings**:
+
 ```sql
 PRAGMA cache_size;  -- Should be reasonable
 PRAGMA temp_store;  -- Should be MEMORY
 ```
 
 2. **Monitor buffer sizes**:
+
 ```bash
 # Check if batch size is too large
 grep BATCH_SIZE /etc/metrics-service/config
@@ -882,11 +908,13 @@ grep BATCH_SIZE /etc/metrics-service/config
 #### Rate Limiting Issues
 
 1. **Check rate limiter status**:
+
 ```bash
 curl -H "X-API-Key: your-key" http://localhost:8890/rate-limit
 ```
 
 2. **Review rate limit logs**:
+
 ```bash
 journalctl -u metrics-service | grep "rate limit"
 ```
@@ -894,11 +922,13 @@ journalctl -u metrics-service | grep "rate limit"
 #### Database Lock Issues
 
 1. **Check for long-running transactions**:
+
 ```sql
 PRAGMA wal_checkpoint;
 ```
 
 2. **Monitor WAL file size**:
+
 ```bash
 ls -la /var/lib/sqlite/metrics.db-wal
 ```

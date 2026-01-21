@@ -31,12 +31,14 @@ export DOCUMENTDB_NAMESPACE=production
 Bash wrapper script that downloads the CA bundle (if needed) and runs the Python initialization script.
 
 **Features:**
+
 - Downloads AWS DocumentDB CA bundle automatically if missing
 - Validates environment configuration
 - Color-coded output for easy readability
 - Supports both environment variables and command-line arguments
 
 **Usage:**
+
 ```bash
 # Using environment variables (recommended)
 export DOCUMENTDB_HOST=your-cluster.docdb.amazonaws.com
@@ -53,6 +55,7 @@ export DOCUMENTDB_PASSWORD=yourpassword
 Python script that creates all necessary DocumentDB collections and indexes.
 
 **Features:**
+
 - Creates vector indexes for embeddings (HNSW, 1536 dimensions, cosine similarity)
 - Creates standard indexes for servers, agents, scopes, security scans, and federation config
 - Supports both IAM and username/password authentication
@@ -60,6 +63,7 @@ Python script that creates all necessary DocumentDB collections and indexes.
 - Recreate mode to drop and recreate indexes
 
 **Usage:**
+
 ```bash
 # Using environment variables
 uv run python scripts/init-documentdb-indexes.py
@@ -87,6 +91,7 @@ uv run python scripts/init-documentdb-indexes.py --recreate
 Downloads the AWS DocumentDB global CA bundle certificate required for TLS connections.
 
 **Usage:**
+
 ```bash
 ./scripts/download-documentdb-ca-bundle.sh
 ```
@@ -183,24 +188,30 @@ export DOCUMENTDB_USE_TLS=false
 ### Troubleshooting
 
 #### "DOCUMENTDB_HOST environment variable is not set"
+
 Set the required environment variables before running:
+
 ```bash
 export DOCUMENTDB_HOST=your-cluster.docdb.amazonaws.com
 ```
 
 #### "AWS credentials not found for DocumentDB IAM auth"
+
 Configure AWS credentials:
+
 ```bash
 aws configure
 # Or use IAM role attached to EC2/ECS task
 ```
 
 #### "Failed to download CA bundle"
+
 - Check network connectivity
 - Verify wget or curl is installed
 - Download manually from: https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
 
 #### "Failed to create vector index"
+
 - Ensure DocumentDB cluster version supports vector search
 - Check that dimensions (1536) match your embeddings model
 - Verify DocumentDB Elastic Cluster (not instance-based cluster)
@@ -210,6 +221,7 @@ aws configure
 DocumentDB is a managed AWS service and runs outside of Docker. To use DocumentDB with docker-compose services:
 
 1. Initialize DocumentDB:
+
 ```bash
 export DOCUMENTDB_HOST=your-cluster.docdb.amazonaws.com
 export DOCUMENTDB_USERNAME=admin
@@ -218,6 +230,7 @@ export DOCUMENTDB_PASSWORD=yourpassword
 ```
 
 1. Update docker-compose environment:
+
 ```yaml
 services:
   registry:
@@ -229,6 +242,7 @@ services:
 ```
 
 1. Restart services:
+
 ```bash
 docker-compose up -d
 ```
@@ -329,14 +343,17 @@ aws ecs describe-services \
 ### Troubleshooting
 
 #### "Failed to get AWS account ID"
+
 - Check AWS credentials: `aws sts get-caller-identity`
 - Verify AWS profile: `aws configure list --profile <profile-name>`
 
 #### "Failed to login to ECR"
+
 - Verify ECR permissions in IAM
 - Check if repository exists: `aws ecr describe-repositories --repository-names keycloak`
 
 #### "Failed to build Docker image"
+
 - Check Docker is running: `docker ps`
 - Verify Dockerfile exists: `ls -la docker/keycloak/Dockerfile`
 

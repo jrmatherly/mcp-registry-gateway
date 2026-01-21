@@ -271,6 +271,7 @@ Tests can be marked with pytest markers:
 - `@pytest.mark.requires_models`: Tests needing real ML models
 
 Markers are automatically applied based on file location:
+
 - Files in `unit/` get `@pytest.mark.unit`
 - Files in `integration/` get `@pytest.mark.integration`
 - Files in `auth_server/` get `@pytest.mark.auth`
@@ -313,6 +314,7 @@ Test data is generated using:
 3. **Constants** for consistent values
 
 This ensures test data is:
+
 - Realistic
 - Consistent
 - Easy to maintain

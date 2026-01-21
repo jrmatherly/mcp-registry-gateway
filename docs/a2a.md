@@ -27,6 +27,7 @@ Instead of having a central orchestrator manage all agent communication:
 ```
 
 A2A enables:
+
 - **Autonomous agent networks** - Agents operate independently
 - **Dynamic discovery** - New agents join without reconfiguration
 - **Enterprise security** - Keycloak-based access control
@@ -169,6 +170,7 @@ TOKEN_FILE=/path/to/token.json bash tests/agent_crud_test.sh
 ```
 
 Tests all 9 CRUD operations:
+
 1. CREATE - Register new agent
 2. READ - Retrieve agent details
 3. UPDATE - Modify agent metadata
@@ -196,6 +198,7 @@ bash tests/run-lob-bot-tests.sh
 ```
 
 Tests include:
+
 - **MCP Service Access** (Tests 1-6) - Verify service permissions
 - **Agent Registry API** (Tests 7-14) - Verify agent visibility and access
 
@@ -206,24 +209,28 @@ See [LOB Bot Access Control Testing](../tests/lob-bot-access-control-testing.md)
 ### Core Components
 
 **CLI Module** (`cli/agent_mgmt.py`)
+
 - Agent registration and lifecycle management
 - CRUD operations on agent metadata
 - Argument validation and error handling
 - Structured logging and status reporting
 
 **API Routes** (`registry/api/agent_routes.py`)
+
 - Implements Agent Registry REST API endpoints
 - Access control enforcement via scopes
 - Token validation and authentication
 - Agent state persistence and management
 
 **Data Models** (`registry/models/`)
+
 - Agent schema validation
 - Skill/capability definitions
 - Security configuration models
 - State tracking models
 
 **Services** (`registry/services/agent_service.py`)
+
 - Agent business logic
 - State file management
 - Permission checking
@@ -253,6 +260,7 @@ All A2A operations use **machine-to-machine (M2M) authentication**:
 ```
 
 Token validation includes:
+
 - JWT payload decoding with base64 padding
 - Expiration time checking
 - Bearer token authentication

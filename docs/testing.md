@@ -3,6 +3,7 @@
 This guide provides comprehensive testing instructions for the MCP Gateway using both the CLI client and the Python agent.
 
 ## Table of Contents
+
 - [Regenerate Credentials](#regenerate-credentials)
 - [Quick Start Testing](#quick-start-testing)
 - [CLI Testing with mcp_client.py](#cli-testing-with-mcp_clientpy)
@@ -25,6 +26,7 @@ Run the credential generation script to create fresh tokens:
 ```
 
 This script will:
+
 - Generate fresh access tokens for all configured agents
 - Create M2M (machine-to-machine) tokens for service authentication
 - Update all credential files in `.oauth-tokens/` directory
@@ -35,12 +37,15 @@ This script will:
 ## Quick Start Testing
 
 ### Prerequisites
+
 1. Ensure all containers are running:
+
    ```bash
    docker-compose ps
    ```
 
 2. Set up authentication (choose one method):
+
    ```bash
    # Method 1: Source M2M credentials
    source .oauth-tokens/agent-test-agent-m2m.env
@@ -50,6 +55,7 @@ This script will:
    ```
 
 ### Basic Connectivity Test
+
 ```bash
 # Test gateway connectivity
 uv run python cli/mcp_client.py ping
@@ -65,6 +71,7 @@ The `mcp_client.py` tool provides direct access to MCP servers and gateway funct
 ### Core Commands
 
 #### 1. Ping (Connectivity Test)
+
 ```bash
 # Ping default gateway
 uv run python cli/mcp_client.py ping
@@ -74,6 +81,7 @@ uv run python cli/mcp_client.py --url http://localhost/currenttime/mcp ping
 ```
 
 #### 2. List Tools
+
 ```bash
 # List tools from gateway
 uv run python cli/mcp_client.py list
@@ -83,6 +91,7 @@ uv run python cli/mcp_client.py --url http://localhost/currenttime/mcp list
 ```
 
 #### 3. Call Tools
+
 ```bash
 # Find tools using natural language
 uv run python cli/mcp_client.py call \
@@ -103,6 +112,7 @@ uv run python cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ### Advanced Examples
 
 #### Tool Discovery
+
 ```bash
 # Find tools by description
 uv run python cli/mcp_client.py call \
@@ -116,6 +126,7 @@ uv run python cli/mcp_client.py call \
 ```
 
 #### Service Management
+
 ```bash
 # List all registered services
 uv run python cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
@@ -138,6 +149,7 @@ uv run python cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 The Python agent (`agents/agent.py`) provides advanced AI capabilities with LangGraph-based multi-turn conversations.
 
 ### Prerequisites
+
 ```bash
 # Install dependencies
 cd agents
@@ -147,6 +159,7 @@ pip install -r requirements.txt
 ### Basic Usage
 
 #### Non-Interactive Mode
+
 ```bash
 # Simple query with default settings
 uv run python agents/agent.py --prompt "What time is it in Tokyo?"
@@ -160,6 +173,7 @@ uv run python agents/agent.py --provider bedrock --model anthropic.claude-3-5-so
 ```
 
 #### Interactive Mode
+
 ```bash
 # Start interactive conversation
 uv run python agents/agent.py --interactive
@@ -174,24 +188,28 @@ uv run python agents/agent.py --interactive --verbose
 ### Authentication Options
 
 #### Using Agent Credentials
+
 ```bash
 # Load credentials from .oauth-tokens/{agent-name}.json
 uv run python agents/agent.py --agent-name test-agent --prompt "List available tools"
 ```
 
 #### Using JWT Token
+
 ```bash
 # Use pre-generated JWT token
 uv run python agents/agent.py --jwt-token "your-jwt-token" --prompt "Get current time"
 ```
 
 #### Using Session Cookie
+
 ```bash
 # Use session cookie authentication
 uv run python agents/agent.py --use-session-cookie --prompt "What tools are available?"
 ```
 
 #### Using Direct Access Token
+
 ```bash
 # Override with direct access token
 uv run python agents/agent.py --access-token "your-token" --prompt "List services"
@@ -200,6 +218,7 @@ uv run python agents/agent.py --access-token "your-token" --prompt "List service
 ### Advanced Agent Examples
 
 #### Tool Filtering
+
 ```bash
 # Filter to use specific MCP tool
 uv run python agents/agent.py --mcp-tool-name current_time_by_timezone \
@@ -207,6 +226,7 @@ uv run python agents/agent.py --mcp-tool-name current_time_by_timezone \
 ```
 
 #### Custom MCP Registry URL
+
 ```bash
 # Use different registry
 uv run python agents/agent.py --mcp-registry-url https://your-registry.com \
@@ -214,6 +234,7 @@ uv run python agents/agent.py --mcp-registry-url https://your-registry.com \
 ```
 
 #### Verbose Debugging
+
 ```bash
 # Enable HTTP debugging
 uv run python agents/agent.py --verbose --prompt "Test connection"
@@ -222,6 +243,7 @@ uv run python agents/agent.py --verbose --prompt "Test connection"
 ## Authentication Testing
 
 ### M2M Authentication
+
 ```bash
 # Set environment variables
 export CLIENT_ID=your_client_id
@@ -234,12 +256,14 @@ uv run python cli/mcp_client.py list
 ```
 
 ### Ingress Token
+
 ```bash
 # CLI automatically uses .oauth-tokens/ingress.json if available
 uv run python cli/mcp_client.py ping
 ```
 
 ### Testing Different Scopes
+
 ```bash
 # Test with specific scopes (agent.py)
 uv run python agents/agent.py --scopes "read:tools" "execute:tools" \
@@ -251,12 +275,14 @@ uv run python agents/agent.py --scopes "read:tools" "execute:tools" \
 Use the `service_mgmt.sh` script for comprehensive server lifecycle management:
 
 ### Add a Service
+
 ```bash
 # Add service from config file
 ./cli/service_mgmt.sh add cli/examples/example-server-config.json
 ```
 
 ### Monitor Services
+
 ```bash
 # Monitor all services
 ./cli/service_mgmt.sh monitor
@@ -266,12 +292,14 @@ Use the `service_mgmt.sh` script for comprehensive server lifecycle management:
 ```
 
 ### Test Service Searchability
+
 ```bash
 # Test if service is discoverable
 ./cli/service_mgmt.sh test cli/examples/example-server-config.json
 ```
 
 ### Delete a Service
+
 ```bash
 # Remove service
 ./cli/service_mgmt.sh delete cli/examples/example-server-config.json
@@ -282,6 +310,7 @@ Use the `service_mgmt.sh` script for comprehensive server lifecycle management:
 ### Common Issues
 
 #### Connection Refused
+
 ```bash
 # Check if services are running
 docker-compose ps
@@ -294,6 +323,7 @@ uv run python cli/mcp_client.py ping
 ```
 
 #### Authentication Errors
+
 ```bash
 # Verify credentials are loaded
 echo $CLIENT_ID
@@ -307,6 +337,7 @@ CLIENT_ID=test CLIENT_SECRET=secret uv run python cli/mcp_client.py list
 ```
 
 #### Tool Not Found
+
 ```bash
 # List all available tools
 uv run python cli/mcp_client.py list
@@ -320,12 +351,14 @@ uv run python cli/mcp_client.py call \
 ### Debug Mode
 
 #### CLI Debug Output
+
 ```bash
 # The CLI client shows detailed error messages by default
 uv run python cli/mcp_client.py call --tool nonexistent --args '{}'
 ```
 
 #### Agent Verbose Mode
+
 ```bash
 # Enable verbose HTTP debugging
 uv run python agents/agent.py --verbose --prompt "test"
@@ -334,6 +367,7 @@ uv run python agents/agent.py --verbose --prompt "test"
 ### Health Checks
 
 #### Check All Services
+
 ```bash
 # Full health check
 uv run python cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
@@ -342,6 +376,7 @@ uv run python cli/mcp_client.py --url http://localhost/mcpgw/mcp call \
 ```
 
 #### Check Specific Server
+
 ```bash
 # Direct server ping
 uv run python cli/mcp_client.py --url http://localhost/currenttime/mcp ping
@@ -350,6 +385,7 @@ uv run python cli/mcp_client.py --url http://localhost/currenttime/mcp ping
 ## Integration Testing
 
 ### CI/CD Pipeline Example
+
 ```yaml
 name: MCP Gateway Tests
 on: [push, pull_request]
@@ -380,6 +416,7 @@ jobs:
 ```
 
 ### Docker Container Testing
+
 ```dockerfile
 FROM python:3.11-slim
 WORKDIR /app
@@ -393,6 +430,7 @@ CMD ["python", "cli/mcp_client.py", "ping"]
 ## Performance Testing
 
 ### Load Testing
+
 ```bash
 # Simple load test with multiple requests
 for i in {1..10}; do
@@ -402,6 +440,7 @@ wait
 ```
 
 ### Response Time Testing
+
 ```bash
 # Measure response time
 time uv run python cli/mcp_client.py list
@@ -410,6 +449,7 @@ time uv run python cli/mcp_client.py list
 ## Security Testing
 
 ### Test Authentication
+
 ```bash
 # Test without credentials (should fail appropriately)
 unset CLIENT_ID CLIENT_SECRET
@@ -420,6 +460,7 @@ CLIENT_ID=invalid CLIENT_SECRET=invalid uv run python cli/mcp_client.py list
 ```
 
 ### Test Authorization
+
 ```bash
 # Test tool access with different scopes
 uv run python cli/mcp_client.py call \

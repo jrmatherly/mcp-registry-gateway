@@ -110,12 +110,14 @@ GET /v0.1/servers?cursor={cursor}&limit={limit}
 **Purpose**: List all MCP servers the authenticated user can access.
 
 **Query Parameters**:
+
 - `cursor` (optional): Pagination cursor from previous response
 - `limit` (optional): Results per page (1-1000, default 100)
 
 **Response**: `ServerList` with pagination metadata
 
 **Example**:
+
 ```bash
 curl "http://localhost/v0.1/servers?limit=5" \
   -H "Authorization: Bearer $TOKEN"
@@ -130,6 +132,7 @@ GET /v0.1/servers/{serverName:path}/versions
 **Purpose**: List all available versions for a specific server.
 
 **URL Parameters**:
+
 - `serverName`: URL-encoded name (e.g., `io.mcpgateway%2Ffininfo`)
 
 **Response**: `ServerList` (currently single version per server)
@@ -137,6 +140,7 @@ GET /v0.1/servers/{serverName:path}/versions
 **Important**: Note `:path` route converter to handle `/` in server names.
 
 **Example**:
+
 ```bash
 curl "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions" \
   -H "Authorization: Bearer $TOKEN"
@@ -151,12 +155,14 @@ GET /v0.1/servers/{serverName:path}/versions/{version}
 **Purpose**: Get detailed information for a specific server version.
 
 **URL Parameters**:
+
 - `serverName`: URL-encoded name (e.g., `io.mcpgateway%2Ffininfo`)
 - `version`: Version string (use `latest` for current version)
 
 **Response**: `ServerResponse` with full server details
 
 **Example**:
+
 ```bash
 curl "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions/latest" \
   -H "Authorization: Bearer $TOKEN"
@@ -169,12 +175,14 @@ curl "http://localhost/v0.1/servers/io.mcpgateway%2Ffininfo/versions/latest" \
 ### 1. JWT Bearer Token Validation
 
 **Client → Nginx**:
+
 ```
 GET /v0.1/servers
 Authorization: Bearer eyJhbGci...
 ```
 
 **Nginx → Auth Server** (`/validate` endpoint):
+
 ```
 GET /validate
 X-Authorization: Bearer eyJhbGci...
@@ -182,6 +190,7 @@ X-Original-URL: http://localhost/v0.1/servers
 ```
 
 **Auth Server Processing**:
+
 1. Validates JWT signature using Keycloak JWKS
 2. Checks expiration, issuer (3-tier validation), audience
    - Tries external URL: `https://mcpgateway.ddns.net/realms/mcp-gateway`
@@ -191,6 +200,7 @@ X-Original-URL: http://localhost/v0.1/servers
 4. Maps Keycloak groups to MCP scopes
 
 **Auth Server → Nginx** (response headers):
+
 ```
 X-User: service-account-mcp-gateway-m2m
 X-Username: service-account-mcp-gateway-m2m
@@ -199,6 +209,7 @@ X-Auth-Method: keycloak
 ```
 
 **Nginx → FastAPI**:
+
 ```
 GET /v0.1/servers
 X-User: service-account-mcp-gateway-m2m
@@ -232,6 +243,7 @@ location /v0.1/ {
 ```
 
 **Key Fix**: `/validate` endpoint must forward `Authorization` as `X-Authorization`:
+
 ```nginx
 location = /validate {
     proxy_pass http://auth-server:8888/validate;
@@ -245,6 +257,7 @@ location = /validate {
 **Function**: `nginx_proxied_auth()` in `registry/auth/dependencies.py`
 
 **Supports Two Modes**:
+
 1. **JWT Flow** (primary): Reads nginx headers from auth validation
 2. **Cookie Flow** (fallback): Reads session cookies for backward compatibility
 
@@ -300,6 +313,7 @@ if server_name not in accessible_servers:
 ```
 
 **Why**:
+
 - `accessible_services` = UI-level services ("auth_server", "mcpgw")
 - `accessible_servers` = MCP server names ("fininfo", "currenttime")
 - M2M tokens have MCP scopes but no UI scopes
@@ -466,6 +480,7 @@ def transform_to_server_list(
 ```
 
 **Example Flow**:
+
 ```
 Page 1: GET /v0.1/servers?limit=3
 ← Returns: servers A, B, C with nextCursor="C"
@@ -531,6 +546,7 @@ expected_prefix = f"{namespace}/"  # "io.mcpgateway/"
 ```
 
 **Files using constant**:
+
 - `registry/api/registry_routes.py` - Validates server name format
 - `registry/services/transform_service.py` - Creates names and metadata keys
 
@@ -629,6 +645,7 @@ See [docs/design/anthropic-api-test-commands.md](anthropic-api-test-commands.md)
 **OpenAPI Spec**: https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/openapi.yaml
 
 **Pydantic Models** (`registry/schemas/anthropic_schema.py`):
+
 - ✅ `ServerList` - Paginated server list
 - ✅ `ServerResponse` - Single server with metadata
 - ✅ `ServerDetail` - Complete server information

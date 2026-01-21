@@ -19,6 +19,7 @@ This guide describes how to manage groups, users, and M2M (machine-to-machine) s
 ## Overview
 
 The MCP Gateway Registry supports two identity providers:
+
 - **Keycloak** - Self-hosted identity provider with full automation support
 - **Microsoft Entra ID** - Enterprise Azure AD integration
 
@@ -41,6 +42,7 @@ When the system is first deployed, it is bootstrapped with **minimal configurati
 ### Keycloak Bootstrap
 
 For Keycloak deployments, the `init-keycloak.sh` script automatically creates:
+
 - The `mcp-gateway` realm
 - `mcp-gateway-web` client (for web UI)
 - `mcp-gateway-m2m` client (for M2M authentication)
@@ -49,8 +51,10 @@ For Keycloak deployments, the `init-keycloak.sh` script automatically creates:
 ### Entra ID Bootstrap
 
 For Entra ID deployments:
+
 - The `registry-admins` group **must be created manually** in Azure Portal
 - The Group Object ID is required when running the DocumentDB initialization script:
+
   ```bash
   ./terraform/aws-ecs/scripts/run-documentdb-init.sh --entra-group-id "your-group-object-id"
   ```
@@ -68,6 +72,7 @@ Groups control access to MCP servers and registry resources. Users and M2M accou
 ### Prerequisites
 
 You need an admin token to create groups. You can obtain one by:
+
 - **UI Method**: Log in to the registry web UI and click the **"Get JWT Token"** button in the top-left sidebar. Save the token to `api/.token`.
 - **M2M Method**: Create an M2M account with admin permissions and generate a token using `generate_creds.sh` (see [Generating JWT Tokens](#generating-jwt-tokens)).
 
@@ -116,6 +121,7 @@ uv run python api/registry_management.py \
 ### Example Group Definitions
 
 See the [cli/examples/](../cli/examples/) directory for sample group definitions:
+
 - [public-mcp-users.json](../cli/examples/public-mcp-users.json) - Public access group with access to context7, cloudflare-docs servers and flight-booking agent
 - `currenttime-users.json` - Access to currenttime server only
 
@@ -138,6 +144,7 @@ The `registry-admins` scope is automatically loaded during database initializati
 ```
 
 This is loaded by the database initialization scripts:
+
 - **Local (MongoDB CE)**: `docker compose up mongodb-init` runs `scripts/init-mongodb-ce.py`
 - **Production (DocumentDB)**: `./terraform/aws-ecs/scripts/run-documentdb-init.sh` runs `scripts/init-documentdb-indexes.py`
 - **Entra ID**: `./terraform/aws-ecs/scripts/run-documentdb-init.sh --entra-group-id "your-group-object-id"`
@@ -273,6 +280,7 @@ Human users generate JWT tokens through the MCP Gateway Registry web interface:
 3. **Copy the generated token**
 
 These self-signed tokens:
+
 - Are signed with HS256 using the server's `SECRET_KEY`
 - Include the user's groups and scopes
 - Can be used for programmatic API access

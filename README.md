@@ -30,6 +30,7 @@ The platform integrates with external registries such as Anthropic's MCP Registr
 **Why unified?** Instead of managing hundreds of individual MCP server configurations, agent connections, and separate governance systems across your development teams, this platform provides secure, governed access to curated MCP servers and registered agents through a single, unified control plane.
 
 **Transform this chaos:**
+
 ```
 ❌ AI agents require separate connections to each MCP server
 ❌ Each developer configures VS Code, Cursor, Claude Code individually
@@ -46,6 +47,7 @@ The platform integrates with external registries such as Anthropic's MCP Registr
 ```
 
 **Into this organized approach:**
+
 ```
 ✅ AI agents connect to one gateway, access multiple MCP servers
 ✅ Single configuration point for VS Code, Cursor, Claude Code
@@ -180,6 +182,7 @@ cli/agent_mgmt.sh search "need an agent to book a trip"
 ```
 
 **Example Output:**
+
 ```
 Found 4 agent(s) matching 'need an agent to book a trip':
 --------------------------------------------------------------------------------------------------------------
@@ -195,23 +198,27 @@ Flight Booking Agent                     | /flight-booking-agent     |  1.2134
 The registry provides a **semantic search API** that agents can use as a tool to discover other A2A agents at runtime. This API enables dynamic agent composition where agents find collaborators based on capabilities rather than hardcoded references.
 
 **Discovery API Endpoint:**
+
 ```
 POST /api/agents/discover/semantic?query=<natural-language-query>&max_results=5
 Authorization: Bearer <jwt-token>
 ```
 
 **Response includes:**
+
 - Agent name, description, and endpoint URL
 - Agent card metadata with skills and capabilities
 - Relevance score for ranking matches
 - Trust level and visibility settings
 
 **How agents use it:**
+
 1. An agent calls the registry's semantic search API with a natural language query (e.g., "agent that can book flights")
 2. The registry returns matching agents with their endpoint URLs and full agent card metadata
 3. The agent uses the agent card to understand capabilities and invokes the discovered agent via A2A protocol
 
 **Example - Travel Assistant discovering and invoking Flight Booking Agent:**
+
 ```
 User: "I need to book a flight from NYC to LA"
 
@@ -233,15 +240,19 @@ For complete agent deployment and testing documentation, see [agents/a2a/README.
 ## Core Use Cases
 
 ### AI Agent & Coding Assistant Governance
+
 Provide both autonomous AI agents and human developers with secure access to approved tools through AI coding assistants (VS Code, Cursor, Claude Code) while maintaining IT oversight and compliance.
 
 ### Enterprise Security & Compliance  
+
 Centralized authentication, fine-grained permissions, and comprehensive audit trails for SOX/GDPR compliance pathways across both human and AI agent access patterns.
 
 ### Dynamic Tool Discovery
+
 AI agents can autonomously discover and execute specialized tools beyond their initial capabilities using intelligent semantic search, while developers get guided tool discovery through their coding assistants.
 
 ### Unified Access Gateway
+
 Single gateway supporting both autonomous AI agents (machine-to-machine) and AI coding assistants (human-guided) with consistent authentication and tool access patterns.
 
 ---
@@ -369,6 +380,7 @@ flowchart TB
 ```
 
 **Key Architectural Benefits:**
+
 - **Unified Gateway**: Single point of access for both AI agents and human developers through coding assistants
 - **Dual Authentication**: Supports both human user authentication and machine-to-machine agent authentication
 - **Scalable Infrastructure**: Nginx reverse proxy with horizontal scaling capabilities
@@ -379,23 +391,27 @@ flowchart TB
 ## Key Advantages
 
 ### **Enterprise-Grade Security**
+
 - OAuth 2.0/3.0 compliance with IdP integration
 - Fine-grained access control at tool and method level  
 - Zero-trust network architecture
 - Complete audit trails and comprehensive analytics for compliance
 
 ### **AI Agent & Developer Experience**
+
 - Single configuration works across autonomous AI agents and AI coding assistants (VS Code, Cursor, Claude Code, Cline)
 - Dynamic tool discovery with natural language queries for both agents and humans
 - Instant onboarding for new team members and AI agent deployments
 - Unified governance for both AI agents and human developers
 
 ### **Production Ready**
+
 - Container-native (Docker/Kubernetes)
 - Real-time health monitoring and alerting
 - Dual authentication supporting both human and machine authentication
 
 ---
+
 ## Quick Start
 
 There are 3 options for setting up the MCP Gateway & Registry:
@@ -427,6 +443,7 @@ open http://localhost:7860  # macOS
 ```
 
 **[Complete Quick Start Guide](docs/quickstart.md)** - Full step-by-step instructions including:
+
 - Prerequisites installation (Docker, Python, UV)
 - Environment configuration
 - MongoDB and Keycloak initialization
@@ -443,6 +460,7 @@ open http://localhost:7860  # macOS
 **Perfect for macOS and rootless Linux environments**
 
 Podman provides rootless container execution without requiring privileged ports, making it ideal for:
+
 - **macOS** users with Podman Desktop
 - **Linux** users preferring rootless containers
 - **Development** environments where Docker daemon isn't available
@@ -496,6 +514,7 @@ open http://localhost:8080
 ```
 
 **Key Differences vs. Docker:**
+
 - No root/sudo required
 - Works on macOS without privileged port access
 - HTTP port: `8080` (instead of `80`)
@@ -532,19 +551,23 @@ uv run pytest -m "not slow"     # Skip slow tests
 ```
 
 **Test Structure:**
+
 - **Unit Tests** (`tests/unit/`) - Fast, isolated component tests
 - **Integration Tests** (`tests/integration/`) - Component interaction tests
 - **E2E Tests** (`tests/integration/test_e2e_workflows.py`) - Complete workflow tests
 
 **Python Agent:**
+
 - `agents/agent.py` - Full-featured Python agent with advanced AI capabilities
 
 **Testing Documentation:**
+
 - [Testing Guide](docs/testing/README.md) - Comprehensive testing documentation
 - [Writing Tests](docs/testing/WRITING_TESTS.md) - How to write effective tests
 - [Test Maintenance](docs/testing/MAINTENANCE.md) - Maintaining test suite health
 
 **Pre-commit Hooks:**
+
 ```bash
 # Install pre-commit hooks
 pip install pre-commit
@@ -604,6 +627,7 @@ Seamlessly integrate with Anthropic's official MCP Registry to import and access
 ### Federation - External Registry Integration
 
 **Unified Multi-Registry Access:**
+
 - **Anthropic MCP Registry** - Import curated MCP servers with purple `ANTHROPIC` visual tags
 - **Workday ASOR** - Import AI agents from Agent System of Record with orange `ASOR` visual tags  
 - **Automatic Sync** - Scheduled synchronization with external registries
@@ -611,6 +635,7 @@ Seamlessly integrate with Anthropic's official MCP Registry to import and access
 - **Centralized Management** - Single control plane for all federated servers and agents
 
 **Quick Setup:**
+
 ```bash
 # Configure federation sources
 echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
@@ -625,6 +650,7 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 ### Security Scanning
 
 **Integrated Vulnerability Detection:**
+
 - **Automated Security Scanning** - Integrated vulnerability scanning for MCP servers using [Cisco AI Defence MCP Scanner](https://github.com/cisco-ai-defense/mcp-scanner), with automatic scans during registration and support for periodic registry-wide scans
 - **Detailed Security Reports** - Comprehensive markdown reports with vulnerability details, severity assessments, and remediation recommendations
 - **Automatic Protection** - Servers with security issues are automatically disabled with security-pending status to protect your infrastructure
@@ -633,6 +659,7 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 ### Authentication & Authorization
 
 **Multiple Identity Modes:**
+
 - **Machine-to-Machine (M2M)** - For autonomous AI agents and automated systems
 - **Three-Legged OAuth (3LO)** - For external service integration (Atlassian, Google, GitHub)
 - **Session-Based** - For human developers using AI coding assistants and web interface
@@ -696,10 +723,12 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 ### Get Involved
 
 **Join the Discussion**
+
 - [GitHub Discussions](https://github.com/agentic-community/mcp-gateway-registry/discussions) - Feature requests and general discussion
 - [GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues) - Bug reports and feature requests
 
 **Contributing**
+
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute code and documentation
 - [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
 - [Security Policy](SECURITY.md) - Responsible disclosure process
@@ -776,6 +805,7 @@ The following major features span multiple milestones and represent significant 
   Security hardening through migration to distroless/hardened base images.
 
 For the complete list of all issues, feature requests, and detailed release history, visit:
+
 - [All GitHub Issues](https://github.com/agentic-community/mcp-gateway-registry/issues)
 - [All GitHub Milestones](https://github.com/agentic-community/mcp-gateway-registry/milestones)
 - [Release Notes](release-notes/)

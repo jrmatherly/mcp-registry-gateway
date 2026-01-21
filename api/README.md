@@ -75,15 +75,19 @@ uv run python api/registry_management.py \
 ## Token Generation
 
 ### For Localhost
+
 Use `credentials-provider/generate_creds.sh` which creates tokens for local Keycloak instance:
 
 **Using generate_creds.sh (all services):**
+
 ```bash
 cd credentials-provider && ./generate_creds.sh && cd ..
 ```
+
 Token saved to: `.oauth-tokens/ingress.json`
 
 **Using generate-agent-token.sh (specific M2M bot):**
+
 ```bash
 # Generate token for default bot (mcp-gateway-m2m)
 ./keycloak/setup/generate-agent-token.sh
@@ -91,12 +95,15 @@ Token saved to: `.oauth-tokens/ingress.json`
 # Generate token for custom M2M bot
 ./keycloak/setup/generate-agent-token.sh lob1-bot
 ```
+
 Tokens saved to: `.oauth-tokens/{agent-name}.json`
 
 ### For Production (AWS)
+
 Use `api/get-m2m-token.sh` which retrieves tokens from AWS-deployed Keycloak:
 
 **Default admin bot:**
+
 ```bash
 ./api/get-m2m-token.sh \
   --aws-region us-east-1 \
@@ -106,6 +113,7 @@ Use `api/get-m2m-token.sh` which retrieves tokens from AWS-deployed Keycloak:
 ```
 
 **Custom M2M bot account:**
+
 ```bash
 ./api/get-m2m-token.sh \
   --aws-region us-east-1 \
@@ -117,6 +125,7 @@ Use `api/get-m2m-token.sh` which retrieves tokens from AWS-deployed Keycloak:
 Token saved to: `api/.token`
 
 **Notes:**
+
 - `get-m2m-token.sh` is for AWS deployments only and requires AWS credentials
 - It retrieves secrets from SSM Parameter Store
 - You can specify any M2M service account name as the last argument
@@ -125,11 +134,13 @@ Token saved to: `api/.token`
 ## End-to-End Testing
 
 ### Test Localhost
+
 ```bash
 ./api/test-management-api-e2e.sh --token-file .oauth-tokens/ingress.json
 ```
 
 ### Test Production
+
 ```bash
 ./api/test-management-api-e2e.sh \
   --token-file api/.token \
@@ -239,6 +250,7 @@ uv run python api/registry_management.py --token-file <token> \
 ## Authentication
 
 All commands require a valid JWT token:
+
 - **Localhost**: Session-based tokens from `generate_creds.sh`
 - **Production**: M2M client credentials from `get-m2m-token.sh`
 

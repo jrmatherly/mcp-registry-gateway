@@ -41,6 +41,7 @@ sequenceDiagram
 ### Service Account Architecture
 
 #### Production Architecture (Recommended)
+
 ```
 AI Agent A → Service Account A (agent-{agent-id}-m2m) → Group: mcp-servers-restricted/unrestricted
 AI Agent B → Service Account B (agent-{agent-id}-m2m) → Group: mcp-servers-restricted/unrestricted  
@@ -52,21 +53,23 @@ AI Agent C → Service Account C (agent-{agent-id}-m2m) → Group: mcp-servers-r
 ```
 
 **Benefits:**
+
 - ✅ Individual audit trails per AI agent
 - ✅ Security isolation between agents
 - ✅ Granular access control
 - ✅ Compliance ready (SOC2, ISO27001)
 - ✅ Per-agent metrics and monitoring
 
-
 ### Keycloak Components
 
 #### Realm Configuration
+
 - **Realm Name**: `mcp-gateway`
 - **Purpose**: Isolated authentication domain for MCP Gateway
 - **Settings**: JWT tokens, group mappings, client configurations
 
 #### Client Configuration
+
 - **Client ID**: `mcp-gateway-m2m`
 - **Client Type**: Confidential (with secret)
 - **Grant Types**: `client_credentials` (Machine-to-Machine)
@@ -74,6 +77,7 @@ AI Agent C → Service Account C (agent-{agent-id}-m2m) → Group: mcp-servers-r
 - **Standard/Implicit Flow**: Disabled (security best practice)
 
 #### Group Structure
+
 ```
 mcp-gateway (realm)
 ├── mcp-servers-unrestricted (group)
@@ -89,6 +93,7 @@ mcp-gateway (realm)
 ### Required Environment Variables
 
 #### 1. Docker Compose (.env)
+
 ```bash
 # Keycloak Database Configuration
 KEYCLOAK_DB_VENDOR=postgres
@@ -115,6 +120,7 @@ POSTGRES_PASSWORD=<YOUR_SECURE_DB_PASSWORD>
 ```
 
 #### 2. Auth Server Configuration (.env or docker-compose)
+
 ```bash
 # Authentication Provider Selection
 AUTH_PROVIDER=keycloak
@@ -132,6 +138,7 @@ KEYCLOAK_M2M_CLIENT_SECRET=<generated-by-keycloak>
 ```
 
 #### 3. Credentials Provider Configuration
+
 ```bash
 # Token Storage Configuration
 OAUTH_TOKENS_DIR=.oauth-tokens
@@ -148,6 +155,7 @@ TOKEN_CACHE_TTL=300         # Cache tokens for 300 seconds (5 minutes)
 ```
 
 #### 4. Agent-Specific Configuration (per agent)
+
 ```bash
 # Agent Identification
 AGENT_ID=sre-agent
@@ -166,6 +174,7 @@ AGENT_TOKEN_FILE=.oauth-tokens/agent-sre-agent.json
 ### Configuration File Templates
 
 #### .env.keycloak (Main Configuration)
+
 ```bash
 # Keycloak Service Configuration
 KEYCLOAK_URL=https://mcpgateway.ddns.net
@@ -194,6 +203,7 @@ KEYCLOAK_HOSTNAME_STRICT_HTTPS=false
 ```
 
 #### .env.auth-server (Auth Server Configuration)
+
 ```bash
 # Authentication Provider
 AUTH_PROVIDER=keycloak
@@ -217,6 +227,7 @@ AUTH_LOG_FORMAT=%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s
 ### Prerequisites
 
 1. **Docker & Docker Compose**
+
    ```bash
    docker --version
    docker-compose --version
@@ -234,6 +245,7 @@ AUTH_LOG_FORMAT=%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s
 ### Installation Steps
 
 #### 1. Initial Setup
+
 ```bash
 # Clone repository and navigate to project
 cd /path/to/mcp-gateway-registry
@@ -252,6 +264,7 @@ sleep 120
 ```
 
 #### 2. Environment Variables Setup
+
 ```bash
 # MANDATORY: Set secure passwords before running any scripts
 export KEYCLOAK_ADMIN_PASSWORD="$(openssl rand -base64 32)"
@@ -263,6 +276,7 @@ echo "DB password set: ${KEYCLOAK_DB_PASSWORD:+YES}"
 ```
 
 #### 3. Keycloak Initialization
+
 ```bash
 # Run the main initialization script
 ./keycloak/setup/init-keycloak.sh
@@ -277,6 +291,7 @@ echo "DB password set: ${KEYCLOAK_DB_PASSWORD:+YES}"
 #### 4. Service Account Setup
 
 ##### Production Setup (Individual Agents)
+
 ```bash
 # Ensure environment variables are still set
 export KEYCLOAK_ADMIN_PASSWORD="your-secure-password"
@@ -298,12 +313,14 @@ export KEYCLOAK_ADMIN_PASSWORD="your-secure-password"
 ```
 
 ##### Development Setup (Single Account)
+
 ```bash
 # Create single shared service account
 ./keycloak/setup/setup-m2m-service-account.sh
 ```
 
 #### 4. Start Complete Stack
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -318,6 +335,7 @@ curl -f http://localhost:8080/health/ready
 #### 5. Generate Tokens
 
 ##### Agent-Specific Tokens (Production)
+
 ```bash
 # Generate token for SRE agent
 uv run python credentials-provider/keycloak/generate_tokens.py --agent-id sre-agent
@@ -333,6 +351,7 @@ ls -la .oauth-tokens/agent-*-m2m-token.json
 ```
 
 ##### Complete Credential Generation (Recommended)
+
 ```bash
 # Generate all authentication tokens and MCP configurations
 ./credentials-provider/generate_creds.sh
@@ -345,6 +364,7 @@ tail -f token_refresher.log
 ```
 
 #### 6. Validation & Testing
+
 ```bash
 # Test agent-specific authentication
 ./test-keycloak-mcp.sh --agent-id sre-agent
@@ -365,6 +385,7 @@ tail -f token_refresher.log
 ### Starting Services
 
 #### Complete Stack Startup
+
 ```bash
 # 1. Start database first
 docker-compose up -d postgres
@@ -387,6 +408,7 @@ docker-compose logs --tail=20
 ```
 
 #### Service Health Checks
+
 ```bash
 # Keycloak health
 curl -f http://localhost:8080/health/ready
@@ -404,6 +426,7 @@ docker-compose ps --format table
 ### Token Management
 
 #### Token Generation
+
 ```bash
 # Generate new agent token
 uv run python credentials-provider/keycloak/generate_tokens.py --agent-id <agent-id>
@@ -416,6 +439,7 @@ uv run python credentials-provider/keycloak/generate_tokens.py --all-agents
 ```
 
 #### Token Validation
+
 ```bash
 # Check token expiration
 cat .oauth-tokens/agent-<agent-id>-m2m-token.json | jq '.expires_at_human'
@@ -431,6 +455,7 @@ tail -20 token_refresher.log
 ```
 
 #### Token Rotation Strategy
+
 ```bash
 # Automatic token refresh service (recommended)
 ./start_token_refresher.sh
@@ -450,6 +475,7 @@ uv run python credentials-provider/keycloak/generate_tokens.py --all-agents
 ### Configuration Updates
 
 #### Adding New Agents
+
 ```bash
 # 1. Create new service account
 ./keycloak/setup/setup-agent-service-account.sh \
@@ -466,6 +492,7 @@ uv run python credentials-provider/keycloak/generate_tokens.py --agent-id new-ag
 ```
 
 #### Modifying Agent Permissions
+
 ```bash
 # Access Keycloak admin console
 open https://mcpgateway.ddns.net/admin
@@ -482,6 +509,7 @@ uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-i
 ```
 
 #### Updating Scopes Configuration
+
 ```bash
 # 1. Edit scopes configuration
 nano auth_server/scopes.yml
@@ -501,6 +529,7 @@ docker-compose logs auth-server | grep -i scope
 ### Agent Service Account Lifecycle
 
 #### Creating New Agent
+
 ```bash
 # Step 1: Create service account with appropriate permissions
 ./keycloak/setup/setup-agent-service-account.sh \
@@ -518,6 +547,7 @@ echo "<agent-id>,<group>,<created-date>,<purpose>" >> docs/agent-inventory.csv
 ```
 
 #### Agent Permission Updates
+
 ```bash
 # Via Keycloak Admin Console:
 # 1. Navigate to Users → agent-<id>-m2m → Groups
@@ -529,6 +559,7 @@ uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-i
 ```
 
 #### Agent Decommissioning
+
 ```bash
 # 1. Disable service account in Keycloak
 # (Admin Console → Users → agent-<id>-m2m → Enabled: OFF)
@@ -546,6 +577,7 @@ sed -i '/<agent-id>/d' docs/agent-inventory.csv
 ### Bulk Agent Operations
 
 #### Creating Multiple Agents
+
 ```bash
 #!/bin/bash
 # bulk-create-agents.sh
@@ -572,6 +604,7 @@ done
 ```
 
 #### Bulk Token Refresh
+
 ```bash
 #!/bin/bash
 # bulk-refresh-tokens.sh
@@ -594,6 +627,7 @@ done
 ### Log Monitoring
 
 #### Service Logs
+
 ```bash
 # Keycloak logs
 docker-compose logs -f keycloak
@@ -609,6 +643,7 @@ docker-compose logs -f
 ```
 
 #### Authentication Debugging
+
 ```bash
 # Enable debug logging in auth server
 # Edit docker-compose.yml:
@@ -623,6 +658,7 @@ docker-compose logs -f auth-server | grep -i "keycloak\|token\|auth"
 ```
 
 #### Token Validation Logs
+
 ```bash
 # Watch token validation in real-time
 docker-compose logs -f auth-server | grep -E "Token validation|Groups.*mapped|Access.*denied"
@@ -636,6 +672,7 @@ docker-compose logs -f auth-server | grep -E "Token validation|Groups.*mapped|Ac
 ### Common Issues & Solutions
 
 #### Issue: Token Expired
+
 ```bash
 # Symptoms:
 # - HTTP 500 errors
@@ -646,6 +683,7 @@ uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-i
 ```
 
 #### Issue: Service Account Missing
+
 ```bash
 # Symptoms:
 # - "Service account not found" errors
@@ -656,6 +694,7 @@ uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-i
 ```
 
 #### Issue: Groups Not in JWT
+
 ```bash
 # Symptoms:
 # - "Access forbidden" errors
@@ -669,6 +708,7 @@ uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-i
 ```
 
 #### Issue: Database Connection Failed
+
 ```bash
 # Symptoms:
 # - Keycloak fails to start
@@ -687,6 +727,7 @@ docker-compose restart keycloak
 ### Performance Monitoring
 
 #### Token Metrics
+
 ```bash
 # Token expiration monitoring
 find .oauth-tokens -name "*.json" -exec jq -r '.expires_at_human' {} \;
@@ -696,6 +737,7 @@ find .oauth-tokens -name "*.json" -exec stat -c '%Y %n' {} \; | sort -n
 ```
 
 #### Service Health Dashboard
+
 ```bash
 #!/bin/bash
 # health-dashboard.sh
@@ -736,18 +778,21 @@ export KEYCLOAK_DB_PASSWORD="$(openssl rand -base64 32)"
 ```
 
 **Security Features:**
+
 - ✅ No hardcoded passwords in scripts
 - ✅ Scripts exit with clear error if environment variables not set
 - ✅ Forces explicit password configuration
 - ✅ Prevents accidental use of default passwords
 
 **Before running any setup scripts:**
+
 1. **REQUIRED**: Set `KEYCLOAK_ADMIN_PASSWORD` environment variable
 2. **REQUIRED**: Set `KEYCLOAK_DB_PASSWORD` environment variable  
 3. Never commit these to version control
 4. Use a proper secrets management system
 
 ### Secret Management
+
 ```bash
 # Environment Variables (Recommended)
 export KEYCLOAK_CLIENT_SECRET="<secret-value>"
@@ -765,6 +810,7 @@ kubectl create secret generic keycloak-secrets \
 ```
 
 ### Network Security
+
 ```bash
 # Firewall Rules (Example)
 # Allow only necessary ports:
@@ -778,6 +824,7 @@ ufw deny 5432/tcp  # Block direct database access
 ```
 
 ### Token Security
+
 ```bash
 # Token File Permissions
 chmod 600 .oauth-tokens/*.json
@@ -795,6 +842,7 @@ chown app:app .oauth-tokens/*.json
 ```
 
 ### Access Control
+
 ```bash
 # Service Account Principle of Least Privilege
 # - mcp-servers-restricted: Limited to approved servers only
@@ -809,6 +857,7 @@ chown app:app .oauth-tokens/*.json
 ## Cleanup Procedures
 
 ### Graceful Shutdown
+
 ```bash
 # 1. Stop accepting new requests
 docker-compose stop nginx
@@ -830,6 +879,7 @@ docker-compose ps
 ```
 
 ### Complete Removal
+
 ```bash
 # Stop and remove containers
 docker-compose down
@@ -853,6 +903,7 @@ docker system prune -f
 ### Data Backup & Restore
 
 #### Backup Procedure
+
 ```bash
 #!/bin/bash
 # backup-keycloak.sh
@@ -875,6 +926,7 @@ echo "Backup completed: $BACKUP_DIR"
 ```
 
 #### Restore Procedure
+
 ```bash
 #!/bin/bash
 # restore-keycloak.sh
@@ -906,6 +958,7 @@ echo "Restore completed from: $BACKUP_DIR"
 ```
 
 ### Agent Cleanup
+
 ```bash
 #!/bin/bash
 # cleanup-agent.sh
@@ -935,6 +988,7 @@ echo "Agent cleanup completed for: $AGENT_ID"
 ## Quick Reference
 
 ### Key Commands
+
 ```bash
 # Setup
 ./keycloak/setup/init-keycloak.sh
@@ -956,6 +1010,7 @@ cat .oauth-tokens/agent-<id>.json | jq '.expires_at_human'
 ```
 
 ### Important Files
+
 ```
 keycloak/setup/                    # Setup scripts
 auth_server/scopes.yml             # Authorization configuration  
@@ -966,6 +1021,7 @@ docker-compose.yml                 # Service orchestration
 ```
 
 ### Service URLs
+
 - **Keycloak Admin**: https://mcpgateway.ddns.net/admin
 - **Keycloak API**: https://mcpgateway.ddns.net/realms/mcp-gateway
 - **Auth Server**: http://localhost:8000

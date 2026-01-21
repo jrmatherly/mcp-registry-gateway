@@ -8,6 +8,7 @@ This guide walks you through setting up the MCP Gateway & Registry using pre-bui
 <summary><strong>Click to expand: Install Docker, Node.js, Python, and UV</strong></summary>
 
 **Install Docker and Docker Compose:**
+
 ```bash
 # Install Docker
 sudo apt-get update
@@ -33,6 +34,7 @@ docker compose version
 ```
 
 **Install Node.js 20.x:**
+
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
@@ -40,6 +42,7 @@ node --version  # Should show v20.x.x
 ```
 
 **Install Python and UV:**
+
 ```bash
 sudo apt-get install -y python3.12 python3.12-venv python3-pip
 
@@ -51,6 +54,7 @@ uv --version
 ```
 
 **Install additional tools:**
+
 ```bash
 sudo apt-get install -y git jq curl wget
 ```
@@ -76,6 +80,7 @@ source .venv/bin/activate
 ## Step 2: Download Embeddings Model
 
 Download the required sentence-transformers model using the [HuggingFace CLI](https://huggingface.co/docs/huggingface_hub/main/en/guides/cli):
+
 ```bash
 # Install huggingface_hub if not already installed
 uv pip install -U huggingface_hub
@@ -92,11 +97,13 @@ hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gatew
 <summary><strong>Click to expand: Edit .env file with your settings</strong></summary>
 
 Edit the `.env` file with your preferred editor:
+
 ```bash
 nano .env
 ```
 
 **Required changes:**
+
 ```bash
 # Authentication provider (do not change)
 AUTH_PROVIDER=keycloak
@@ -120,6 +127,7 @@ KEYCLOAK_CLIENT_ID=mcp-gateway-client
 ```
 
 **Generate and set SECRET_KEY:**
+
 ```bash
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
 sed -i "s/^#*\s*SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" .env
@@ -131,6 +139,7 @@ Save and exit (Ctrl+X, then Y, then Enter if using nano).
 </details>
 
 **Set environment variables for deployment:**
+
 ```bash
 export DOCKERHUB_ORG=mcpgateway
 source .env
@@ -146,12 +155,14 @@ export KEYCLOAK_ADMIN="${KEYCLOAK_ADMIN:-admin}"
 ```
 
 > **Port Differences:**
+>
 > - **Docker**: Services run on privileged ports (`http://localhost`, `https://localhost`)
 > - **Podman**: Services run on non-privileged ports (`http://localhost:8080`, `https://localhost:8443`)
 
 Once the build completes and you see the container logs streaming, you can press **Ctrl+C** to exit the log view and continue with the next steps. The containers will continue running in the background.
 
 Wait for all services to start (2-3 minutes), then verify:
+
 ```bash
 docker compose ps
 # All services should show as "Up"
@@ -183,6 +194,7 @@ docker compose restart auth-server
 <summary><strong>Click to expand: Complete Keycloak setup instructions</strong></summary>
 
 **6a. Wait for Keycloak to be ready:**
+
 ```bash
 # Monitor logs until you see "Keycloak started"
 docker compose logs -f keycloak
@@ -194,6 +206,7 @@ curl http://localhost:8080/realms/master
 ```
 
 **6b. Disable SSL for master realm (required for HTTP access):**
+
 ```bash
 ADMIN_TOKEN=$(curl -s -X POST "http://localhost:8080/realms/master/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
@@ -209,12 +222,14 @@ curl -X PUT "http://localhost:8080/admin/realms/master" \
 ```
 
 **6c. Initialize Keycloak realm and clients:**
+
 ```bash
 chmod +x keycloak/setup/init-keycloak.sh
 ./keycloak/setup/init-keycloak.sh
 ```
 
 **6d. Disable SSL for application realm:**
+
 ```bash
 ADMIN_TOKEN=$(curl -s -X POST "http://localhost:8080/realms/master/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
@@ -230,12 +245,14 @@ curl -X PUT "http://localhost:8080/admin/realms/mcp-gateway" \
 ```
 
 **6e. Retrieve and save client credentials:**
+
 ```bash
 chmod +x keycloak/setup/get-all-client-credentials.sh
 ./keycloak/setup/get-all-client-credentials.sh
 ```
 
 **6f. Update .env with client secrets:**
+
 ```bash
 # View the retrieved secrets
 cat .oauth-tokens/keycloak-client-secrets.txt
@@ -246,10 +263,12 @@ nano .env
 ```
 
 **6g. Recreate containers to apply new credentials:**
+
 ```bash
 # Recreate containers to pick up the updated .env values
 ./build_and_run.sh --prebuilt
 ```
+
 Once logs are streaming, press **Ctrl+C** to exit - containers will continue running.
 
 </details>
@@ -264,6 +283,7 @@ chmod +x ./cli/bootstrap_user_and_m2m_setup.sh
 ```
 
 This creates:
+
 - **3 groups**: `registry-users-lob1`, `registry-users-lob2`, `registry-admins`
 - **6 users**:
   - **LOB1**: `lob1-bot` (M2M) and `lob1-user` (human)
@@ -354,6 +374,7 @@ xdg-open http://localhost:7860
 ```
 
 Login with:
+
 - **Username**: `admin` (or any user created in Step 6)
 - **Password**: The `KEYCLOAK_ADMIN_PASSWORD` you set in Step 3
 

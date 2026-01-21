@@ -14,6 +14,7 @@ The MCP Gateway Registry addresses this challenge by integrating automated secur
 These open-source security tools perform deep analysis of MCP servers and A2A agents to identify vulnerabilities before they can be exploited in production environments.
 
 **GitHub Repositories:**
+
 - MCP Scanner: https://github.com/cisco-ai-defense/mcp-scanner
 - A2A Scanner: https://github.com/cisco-ai-defense/a2a-scanner
 
@@ -22,12 +23,14 @@ These open-source security tools perform deep analysis of MCP servers and A2A ag
 The registry implements multiple complementary security scanning workflows for both MCP servers and A2A agents:
 
 #### MCP Server Scanning
+
 1. **Automated Scanning During Server Registration** - Every new server is scanned before being made available to AI agents
 2. **Manual On-Demand Scans via API** - Administrators can trigger security scans for specific servers
 3. **Query Scan Results via API** - View detailed security scan results for any registered server
 4. **Periodic Registry Scans** - Comprehensive security audits across all enabled servers in the registry
 
 #### A2A Agent Scanning
+
 1. **Automated Scanning During Agent Registration** - Every new agent is scanned before being enabled in the registry
 2. **Manual On-Demand Agent Scans via API** - Administrators can trigger security scans for specific agents
 3. **Query Agent Scan Results** - View detailed security scan results for any registered agent
@@ -46,10 +49,12 @@ uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json
 ```
 
 **Parameters:**
+
 - `<config-file>`: JSON configuration file containing server details
 - Security scanning is automatically enabled by default (configured via environment variables)
 
 **Environment Variables for Security Scanning:**
+
 - `SECURITY_SCAN_ENABLED=true` - Enable/disable security scanning (default: true)
 - `SECURITY_SCAN_ON_REGISTRATION=true` - Scan during registration (default: true)
 - `SECURITY_SCAN_BLOCK_UNSAFE_SERVERS=true` - Auto-disable unsafe servers (default: true)
@@ -192,6 +197,7 @@ This workflow ensures that vulnerable servers never become accessible to AI agen
 ## Manual On-Demand Security Scans (API)
 
 Administrators can trigger manual security scans for specific servers using the REST API or CLI commands. This is useful for:
+
 - Re-scanning servers after updates or patches
 - On-demand security assessments
 - Validating security fixes
@@ -332,6 +338,7 @@ uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json
 ```
 
 **Environment Variables for Agent Security Scanning:**
+
 - `AGENT_SECURITY_SCAN_ENABLED=true` - Enable/disable agent security scanning (default: true)
 - `AGENT_SECURITY_SCAN_ON_REGISTRATION=true` - Scan during registration (default: true)
 - `AGENT_SECURITY_BLOCK_UNSAFE_AGENTS=true` - Auto-disable unsafe agents (default: true)
@@ -417,6 +424,7 @@ uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json
 Agent security scan results are stored in the `agent_security_scans/` directory and can be accessed directly:
 
 **Storage Locations:**
+
 - **Latest Scans:** `agent_security_scans/<agent-path>.json`
 - **Archived Scans:** `agent_security_scans/YYYY-MM-DD/scan_<agent-path>_YYYYMMDD_HHMMSS.json`
 
@@ -512,6 +520,7 @@ uv run cli/scan_all_servers.py --base-url https://mcpgateway.example.com --outpu
 The periodic scan generates a comprehensive markdown report that provides an executive summary and detailed vulnerability breakdown for each server in the registry.
 
 **Report Locations:**
+
 - **Latest Report:** `security_scans/scan_report.md` (always current)
 - **Archived Reports:** `security_scans/reports/scan_report_YYYYMMDD_HHMMSS.md` (timestamped history)
 
@@ -581,6 +590,7 @@ The MCP Scanner supports two analyzer types, each with distinct capabilities and
 **Best For:** Known threat patterns, common vulnerabilities
 
 The YARA analyzer uses signature-based detection rules to identify known security threats including:
+
 - SQL injection patterns
 - Command injection vulnerabilities
 - Cross-site scripting (XSS) vectors
@@ -598,6 +608,7 @@ YARA scanning is ideal for automated workflows and continuous integration pipeli
 **Best For:** Sophisticated threats, zero-day vulnerabilities, context-aware analysis
 
 The LLM analyzer uses large language models to perform deep semantic analysis of tool code and descriptions. It can detect:
+
 - Subtle logic vulnerabilities
 - Context-dependent security issues
 - Novel attack patterns
@@ -683,25 +694,30 @@ chmod 755 security_scans
 ## Additional Resources
 
 ### Documentation
+
 - **Cisco AI Defence MCP Scanner:** https://github.com/cisco-ai-defense/mcp-scanner
 - **Cisco AI Defence A2A Scanner:** https://github.com/cisco-ai-defense/a2a-scanner
 - **Example Report:** [scan_report_example.md](scan_report_example.md)
 
 ### CLI Tools
+
 - **Registry Management CLI:** `api/registry_management.py` - Main CLI for server and agent registration with security scanning
 - **Periodic Scan Script:** `cli/scan_all_servers.py` - Comprehensive registry-wide security audits for MCP servers
 
 ### MCP Server API Endpoints
+
 - **Trigger Server Scan:** `POST /api/servers/{path}/rescan` - Admin-only manual security scan for MCP servers
 - **Query Server Results:** `GET /api/servers/{path}/security-scan` - Retrieve MCP server scan results
 
 ### A2A Agent API Endpoints
+
 - **Trigger Agent Scan:** `POST /api/agents/{path}/rescan` - Admin-only manual security scan for A2A agents
 - **Query Agent Results:** `GET /api/agents/{path}/security-scan` - Retrieve A2A agent scan results (file system access recommended)
 
 ### Registry Management CLI Commands
 
 #### MCP Server Security Commands
+
 ```bash
 # Trigger server security scan
 uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json \
@@ -713,6 +729,7 @@ uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json
 ```
 
 #### A2A Agent Security Commands
+
 ```bash
 # Trigger agent security scan
 uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json \
@@ -724,6 +741,7 @@ uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json
 ```
 
 ### Python Client
+
 - **Registry Client:** `api/registry_client.py` - Python library with security scanning methods:
   - `rescan_server(path)` - Trigger MCP server security scan
   - `get_security_scan(path)` - Get MCP server scan results

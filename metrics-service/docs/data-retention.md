@@ -66,13 +66,17 @@ Each retention policy consists of:
 ### Policy Types
 
 #### Standard Policies
+
 Use automatic cleanup queries based on timestamp columns:
+
 ```sql
 DELETE FROM {table_name} WHERE {timestamp_column} < datetime('now', '-{retention_days} days')
 ```
 
 #### Custom Policies
+
 Define specific cleanup logic for complex scenarios:
+
 ```python
 RetentionPolicy(
     table_name="complex_metrics",
@@ -93,9 +97,11 @@ X-API-Key: your-api-key
 ```
 
 **Parameters:**
+
 - `table_name` (optional): Specific table to preview, or all tables if omitted
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -126,6 +132,7 @@ Content-Type: application/json
 ```
 
 **Response (Single Table):**
+
 ```json
 {
   "table": "metrics",
@@ -137,6 +144,7 @@ Content-Type: application/json
 ```
 
 **Response (All Tables):**
+
 ```json
 {
   "operation": "cleanup",
@@ -168,6 +176,7 @@ X-API-Key: your-api-key
 ```
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -199,6 +208,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -221,6 +231,7 @@ X-API-Key: your-api-key
 ```
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -252,6 +263,7 @@ X-API-Key: your-api-key
 ```
 
 **Response:**
+
 ```json
 {
   "main_db_bytes": 104857600,
@@ -396,6 +408,7 @@ await retention_manager.update_policy(
 ### Daily Operations
 
 #### Morning Check
+
 Review overnight cleanup results:
 
 ```bash
@@ -407,6 +420,7 @@ curl -H "X-API-Key: $API_KEY" http://localhost:8890/admin/database/size
 ```
 
 #### Weekly Review
+
 Analyze retention effectiveness:
 
 ```bash
@@ -468,6 +482,7 @@ done
 ### Maintenance Windows
 
 #### Pre-Maintenance
+
 ```bash
 # 1. Preview cleanup scope
 curl -H "X-API-Key: $API_KEY" http://localhost:8890/admin/retention/preview
@@ -482,6 +497,7 @@ curl -X POST http://localhost:8890/admin/retention/cleanup \
 ```
 
 #### Post-Maintenance
+
 ```bash
 # 1. Verify cleanup results
 curl -H "X-API-Key: $API_KEY" http://localhost:8890/admin/database/stats
@@ -506,6 +522,7 @@ asyncio.run(check())
 ### Key Metrics to Monitor
 
 #### Database Size Trends
+
 ```bash
 # Daily size tracking
 curl -s -H "X-API-Key: $API_KEY" http://localhost:8890/admin/database/size | \
@@ -513,6 +530,7 @@ curl -s -H "X-API-Key: $API_KEY" http://localhost:8890/admin/database/size | \
 ```
 
 #### Cleanup Effectiveness
+
 ```bash
 # Records deleted per cleanup
 grep "retention cleanup completed" /var/log/metrics-service.log | \
@@ -520,6 +538,7 @@ grep "retention cleanup completed" /var/log/metrics-service.log | \
 ```
 
 #### Policy Compliance
+
 ```bash
 # Tables exceeding retention period
 curl -s -H "X-API-Key: $API_KEY" http://localhost:8890/admin/retention/preview | \
@@ -570,12 +589,14 @@ tail -f /var/log/metrics-service.log | grep -E "(ERROR|CRITICAL).*retention" | \
 ### Performance Impact
 
 #### Cleanup Operation Metrics
+
 - **Duration**: Typical cleanup takes 1-10 seconds per 10K records
 - **I/O Impact**: Moderate during cleanup, high during VACUUM
 - **CPU Usage**: Low-moderate during operation
 - **Memory Usage**: Minimal additional memory required
 
 #### Optimization Tips
+
 - **Schedule During Low Traffic**: Run cleanup during off-peak hours
 - **Batch Size Tuning**: Adjust retention periods to avoid massive single cleanups  
 - **Index Maintenance**: Ensure timestamp columns are indexed
@@ -588,11 +609,13 @@ tail -f /var/log/metrics-service.log | grep -E "(ERROR|CRITICAL).*retention" | \
 #### Cleanup Not Running
 
 **Symptoms:**
+
 - Database size keeps growing
 - No cleanup logs in recent history
 - Old data still present
 
 **Diagnosis:**
+
 ```bash
 # Check if policies are active
 curl -H "X-API-Key: $API_KEY" http://localhost:8890/admin/retention/policies | \
@@ -608,6 +631,7 @@ curl -X POST http://localhost:8890/admin/retention/cleanup \
 ```
 
 **Solutions:**
+
 - Enable inactive policies
 - Restart service if background task stopped
 - Check for blocking database locks
@@ -615,11 +639,13 @@ curl -X POST http://localhost:8890/admin/retention/cleanup \
 #### Cleanup Errors
 
 **Symptoms:**
+
 - Error logs during cleanup operations
 - Partial cleanup results
 - Database integrity issues
 
 **Diagnosis:**
+
 ```bash
 # Check recent errors
 grep -E "(ERROR|exception).*retention" /var/log/metrics-service.log | tail -5
@@ -646,6 +672,7 @@ sqlite3 /var/lib/sqlite/metrics.db "PRAGMA integrity_check"
 ```
 
 **Solutions:**
+
 - Fix database permissions
 - Resolve disk space issues
 - Repair database corruption if found
@@ -653,11 +680,13 @@ sqlite3 /var/lib/sqlite/metrics.db "PRAGMA integrity_check"
 #### Performance Issues
 
 **Symptoms:**
+
 - Slow cleanup operations
 - High CPU/I/O during cleanup
 - Service timeouts
 
 **Diagnosis:**
+
 ```bash
 # Check table sizes
 curl -H "X-API-Key: $API_KEY" http://localhost:8890/admin/database/stats | \
@@ -672,6 +701,7 @@ curl -X POST http://localhost:8890/admin/retention/cleanup \
 ```
 
 **Solutions:**
+
 - Add indexes on timestamp columns
 - Implement incremental cleanup
 - Adjust retention periods to reduce batch sizes
