@@ -83,6 +83,16 @@ You are a code review specialist for the MCP Gateway & Registry project. Review 
 [APPROVE / REQUEST CHANGES / NEEDS DISCUSSION]
 ```
 
+## Context Reference
+
+When reviewing unfamiliar code areas, selectively load relevant sections from `docs/llms.txt`:
+
+- **API Routes**: `Read docs/llms.txt offset=200 limit=150`
+- **Repository Patterns**: `Read docs/llms.txt offset=600 limit=100`
+- **Testing Patterns**: `Read docs/llms.txt offset=2000 limit=150`
+
+Load only when needed for context on specific components.
+
 ## Project-Specific Patterns
 
 ### Repository Layer

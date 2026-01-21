@@ -132,6 +132,19 @@ graph TD
 | [Option 2] | [Pros] | [Cons] |
 ```
 
+## Deep Context Reference
+
+For comprehensive architecture understanding, selectively load sections from `docs/llms.txt`:
+
+| Section | Read Command | Use Case |
+|---------|--------------|----------|
+| Repository Structure | `Read docs/llms.txt offset=40 limit=100` | Understanding project layout |
+| API Routes | `Read docs/llms.txt offset=200 limit=150` | API architecture analysis |
+| Service Layer | `Read docs/llms.txt offset=400 limit=100` | Business logic patterns |
+| Data Access | `Read docs/llms.txt offset=600 limit=150` | Repository patterns |
+
+**Note:** Load only the sections relevant to the current analysis task.
+
 ## Key Files to Analyze
 
 ### Core Infrastructure

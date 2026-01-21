@@ -74,6 +74,23 @@ Load: Based on affected component
 Agent: code-reviewer after fix
 ```
 
+## Deep Context: docs/llms.txt
+
+When Serena memories don't provide enough context, `docs/llms.txt` (~2,500 lines) has comprehensive project documentation. **Load selectively by section:**
+
+```bash
+# Repository structure overview
+Read docs/llms.txt offset=40 limit=100
+
+# API routes and endpoints
+Read docs/llms.txt offset=200 limit=150
+
+# Authentication architecture
+Read docs/llms.txt offset=500 limit=150
+```
+
+**Warning:** Do not load the entire file - it will consume significant context.
+
 ## Anti-Patterns to Avoid
 
 ### Don't
