@@ -34,10 +34,8 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 from motor.motor_asyncio import AsyncIOMotorClient
-
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -60,11 +58,11 @@ async def _get_documentdb_connection_string(
     host: str,
     port: int,
     database: str,
-    username: Optional[str],
-    password: Optional[str],
+    username: str | None,
+    password: str | None,
     use_iam: bool,
     use_tls: bool,
-    tls_ca_file: Optional[str],
+    tls_ca_file: str | None,
     storage_backend: str = "documentdb",
 ) -> str:
     """Build DocumentDB connection string with appropriate auth mechanism.
@@ -151,21 +149,25 @@ async def _create_vector_index(
         logger.info(f"Created vector index '{index_name}' on {collection_name}")
     except Exception as e:
         # Debug logging
-        logger.info(f"DEBUG: Caught exception in vector index creation")
+        logger.info("DEBUG: Caught exception in vector index creation")
         logger.info(f"DEBUG: Exception type: {type(e).__name__}")
         logger.info(f"DEBUG: Exception str: {str(e)}")
         logger.info(f"DEBUG: Exception repr: {repr(e)}")
 
         # Check if index already exists with different options (error code 85)
-        if ("'code': 85" in str(e) or "code': 85" in str(e)) or "already exists with different options" in str(e).lower():
+        if (
+            "'code': 85" in str(e) or "code': 85" in str(e)
+        ) or "already exists with different options" in str(e).lower():
             if recreate:
-                logger.info(f"Vector index exists with different options. Recreating...")
+                logger.info("Vector index exists with different options. Recreating...")
 
                 # List all indexes to see what's there
                 logger.info(f"Listing all indexes on {collection_name}...")
                 indexes = await collection.list_indexes().to_list(None)
                 for idx in indexes:
-                    logger.info(f"  Found index: name='{idx.get('name')}', key={idx.get('key', {})}")
+                    logger.info(
+                        f"  Found index: name='{idx.get('name')}', key={idx.get('key', {})}"
+                    )
 
                 # Drop ALL non-_id indexes to ensure clean slate
                 dropped_count = 0
@@ -194,12 +196,19 @@ async def _create_vector_index(
                             "efConstruction": 128,
                         },
                     )
-                    logger.info(f"Created vector index '{index_name}' on {collection_name} after dropping {dropped_count} old indexes")
+                    logger.info(
+                        f"Created vector index '{index_name}' on {collection_name} after dropping {dropped_count} old indexes"
+                    )
                 except Exception as create_err:
-                    logger.error(f"Failed to create vector index after dropping all indexes: {create_err}", exc_info=True)
+                    logger.error(
+                        f"Failed to create vector index after dropping all indexes: {create_err}",
+                        exc_info=True,
+                    )
                     raise
             else:
-                logger.info(f"Vector index already exists on {collection_name} (recreate=False, skipping)")
+                logger.info(
+                    f"Vector index already exists on {collection_name} (recreate=False, skipping)"
+                )
         # DocumentDB Elastic doesn't support vector indexes (error code 303)
         elif "vectorOptions" in str(e) or "not supported" in str(e):
             logger.warning(
@@ -358,7 +367,7 @@ async def _create_scopes_indexes(
 async def _load_default_scopes(
     db,
     namespace: str,
-    entra_group_id: Optional[str] = None,
+    entra_group_id: str | None = None,
 ) -> None:
     """Load default admin scope from JSON file into scopes collection.
 
@@ -380,7 +389,7 @@ async def _load_default_scopes(
         return
 
     try:
-        with open(admin_scope_file, "r") as f:
+        with open(admin_scope_file) as f:
             admin_scope = json.load(f)
 
         logger.info(f"Loading default admin scope from {admin_scope_file}")
@@ -393,9 +402,7 @@ async def _load_default_scopes(
 
         # Upsert the admin scope document
         result = await collection.update_one(
-            {"_id": admin_scope["_id"]},
-            {"$set": admin_scope},
-            upsert=True
+            {"_id": admin_scope["_id"]}, {"$set": admin_scope}, upsert=True
         )
 
         if result.upserted_id:
@@ -405,9 +412,7 @@ async def _load_default_scopes(
         else:
             logger.info(f"Admin scope already up-to-date: {admin_scope['_id']}")
 
-        logger.info(
-            f"Admin scope group_mappings: {admin_scope.get('group_mappings', [])}"
-        )
+        logger.info(f"Admin scope group_mappings: {admin_scope.get('group_mappings', [])}")
 
     except Exception as e:
         logger.error(f"Failed to load default admin scope: {e}", exc_info=True)
@@ -515,7 +520,7 @@ async def _initialize_collections(
     db,
     namespace: str,
     recreate: bool,
-    entra_group_id: Optional[str] = None,
+    entra_group_id: str | None = None,
 ) -> None:
     """Initialize all collections and indexes.
 
@@ -694,9 +699,7 @@ Example usage:
         db = client[args.database]
 
         server_info = await client.server_info()
-        logger.info(
-            f"Connected to DocumentDB/MongoDB {server_info.get('version', 'unknown')}"
-        )
+        logger.info(f"Connected to DocumentDB/MongoDB {server_info.get('version', 'unknown')}")
 
         await _initialize_collections(
             db,
@@ -705,9 +708,7 @@ Example usage:
             args.entra_group_id,
         )
 
-        logger.info(
-            f"DocumentDB initialization complete for namespace '{args.namespace}'"
-        )
+        logger.info(f"DocumentDB initialization complete for namespace '{args.namespace}'")
 
         # Print summary of collections and indexes
         await _print_collection_summary(db, args.namespace)

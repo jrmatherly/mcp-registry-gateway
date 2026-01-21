@@ -24,13 +24,13 @@ WORKDIR /app
 COPY ${SERVER_DIR:-.}/ /app/
 
 # Install uv and setup Python environment
-RUN pip install uv && \
+RUN pip install --no-cache-dir uv && \
     uv venv .venv --python 3.12
 
 # Install dependencies from pyproject.toml
 RUN . .venv/bin/activate && \
     if [ -f /app/pyproject.toml ]; then \
-        uv pip install --requirement /app/pyproject.toml; \
+    uv pip install --requirement /app/pyproject.toml; \
     fi
 
 # Expose default port (can be overridden by environment variable)
@@ -41,20 +41,23 @@ HEALTHCHECK --interval=500s --timeout=10s --start-period=30s --retries=3 \
     CMD nc -z localhost ${PORT:-8000} || exit 1
 
 # Create entrypoint script that handles environment setup and runs server.py
-RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-# Set default port\n\
-SERVER_PORT=${PORT:-8000}\n\
-\n\
-# Create .env file if needed (for servers that require it)\n\
-if [ ! -z "$POLYGON_API_KEY" ]; then\n\
-    echo "POLYGON_API_KEY=$POLYGON_API_KEY" > /app/.env\n\
-fi\n\
-\n\
-# Activate virtual environment and run the server\n\
-source .venv/bin/activate\n\
-exec python server.py --port $SERVER_PORT' > /entrypoint.sh && \
-    chmod +x /entrypoint.sh
+RUN cat > /entrypoint.sh <<'EOF'
+#!/bin/bash
+set -e
+
+# Set default port
+SERVER_PORT=${PORT:-8000}
+
+# Create .env file if needed (for servers that require it)
+if [ ! -z "$POLYGON_API_KEY" ]; then
+    echo "POLYGON_API_KEY=$POLYGON_API_KEY" > /app/.env
+fi
+
+# Activate virtual environment and run the server
+source .venv/bin/activate
+exec python server.py --port $SERVER_PORT
+EOF
+
+RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

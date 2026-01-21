@@ -18,12 +18,10 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Optional
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ASCENDING
-from pymongo.errors import ServerSelectionTimeoutError, OperationFailure
-
+from pymongo.errors import OperationFailure, ServerSelectionTimeoutError
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -88,12 +86,7 @@ def _initialize_replica_set(
                 raise
 
         # Initialize replica set
-        config = {
-            "_id": "rs0",
-            "members": [
-                {"_id": 0, "host": f"{host}:{port}"}
-            ]
-        }
+        config = {"_id": "rs0", "members": [{"_id": 0, "host": f"{host}:{port}"}]}
 
         result = client.admin.command("replSetInitiate", config)
         logger.info(f"Replica set initialized: {result}")
@@ -187,16 +180,14 @@ async def _load_default_scopes(
             continue
 
         try:
-            with open(scope_file, "r") as f:
+            with open(scope_file) as f:
                 scope_data = json.load(f)
 
             logger.info(f"Loading scope from {scope_filename}")
 
             # Upsert the scope document
             result = await collection.update_one(
-                {"_id": scope_data["_id"]},
-                {"$set": scope_data},
-                upsert=True
+                {"_id": scope_data["_id"]}, {"$set": scope_data}, upsert=True
             )
 
             if result.upserted_id:
@@ -209,9 +200,7 @@ async def _load_default_scopes(
                 logger.info(f"Scope already up-to-date: {scope_data['_id']}")
 
             if "group_mappings" in scope_data:
-                logger.info(
-                    f"  group_mappings: {scope_data.get('group_mappings', [])}"
-                )
+                logger.info(f"  group_mappings: {scope_data.get('group_mappings', [])}")
 
         except Exception as e:
             logger.error(f"Failed to load scope from {scope_filename}: {e}", exc_info=True)

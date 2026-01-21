@@ -1,8 +1,6 @@
 {
   "_id": "registry-admins",
-  "group_mappings": [
-    "registry-admins"
-  ],
+  "group_mappings": ["registry-admins"],
   "server_access": [
     {
       "server": "*",
@@ -12,11 +10,11 @@
     {
       "agents": {
         "actions": [
-          {"action": "list_agents", "resources": ["all"]},
-          {"action": "get_agent", "resources": ["all"]},
-          {"action": "publish_agent", "resources": ["all"]},
-          {"action": "modify_agent", "resources": ["all"]},
-          {"action": "delete_agent", "resources": ["all"]}
+          { "action": "list_agents", "resources": ["all"] },
+          { "action": "get_agent", "resources": ["all"] },
+          { "action": "publish_agent", "resources": ["all"] },
+          { "action": "modify_agent", "resources": ["all"] },
+          { "action": "delete_agent", "resources": ["all"] }
         ]
       }
     }

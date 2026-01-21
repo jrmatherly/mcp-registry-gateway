@@ -132,7 +132,7 @@ The initialization script creates the following collections with indexes:
 ### Environment Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `DOCUMENTDB_HOST` | `localhost` | DocumentDB cluster endpoint |
 | `DOCUMENTDB_PORT` | `27017` | DocumentDB port |
 | `DOCUMENTDB_DATABASE` | `mcp_registry` | Database name |
@@ -217,7 +217,7 @@ export DOCUMENTDB_PASSWORD=yourpassword
 ./scripts/init-documentdb.sh
 ```
 
-2. Update docker-compose environment:
+1. Update docker-compose environment:
 ```yaml
 services:
   registry:
@@ -228,7 +228,7 @@ services:
       - DOCUMENTDB_PASSWORD=yourpassword
 ```
 
-3. Restart services:
+1. Restart services:
 ```bash
 docker-compose up -d
 ```

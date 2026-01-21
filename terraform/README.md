@@ -72,7 +72,7 @@ This approach provides:
 ## Deployment Comparison
 
 | Feature | AWS ECS (Terraform) | AWS EKS (ai-on-eks + Helm) |
-|---------|---------------------|---------------------------|
+| --------- | --------------------- | --------------------------- |
 | **Container Orchestration** | AWS Fargate | Kubernetes (EKS) |
 | **Provisioning Tool** | Terraform (this repo) | Terraform (ai-on-eks) |
 | **Application Deployment** | Terraform | Helm charts (this repo) |
@@ -86,14 +86,14 @@ This approach provides:
 
 ## Choosing Your Deployment Method
 
-### Use AWS ECS (Terraform) if:
+### Use AWS ECS (Terraform) if
 - You want the simplest AWS-native deployment
 - Your team is familiar with AWS services but not Kubernetes
 - You prefer managed infrastructure with less operational overhead
 - You don't need Kubernetes-specific features
 - You're already using ECS in your organization
 
-### Use AWS EKS (ai-on-eks + Helm) if:
+### Use AWS EKS (ai-on-eks + Helm) if
 - You need Kubernetes for portability or multi-cloud strategy
 - Your team has Kubernetes expertise
 - You require GPU support for AI/ML workloads

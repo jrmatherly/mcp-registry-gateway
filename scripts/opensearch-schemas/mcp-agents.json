@@ -5,30 +5,30 @@
   },
   "mappings": {
     "properties": {
-      "protocol_version": {"type": "keyword"},
+      "protocol_version": { "type": "keyword" },
       "name": {
         "type": "text",
-        "fields": {"keyword": {"type": "keyword"}}
+        "fields": { "keyword": { "type": "keyword" } }
       },
-      "description": {"type": "text"},
-      "path": {"type": "keyword"},
-      "url": {"type": "keyword"},
-      "version": {"type": "keyword"},
+      "description": { "type": "text" },
+      "path": { "type": "keyword" },
+      "url": { "type": "keyword" },
+      "version": { "type": "keyword" },
       "skills": {
         "type": "nested",
         "properties": {
-          "id": {"type": "keyword"},
-          "name": {"type": "text"},
-          "description": {"type": "text"},
-          "tags": {"type": "keyword"}
+          "id": { "type": "keyword" },
+          "name": { "type": "text" },
+          "description": { "type": "text" },
+          "tags": { "type": "keyword" }
         }
       },
-      "tags": {"type": "keyword"},
-      "is_enabled": {"type": "boolean"},
-      "visibility": {"type": "keyword"},
-      "trust_level": {"type": "keyword"},
-      "registered_at": {"type": "date"},
-      "updated_at": {"type": "date"}
+      "tags": { "type": "keyword" },
+      "is_enabled": { "type": "boolean" },
+      "visibility": { "type": "keyword" },
+      "trust_level": { "type": "keyword" },
+      "registered_at": { "type": "date" },
+      "updated_at": { "type": "date" }
     }
   }
 }

@@ -1,5 +1,3 @@
-version: '3.8'
-
 # DocumentDB Initialization:
 # For AWS DocumentDB Elastic Cluster setup, run the initialization script:
 #   export DOCUMENTDB_HOST=your-cluster.docdb.amazonaws.com
@@ -177,7 +175,7 @@ services:
       - METRICS_RATE_LIMIT=1000
     ports:
       - "8890:8890"
-      - "9465:9465"  # Prometheus metrics endpoint
+      - "9465:9465" # Prometheus metrics endpoint
     volumes:
       - metrics-db-data:/var/lib/sqlite
       - ${HOME}/mcp-gateway/logs:/app/logs
@@ -216,8 +214,8 @@ services:
       - METRICS_SERVICE_URL=http://metrics-service:8890
       - METRICS_API_KEY=${METRICS_API_KEY_AUTH_SERVER}
       # Keycloak configuration
-      - AUTH_PROVIDER=${AUTH_PROVIDER:-cognito}  # 'cognito' or 'keycloak'
-      - KEYCLOAK_ENABLED=${KEYCLOAK_ENABLED:-true}  # Enable Keycloak by default
+      - AUTH_PROVIDER=${AUTH_PROVIDER:-cognito} # 'cognito' or 'keycloak'
+      - KEYCLOAK_ENABLED=${KEYCLOAK_ENABLED:-true} # Enable Keycloak by default
       - KEYCLOAK_URL=${KEYCLOAK_URL:-http://keycloak:8080}
       - KEYCLOAK_EXTERNAL_URL=${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM:-mcp-gateway}
@@ -324,7 +322,12 @@ services:
     image: alpine:latest
     volumes:
       - metrics-db-data:/var/lib/sqlite
-    command: ["sh", "-c", "apk add --no-cache sqlite && mkdir -p /var/lib/sqlite && sqlite3 /var/lib/sqlite/metrics.db 'CREATE TABLE IF NOT EXISTS _health (id INTEGER);' && tail -f /dev/null"]
+    command:
+      [
+        "sh",
+        "-c",
+        "apk add --no-cache sqlite && mkdir -p /var/lib/sqlite && sqlite3 /var/lib/sqlite/metrics.db 'CREATE TABLE IF NOT EXISTS _health (id INTEGER);' && tail -f /dev/null",
+      ]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "sqlite3", "/var/lib/sqlite/metrics.db", ".tables"]
@@ -341,12 +344,12 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
     restart: unless-stopped
 
   # Grafana for metrics visualization
@@ -384,7 +387,7 @@ services:
   # Keycloak Identity Provider
   keycloak:
     image: quay.io/keycloak/keycloak:25.0
-    command: start-dev  # Use 'start' for production with proper SSL
+    command: start-dev # Use 'start' for production with proper SSL
     environment:
       # Database configuration
       KC_DB: postgres
@@ -397,11 +400,11 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
 
       # HTTP configuration
-      KC_HTTP_ENABLED: 'true'
+      KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 8080
-      KC_HOSTNAME_STRICT: 'false'
-      KC_HOSTNAME_STRICT_HTTPS: 'false'
-      KC_PROXY: edge  # Running behind nginx
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY: edge # Running behind nginx
 
       # Frontend URL for external JWT issuer
       KC_FRONTEND_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
@@ -411,7 +414,7 @@ services:
 
       # Logging
       KC_LOG_LEVEL: INFO
-      
+
     ports:
       - "8080:8080"
     depends_on:

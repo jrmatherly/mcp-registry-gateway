@@ -96,35 +96,35 @@ The script performs the following operations in sequence:
 
 ### Phase 2: Verification
 
-6. **List All Users**
+1. **List All Users**
    - Lists all users in the system
    - **Validates** that both the human user and M2M service account are present in the response
    - Shows user status (enabled/disabled), email, groups
    - Command: `user-list`
    - Test fails if created users are not found in the list
 
-7. **List All Groups**
+2. **List All Groups**
    - Lists all groups in the system
    - **Validates** that the test group appears in the response
    - Shows group ID, name, path, and attributes
    - Command: `group-list`
    - Test fails if created group is not found in the list
 
-8. **List All Servers**
+3. **List All Servers**
    - Lists all registered servers
    - **Validates** that the Cloudflare Documentation MCP Server appears in the response
    - Shows server configuration and group assignment
    - Command: `list`
    - Test fails if registered server is not found in the list
 
-9. **List All Agents**
+4. **List All Agents**
    - Lists all registered agents
    - **Validates** that the Flight Booking Agent appears in the response
    - Shows agent capabilities and group assignment
    - Command: `agent-list`
    - Test fails if registered agent is not found in the list
 
-10. **Search for Test Users**
+5. **Search for Test Users**
     - Searches for users with "test" in their username
     - Demonstrates user search functionality
     - Command: `user-list --search test --limit 50`
@@ -133,23 +133,23 @@ The script performs the following operations in sequence:
 
 The cleanup phase runs automatically via a trap on script exit, ensuring all resources are deleted even if the script fails:
 
-11. **Delete Agent**
+1. **Delete Agent**
     - Removes the Flight Booking Agent
     - Command: `agent-delete --path /flight-booking --force`
 
-12. **Delete Server**
+2. **Delete Server**
     - Removes the Cloudflare Documentation MCP Server
     - Command: `remove --path /cloudflare-docs --force`
 
-13. **Delete M2M Account**
+3. **Delete M2M Account**
     - Removes the M2M service account
     - Command: `user-delete --username <m2m-name> --force`
 
-14. **Delete Human User**
+4. **Delete Human User**
     - Removes the human user account
     - Command: `user-delete --username <username> --force`
 
-15. **Delete Group**
+5. **Delete Group**
     - Removes the test group
     - Command: `group-delete --name <group> --force`
 

@@ -4,7 +4,40 @@ FROM public.ecr.aws/docker/library/busybox:latest
 COPY auth_server/scopes.yml /scopes.yml
 
 # Create a script to copy the file to the mount point
-RUN printf '#!/bin/sh\nset -e\n\necho "Starting scopes.yml initialization..."\necho "Source file: /scopes.yml"\necho "Destination: /mnt/scopes.yml"\n\nif [ ! -f /scopes.yml ]; then\n    echo "ERROR: /scopes.yml not found!"\n    exit 1\nfi\n\nif [ ! -w /mnt ]; then\n    echo "ERROR: /mnt is not writable!"\n    ls -la /mnt\n    exit 1\nfi\n\ncp /scopes.yml /mnt/scopes.yml\n\nif [ ! -f /mnt/scopes.yml ]; then\n    echo "ERROR: Failed to copy scopes.yml to /mnt/"\n    exit 1\nfi\n\nchmod 644 /mnt/scopes.yml\n\necho "Successfully copied scopes.yml to EFS mount"\necho "File size: $(wc -c < /mnt/scopes.yml) bytes"\necho "Scopes initialization complete!"\n' > /copy-scopes.sh && chmod +x /copy-scopes.sh
+RUN cat > /copy-scopes.sh <<'EOF'
+#!/bin/sh
+set -e
+
+echo "Starting scopes.yml initialization..."
+echo "Source file: /scopes.yml"
+echo "Destination: /mnt/scopes.yml"
+
+if [ ! -f /scopes.yml ]; then
+    echo "ERROR: /scopes.yml not found!"
+    exit 1
+fi
+
+if [ ! -w /mnt ]; then
+    echo "ERROR: /mnt is not writable!"
+    ls -la /mnt
+    exit 1
+fi
+
+cp /scopes.yml /mnt/scopes.yml
+
+if [ ! -f /mnt/scopes.yml ]; then
+    echo "ERROR: Failed to copy scopes.yml to /mnt/"
+    exit 1
+fi
+
+chmod 644 /mnt/scopes.yml
+
+echo "Successfully copied scopes.yml to EFS mount"
+echo "File size: $(wc -c < /mnt/scopes.yml) bytes"
+echo "Scopes initialization complete!"
+EOF
+
+RUN chmod +x /copy-scopes.sh
 
 WORKDIR /
 

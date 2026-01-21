@@ -12,8 +12,6 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
-
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -54,10 +52,7 @@ REQUIRED_DEPENDENCIES = [
 ]
 
 
-def _print_colored(
-    message: str,
-    color: str = Colors.RESET
-) -> None:
+def _print_colored(message: str, color: str = Colors.RESET) -> None:
     """Print a colored message to stdout.
 
     Args:
@@ -67,9 +62,7 @@ def _print_colored(
     print(f"{color}{message}{Colors.RESET}")
 
 
-def _print_header(
-    message: str
-) -> None:
+def _print_header(message: str) -> None:
     """Print a section header.
 
     Args:
@@ -80,9 +73,7 @@ def _print_header(
     _print_colored(f"{'=' * 70}\n", Colors.CYAN)
 
 
-def _check_dependency(
-    module_name: str
-) -> bool:
+def _check_dependency(module_name: str) -> bool:
     """Check if a Python module is installed.
 
     Args:
@@ -124,11 +115,7 @@ def _check_dependencies() -> bool:
     return True
 
 
-def _run_pytest(
-    args: List[str],
-    description: str,
-    workers: Optional[int] = None
-) -> int:
+def _run_pytest(args: list[str], description: str, workers: int | None = None) -> int:
     """Run pytest with the specified arguments.
 
     Args:
@@ -152,7 +139,7 @@ def _run_pytest(
             if workers > 2:
                 _print_colored(
                     f"⚠️  WARNING: Running with {workers} workers may cause OOM on EC2",
-                    Colors.YELLOW
+                    Colors.YELLOW,
                 )
 
     # Build the command
@@ -193,9 +180,7 @@ def _run_check() -> int:
     return 1
 
 
-def _run_unit(
-    workers: Optional[int] = None
-) -> int:
+def _run_unit(workers: int | None = None) -> int:
     """Run unit tests only.
 
     Args:
@@ -208,9 +193,7 @@ def _run_unit(
     return _run_pytest(args, "Running Unit Tests", workers)
 
 
-def _run_integration(
-    workers: Optional[int] = None
-) -> int:
+def _run_integration(workers: int | None = None) -> int:
     """Run integration tests only.
 
     Args:
@@ -224,9 +207,7 @@ def _run_integration(
     return _run_pytest(args, "Running Integration Tests", workers)
 
 
-def _run_e2e(
-    workers: Optional[int] = None
-) -> int:
+def _run_e2e(workers: int | None = None) -> int:
     """Run end-to-end tests only.
 
     Args:
@@ -239,9 +220,7 @@ def _run_e2e(
     return _run_pytest(args, "Running End-to-End Tests", workers)
 
 
-def _run_fast(
-    workers: Optional[int] = None
-) -> int:
+def _run_fast(workers: int | None = None) -> int:
     """Run fast tests (exclude slow tests).
 
     Args:
@@ -257,9 +236,7 @@ def _run_fast(
     return _run_pytest(args, "Running Fast Tests (Excluding Slow)", workers)
 
 
-def _run_full(
-    workers: Optional[int] = None
-) -> int:
+def _run_full(workers: int | None = None) -> int:
     """Run full test suite serially (memory-safe for EC2).
 
     Args:
@@ -273,9 +250,7 @@ def _run_full(
     return _run_pytest(args, "Running Full Test Suite", workers)
 
 
-def _run_coverage(
-    workers: Optional[int] = None
-) -> int:
+def _run_coverage(workers: int | None = None) -> int:
     """Generate coverage reports.
 
     Args:
@@ -295,10 +270,7 @@ def _run_coverage(
     return _run_pytest(args, "Running Tests with Coverage")
 
 
-def _run_domain(
-    domain: str,
-    workers: Optional[int] = None
-) -> int:
+def _run_domain(domain: str, workers: int | None = None) -> int:
     """Run domain-specific tests.
 
     Args:
@@ -348,7 +320,7 @@ Examples:
     python scripts/test.py search
     python scripts/test.py health
     python scripts/test.py core
-"""
+""",
     )
 
     parser.add_argument(

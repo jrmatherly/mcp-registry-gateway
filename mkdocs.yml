@@ -98,30 +98,30 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
-    - Complete Setup Guide: complete-setup-guide.md
-    - Installation: installation.md
-    - Configuration: configuration.md
-    - FAQ: FAQ.md
+      - Complete Setup Guide: complete-setup-guide.md
+      - Installation: installation.md
+      - Configuration: configuration.md
+      - FAQ: FAQ.md
   - Authentication & Security:
-    - Authentication Guide: auth.md
-    - Amazon Cognito Setup: cognito.md
-    - Access Control & Scopes: scopes.md
-    - JWT Token Vending: jwt-token-vending.md
-    - Security Policy: SECURITY.md
+      - Authentication Guide: auth.md
+      - Amazon Cognito Setup: cognito.md
+      - Access Control & Scopes: scopes.md
+      - JWT Token Vending: jwt-token-vending.md
+      - Security Policy: SECURITY.md
   - Architecture & Development:
-    - Registry API: registry_api.md
-    - Dynamic Tool Discovery: dynamic-tool-discovery.md
-    - Architecture Overview: registry-auth-architecture.md
-    - Detailed Architecture: registry-auth-detailed.md
+      - Registry API: registry_api.md
+      - Dynamic Tool Discovery: dynamic-tool-discovery.md
+      - Architecture Overview: registry-auth-architecture.md
+      - Detailed Architecture: registry-auth-detailed.md
   - Integration:
-    - AI Coding Assistants: ai-coding-assistants-setup.md
-    - MCP-Gateway CLI Guide: mcp-registry-cli.md
+      - AI Coding Assistants: ai-coding-assistants-setup.md
+      - MCP-Gateway CLI Guide: mcp-registry-cli.md
   - Contributing:
-    - Contributing Guide: CONTRIBUTING.md
-    - Code of Conduct: CODE_OF_CONDUCT.md
+      - Contributing Guide: CONTRIBUTING.md
+      - Code of Conduct: CODE_OF_CONDUCT.md
   - Legal:
-    - License: LICENSE.md
-    - Notice: NOTICE.md
+      - License: LICENSE.md
+      - Notice: NOTICE.md
 
 # Extra
 extra:

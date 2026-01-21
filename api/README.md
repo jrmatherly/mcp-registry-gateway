@@ -218,7 +218,7 @@ uv run python api/registry_management.py --token-file <token> \
 ## Environment Summary
 
 | Environment | Token Script | Registry URL | Keycloak URL |
-|-------------|--------------|--------------|--------------|
+| ------------- | -------------- | -------------- | -------------- |
 | **Localhost** | `credentials-provider/generate_creds.sh` or `keycloak/setup/generate-agent-token.sh` | `http://localhost` (default) | `http://localhost:8080` (default) |
 | **Production** | `api/get-m2m-token.sh --aws-region ... --keycloak-url ...` | `https://registry.us-east-1.example.com` | `https://keycloak.us-east-1.example.com` |
 

@@ -47,7 +47,7 @@ repos:
       - id: check-added-large-files
         name: Check for large files
         description: Prevent files larger than 500KB
-        args: ['--maxkb=500']
+        args: ["--maxkb=500"]
 
       # Check for merge conflict markers
       - id: check-merge-conflict
@@ -76,13 +76,13 @@ repos:
 
   # Bandit - Security vulnerability scanner
   - repo: https://github.com/PyCQA/bandit
-    rev: '1.8.3'
+    rev: "1.8.3"
     hooks:
       - id: bandit
         name: Bandit security scan
         description: Scan for security vulnerabilities
-        args: ['-c', 'pyproject.toml']
-        additional_dependencies: ['bandit[toml]']
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]
         exclude: ^tests/
 
   # MyPy - Static type checker
@@ -137,4 +137,4 @@ default_language_version:
 fail_fast: false
 
 # Minimum pre-commit version
-minimum_pre_commit_version: '2.20.0'
+minimum_pre_commit_version: "2.20.0"

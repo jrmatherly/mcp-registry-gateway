@@ -153,7 +153,6 @@ Interactive terminal interface for chatting with AI models and discovering MCP t
 - **📊 Real-Time Metrics & Observability** - Grafana dashboards with SQLite and OpenTelemetry integration. [Observability Guide](docs/OBSERVABILITY.md)
 - **Amazon Bedrock AgentCore Integration** - AgentCore Gateway support with dual authentication. [Integration Guide](docs/agentcore.md)
 
-
 ---
 
 ## A2A Agents - Example Implementations
@@ -163,7 +162,7 @@ The registry includes two example A2A agents that demonstrate how both human dev
 ### Example Agents
 
 | Agent | Path | Skills |
-|-------|------|--------|
+| ------- | ------ | -------- |
 | **Travel Assistant Agent** | `/travel-assistant-agent` | Flight search, pricing checks, recommendations, trip planning |
 | **Flight Booking Agent** | `/flight-booking-agent` | Availability checks, flight reservations, payments, reservation management |
 
@@ -559,7 +558,6 @@ pre-commit run --all-files
 
 ---
 
-
 ## Enterprise Features
 
 ### AI Agents & Coding Assistants Integration
@@ -679,7 +677,7 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 ## Documentation
 
 | Getting Started | Enterprise Setup | Developer & Operations |
-|------------------|-------------------|------------------------|
+| ------------------ | ------------------- | ------------------------ |
 | [Complete Setup Guide](docs/complete-setup-guide.md)<br/>**NEW!** Step-by-step from scratch on AWS EC2 | [Authentication Guide](docs/auth.md)<br/>OAuth and identity provider integration | [AI Coding Assistants Setup](docs/ai-coding-assistants-setup.md)<br/>VS Code, Cursor, Claude Code integration |
 | [Installation Guide](docs/installation.md)<br/>Complete setup instructions for EC2 and EKS | [AWS ECS Deployment](terraform/aws-ecs/README.md)<br/>Production-ready deployment on AWS ECS Fargate | [API Reference](docs/registry_api.md)<br/>Programmatic registry management |
 | [Keycloak Integration](docs/keycloak-integration.md)<br/>Enterprise identity with agent audit trails | [Token Refresh Service](docs/token-refresh-service.md)<br/>Automated token refresh and lifecycle management | [MCP Registry CLI](docs/mcp-registry-cli.md)<br/>Command-line client for registry management |
@@ -715,7 +713,7 @@ echo 'ASOR_ACCESS_TOKEN=your_token' >> .env
 Our development roadmap is organized into weekly milestones with clear deliverables and progress tracking:
 
 | Milestone | Due Date | Progress | Status | Key Issues |
-|-----------|----------|----------|--------|------------|
+| ----------- | ---------- | ---------- | -------- | ------------ |
 | **January 2026 Week 3** | 2026-01-23 | 50% (1/2) | 🚧 In Progress | **Open:** [#295 - Multi-Level Rate Limiting](https://github.com/agentic-community/mcp-gateway-registry/issues/295)<br/>**Closed:** [#316 - Entra ID IAM APIs](https://github.com/agentic-community/mcp-gateway-registry/issues/316) |
 | **January 2026 Week 4** | 2026-01-30 | 0% (0/3) | 📅 Planned | **Open:** [#269 - AgentCore IAM Authentication](https://github.com/agentic-community/mcp-gateway-registry/issues/269), [#260 - Federation Between Registries](https://github.com/agentic-community/mcp-gateway-registry/issues/260), [#129 - Virtual MCP Server Support](https://github.com/agentic-community/mcp-gateway-registry/issues/129) |
 | **Parking Lot** | — | 100% (2/2) | 🗂️ Backlog | **Closed:** [#316 - Entra ID IAM APIs](https://github.com/agentic-community/mcp-gateway-registry/issues/316), [#315 - Distroless Docker Images](https://github.com/agentic-community/mcp-gateway-registry/issues/315) |

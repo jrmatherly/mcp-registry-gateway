@@ -57,7 +57,7 @@ curl -f http://localhost:8080/health/ready || echo "Keycloak not ready yet"
 ### Available Scripts
 
 | Script | Purpose | When to Use |
-|--------|---------|------------|
+| -------- | --------- | ------------ |
 | `init-keycloak.sh` | Creates realm, groups, and M2M client | **Always run first** during initial setup |
 | `setup-agent-service-account.sh` | Creates individual service account for one AI agent | When adding a new AI agent (production) |
 | `setup-m2m-service-account.sh` | Creates shared service account | For development/testing only |
