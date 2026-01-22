@@ -23,7 +23,7 @@ Usage:
     uv run python scripts/init-documentdb-indexes.py --recreate
 
 Requires:
-    - motor (AsyncIOMotorClient)
+    - pymongo (AsyncMongoClient)
     - boto3 (for IAM authentication)
     - DocumentDB connection details via environment variables or command-line
 """
@@ -35,7 +35,7 @@ import logging
 import os
 from pathlib import Path
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -695,7 +695,7 @@ Example usage:
         )
 
         # IMPORTANT: DocumentDB does not support retryable writes
-        client = AsyncIOMotorClient(connection_string, retryWrites=False)
+        client = AsyncMongoClient(connection_string, retryWrites=False)
         db = client[args.database]
 
         server_info = await client.server_info()
@@ -713,7 +713,7 @@ Example usage:
         # Print summary of collections and indexes
         await _print_collection_summary(db, args.namespace)
 
-        client.close()
+        await client.close()
 
     except Exception as e:
         logger.error(f"Failed to initialize DocumentDB: {e}", exc_info=True)

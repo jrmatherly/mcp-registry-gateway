@@ -15,7 +15,7 @@ import logging
 import os
 
 import yaml
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -309,7 +309,7 @@ Example usage:
         )
 
         # IMPORTANT: DocumentDB does not support retryable writes
-        client = AsyncIOMotorClient(connection_string, retryWrites=False)
+        client = AsyncMongoClient(connection_string, retryWrites=False)
         db = client[args.database]
 
         server_info = await client.server_info()
@@ -324,7 +324,7 @@ Example usage:
 
         logger.info("Scopes loading complete")
 
-        client.close()
+        await client.close()
 
     except Exception as e:
         logger.error(f"Failed to load scopes: {e}", exc_info=True)

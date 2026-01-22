@@ -35,7 +35,7 @@ import os
 import sys
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 logging.basicConfig(
     level=logging.INFO,
@@ -125,7 +125,7 @@ async def _get_client(
     use_iam: bool,
     use_tls: bool,
     tls_ca_file: str | None,
-) -> AsyncIOMotorClient:
+) -> AsyncMongoClient:
     """Create DocumentDB async client."""
     # Get storage backend from environment variable
     storage_backend = os.getenv("STORAGE_BACKEND", "documentdb")
@@ -143,7 +143,7 @@ async def _get_client(
     )
 
     # DocumentDB does not support retryable writes
-    client = AsyncIOMotorClient(connection_string, retryWrites=False)
+    client = AsyncMongoClient(connection_string, retryWrites=False)
 
     return client
 
@@ -175,7 +175,7 @@ async def list_collections(
 
         if not collection_names:
             logger.info(f"No collections found in database '{database}'")
-            client.close()
+            await client.close()
             return 0
 
         # Sort by name
@@ -204,7 +204,7 @@ async def list_collections(
 
         print("\n" + "=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except Exception as e:
@@ -236,7 +236,7 @@ async def inspect_collection(
         collection_names = await db.list_collection_names()
         if collection_name not in collection_names:
             logger.error(f"Collection '{collection_name}' does not exist")
-            client.close()
+            await client.close()
             return 1
 
         # Get document count
@@ -282,7 +282,7 @@ async def inspect_collection(
 
         print("\n" + "=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except Exception as e:
@@ -318,7 +318,7 @@ async def count_documents(
         print(f"Document Count: {doc_count}")
         print("=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except Exception as e:
@@ -362,7 +362,7 @@ async def search_documents(
 
         print("\n" + "=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except Exception as e:
@@ -405,7 +405,7 @@ async def sample_document(
 
         print("\n" + "=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except Exception as e:
@@ -454,7 +454,7 @@ async def query_documents(
 
         print("\n" + "=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except json.JSONDecodeError as e:
@@ -496,7 +496,7 @@ async def drop_collection(
         collection_names = await db.list_collection_names()
         if collection_name not in collection_names:
             logger.error(f"Collection '{collection_name}' does not exist")
-            client.close()
+            await client.close()
             return 1
 
         # Get document count before dropping
@@ -515,7 +515,7 @@ async def drop_collection(
         print(f"\nCollection '{collection_name}' has been dropped.")
         print("=" * 100)
 
-        client.close()
+        await client.close()
         return 0
 
     except Exception as e:

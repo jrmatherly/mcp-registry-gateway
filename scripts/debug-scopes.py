@@ -5,7 +5,7 @@ import asyncio
 import json
 import os
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 
 async def debug_scopes():
@@ -56,7 +56,7 @@ async def debug_scopes():
     # Connect to DocumentDB
     print("Connecting to DocumentDB...")
     # IMPORTANT: DocumentDB does not support retryable writes
-    client = AsyncIOMotorClient(connection_string, retryWrites=False, **tls_options)
+    client = AsyncMongoClient(connection_string, retryWrites=False, **tls_options)
     db = client[database]
 
     try:
@@ -110,7 +110,7 @@ async def debug_scopes():
         print("=" * 80)
 
     finally:
-        client.close()
+        await client.close()
 
 
 if __name__ == "__main__":

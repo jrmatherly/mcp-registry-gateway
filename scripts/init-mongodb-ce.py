@@ -19,8 +19,7 @@ import sys
 import time
 from pathlib import Path
 
-from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo import ASCENDING
+from pymongo import ASCENDING, AsyncMongoClient
 from pymongo.errors import OperationFailure, ServerSelectionTimeoutError
 
 # Configure logging with basicConfig
@@ -76,7 +75,7 @@ def _initialize_replica_set(
         try:
             status = client.admin.command("replSetGetStatus")
             logger.info("Replica set already initialized")
-            client.close()
+            client.close()  # Sync MongoClient, not async
             return
         except OperationFailure as e:
             if "no replset config has been received" in str(e).lower():
@@ -90,7 +89,7 @@ def _initialize_replica_set(
 
         result = client.admin.command("replSetInitiate", config)
         logger.info(f"Replica set initialized: {result}")
-        client.close()
+        client.close()  # Sync MongoClient, not async
 
         # Wait for replica set to elect primary
         logger.info("Waiting for replica set to elect primary...")
@@ -230,7 +229,7 @@ async def _initialize_mongodb_ce() -> None:
     # Connect with motor for async operations
     connection_string = f"mongodb://{config['username']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}?replicaSet={config['replicaset']}&authMechanism=SCRAM-SHA-256&authSource=admin"
     try:
-        client = AsyncIOMotorClient(
+        client = AsyncMongoClient(
             connection_string,
             serverSelectionTimeoutMS=10000,
         )
@@ -293,7 +292,7 @@ async def _initialize_mongodb_ce() -> None:
         logger.info("  docker-compose up registry")
         logger.info("=" * 60)
 
-        client.close()
+        await client.close()
 
     except ServerSelectionTimeoutError as e:
         logger.error(f"Failed to connect to MongoDB: {e}")

@@ -4,7 +4,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.asynchronous.collection import AsyncCollection
 
 from ...schemas.federation_schema import FederationConfig
 from ..interfaces import FederationConfigRepositoryBase
@@ -17,14 +17,14 @@ class DocumentDBFederationConfigRepository(FederationConfigRepositoryBase):
     """DocumentDB implementation of federation configuration repository."""
 
     def __init__(self):
-        self._collection: AsyncIOMotorCollection | None = None
+        self._collection: AsyncCollection | None = None
         self._collection_name = get_collection_name("mcp_federation_config")
         logger.info(
             f"Initialized DocumentDB FederationConfigRepository with collection: "
             f"{self._collection_name}"
         )
 
-    async def _get_collection(self) -> AsyncIOMotorCollection:
+    async def _get_collection(self) -> AsyncCollection:
         """Get DocumentDB collection."""
         if self._collection is None:
             db = await get_documentdb_client()

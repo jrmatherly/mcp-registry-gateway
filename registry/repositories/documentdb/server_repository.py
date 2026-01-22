@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.errors import DuplicateKeyError
 
 from ..interfaces import ServerRepositoryBase
@@ -17,10 +17,10 @@ class DocumentDBServerRepository(ServerRepositoryBase):
     """DocumentDB implementation of server repository."""
 
     def __init__(self):
-        self._collection: AsyncIOMotorCollection | None = None
+        self._collection: AsyncCollection | None = None
         self._collection_name = get_collection_name("mcp_servers")
 
-    async def _get_collection(self) -> AsyncIOMotorCollection:
+    async def _get_collection(self) -> AsyncCollection:
         """Get DocumentDB collection."""
         if self._collection is None:
             db = await get_documentdb_client()

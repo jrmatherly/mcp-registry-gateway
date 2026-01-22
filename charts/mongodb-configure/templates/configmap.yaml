@@ -418,7 +418,7 @@ data:
     import yaml
     from typing import Optional
 
-    from motor.motor_asyncio import AsyncIOMotorClient
+    from pymongo import AsyncMongoClient
     from pymongo import ASCENDING
     from pymongo.errors import ServerSelectionTimeoutError, OperationFailure
 
@@ -665,10 +665,10 @@ data:
         # Initialize replica set (synchronous)
         _initialize_replica_set(config["host"], config["port"], config["username"], config["password"])
 
-        # Connect with motor for async operations
+        # Connect with pymongo AsyncMongoClient for async operations
         connection_string = f"mongodb://{config['username']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}?replicaSet={config['replicaset']}&authMechanism=SCRAM-SHA-256&authSource=admin"
         try:
-            client = AsyncIOMotorClient(
+            client = AsyncMongoClient(
                 connection_string,
                 serverSelectionTimeoutMS=10000,
             )

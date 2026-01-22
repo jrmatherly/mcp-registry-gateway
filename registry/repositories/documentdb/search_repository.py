@@ -4,7 +4,7 @@ import logging
 import re
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.asynchronous.collection import AsyncCollection
 
 from ...core.config import embedding_config, settings
 from ...schemas.agent_models import AgentCard
@@ -107,13 +107,13 @@ class DocumentDBSearchRepository(SearchRepositoryBase):
     """DocumentDB implementation with hybrid search (text + vector)."""
 
     def __init__(self):
-        self._collection: AsyncIOMotorCollection | None = None
+        self._collection: AsyncCollection | None = None
         self._collection_name = get_collection_name(
             f"mcp_embeddings_{settings.embeddings_model_dimensions}"
         )
         self._embedding_model = None
 
-    async def _get_collection(self) -> AsyncIOMotorCollection:
+    async def _get_collection(self) -> AsyncCollection:
         """Get DocumentDB collection."""
         if self._collection is None:
             db = await get_documentdb_client()

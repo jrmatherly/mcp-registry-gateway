@@ -1,18 +1,24 @@
-"""DocumentDB client singleton with IAM authentication support."""
+"""DocumentDB client singleton with IAM authentication support.
+
+Note: Motor was deprecated on May 14, 2026 in favor of PyMongo's native async support.
+This module uses pymongo.AsyncMongoClient which provides native asyncio support.
+See: https://www.mongodb.com/docs/languages/python/pymongo-driver/current/reference/migration/
+"""
 
 import logging
 
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo import AsyncMongoClient
+from pymongo.asynchronous.database import AsyncDatabase
 
 from ...core.config import settings
 
 logger = logging.getLogger(__name__)
 
-_client: AsyncIOMotorClient | None = None
-_database: AsyncIOMotorDatabase | None = None
+_client: AsyncMongoClient | None = None
+_database: AsyncDatabase | None = None
 
 
-async def get_documentdb_client() -> AsyncIOMotorDatabase:
+async def get_documentdb_client() -> AsyncDatabase:
     """Get DocumentDB database client singleton."""
     global _client, _database
 
@@ -91,7 +97,7 @@ async def get_documentdb_client() -> AsyncIOMotorDatabase:
     if settings.documentdb_direct_connection:
         client_options["directConnection"] = True
 
-    _client = AsyncIOMotorClient(connection_string, **client_options, **tls_options)
+    _client = AsyncMongoClient(connection_string, **client_options, **tls_options)
     _database = _client[settings.documentdb_database]
 
     # Verify connection
@@ -105,7 +111,7 @@ async def close_documentdb_client() -> None:
     """Close DocumentDB client."""
     global _client, _database
     if _client is not None:
-        _client.close()
+        await _client.close()  # PyMongo Async: close() is now async
         _client = None
         _database = None
 

@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.asynchronous.collection import AsyncCollection
 
 from ..interfaces import ScopeRepositoryBase
 from .client import get_collection_name, get_documentdb_client
@@ -16,11 +16,11 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
     """DocumentDB implementation of scope repository using embedded documents."""
 
     def __init__(self):
-        self._collection: AsyncIOMotorCollection | None = None
+        self._collection: AsyncCollection | None = None
         self._collection_name = get_collection_name("mcp_scopes")
         self._scopes_cache: dict[str, Any] = {}
 
-    async def _get_collection(self) -> AsyncIOMotorCollection:
+    async def _get_collection(self) -> AsyncCollection:
         """Get DocumentDB collection."""
         if self._collection is None:
             db = await get_documentdb_client()

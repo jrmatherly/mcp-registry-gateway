@@ -11,7 +11,7 @@ import json
 import os
 import sys
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 
 async def inspect_documentdb():
@@ -62,7 +62,7 @@ async def inspect_documentdb():
     # Connect to DocumentDB
     print("Connecting to DocumentDB...")
     # IMPORTANT: DocumentDB does not support retryable writes
-    client = AsyncIOMotorClient(connection_string, retryWrites=False, **tls_options)
+    client = AsyncMongoClient(connection_string, retryWrites=False, **tls_options)
     db = client[database]
 
     try:
@@ -137,7 +137,7 @@ async def inspect_documentdb():
         print("=" * 80)
 
     finally:
-        client.close()
+        await client.close()
 
 
 if __name__ == "__main__":

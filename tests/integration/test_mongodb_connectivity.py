@@ -6,7 +6,7 @@ without complex fixture dependencies.
 """
 
 import pytest
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 
 @pytest.mark.integration
@@ -18,7 +18,7 @@ class TestMongoDBConnectivity:
     async def test_mongodb_connection(self):
         """Test that we can connect to MongoDB."""
         # Arrange - Use localhost with directConnection for single server
-        client = AsyncIOMotorClient(
+        client = AsyncMongoClient(
             "mongodb://localhost:27017",
             directConnection=True,  # Bypass replica set discovery
             serverSelectionTimeoutMS=5000,
@@ -30,13 +30,13 @@ class TestMongoDBConnectivity:
             await client.admin.command("ping")
             assert True, "Successfully connected to MongoDB"
         finally:
-            client.close()
+            await client.close()
 
     @pytest.mark.skip(reason="Requires MongoDB running - not available in CI environment")
     async def test_mongodb_create_and_read_document(self):
         """Test basic CRUD: create and read a document."""
         # Arrange - Use localhost with directConnection
-        client = AsyncIOMotorClient("mongodb://localhost:27017", directConnection=True)
+        client = AsyncMongoClient("mongodb://localhost:27017", directConnection=True)
         db = client["test_mcp_registry"]
         collection = db["test_connectivity"]
 
@@ -63,13 +63,13 @@ class TestMongoDBConnectivity:
         finally:
             # Cleanup
             await collection.delete_many({"test_id": "connectivity_test_1"})
-            client.close()
+            await client.close()
 
     @pytest.mark.skip(reason="Requires MongoDB running - not available in CI environment")
     async def test_mongodb_update_and_delete_document(self):
         """Test basic CRUD: update and delete a document."""
         # Arrange - Use localhost with directConnection
-        client = AsyncIOMotorClient("mongodb://localhost:27017", directConnection=True)
+        client = AsyncMongoClient("mongodb://localhost:27017", directConnection=True)
         db = client["test_mcp_registry"]
         collection = db["test_connectivity"]
 
@@ -101,4 +101,4 @@ class TestMongoDBConnectivity:
         finally:
             # Cleanup (just in case)
             await collection.delete_many({"test_id": "connectivity_test_2"})
-            client.close()
+            await client.close()

@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.errors import DuplicateKeyError
 
 from ...schemas.agent_models import AgentCard
@@ -18,10 +18,10 @@ class DocumentDBAgentRepository(AgentRepositoryBase):
     """DocumentDB implementation of agent repository."""
 
     def __init__(self):
-        self._collection: AsyncIOMotorCollection | None = None
+        self._collection: AsyncCollection | None = None
         self._collection_name = get_collection_name("mcp_agents")
 
-    async def _get_collection(self) -> AsyncIOMotorCollection:
+    async def _get_collection(self) -> AsyncCollection:
         """Get DocumentDB collection."""
         if self._collection is None:
             db = await get_documentdb_client()
