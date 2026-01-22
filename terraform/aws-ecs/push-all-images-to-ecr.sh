@@ -4,21 +4,20 @@ set -e
 REGION="us-east-1"
 ACCOUNT_ID="128755427449"
 
-# List of images to push
+# List of images to push (from GHCR)
 IMAGES=(
-  "mcpgateway/registry:latest"
-  "mcpgateway/currenttime:latest"
-  "mcpgateway/mcpgw:latest"
-  "mcpgateway/realserverfaketools:latest"
-  "mcpgateway/flight-booking-agent:latest"
-  "mcpgateway/travel-assistant-agent:latest"
+  "ghcr.io/jrmatherly/mcp-registry:latest"
+  "ghcr.io/jrmatherly/mcp-auth-server:latest"
+  "ghcr.io/jrmatherly/mcp-metrics-service:latest"
+  "ghcr.io/jrmatherly/mcp-mcp-server:latest"
 )
 
 echo "Logging into ECR..."
 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
 
 for IMAGE in "${IMAGES[@]}"; do
-  REPO_NAME=$(echo $IMAGE | cut -d'/' -f2 | cut -d':' -f1)
+  # Extract repo name from GHCR image (e.g., ghcr.io/jrmatherly/mcp-registry:latest -> mcp-registry)
+  REPO_NAME=$(echo $IMAGE | cut -d'/' -f3 | cut -d':' -f1)
   TAG=$(echo $IMAGE | cut -d':' -f2)
 
   echo ""
@@ -47,11 +46,7 @@ echo "✅ All images pushed to ECR!"
 echo "========================================="
 echo ""
 echo "Update terraform.tfvars with ECR URIs:"
-echo "registry_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/registry:latest\""
-echo "currenttime_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/currenttime:latest\""
-echo "mcpgw_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/mcpgw:latest\""
-echo "realserverfaketools_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/realserverfaketools:latest\""
-echo "flight_booking_agent_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/flight-booking-agent:latest\""
-echo "travel_assistant_agent_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/travel-assistant-agent:latest\""
+echo "registry_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/mcp-registry:latest\""
+echo "auth_server_image_uri = \"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/mcp-auth-server:latest\""
 echo ""
 echo "Then run: terraform apply -auto-approve"

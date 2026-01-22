@@ -125,7 +125,7 @@ variable "registry_image_uri" {
 variable "auth_server_image_uri" {
   description = "Container image URI for auth server service"
   type        = string
-  default     = "mcpgateway/auth-server:latest"
+  default     = "ghcr.io/jrmatherly/mcp-auth-server:latest"
 }
 
 variable "currenttime_image_uri" {

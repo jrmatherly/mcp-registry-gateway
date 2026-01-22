@@ -433,8 +433,8 @@ cp .env.example .env
 # Edit .env with your passwords (KEYCLOAK_ADMIN_PASSWORD, etc.)
 nano .env
 
-# Deploy with pre-built images
-export DOCKERHUB_ORG=mcpgateway
+# Deploy with pre-built images from GHCR
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
 ./build_and_run.sh --prebuilt
 
 # Access the Registry UI

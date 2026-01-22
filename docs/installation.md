@@ -38,8 +38,8 @@ nano .env
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
 sed -i "s/^#*\s*SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" .env
 
-# 5. Deploy with pre-built images
-export DOCKERHUB_ORG=mcpgateway
+# 5. Deploy with pre-built images from GHCR
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
 source .env
 export KEYCLOAK_ADMIN="${KEYCLOAK_ADMIN:-admin}"
 ./build_and_run.sh --prebuilt
@@ -137,8 +137,8 @@ nano .env
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
 sed -i "s/^#*\s*SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" .env
 
-# 7. Deploy with Podman
-export DOCKERHUB_ORG=mcpgateway
+# 7. Deploy with Podman using pre-built images from GHCR
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
 source .env
 export KEYCLOAK_ADMIN="${KEYCLOAK_ADMIN:-admin}"
 ./build_and_run.sh --prebuilt --podman

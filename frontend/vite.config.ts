@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Codecov Bundle Analysis - must be last plugin
+    // Only enabled when CODECOV_TOKEN is available (CI environment)
+    codecovVitePlugin({
+      enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+      bundleName: 'mcp-gateway-frontend',
+      uploadToken: process.env.CODECOV_TOKEN,
+    }),
+  ],
   root: '.',
   build: {
     outDir: 'build',

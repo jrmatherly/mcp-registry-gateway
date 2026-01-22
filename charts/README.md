@@ -156,8 +156,8 @@ global:
 ```yaml
 global:
   image:
-    repository: mcpgateway/registry
-    tag: v1.0.12
+    repository: ghcr.io/jrmatherly/mcp-registry
+    tag: v2.0.0
     pullPolicy: IfNotPresent
 ```
 

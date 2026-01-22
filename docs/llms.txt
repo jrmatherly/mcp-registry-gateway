@@ -1488,9 +1488,9 @@ hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gatew
 
 # Step 3: Configure environment
 # Complete: Initial Environment Configuration guide
-export DOCKERHUB_ORG=mcpgateway
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
 
-# Step 4: Deploy with pre-built images
+# Step 4: Deploy with pre-built images from GHCR
 ./build_and_run.sh --prebuilt
 
 # Step 5: Initialize Keycloak

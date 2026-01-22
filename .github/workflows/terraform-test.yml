@@ -30,7 +30,7 @@ jobs:
         working-directory: terraform/aws-ecs
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -70,7 +70,7 @@ jobs:
         working-directory: terraform/aws-ecs
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
@@ -91,7 +91,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
@@ -99,7 +99,7 @@ jobs:
           working_directory: terraform/aws-ecs
           soft_fail: true
           format: sarif
-          out: tfsec-results.sarif
+          additional_args: --out tfsec-results.sarif
         continue-on-error: true
 
       - name: Upload SARIF file
@@ -115,7 +115,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@v12

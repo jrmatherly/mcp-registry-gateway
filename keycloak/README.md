@@ -10,11 +10,13 @@
 - `curl` installed (HTTP client for API requests)
 
 Install prerequisites on macOS:
+
 ```bash
 brew install jq curl
 ```
 
 Install prerequisites on Ubuntu/Debian:
+
 ```bash
 sudo apt-get install jq curl
 ```

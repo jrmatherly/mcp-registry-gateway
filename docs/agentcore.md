@@ -75,9 +75,9 @@ cd mcp-registry-gateway
 cp .env.example .env
 
 # Configure environment (see Complete Setup Guide for details)
-export DOCKERHUB_ORG=mcpgateway
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
 
-# Deploy with pre-built images
+# Deploy with pre-built images from GHCR
 ./build_and_run.sh --prebuilt
 ```
 

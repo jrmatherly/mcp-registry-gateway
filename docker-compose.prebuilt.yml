@@ -11,7 +11,7 @@
 services:
   # Registry service (includes nginx, SSL, FAISS, models) - using pre-built image
   registry:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/registry:${REGISTRY_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-registry:${REGISTRY_VERSION:-latest}
     environment:
       - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
       - SECRET_KEY=${SECRET_KEY}
@@ -106,7 +106,7 @@ services:
 
   # Metrics Collection Service - using pre-built image
   metrics-service:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/metrics-service:${METRICS_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-metrics-service:${METRICS_VERSION:-latest}
     environment:
       - METRICS_SERVICE_PORT=8890
       - METRICS_SERVICE_HOST=0.0.0.0
@@ -136,7 +136,7 @@ services:
 
   # Auth service (separate and scalable) - using pre-built image
   auth-server:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/auth-server:${AUTH_SERVER_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-auth-server:${AUTH_SERVER_VERSION:-latest}
     environment:
       - REGISTRY_URL=${REGISTRY_URL}
       - SECRET_KEY=${SECRET_KEY}
@@ -198,7 +198,7 @@ services:
 
   # Current Time MCP Server - using pre-built image
   currenttime-server:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/currenttime-server:${CURRENTTIME_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-currenttime-server:${CURRENTTIME_VERSION:-latest}
     environment:
       - PORT=8000
       - MCP_TRANSPORT=streamable-http
@@ -208,7 +208,7 @@ services:
 
   # Financial Info MCP Server - using pre-built image
   fininfo-server:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/fininfo-server:${FININFO_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-fininfo-server:${FININFO_VERSION:-latest}
     environment:
       - PORT=8001
       - SECRET_KEY=${SECRET_KEY}
@@ -220,7 +220,7 @@ services:
 
   # MCP Gateway Server - using pre-built image
   mcpgw-server:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/mcpgw-server:${MCPGW_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-mcpgw-server:${MCPGW_VERSION:-latest}
     environment:
       - PORT=8003
       - REGISTRY_BASE_URL=http://registry:7860
@@ -238,16 +238,16 @@ services:
 
   # Real Server Fake Tools MCP Server - using pre-built image
   realserverfaketools-server:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/realserverfaketools-server:${REALSERVERFAKETOOLS_VERSION:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-realserverfaketools-server:${REALSERVERFAKETOOLS_VERSION:-latest}
     environment:
       - PORT=8002
     ports:
       - "8002:8002"
     restart: unless-stopped
 
-  # SQLite container for metrics database - using mirrored pre-built image
+  # SQLite container for metrics database - using official alpine image
   metrics-db:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/alpine:${ALPINE_VERSION:-latest}
+    image: alpine:${ALPINE_VERSION:-latest}
     volumes:
       - metrics-db-data:/var/lib/sqlite
     command:
@@ -263,9 +263,9 @@ services:
       timeout: 10s
       retries: 3
 
-  # Prometheus for metrics collection - using mirrored pre-built image
+  # Prometheus for metrics collection - using official image
   prometheus:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/prometheus:${PROMETHEUS_VERSION:-latest}
+    image: prom/prometheus:${PROMETHEUS_VERSION:-latest}
     ports:
       - "9090:9090"
     volumes:
@@ -280,9 +280,9 @@ services:
       - "--web.enable-lifecycle"
     restart: unless-stopped
 
-  # Grafana for metrics visualization - using mirrored pre-built image
+  # Grafana for metrics visualization - using official image
   grafana:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/grafana:${GRAFANA_VERSION:-latest}
+    image: grafana/grafana:${GRAFANA_VERSION:-latest}
     ports:
       - "3000:3000"
     environment:
@@ -296,9 +296,9 @@ services:
       - prometheus
     restart: unless-stopped
 
-  # PostgreSQL database for Keycloak - using mirrored pre-built image
+  # PostgreSQL database for Keycloak - using official image
   keycloak-db:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/postgres:${POSTGRES_VERSION:-latest}
+    image: postgres:${POSTGRES_VERSION:-16}
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -312,9 +312,9 @@ services:
       timeout: 5s
       retries: 5
 
-  # Keycloak Identity Provider - using mirrored pre-built image
+  # Keycloak Identity Provider - using official image
   keycloak:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/keycloak:${KEYCLOAK_VERSION:-latest}
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-26.0}
     command: start-dev # Use 'start' for production with proper SSL
     environment:
       # Database configuration
@@ -386,7 +386,7 @@ services:
   # Vector search is implemented in application code (see search_repository.py)
   # Running with authentication enabled for security
   mongodb:
-    image: ${DOCKERHUB_ORG:-mcpgateway}/mongo:${MONGODB_VERSION:-latest}
+    image: mongo:${MONGODB_VERSION:-8}
     container_name: mcp-mongodb
     command: mongod --replSet rs0 --bind_ip 127.0.0.1,mongodb --auth --keyFile /keyfile/replica.key
     environment:

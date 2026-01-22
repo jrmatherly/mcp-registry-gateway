@@ -307,6 +307,11 @@ security_scans/
 #Temporary directories
 .tmp
 
+# Backup files (should not be committed)
+*.backup
+*.bak
+*.orig
+
 #AgentCore CLI generated files
 .bedrock_agentcore
 .bedrock_agentcore.yaml

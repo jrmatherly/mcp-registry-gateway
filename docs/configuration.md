@@ -320,52 +320,34 @@ docker-compose restart registry
 
 | Variable | Description | Example | Required |
 |----------|-------------|---------|----------|
-| `DOCKERHUB_USERNAME` | Docker Hub username for publishing containers | `your_dockerhub_username` | **Optional** |
-| `DOCKERHUB_TOKEN` | Docker Hub access token | `your_dockerhub_access_token` | **Optional** |
-| `GITHUB_USERNAME` | GitHub username for GHCR publishing | `your_github_username` | **Optional** |
-| `GITHUB_TOKEN` | GitHub Personal Access Token with packages:write scope | `ghp_your_token_here` | **Optional** |
-| `DOCKERHUB_ORG` | Docker Hub organization name (leave empty for personal account) | `mcpgateway` or empty | **Optional** |
-| `GITHUB_ORG` | GitHub organization name (leave empty for personal account) | `agentic-community` or empty | **Optional** |
+| `IMAGE_REGISTRY` | Container registry for pre-built images | `ghcr.io/jrmatherly` | **Optional** |
+| `GITHUB_TOKEN` | GitHub Personal Access Token with packages:read scope | `ghp_your_token_here` | **Optional** |
 
-**Note: Container Registry Credentials (Completely Optional)**
+**Note: Container Registry Configuration**
 
-These credentials are **entirely optional** and only needed if you want to:
+The `IMAGE_REGISTRY` variable specifies where pre-built container images are pulled from:
 
-- **Publish container images**: Automatically via GitHub Actions or manually via scripts
-- **Contribute pre-built containers**: For easier deployment by other users
+- **Default**: `ghcr.io/jrmatherly` (GitHub Container Registry)
+- **Custom**: Set to your own registry if you've built and published custom images
+
+**Pre-built Images Available:**
+
+- `ghcr.io/jrmatherly/mcp-registry:latest`
+- `ghcr.io/jrmatherly/mcp-auth-server:latest`
+- `ghcr.io/jrmatherly/mcp-metrics-service:latest`
+- `ghcr.io/jrmatherly/mcp-mcp-server:latest`
 
 **What happens if these are not configured:**
 
-- ✅ **The MCP Gateway Registry will work perfectly** - all core functionality remains intact
-- ✅ **GitHub Actions will succeed** - builds will complete successfully, just without publishing to Docker Hub
-- ✅ **Local development is unaffected** - no scripts will fail or produce errors
-- ✅ **Only container publishing is skipped** - everything else continues normally
+- The default GHCR registry (`ghcr.io/jrmatherly`) is used automatically
+- Pre-built images are pulled without authentication (public images)
+- All core functionality works out of the box
 
 **When you might want to configure these:**
 
-- **Contributing to the project**: Publishing official container images
-- **Custom deployments**: Creating your own container registry for internal use
-- **Development workflow**: Testing container builds locally
-
-**How to obtain credentials (only if needed):**
-
-- **Docker Hub**: Get access token from [Docker Hub Security Settings](https://hub.docker.com/settings/security)
-- **GitHub Container Registry**: Generate Personal Access Token with `packages:write` scope from [GitHub Token Settings](https://github.com/settings/tokens)
-
-**Setup instructions (only if publishing containers):**
-
-- **In GitHub Actions**: Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` as repository secrets
-- **For local builds**: Add credentials to your `.env` file and use `scripts/publish_containers.sh`
-- **GITHUB_TOKEN**: Automatically provided in GitHub Actions, manually generated for local use
-
-**Organization vs Personal Account Publishing:**
-
-- **Personal Account** (Free): Leave `DOCKERHUB_ORG` and `GITHUB_ORG` empty
-  - Images published as: `username/image-name`
-  - Example: `aarora79/registry:latest`
-- **Organization Account** (Paid for Docker Hub): Set organization names
-  - Images published as: `organization/image-name`
-  - Example: `mcpgateway/registry:latest`
+- **Custom deployments**: Using your own container registry
+- **Private images**: Requiring authentication for image pulls
+- **Air-gapped environments**: Using an internal registry mirror
 
 ---
 

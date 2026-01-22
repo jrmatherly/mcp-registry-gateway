@@ -23,7 +23,7 @@ jobs:
       release_notes_file: ${{ steps.check_notes.outputs.file }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -94,7 +94,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # =============================================================================
-  # Build and Push Docker Images
+  # Build and Push Core Docker Images
   # =============================================================================
   build-images:
     name: Build Docker Images
@@ -115,12 +115,9 @@ jobs:
           - image: metrics-service
             dockerfile: metrics-service/Dockerfile
             context: metrics-service
-          - image: mcp-server
-            dockerfile: docker/Dockerfile.mcp-server
-            context: .
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check if Dockerfile exists
         id: check_dockerfile
@@ -172,6 +169,81 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
   # =============================================================================
+  # Build and Push MCP Server Images
+  # =============================================================================
+  build-mcp-servers:
+    name: Build MCP Server Images
+    runs-on: ubuntu-latest
+    needs: release
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - server: currenttime
+            server_dir: servers/currenttime
+          - server: fininfo
+            server_dir: servers/fininfo
+          - server: mcpgw
+            server_dir: servers/mcpgw
+          - server: realserverfaketools
+            server_dir: servers/realserverfaketools
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check if server directory exists
+        id: check_server
+        run: |
+          if [ -d "${{ matrix.server_dir }}" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Server directory ${{ matrix.server_dir }} not found, skipping"
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.check_server.outputs.exists == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: steps.check_server.outputs.exists == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        if: steps.check_server.outputs.exists == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/mcp-${{ matrix.server }}-server
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push MCP server image
+        if: steps.check_server.outputs.exists == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.mcp-server
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SERVER_DIR=${{ matrix.server_dir }}
+            BUILD_VERSION=${{ needs.release.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # =============================================================================
   # Build Frontend (if needed)
   # =============================================================================
   build-frontend:
@@ -180,10 +252,10 @@ jobs:
     needs: release
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -198,9 +270,10 @@ jobs:
         run: npm run build
         env:
           VITE_APP_VERSION: ${{ needs.release.outputs.version }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload frontend build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-build-${{ needs.release.outputs.version }}
           path: frontend/build/
@@ -217,7 +290,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
 

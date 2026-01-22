@@ -37,17 +37,17 @@ variable "task_execution_role_arn" {
   default     = ""
 }
 
-# Container Image URIs (pre-built images from Docker Hub)
+# Container Image URIs (pre-built images from GHCR)
 variable "registry_image_uri" {
-  description = "Container image URI for registry service (defaults to pre-built image from mcpgateway Docker Hub)"
+  description = "Container image URI for registry service (defaults to pre-built image from GHCR)"
   type        = string
-  default     = "mcpgateway/registry:latest"
+  default     = "ghcr.io/jrmatherly/mcp-registry:latest"
 }
 
 variable "auth_server_image_uri" {
-  description = "Container image URI for auth server service (defaults to pre-built image from mcpgateway Docker Hub)"
+  description = "Container image URI for auth server service (defaults to pre-built image from GHCR)"
   type        = string
-  default     = "mcpgateway/auth-server:latest"
+  default     = "ghcr.io/jrmatherly/mcp-auth-server:latest"
 }
 
 variable "currenttime_image_uri" {
@@ -80,10 +80,10 @@ variable "travel_assistant_agent_image_uri" {
   default     = ""
 }
 
-variable "dockerhub_org" {
-  description = "Docker Hub organization for pre-built images"
+variable "image_registry" {
+  description = "Container registry for pre-built images"
   type        = string
-  default     = "mcpgateway"
+  default     = "ghcr.io/jrmatherly"
 }
 
 

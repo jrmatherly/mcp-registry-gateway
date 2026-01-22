@@ -141,7 +141,7 @@ Save and exit (Ctrl+X, then Y, then Enter if using nano).
 **Set environment variables for deployment:**
 
 ```bash
-export DOCKERHUB_ORG=mcpgateway
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
 source .env
 export KEYCLOAK_ADMIN="${KEYCLOAK_ADMIN:-admin}"
 ```

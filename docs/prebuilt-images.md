@@ -1,18 +1,23 @@
 # Pre-built Docker Images for MCP Gateway Registry
 
-When using the `--prebuilt` option with `build_and_run.sh`, the following pre-built Docker images are pulled from Docker Hub. These images are published to the `mcpgateway` organization on Docker Hub.
+When using the `--prebuilt` option with `build_and_run.sh`, the following pre-built Docker images are pulled from GitHub Container Registry (GHCR). These images are published to `ghcr.io/jrmatherly`.
 
-## MCP Gateway Images
+## Core MCP Gateway Images
 
 | Service | Image | Default Tag | Description | Port |
 |---------|-------|-------------|-------------|------|
-| Registry | `mcpgateway/registry:latest` | latest | Main registry service with nginx, SSL, FAISS, and models | 80, 443, 7860 |
-| Auth Server | `mcpgateway/auth-server:latest` | latest | Authentication service supporting Cognito, GitHub, Google, and Keycloak | 8888 |
-| Metrics Service | `mcpgateway/metrics-service:latest` | latest | Metrics collection service with SQLite storage and OTEL support | 8890, 9465 |
-| Current Time Server | `mcpgateway/currenttime-server:latest` | latest | MCP server providing current time functionality | 8000 |
-| Financial Info Server | `mcpgateway/fininfo-server:latest` | latest | MCP server for financial information | 8001 |
-| MCPGW Server | `mcpgateway/mcpgw-server:latest` | latest | MCP Gateway server for service management | 8003 |
-| Real Server Fake Tools | `mcpgateway/realserverfaketools-server:latest` | latest | Example MCP server with mock tools | 8002 |
+| Registry | `ghcr.io/jrmatherly/mcp-registry:latest` | latest | Main registry service with nginx, SSL, FAISS, and models | 80, 443, 7860 |
+| Auth Server | `ghcr.io/jrmatherly/mcp-auth-server:latest` | latest | Authentication service supporting Cognito, GitHub, Google, and Keycloak | 8888 |
+| Metrics Service | `ghcr.io/jrmatherly/mcp-metrics-service:latest` | latest | Metrics collection service with SQLite storage and OTEL support | 8890, 9465 |
+
+## MCP Server Images
+
+| Service | Image | Default Tag | Description | Port |
+|---------|-------|-------------|-------------|------|
+| CurrentTime Server | `ghcr.io/jrmatherly/mcp-currenttime-server:latest` | latest | MCP server providing current time functionality | 8000 |
+| FinInfo Server | `ghcr.io/jrmatherly/mcp-fininfo-server:latest` | latest | MCP server for financial information | 8001 |
+| MCPGW Server | `ghcr.io/jrmatherly/mcp-mcpgw-server:latest` | latest | MCP Gateway server for service management | 8003 |
+| RealServerFakeTools | `ghcr.io/jrmatherly/mcp-realserverfaketools-server:latest` | latest | Example MCP server with mock tools | 8002 |
 
 ## External Images
 
@@ -23,31 +28,33 @@ The following external images are pulled from their original sources:
 | Alpine Linux | `alpine:latest` | Docker Hub Official | Lightweight Linux for metrics database initialization | N/A |
 | Prometheus | `prom/prometheus:latest` | Docker Hub Official | Metrics collection and time-series database | 9090 |
 | Grafana | `grafana/grafana:latest` | Docker Hub Official | Metrics visualization and dashboards | 3000 |
-| PostgreSQL | `postgres:16-alpine` | Docker Hub Official | Database for Keycloak | 5432 (internal) |
-| Keycloak | `quay.io/keycloak/keycloak:25.0` | Quay.io | Identity and access management service | 8080 |
-| MongoDB CE | `mongo:8.2` | Docker Hub Official | MongoDB Community Edition 8.2 with replica set support for local development | 27017 (internal) |
+| PostgreSQL | `postgres:16` | Docker Hub Official | Database for Keycloak | 5432 (internal) |
+| Keycloak | `quay.io/keycloak/keycloak:26.0` | Quay.io | Identity and access management service | 8080 |
+| MongoDB CE | `mongo:8` | Docker Hub Official | MongoDB Community Edition 8 with replica set support for local development | 27017 (internal) |
 
 ## Manual Download Commands
 
 To manually pull these images for Kubernetes deployment or offline use:
 
 ```bash
-# MCP Gateway images from Docker Hub
-docker pull mcpgateway/registry:latest
-docker pull mcpgateway/auth-server:latest
-docker pull mcpgateway/metrics-service:latest
-docker pull mcpgateway/currenttime-server:latest
-docker pull mcpgateway/fininfo-server:latest
-docker pull mcpgateway/mcpgw-server:latest
-docker pull mcpgateway/realserverfaketools-server:latest
+# Core MCP Gateway images from GitHub Container Registry
+docker pull ghcr.io/jrmatherly/mcp-registry:latest
+docker pull ghcr.io/jrmatherly/mcp-auth-server:latest
+docker pull ghcr.io/jrmatherly/mcp-metrics-service:latest
+
+# MCP Server images from GitHub Container Registry
+docker pull ghcr.io/jrmatherly/mcp-currenttime-server:latest
+docker pull ghcr.io/jrmatherly/mcp-fininfo-server:latest
+docker pull ghcr.io/jrmatherly/mcp-mcpgw-server:latest
+docker pull ghcr.io/jrmatherly/mcp-realserverfaketools-server:latest
 
 # External images
 docker pull alpine:latest
 docker pull prom/prometheus:latest
 docker pull grafana/grafana:latest
-docker pull postgres:16-alpine
-docker pull quay.io/keycloak/keycloak:25.0
-docker pull mongo:8.2
+docker pull postgres:16
+docker pull quay.io/keycloak/keycloak:26.0
+docker pull mongo:8
 ```
 
 ## HTTPS Configuration

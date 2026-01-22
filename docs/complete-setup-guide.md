@@ -1411,38 +1411,25 @@ The `scripts/publish_containers.sh` script automates building and publishing all
 
 ### Required Environment Variables
 
-Add these to your `.env` file for publishing:
+Add these to your `.env` file for deployment:
 
 ```bash
-# Container Registry Credentials
-DOCKERHUB_USERNAME=aarora79
-DOCKERHUB_TOKEN=your_docker_hub_token
-GITHUB_TOKEN=your_github_token
+# Container Registry Configuration
+# Default registry for pre-built images (GHCR)
+IMAGE_REGISTRY=ghcr.io/jrmatherly
 
-# Organization names for publishing
-DOCKERHUB_ORG=mcpgateway
-GITHUB_ORG=jrmatherly
+# GitHub token for authentication with GHCR
+GITHUB_TOKEN=your_github_token
 ```
 
-### Generated Image Names
+### Pre-built Image Names
 
-**Docker Hub (Organization Account):**
-
-- `mcpgateway/registry:latest`
-- `mcpgateway/auth-server:latest`
-- `mcpgateway/currenttime-server:latest`
-- `mcpgateway/realserverfaketools-server:latest`
-- `mcpgateway/fininfo-server:latest`
-- `mcpgateway/mcpgw-server:latest`
-
-**GitHub Container Registry:**
+**GitHub Container Registry (Primary):**
 
 - `ghcr.io/jrmatherly/mcp-registry:latest`
 - `ghcr.io/jrmatherly/mcp-auth-server:latest`
-- `ghcr.io/jrmatherly/mcp-currenttime-server:latest`
-- `ghcr.io/jrmatherly/mcp-realserverfaketools-server:latest`
-- `ghcr.io/jrmatherly/mcp-fininfo-server:latest`
-- `ghcr.io/jrmatherly/mcp-mcpgw-server:latest`
+- `ghcr.io/jrmatherly/mcp-metrics-service:latest`
+- `ghcr.io/jrmatherly/mcp-mcp-server:latest`
 
 ### Using Pre-built Images
 
