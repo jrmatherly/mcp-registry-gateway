@@ -30,8 +30,8 @@ uv run pip-audit
 # With CVE descriptions
 uv run pip-audit --desc
 
-# JSON output for reports
-mkdir -p security_scans && uv run pip-audit --format json > security_scans/pip-audit-report.json
+# JSON output for reports (filter status message to get clean JSON)
+mkdir -p security_scans && uv run pip-audit --format json 2>/dev/null | grep '^{' > security_scans/pip-audit-report.json
 ```
 
 ### Step 2: Code Security Scan
