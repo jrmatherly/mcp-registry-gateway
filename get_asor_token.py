@@ -12,14 +12,18 @@ import urllib.parse
 import requests
 
 # Configuration from environment or defaults
-CLIENT_ID = os.getenv("ASOR_CLIENT_ID")
-CLIENT_SECRET = os.getenv("ASOR_CLIENT_SECRET")
-TENANT_NAME = os.getenv("ASOR_TENANT_NAME")
-HOSTNAME = os.getenv("ASOR_HOSTNAME")
+CLIENT_ID: str | None = os.getenv("ASOR_CLIENT_ID")
+CLIENT_SECRET: str | None = os.getenv("ASOR_CLIENT_SECRET")
+TENANT_NAME: str | None = os.getenv("ASOR_TENANT_NAME")
+HOSTNAME: str | None = os.getenv("ASOR_HOSTNAME")
 
 
-def get_asor_token():
-    """Get ASOR access token via 3-legged OAuth flow"""
+def get_asor_token() -> str | None:
+    """Get ASOR access token via 3-legged OAuth flow.
+
+    Returns:
+        Access token string if successful, None otherwise.
+    """
     print("🔑 ASOR Token Generator for MCP Gateway Federation")
     print("=" * 60)
     print(f"Tenant: {TENANT_NAME}")

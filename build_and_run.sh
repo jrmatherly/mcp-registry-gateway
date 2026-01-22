@@ -197,16 +197,9 @@ log "Found .env file"
 # Load environment variables from .env file early so we can check STORAGE_BACKEND
 source .env
 
-# Check if docker compose is installed
-if ! docker compose version &> /dev/null; then
-    log "ERROR: docker compose is not available"
-    log "Please install Docker Compose v2: https://docs.docker.com/compose/install/"
-    exit 1
-fi
-
 # Stop and remove existing services if they exist
 log "Stopping existing services (if any)..."
-$COMPOSE_CMD "$COMPOSE_FILES" down --remove-orphans || log "No existing services to stop"
+$COMPOSE_CMD $COMPOSE_FILES down --remove-orphans || log "No existing services to stop"
 log "Existing services stopped"
 
 # Clean up FAISS index files to force registry to recreate them
@@ -252,10 +245,14 @@ fi
 log "Checking for root-owned directories from previous Docker runs..."
 
 # Check and remove root-owned directories
+# Note: stat syntax differs between Linux (-c '%U') and macOS (-f '%Su')
 for dir in "$MCPGATEWAY_SERVERS_DIR" "${HOME}/mcp-gateway/agents" "${HOME}/mcp-gateway/auth_server" "${HOME}/mcp-gateway/security_scans" "${HOME}/mcp-gateway/federation.json"; do
-    if [ -e "$dir" ] && [ "$(stat -c '%U' "$dir" 2>/dev/null)" = "root" ]; then
-        log "Removing root-owned: $dir"
-        sudo rm -rf "$dir"
+    if [ -e "$dir" ]; then
+        owner=$(stat -c '%U' "$dir" 2>/dev/null || stat -f '%Su' "$dir" 2>/dev/null)
+        if [ "$owner" = "root" ]; then
+            log "Removing root-owned: $dir"
+            sudo rm -rf "$dir"
+        fi
     fi
 done
 
@@ -444,7 +441,7 @@ fi
 # Build or pull container images
 if [ "$USE_PREBUILT" = true ]; then
     log "Pulling pre-built container images..."
-    $COMPOSE_CMD "$COMPOSE_FILES" pull || handle_error "Compose pull failed"
+    $COMPOSE_CMD $COMPOSE_FILES pull || handle_error "Compose pull failed"
     log "Pre-built container images pulled successfully"
 else
     log "Building container images with optimization..."
@@ -455,13 +452,13 @@ else
     fi
 
     # Build with parallel jobs and build cache
-    $COMPOSE_CMD "$COMPOSE_FILES" build --parallel --progress=auto || handle_error "Compose build failed"
+    $COMPOSE_CMD $COMPOSE_FILES build --parallel --progress=auto || handle_error "Compose build failed"
     log "Container images built successfully with optimization"
 fi
 
 # Start metrics service first to generate API keys
 log "Starting metrics service first..."
-$COMPOSE_CMD "$COMPOSE_FILES" up -d metrics-service || handle_error "Failed to start metrics service"
+$COMPOSE_CMD $COMPOSE_FILES up -d metrics-service || handle_error "Failed to start metrics service"
 
 # Wait for metrics service to be ready
 log "Waiting for metrics service to be ready..."
@@ -485,7 +482,7 @@ fi
 log "Setting up dynamic pre-shared tokens for services..."
 
 # Get all services from compose file that might need metrics (exclude monitoring services)
-METRICS_SERVICES=$($COMPOSE_CMD "$COMPOSE_FILES" config --services 2>/dev/null | grep -v -E "(prometheus|grafana|metrics-db)" | sort | uniq)
+METRICS_SERVICES=$($COMPOSE_CMD $COMPOSE_FILES config --services 2>/dev/null | grep -v -E "(prometheus|grafana|metrics-db)" | sort | uniq)
 
 if [ -z "$METRICS_SERVICES" ]; then
     log "WARNING: No services found for metrics configuration"
@@ -530,7 +527,7 @@ log "Dynamic metrics API tokens configured successfully"
 
 # Now start all other services with the API keys in environment
 log "Starting remaining services..."
-$COMPOSE_CMD "$COMPOSE_FILES" up -d || handle_error "Failed to start remaining services"
+$COMPOSE_CMD $COMPOSE_FILES up -d || handle_error "Failed to start remaining services"
 
 # Wait a moment for services to initialize
 log "Waiting for services to initialize..."
@@ -538,7 +535,7 @@ sleep 10
 
 # Check service status
 log "Checking service status..."
-$COMPOSE_CMD "$COMPOSE_FILES" ps
+$COMPOSE_CMD $COMPOSE_FILES ps
 
 # Verify key services are running
 log "Verifying services are healthy..."
@@ -623,9 +620,9 @@ else
     log "  - Atlassian MCP: http://localhost:8005"
 fi
 log ""
-log "To view logs for all services: $COMPOSE_CMD \"$COMPOSE_FILES\" logs -f"
-log "To view logs for a specific service: $COMPOSE_CMD \"$COMPOSE_FILES\" logs -f <service-name>"
-log "To stop services: $COMPOSE_CMD \"$COMPOSE_FILES\" down"
+log "To view logs for all services: $COMPOSE_CMD $COMPOSE_FILES logs -f"
+log "To view logs for a specific service: $COMPOSE_CMD $COMPOSE_FILES logs -f <service-name>"
+log "To stop services: $COMPOSE_CMD $COMPOSE_FILES down"
 log ""
 
 # Ask if user wants to follow logs
@@ -634,7 +631,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log "Following container logs (press Ctrl+C to stop following logs without stopping the services):"
     echo "---------- CONTAINER LOGS ----------"
-    $COMPOSE_CMD "$COMPOSE_FILES" logs -f
+    $COMPOSE_CMD $COMPOSE_FILES logs -f
 else
     log "Services are running in the background. Use '$COMPOSE_CMD $COMPOSE_FILES logs -f' to view logs."
 fi

@@ -323,7 +323,8 @@ dev = [
     "faker>=24.0.0",
     "freezegun>=1.4.0",
     "httpx>=0.27.0",
-    # Type stubs
+    # Type checking
+    "mypy>=1.0.0",
     "types-pyyaml>=6.0.12.20250915",
     "types-requests>=2.32.4.20260107",
     # Security scanning (dev/CI only)
