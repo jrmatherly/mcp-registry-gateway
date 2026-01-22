@@ -108,7 +108,7 @@ def _check_dependencies() -> bool:
     if missing_deps:
         _print_colored("\n❌ Missing Dependencies!", Colors.RED + Colors.BOLD)
         _print_colored("\nTo install missing dependencies, run:", Colors.YELLOW)
-        _print_colored("  uv sync --extra dev\n", Colors.CYAN)
+        _print_colored("  uv sync --group dev\n", Colors.CYAN)
         return False
 
     _print_colored("\n✅ All dependencies installed!", Colors.GREEN + Colors.BOLD)

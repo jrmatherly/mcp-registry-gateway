@@ -29,7 +29,8 @@ Run agents locally with full FastAPI server including custom API endpoints.
 
 - Docker and Docker Compose
 - AWS credentials configured (via AWS_PROFILE, EC2 IAM role, or ~/.aws/credentials)
-- `uv sync --extra dev` to install main dependencies and development ones
+- From repo root: `uv sync --group dev` to install main dependencies and development ones
+- Or from agents/a2a directory: `uv sync --extra dev` (uses local pyproject.toml)
 
 **Deploy:**
 

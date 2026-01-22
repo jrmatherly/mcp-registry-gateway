@@ -4,11 +4,11 @@ FROM --platform=${TARGETPLATFORM} public.ecr.aws/docker/library/python:3.12-slim
 WORKDIR /app
 
 # Install system dependencies and uv
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
     curl \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install uv
+    && pip install --no-cache-dir uv
 
 # Copy dependency files (build-images.sh copies these to .tmp/ directory before build)
 COPY .tmp/pyproject.toml .tmp/uv.lock ./

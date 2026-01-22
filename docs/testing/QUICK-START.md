@@ -157,7 +157,7 @@ If tests still crash:
 
    ```bash
    git pull
-   uv sync --extra dev
+   uv sync --group dev
    ```
 
 2. **Verify mocking is enabled:**

@@ -56,7 +56,7 @@ jobs:
             ${{ runner.os }}-uv-authserver-
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --group dev
 
       - name: Run auth server tests
         run: |
