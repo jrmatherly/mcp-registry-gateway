@@ -31,19 +31,19 @@ class TestProcessingResult:
 class TestMetricsProcessor:
     """Test MetricsProcessor class."""
 
-    @patch("app.core.processor.MetricsStorage")
-    def test_processor_initialization(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    def test_processor_initialization(self, mock_get_storage):
         """Test processor initializes correctly."""
         mock_storage = MagicMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         processor = MetricsProcessor()
         assert processor.storage is not None
         assert processor._buffer == []
         assert processor._buffer_lock is not None
 
-    @patch("app.core.processor.MetricsStorage")
-    def test_processor_initialization_with_otel(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    def test_processor_initialization_with_otel(self, mock_get_storage):
         """Test processor initialization with OpenTelemetry."""
         with patch("app.otel.instruments.MetricsInstruments") as mock_otel_class:
             mock_otel = MagicMock()
@@ -52,8 +52,8 @@ class TestMetricsProcessor:
             processor = MetricsProcessor()
             assert processor.otel is not None
 
-    @patch("app.core.processor.MetricsStorage")
-    def test_processor_initialization_without_otel(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    def test_processor_initialization_without_otel(self, mock_get_storage):
         """Test processor initialization when OTel is not available."""
         with patch.dict("sys.modules", {"app.otel.instruments": None}):
             # Temporarily make the import fail
@@ -67,8 +67,8 @@ class TestMetricsProcessor:
 class TestMetricValidation:
     """Test metric validation logic."""
 
-    @patch("app.core.processor.MetricsStorage")
-    def test_validate_valid_metric(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    def test_validate_valid_metric(self, mock_get_storage):
         """Test validation of valid metric."""
         processor = MetricsProcessor()
 
@@ -76,8 +76,8 @@ class TestMetricValidation:
 
         assert processor._validate_metric(metric) is True
 
-    @patch("app.core.processor.MetricsStorage")
-    def test_validate_metric_with_null_value(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    def test_validate_metric_with_null_value(self, mock_get_storage):
         """Test validation of metric with null value."""
         processor = MetricsProcessor()
 
@@ -90,8 +90,8 @@ class TestMetricValidation:
 
         assert processor._validate_metric(metric) is False
 
-    @patch("app.core.processor.MetricsStorage")
-    def test_validate_metric_with_zero_value(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    def test_validate_metric_with_zero_value(self, mock_get_storage):
         """Test validation of metric with zero value."""
         processor = MetricsProcessor()
 
@@ -107,12 +107,12 @@ class TestMetricValidation:
 class TestMetricsProcessing:
     """Test metrics processing logic."""
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_process_single_valid_metric(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_process_single_valid_metric(self, mock_get_storage):
         """Test processing a single valid metric."""
         mock_storage = AsyncMock()
         mock_storage.store_metrics_batch = AsyncMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         processor = MetricsProcessor()
         processor.otel = None  # Disable OTel for this test
@@ -128,11 +128,11 @@ class TestMetricsProcessing:
         assert len(result.errors) == 0
 
     @patch("app.core.processor.validator")
-    @patch("app.core.processor.MetricsStorage")
-    async def test_process_invalid_metric(self, mock_storage_class, mock_validator):
+    @patch("app.core.processor.get_storage")
+    async def test_process_invalid_metric(self, mock_get_storage, mock_validator):
         """Test processing an invalid metric."""
         mock_storage = AsyncMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         # Mock validator to pass request validation
         from app.core.validator import ValidationResult
@@ -163,12 +163,12 @@ class TestMetricsProcessing:
         assert "Invalid metric" in result.errors[0]
 
     @patch("app.core.processor.validator")
-    @patch("app.core.processor.MetricsStorage")
-    async def test_process_mixed_valid_invalid_metrics(self, mock_storage_class, mock_validator):
+    @patch("app.core.processor.get_storage")
+    async def test_process_mixed_valid_invalid_metrics(self, mock_get_storage, mock_validator):
         """Test processing a mix of valid and invalid metrics."""
         mock_storage = AsyncMock()
         mock_storage.store_metrics_batch = AsyncMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         # Mock validator to pass request validation
         from app.core.validator import ValidationResult
@@ -201,12 +201,12 @@ class TestMetricsProcessing:
         assert result.rejected == 1
         assert len(result.errors) == 1
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_process_metrics_with_otel_emission(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_process_metrics_with_otel_emission(self, mock_get_storage):
         """Test processing metrics with OpenTelemetry emission."""
         mock_storage = AsyncMock()
         mock_storage.store_metrics_batch = AsyncMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         processor = MetricsProcessor()
         # Mock OTel instruments
@@ -232,8 +232,8 @@ class TestMetricsProcessing:
         processor.otel.auth_counter.add.assert_called_once()
         processor.otel.auth_histogram.record.assert_called_once()
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_process_metrics_storage_error(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_process_metrics_storage_error(self, mock_get_storage):
         """Test processing metrics when storage fails during flush.
 
         Note: Metrics are buffered and the storage error only occurs during flush.
@@ -241,7 +241,7 @@ class TestMetricsProcessing:
         """
         mock_storage = AsyncMock()
         mock_storage.store_metrics_batch = AsyncMock(side_effect=Exception("Storage error"))
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         processor = MetricsProcessor()
         processor.otel = None
@@ -266,8 +266,8 @@ class TestMetricsProcessing:
 class TestOTelEmission:
     """Test OpenTelemetry emission logic."""
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_emit_auth_metric_to_otel(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_emit_auth_metric_to_otel(self, mock_get_storage):
         """Test emitting auth metric to OpenTelemetry."""
         processor = MetricsProcessor()
         processor.otel = MagicMock()
@@ -305,8 +305,8 @@ class TestOTelEmission:
             },
         )
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_emit_discovery_metric_to_otel(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_emit_discovery_metric_to_otel(self, mock_get_storage):
         """Test emitting discovery metric to OpenTelemetry."""
         processor = MetricsProcessor()
         processor.otel = MagicMock()
@@ -325,8 +325,8 @@ class TestOTelEmission:
         processor.otel.discovery_counter.add.assert_called_once()
         processor.otel.discovery_histogram.record.assert_called_once()
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_emit_tool_metric_to_otel(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_emit_tool_metric_to_otel(self, mock_get_storage):
         """Test emitting tool execution metric to OpenTelemetry."""
         processor = MetricsProcessor()
         processor.otel = MagicMock()
@@ -345,8 +345,8 @@ class TestOTelEmission:
         processor.otel.tool_counter.add.assert_called_once()
         processor.otel.tool_histogram.record.assert_called_once()
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_emit_without_otel(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_emit_without_otel(self, mock_get_storage):
         """Test emission when OTel is not available."""
         processor = MetricsProcessor()
         processor.otel = None
@@ -360,11 +360,11 @@ class TestOTelEmission:
 class TestBufferedStorage:
     """Test buffered storage logic."""
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_buffer_for_storage(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_buffer_for_storage(self, mock_get_storage):
         """Test buffering metrics for storage."""
         mock_storage = AsyncMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         processor = MetricsProcessor()
 
@@ -378,12 +378,12 @@ class TestBufferedStorage:
         assert processor._buffer[0]["request"] == request
         assert processor._buffer[0]["request_id"] == "req_123"
 
-    @patch("app.core.processor.MetricsStorage")
-    async def test_force_flush(self, mock_storage_class):
+    @patch("app.core.processor.get_storage")
+    async def test_force_flush(self, mock_get_storage):
         """Test force flushing buffered metrics."""
         mock_storage = AsyncMock()
         mock_storage.store_metrics_batch = AsyncMock()
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         processor = MetricsProcessor()
 

@@ -1,266 +1,298 @@
 #!/bin/bash
 # Complete M2M Service Account Setup Script
 # This script handles all aspects of setting up the M2M service account for Keycloak
+#
+# Usage:
+#   ./setup-m2m-service-account.sh
+#
+# Version: 2.0.0
 
 set -e
+set -o pipefail
 
-# Configuration
-ADMIN_URL="http://localhost:8080"
-REALM="mcp-gateway"
-ADMIN_USER="admin"
-ADMIN_PASS="${KEYCLOAK_ADMIN_PASSWORD}"
+# =============================================================================
+# Load Shared Library
+# =============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Check required environment variables
-if [ -z "$ADMIN_PASS" ]; then
-    echo -e "${RED}Error: KEYCLOAK_ADMIN_PASSWORD environment variable is required${NC}"
-    echo "Please set it before running this script:"
-    echo "export KEYCLOAK_ADMIN_PASSWORD=\"your-secure-password\""
+# Source the common library
+if [[ -f "${SCRIPT_DIR}/lib/keycloak-common.sh" ]]; then
+    # shellcheck source=lib/keycloak-common.sh
+    source "${SCRIPT_DIR}/lib/keycloak-common.sh"
+else
+    echo "Error: Could not find keycloak-common.sh library" >&2
+    echo "Expected at: ${SCRIPT_DIR}/lib/keycloak-common.sh" >&2
     exit 1
 fi
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+# Load environment variables from .env file
+load_env_file "$SCRIPT_DIR"
+
+# Check dependencies first
+check_dependencies || exit 1
+
+# Configuration with environment variable fallbacks
+ADMIN_URL="$(get_keycloak_url)"
+REALM="$(get_keycloak_realm)"
+ADMIN_USER="$(get_keycloak_admin)"
+ADMIN_PASS="${KEYCLOAK_ADMIN_PASSWORD:-}"
+
+# Validate required environment variable
+if ! validate_required_env "KEYCLOAK_ADMIN_PASSWORD" "$ADMIN_PASS" \
+    "Please set it before running this script: export KEYCLOAK_ADMIN_PASSWORD=\"your-secure-password\""; then
+    exit 1
+fi
+
 SERVICE_ACCOUNT="service-account-mcp-gateway-m2m"
 M2M_CLIENT="mcp-gateway-m2m"
 TARGET_GROUP="mcp-servers-unrestricted"
 
-# Colors for output
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo -e "${YELLOW}Setting up M2M Service Account for Keycloak${NC}"
-echo "=============================================="
+# =============================================================================
+# Display Configuration
+# =============================================================================
+print_header "Setting up M2M Service Account for Keycloak"
 echo "Service Account: $SERVICE_ACCOUNT"
 echo "Target Group: $TARGET_GROUP"
 echo "M2M Client: $M2M_CLIENT"
+echo "Keycloak URL: $ADMIN_URL"
 echo ""
 
-# Function to get admin token
-get_admin_token() {
-    echo "Getting admin token..."
-    TOKEN=$(curl -s -X POST "$ADMIN_URL/realms/master/protocol/openid-connect/token" \
-        -H "Content-Type: application/x-www-form-urlencoded" \
-        -d "username=$ADMIN_USER" \
-        -d "password=$ADMIN_PASS" \
-        -d "grant_type=password" \
-        -d "client_id=admin-cli" | jq -r '.access_token // empty')
+# =============================================================================
+# Functions
+# =============================================================================
 
-    if [ -z "$TOKEN" ]; then
-        echo -e "${RED}Failed to get admin token${NC}"
-        exit 1
-    fi
-    echo -e "${GREEN}✓ Admin token obtained${NC}"
-}
-
-# Function to check if service account user exists
+# Check if service account user exists
 check_service_account() {
-    echo "Checking if service account exists..."
-    USER_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/users?username=$SERVICE_ACCOUNT" | \
-        jq -r '.[0].id // empty')
+    log_info "Checking if service account exists..."
+    USER_ID=$(get_user_id "$TOKEN" "$SERVICE_ACCOUNT" "$REALM" "$ADMIN_URL")
 
-    if [ -n "$USER_ID" ] && [ "$USER_ID" != "null" ]; then
-        echo -e "${GREEN}✓ Service account already exists with ID: $USER_ID${NC}"
+    if [[ -n "$USER_ID" ]] && [[ "$USER_ID" != "null" ]]; then
+        log_success "Service account already exists with ID: $USER_ID"
         return 0
     else
-        echo "Service account does not exist"
+        log_debug "Service account does not exist"
         return 1
     fi
 }
 
-# Function to create service account user
+# Create service account user
 create_service_account() {
-    echo "Creating service account user..."
+    log_info "Creating service account user..."
 
-    USER_JSON='{
-        "username": "'$SERVICE_ACCOUNT'",
-        "enabled": true,
-        "emailVerified": true,
-        "serviceAccountClientId": "'$M2M_CLIENT'"
-    }'
+    local user_json
+    user_json=$(cat << EOF
+{
+    "username": "${SERVICE_ACCOUNT}",
+    "enabled": true,
+    "emailVerified": true,
+    "serviceAccountClientId": "${M2M_CLIENT}"
+}
+EOF
+)
 
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-        -X POST "$ADMIN_URL/admin/realms/$REALM/users" \
+    local response
+    response=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST "${ADMIN_URL}/admin/realms/${REALM}/users" \
         -H "Authorization: Bearer $TOKEN" \
         -H "Content-Type: application/json" \
-        -d "$USER_JSON")
+        -d "$user_json")
 
-    if [ "$RESPONSE" = "201" ]; then
-        echo -e "${GREEN}✓ Service account user created successfully${NC}"
+    if [[ "$response" == "201" ]]; then
+        log_success "Service account user created successfully"
 
         # Get the user ID
-        USER_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-            "$ADMIN_URL/admin/realms/$REALM/users?username=$SERVICE_ACCOUNT" | \
-            jq -r '.[0].id')
-
-        echo "User ID: $USER_ID"
+        USER_ID=$(get_user_id "$TOKEN" "$SERVICE_ACCOUNT" "$REALM" "$ADMIN_URL")
+        log_debug "User ID: $USER_ID"
     else
-        echo -e "${RED}Failed to create user. HTTP: $RESPONSE${NC}"
+        log_error "Failed to create user. HTTP: $response"
         exit 1
     fi
 }
 
-# Function to get or create target group
+# Ensure target group exists (create if needed)
 ensure_target_group() {
-    echo "Checking if target group exists..."
-    GROUP_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/groups" | \
-        jq -r ".[] | select(.name==\"$TARGET_GROUP\") | .id")
+    log_info "Checking if target group exists..."
+    GROUP_ID=$(get_group_id "$TOKEN" "$TARGET_GROUP" "$REALM" "$ADMIN_URL")
 
-    if [ -n "$GROUP_ID" ] && [ "$GROUP_ID" != "null" ]; then
-        echo -e "${GREEN}✓ Target group '$TARGET_GROUP' exists with ID: $GROUP_ID${NC}"
+    if [[ -n "$GROUP_ID" ]] && [[ "$GROUP_ID" != "null" ]]; then
+        log_success "Target group '$TARGET_GROUP' exists with ID: $GROUP_ID"
     else
-        echo "Creating target group '$TARGET_GROUP'..."
+        log_info "Creating target group '$TARGET_GROUP'..."
 
-        GROUP_JSON='{
-            "name": "'$TARGET_GROUP'",
-            "path": "/'$TARGET_GROUP'"
-        }'
+        local group_json
+        group_json=$(cat << EOF
+{
+    "name": "${TARGET_GROUP}",
+    "path": "/${TARGET_GROUP}"
+}
+EOF
+)
 
-        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "$ADMIN_URL/admin/realms/$REALM/groups" \
+        local response
+        response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${ADMIN_URL}/admin/realms/${REALM}/groups" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            -d "$GROUP_JSON")
+            -d "$group_json")
 
-        if [ "$RESPONSE" = "201" ]; then
-            echo -e "${GREEN}✓ Target group created successfully${NC}"
+        if [[ "$response" == "201" ]]; then
+            log_success "Target group created successfully"
 
             # Get the group ID
-            GROUP_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-                "$ADMIN_URL/admin/realms/$REALM/groups" | \
-                jq -r ".[] | select(.name==\"$TARGET_GROUP\") | .id")
-
-            echo "Group ID: $GROUP_ID"
+            GROUP_ID=$(get_group_id "$TOKEN" "$TARGET_GROUP" "$REALM" "$ADMIN_URL")
+            log_debug "Group ID: $GROUP_ID"
         else
-            echo -e "${RED}Failed to create group. HTTP: $RESPONSE${NC}"
+            log_error "Failed to create group. HTTP: $response"
             exit 1
         fi
     fi
 }
 
-# Function to assign service account to group
+# Assign service account to group
 assign_to_group() {
-    echo "Assigning service account to target group..."
+    log_info "Assigning service account to target group..."
 
     # Check if already assigned
-    CURRENT_GROUPS=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/users/$USER_ID/groups" | \
+    local current_groups
+    current_groups=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "${ADMIN_URL}/admin/realms/${REALM}/users/${USER_ID}/groups" | \
         jq -r ".[].name")
 
-    if echo "$CURRENT_GROUPS" | grep -q "$TARGET_GROUP"; then
-        echo -e "${GREEN}✓ Service account already assigned to '$TARGET_GROUP' group${NC}"
+    if echo "$current_groups" | grep -q "^${TARGET_GROUP}$"; then
+        log_success "Service account already assigned to '$TARGET_GROUP' group"
         return 0
     fi
 
     # Assign to group
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-        -X PUT "$ADMIN_URL/admin/realms/$REALM/users/$USER_ID/groups/$GROUP_ID" \
+    local response
+    response=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X PUT "${ADMIN_URL}/admin/realms/${REALM}/users/${USER_ID}/groups/${GROUP_ID}" \
         -H "Authorization: Bearer $TOKEN")
 
-    if [ "$RESPONSE" = "204" ]; then
-        echo -e "${GREEN}✓ Service account assigned to '$TARGET_GROUP' group${NC}"
+    if [[ "$response" == "204" ]]; then
+        log_success "Service account assigned to '$TARGET_GROUP' group"
     else
-        echo -e "${RED}Failed to assign to group. HTTP: $RESPONSE${NC}"
+        log_error "Failed to assign to group. HTTP: $response"
         exit 1
     fi
 }
 
-# Function to get M2M client ID
+# Get M2M client ID
 get_m2m_client_id() {
-    echo "Finding M2M client..."
-    CLIENT_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/clients?clientId=$M2M_CLIENT" | \
-        jq -r '.[0].id // empty')
+    log_info "Finding M2M client..."
+    CLIENT_ID=$(get_client_uuid "$TOKEN" "$M2M_CLIENT" "$REALM" "$ADMIN_URL")
 
-    if [ -z "$CLIENT_ID" ] || [ "$CLIENT_ID" = "null" ]; then
-        echo -e "${RED}M2M client '$M2M_CLIENT' not found${NC}"
+    if [[ -z "$CLIENT_ID" ]] || [[ "$CLIENT_ID" == "null" ]]; then
+        log_error "M2M client '$M2M_CLIENT' not found"
         exit 1
     fi
 
-    echo -e "${GREEN}✓ Found M2M client with ID: $CLIENT_ID${NC}"
+    log_success "Found M2M client with ID: $CLIENT_ID"
 }
 
-# Function to add groups mapper to M2M client
+# Add groups mapper to M2M client
 add_groups_mapper() {
-    echo "Checking for groups mapper on M2M client..."
+    log_info "Checking for groups mapper on M2M client..."
 
     # Check if groups mapper already exists
-    EXISTING_MAPPER=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/clients/$CLIENT_ID/protocol-mappers/models" | \
+    local existing_mapper
+    existing_mapper=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "${ADMIN_URL}/admin/realms/${REALM}/clients/${CLIENT_ID}/protocol-mappers/models" | \
         jq -r '.[] | select(.name=="groups") | .id')
 
-    if [ -n "$EXISTING_MAPPER" ] && [ "$EXISTING_MAPPER" != "null" ]; then
-        echo -e "${GREEN}✓ Groups mapper already exists${NC}"
+    if [[ -n "$existing_mapper" ]] && [[ "$existing_mapper" != "null" ]]; then
+        log_success "Groups mapper already exists"
         return 0
     fi
 
-    echo "Adding groups mapper to M2M client..."
+    log_info "Adding groups mapper to M2M client..."
 
-    GROUPS_MAPPER='{
-        "name": "groups",
-        "protocol": "openid-connect",
-        "protocolMapper": "oidc-group-membership-mapper",
-        "consentRequired": false,
-        "config": {
-            "full.path": "false",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "claim.name": "groups",
-            "userinfo.token.claim": "true"
-        }
-    }'
+    local groups_mapper
+    groups_mapper=$(cat << 'EOF'
+{
+    "name": "groups",
+    "protocol": "openid-connect",
+    "protocolMapper": "oidc-group-membership-mapper",
+    "consentRequired": false,
+    "config": {
+        "full.path": "false",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "groups",
+        "userinfo.token.claim": "true"
+    }
+}
+EOF
+)
 
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-        -X POST "$ADMIN_URL/admin/realms/$REALM/clients/$CLIENT_ID/protocol-mappers/models" \
+    local response
+    response=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST "${ADMIN_URL}/admin/realms/${REALM}/clients/${CLIENT_ID}/protocol-mappers/models" \
         -H "Authorization: Bearer $TOKEN" \
         -H "Content-Type: application/json" \
-        -d "$GROUPS_MAPPER")
+        -d "$groups_mapper")
 
-    if [ "$RESPONSE" = "201" ]; then
-        echo -e "${GREEN}✓ Groups mapper added successfully${NC}"
-    elif [ "$RESPONSE" = "409" ]; then
-        echo -e "${GREEN}✓ Groups mapper already exists${NC}"
+    if [[ "$response" == "201" ]]; then
+        log_success "Groups mapper added successfully"
+    elif [[ "$response" == "409" ]]; then
+        log_success "Groups mapper already exists"
     else
-        echo -e "${RED}Failed to add groups mapper. HTTP: $RESPONSE${NC}"
+        log_error "Failed to add groups mapper. HTTP: $response"
         exit 1
     fi
 }
 
-# Function to verify setup
+# Verify setup
 verify_setup() {
     echo ""
-    echo "Verifying setup..."
+    log_info "Verifying setup..."
 
     # Check service account exists and is in the right group
-    GROUPS=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/users/$USER_ID/groups" | \
+    local groups
+    groups=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "${ADMIN_URL}/admin/realms/${REALM}/users/${USER_ID}/groups" | \
         jq -r '.[].name')
 
-    echo "Service account groups: $GROUPS"
+    log_debug "Service account groups: $groups"
 
-    if echo "$GROUPS" | grep -q "$TARGET_GROUP"; then
-        echo -e "${GREEN}✓ Service account is in '$TARGET_GROUP' group${NC}"
+    if echo "$groups" | grep -q "^${TARGET_GROUP}$"; then
+        log_success "Service account is in '$TARGET_GROUP' group"
     else
-        echo -e "${RED}✗ Service account is NOT in '$TARGET_GROUP' group${NC}"
+        log_error "Service account is NOT in '$TARGET_GROUP' group"
         exit 1
     fi
 
     # Check groups mapper exists
-    MAPPER_EXISTS=$(curl -s -H "Authorization: Bearer $TOKEN" \
-        "$ADMIN_URL/admin/realms/$REALM/clients/$CLIENT_ID/protocol-mappers/models" | \
+    local mapper_exists
+    mapper_exists=$(curl -s -H "Authorization: Bearer $TOKEN" \
+        "${ADMIN_URL}/admin/realms/${REALM}/clients/${CLIENT_ID}/protocol-mappers/models" | \
         jq -r '.[] | select(.name=="groups") | .name')
 
-    if [ "$MAPPER_EXISTS" = "groups" ]; then
-        echo -e "${GREEN}✓ Groups mapper is configured${NC}"
+    if [[ "$mapper_exists" == "groups" ]]; then
+        log_success "Groups mapper is configured"
     else
-        echo -e "${RED}✗ Groups mapper is NOT configured${NC}"
+        log_error "Groups mapper is NOT configured"
         exit 1
     fi
 }
 
-# Main execution
+# =============================================================================
+# Main Execution
+# =============================================================================
 main() {
-    get_admin_token
+    # Get admin token
+    log_info "Getting admin token..."
+    TOKEN=$(get_admin_token "$ADMIN_URL" "$ADMIN_USER" "$ADMIN_PASS")
+
+    if [[ -z "$TOKEN" ]]; then
+        log_error "Failed to get admin token"
+        exit 1
+    fi
+    log_success "Admin token obtained"
 
     # Step 1: Ensure service account exists
     if ! check_service_account; then
@@ -283,20 +315,22 @@ main() {
     verify_setup
 
     echo ""
-    echo -e "${GREEN}SUCCESS! M2M service account setup complete.${NC}"
+    log_success "M2M service account setup complete."
     echo ""
-    echo -e "${YELLOW}Next steps:${NC}"
-    echo "1. Generate a new M2M token to get the group membership:"
-    echo "   python credentials-provider/token_refresher.py"
-    echo ""
-    echo "2. Test the authentication:"
-    echo "   ./test-keycloak-mcp.sh"
+
+    print_next_steps \
+        "Generate a new M2M token to get the group membership:" \
+        "   python credentials-provider/token_refresher.py" \
+        "" \
+        "Test the authentication:" \
+        "   ./test-keycloak-mcp.sh"
+
     echo ""
     echo -e "${YELLOW}Summary:${NC}"
     echo "- Service Account: $SERVICE_ACCOUNT"
     echo "- Group: $TARGET_GROUP"
     echo "- Client: $M2M_CLIENT"
-    echo "- Groups Mapper: ✓ Configured"
+    echo "- Groups Mapper: Configured"
 }
 
 # Run main function

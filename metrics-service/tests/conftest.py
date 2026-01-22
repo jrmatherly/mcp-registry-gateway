@@ -15,9 +15,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from datetime import datetime
 
-from app.config import Settings
+from app.config import settings
 from app.core.models import Metric, MetricRequest, MetricType
-from app.storage.database import MetricsStorage, init_database
+from app.storage.database import MetricsStorage, get_storage, init_database
+import app.storage.database as db_module
 from app.utils.helpers import hash_api_key
 
 
@@ -35,14 +36,19 @@ def temp_db():
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
         db_path = tmp.name
 
-    # Override the settings to use temp database
-    original_db_path = Settings.SQLITE_DB_PATH
-    Settings.SQLITE_DB_PATH = db_path
+    # Override the settings instance to use temp database
+    original_db_path = settings.SQLITE_DB_PATH
+    # Use object.__setattr__ to bypass Pydantic's immutability
+    object.__setattr__(settings, "SQLITE_DB_PATH", db_path)
+
+    # Reset storage singleton to use new path
+    db_module._storage_instance = None
 
     yield db_path
 
     # Cleanup
-    Settings.SQLITE_DB_PATH = original_db_path
+    object.__setattr__(settings, "SQLITE_DB_PATH", original_db_path)
+    db_module._storage_instance = None
     try:
         os.unlink(db_path)
     except FileNotFoundError:
@@ -59,6 +65,8 @@ async def initialized_db(temp_db):
 @pytest.fixture
 def test_settings():
     """Test settings configuration."""
+    from app.config import Settings
+
     return Settings(
         SQLITE_DB_PATH="/tmp/test_metrics.db",
         OTEL_PROMETHEUS_ENABLED=False,
@@ -105,7 +113,7 @@ def test_api_key():
 @pytest.fixture
 async def storage_with_api_key(initialized_db, test_api_key):
     """Storage instance with a test API key inserted."""
-    storage = MetricsStorage()
+    storage = get_storage()
 
     # Insert test API key
     await storage.create_api_key(test_api_key["hash"], test_api_key["service"])

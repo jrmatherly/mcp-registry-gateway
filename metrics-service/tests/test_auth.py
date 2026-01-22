@@ -13,8 +13,8 @@ from fastapi.testclient import TestClient
 class TestAPIKeyVerification:
     """Test API key verification logic."""
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_verify_valid_api_key(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_verify_valid_api_key(self, mock_get_storage):
         """Test verification of valid API key."""
         # Mock storage
         mock_storage = AsyncMock()
@@ -25,7 +25,7 @@ class TestAPIKeyVerification:
             "last_used_at": None,
         }
         mock_storage.update_api_key_usage.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         # Mock request with API key header
         from unittest.mock import MagicMock
@@ -39,8 +39,8 @@ class TestAPIKeyVerification:
         mock_storage.get_api_key.assert_called_once_with(hash_api_key("test_key_123"))
         mock_storage.update_api_key_usage.assert_called_once()
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_verify_missing_api_key(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_verify_missing_api_key(self, mock_get_storage):
         """Test verification when API key is missing."""
         from unittest.mock import MagicMock
 
@@ -53,13 +53,13 @@ class TestAPIKeyVerification:
         assert exc_info.value.status_code == 401
         assert "API key required" in str(exc_info.value.detail)
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_verify_invalid_api_key(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_verify_invalid_api_key(self, mock_get_storage):
         """Test verification of invalid API key."""
         # Mock storage to return None (key not found)
         mock_storage = AsyncMock()
         mock_storage.get_api_key.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         from unittest.mock import MagicMock
 
@@ -72,8 +72,8 @@ class TestAPIKeyVerification:
         assert exc_info.value.status_code == 401
         assert "Invalid API key" in str(exc_info.value.detail)
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_verify_inactive_api_key(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_verify_inactive_api_key(self, mock_get_storage):
         """Test verification of inactive API key."""
         # Mock storage to return inactive key
         mock_storage = AsyncMock()
@@ -83,7 +83,7 @@ class TestAPIKeyVerification:
             "rate_limit": 1000,
             "last_used_at": None,
         }
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         from unittest.mock import MagicMock
 
@@ -96,8 +96,8 @@ class TestAPIKeyVerification:
         assert exc_info.value.status_code == 401
         assert "API key is inactive" in str(exc_info.value.detail)
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_verify_api_key_updates_usage(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_verify_api_key_updates_usage(self, mock_get_storage):
         """Test that API key verification updates usage timestamp."""
         # Mock storage
         mock_storage = AsyncMock()
@@ -108,7 +108,7 @@ class TestAPIKeyVerification:
             "last_used_at": "2024-01-01T00:00:00",
         }
         mock_storage.update_api_key_usage.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         from unittest.mock import MagicMock
 
@@ -154,13 +154,13 @@ class TestAPIKeyHashingHelpers:
 class TestAuthenticationIntegration:
     """Test authentication integration with API endpoints."""
 
-    @patch("app.api.auth.MetricsStorage")
-    def test_metrics_endpoint_auth_integration(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    def test_metrics_endpoint_auth_integration(self, mock_get_storage):
         """Test that metrics endpoint properly integrates with auth."""
         # Mock storage to return None for key lookup (key not found)
         mock_storage = AsyncMock()
         mock_storage.get_api_key.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         client = TestClient(app)
 
@@ -173,13 +173,13 @@ class TestAuthenticationIntegration:
         response = client.post("/metrics", json={"service": "test", "metrics": []}, headers=headers)
         assert response.status_code == 401
 
-    @patch("app.api.auth.MetricsStorage")
-    def test_flush_endpoint_auth_integration(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    def test_flush_endpoint_auth_integration(self, mock_get_storage):
         """Test that flush endpoint properly integrates with auth."""
         # Mock storage to return None for key lookup (key not found)
         mock_storage = AsyncMock()
         mock_storage.get_api_key.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         client = TestClient(app)
 
@@ -210,13 +210,13 @@ class TestAuthenticationIntegration:
 class TestSecurityBestPractices:
     """Test security best practices in authentication."""
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_api_key_not_logged_in_error_messages(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_api_key_not_logged_in_error_messages(self, mock_get_storage):
         """Test that API keys are not exposed in error messages."""
         # Mock storage to return None (key not found)
         mock_storage = AsyncMock()
         mock_storage.get_api_key.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         from unittest.mock import MagicMock
 
@@ -230,12 +230,12 @@ class TestSecurityBestPractices:
         error_detail = str(exc_info.value.detail)
         assert "secret_key_should_not_appear_in_logs" not in error_detail
 
-    @patch("app.api.auth.MetricsStorage")
-    async def test_api_key_hashed_before_storage_lookup(self, mock_storage_class):
+    @patch("app.api.auth.get_storage")
+    async def test_api_key_hashed_before_storage_lookup(self, mock_get_storage):
         """Test that API key is hashed before database lookup."""
         mock_storage = AsyncMock()
         mock_storage.get_api_key.return_value = None  # Will cause auth failure
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         from unittest.mock import MagicMock
 

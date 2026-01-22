@@ -188,9 +188,9 @@ class TestRateLimitIntegration:
         request.state = AsyncMock()
         return request
 
-    @patch("app.api.auth.MetricsStorage")
+    @patch("app.api.auth.get_storage")
     @pytest.mark.asyncio
-    async def test_auth_with_rate_limiting(self, mock_storage_class, mock_request):
+    async def test_auth_with_rate_limiting(self, mock_get_storage, mock_request):
         """Test API key verification with rate limiting."""
         # Mock storage
         mock_storage = AsyncMock()
@@ -201,7 +201,7 @@ class TestRateLimitIntegration:
             "last_used_at": None,
         }
         mock_storage.update_api_key_usage.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         # First request should be allowed
         service_name = await verify_api_key(mock_request)
@@ -211,9 +211,9 @@ class TestRateLimitIntegration:
         assert mock_request.state.rate_limit_limit == 10
         assert mock_request.state.rate_limit_remaining == 9
 
-    @patch("app.api.auth.MetricsStorage")
+    @patch("app.api.auth.get_storage")
     @pytest.mark.asyncio
-    async def test_rate_limit_exceeded(self, mock_storage_class, mock_request):
+    async def test_rate_limit_exceeded(self, mock_get_storage, mock_request):
         """Test rate limit exceeded scenario."""
         # Mock storage
         mock_storage = AsyncMock()
@@ -224,7 +224,7 @@ class TestRateLimitIntegration:
             "last_used_at": None,
         }
         mock_storage.update_api_key_usage.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         # First request allowed
         service_name = await verify_api_key(mock_request)
@@ -240,9 +240,9 @@ class TestRateLimitIntegration:
         assert exc_info.value.headers["X-RateLimit-Remaining"] == "0"
         assert exc_info.value.headers["Retry-After"] == "60"
 
-    @patch("app.api.auth.MetricsStorage")
+    @patch("app.api.auth.get_storage")
     @pytest.mark.asyncio
-    async def test_get_rate_limit_status_function(self, mock_storage_class):
+    async def test_get_rate_limit_status_function(self, mock_get_storage):
         """Test get_rate_limit_status function."""
         # Mock storage
         mock_storage = AsyncMock()
@@ -252,7 +252,7 @@ class TestRateLimitIntegration:
             "rate_limit": 100,
             "last_used_at": None,
         }
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         status = await get_rate_limit_status("test_key_123")
 
@@ -261,14 +261,14 @@ class TestRateLimitIntegration:
         assert status["available_tokens"] == 100
         assert "reset_time_seconds" in status
 
-    @patch("app.api.auth.MetricsStorage")
+    @patch("app.api.auth.get_storage")
     @pytest.mark.asyncio
-    async def test_get_rate_limit_status_invalid_key(self, mock_storage_class):
+    async def test_get_rate_limit_status_invalid_key(self, mock_get_storage):
         """Test get_rate_limit_status with invalid key."""
         # Mock storage returning None
         mock_storage = AsyncMock()
         mock_storage.get_api_key.return_value = None
-        mock_storage_class.return_value = mock_storage
+        mock_get_storage.return_value = mock_storage
 
         with pytest.raises(HTTPException) as exc_info:
             await get_rate_limit_status("invalid_key")
