@@ -200,12 +200,15 @@ class AgentScannerService:
             # Set environment variables for API key and base URL if provided
             env = os.environ.copy()
             if api_key:
-                env["AZURE_OPENAI_API_KEY"] = api_key
+                env["A2A_SCANNER_LLM_API_KEY"] = api_key
             if settings.effective_a2a_scanner_api_base:
                 env["A2A_SCANNER_LLM_API_BASE"] = settings.effective_a2a_scanner_api_base
                 # Also set provider-specific vars for compatibility
                 env["OPENAI_API_BASE"] = settings.effective_a2a_scanner_api_base
                 env["AZURE_OPENAI_ENDPOINT"] = settings.effective_a2a_scanner_api_base
+            # Set model if configured
+            if settings.effective_a2a_scanner_model:
+                env["A2A_SCANNER_LLM_MODEL"] = settings.effective_a2a_scanner_model
 
             # Run scanner with timeout
             try:

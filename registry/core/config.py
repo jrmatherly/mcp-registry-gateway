@@ -225,6 +225,16 @@ class Settings(BaseSettings):
         """Get A2A scanner API base, falling back to global LLM API base."""
         return self.a2a_scanner_llm_api_base or self.llm_api_base
 
+    @property
+    def effective_mcp_scanner_model(self) -> str:
+        """Get MCP scanner model, falling back to global LLM model."""
+        return self.mcp_scanner_llm_model or self.llm_model
+
+    @property
+    def effective_a2a_scanner_model(self) -> str:
+        """Get A2A scanner model, falling back to global LLM model."""
+        return self.a2a_scanner_llm_model or self.llm_model
+
 
 class EmbeddingConfig:
     """Helper class for embedding configuration and metadata generation."""

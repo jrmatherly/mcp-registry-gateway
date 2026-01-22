@@ -368,6 +368,9 @@ class SecurityScannerService:
             env["MCP_SCANNER_LLM_API_BASE"] = settings.effective_mcp_scanner_api_base
             # Also set provider-specific vars for compatibility
             env["OPENAI_API_BASE"] = settings.effective_mcp_scanner_api_base
+        # Set model if configured
+        if settings.effective_mcp_scanner_model:
+            env["MCP_SCANNER_LLM_MODEL"] = settings.effective_mcp_scanner_model
 
         # Run scanner with timeout
         try:

@@ -847,6 +847,54 @@ class TestSettingsEffectiveLLMSettings:
         # Assert
         assert settings.effective_a2a_scanner_api_base == "https://global.example.com"
 
+    def test_effective_mcp_scanner_model_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_mcp_scanner_model uses specific model when set."""
+        # Arrange
+        monkeypatch.setenv("MCP_SCANNER_LLM_MODEL", "openai/gpt-4")
+        monkeypatch.setenv("LLM_MODEL", "openai/gpt-3.5-turbo")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_mcp_scanner_model == "openai/gpt-4"
+
+    def test_effective_mcp_scanner_model_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_mcp_scanner_model falls back to llm_model."""
+        # Arrange
+        monkeypatch.setenv("MCP_SCANNER_LLM_MODEL", "")  # Empty string triggers fallback
+        monkeypatch.setenv("LLM_MODEL", "openai/gpt-3.5-turbo")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_mcp_scanner_model == "openai/gpt-3.5-turbo"
+
+    def test_effective_a2a_scanner_model_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_a2a_scanner_model uses specific model when set."""
+        # Arrange
+        monkeypatch.setenv("A2A_SCANNER_LLM_MODEL", "azure/gpt-4")
+        monkeypatch.setenv("LLM_MODEL", "openai/gpt-3.5-turbo")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_a2a_scanner_model == "azure/gpt-4"
+
+    def test_effective_a2a_scanner_model_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_a2a_scanner_model falls back to llm_model."""
+        # Arrange
+        monkeypatch.setenv("A2A_SCANNER_LLM_MODEL", "")  # Empty string triggers fallback
+        monkeypatch.setenv("LLM_MODEL", "openai/gpt-3.5-turbo")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_a2a_scanner_model == "openai/gpt-3.5-turbo"
+
 
 # =============================================================================
 # TEST CLASS: Settings Model Configuration
