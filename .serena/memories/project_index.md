@@ -5,6 +5,7 @@
 | Section | Description |
 |---------|-------------|
 | [Architecture Overview](#architecture-overview) | Layered architecture and design patterns |
+| [Frontend](#frontend) | React 19, Vite 6, Tailwind 4 web UI |
 | [Core Modules](#core-modules) | Main application components |
 | [API Layer](#api-layer) | REST API endpoints |
 | [Service Layer](#service-layer) | Business logic |
@@ -29,6 +30,53 @@ API Routes → Services → Repositories → Storage Backends
 - **Repository Pattern**: Abstract data access via `registry/repositories/interfaces.py`
 - **Service Layer**: Business logic separation in `registry/services/`
 - **Dependency Injection**: FastAPI dependencies in `registry/auth/dependencies.py`
+
+---
+
+## Frontend
+
+The web UI is built with modern frontend technologies (upgraded January 2026).
+
+### Technology Stack
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.2.3 | UI framework |
+| Vite | 6.0.0 | Build tool (migrated from CRA) |
+| Tailwind CSS | 4.1.18 | Styling framework |
+| TypeScript | 5.9.3 | Type safety |
+| React Router | 7.12.0 | Client-side routing |
+
+### Directory Structure (`frontend/`)
+| Path | Purpose |
+|------|---------|
+| `package.json` | Dependencies and scripts |
+| `vite.config.ts` | Vite build configuration |
+| `tailwind.config.js` | Tailwind CSS configuration |
+| `tsconfig.json` | TypeScript configuration |
+| `src/` | React application source code |
+| `src/components/` | Reusable UI components |
+| `src/pages/` | Page components |
+| `src/hooks/` | Custom React hooks |
+| `src/utils/` | Utility functions |
+| `dist/` | Production build output |
+
+### Build Commands
+```bash
+# Development server
+cd frontend && npm run dev
+
+# Production build
+cd frontend && npm run build
+
+# Preview production build
+cd frontend && npm run preview
+```
+
+### Integration with Registry
+- Frontend build output (`dist/`) served by FastAPI
+- Static assets in `dist/assets/` (Vite convention)
+- API calls to registry backend at same origin
+- Authentication via session cookies
 
 ---
 
@@ -334,5 +382,7 @@ uv run pytest tests/ -n 8 --cov=registry --cov-report=term-missing
 | Auth Logic | `registry/auth/` |
 | Embeddings | `registry/embeddings/` |
 | Templates | `registry/templates/` |
-| Static Assets | `registry/static/` |
+| Static Assets (logos) | `registry/static/` |
+| Frontend Source | `frontend/src/` |
+| Frontend Build | `frontend/dist/` |
 | Tests | `tests/` |

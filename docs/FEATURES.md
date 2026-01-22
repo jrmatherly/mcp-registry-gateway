@@ -25,7 +25,10 @@ This document provides a comprehensive overview of the MCP Gateway & Registry so
 
 ## Intelligent Tool Discovery
 
-- **Semantic Search**: FAISS-powered vector search using sentence transformers for natural language tool queries
+- **Semantic Search**: Vector search using sentence transformers for natural language tool queries
+  - MongoDB CE: Application-level cosine similarity (development)
+  - DocumentDB: Native HNSW vector indexes (production, sub-100ms)
+  - File backend (deprecated): FAISS indexes
 - **Tag-Based Filtering**: Multi-tag filtering with AND logic for precise tool selection
 - **Hybrid Search**: Combined semantic and tag-based discovery for optimal results
 - **Performance Optimized**: Configurable result limits and caching for fast response times

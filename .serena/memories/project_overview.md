@@ -17,15 +17,35 @@ The MCP Gateway & Registry is a unified, enterprise-ready platform that centrali
 - Multi-tenant access control with fine-grained permissions
 
 ## Tech Stack
-- **Backend Framework**: FastAPI
+
+### Frontend
+- **Framework**: React 19.2, TypeScript 5.9
+- **Build Tool**: Vite 6.0 (migrated from Create React App)
+- **CSS**: Tailwind CSS 4.1
+- **Router**: React Router 7.12
+- **Node.js**: 18+ required for building
+
+### Backend
+- **Framework**: FastAPI
 - **Package Manager**: uv with pyproject.toml
 - **Python Version**: 3.11+ (requires-python = ">=3.11,<3.14")
+
+### Database & Search
 - **Database**: MongoDB Community Edition (local dev) / Amazon DocumentDB (production)
-- **Authentication**: Keycloak, Amazon Cognito, Microsoft Entra ID
-- **Search**: FAISS (vector), sentence-transformers, LiteLLM embeddings
-- **AI/LLM**: LangChain, Anthropic Claude, Amazon Bedrock
+- **Vector Search**:
+  - MongoDB CE: Application-level cosine similarity
+  - DocumentDB: Native HNSW vector indexes (production)
+  - File backend (deprecated): FAISS indexes
+- **Embeddings**: sentence-transformers (all-MiniLM-L6-v2), LiteLLM (cloud providers)
+
+### Authentication
+- **Providers**: Keycloak, Amazon Cognito, Microsoft Entra ID
+- **Protocol**: OAuth 2.0/OIDC
+
+### Infrastructure
 - **Container**: Docker/Podman
-- **Infrastructure**: Terraform, AWS ECS Fargate
+- **IaC**: Terraform, AWS ECS Fargate
+- **AI/LLM**: LangChain, Anthropic Claude, Amazon Bedrock
 - **Testing**: pytest with pytest-asyncio, pytest-cov, pytest-xdist
 
 ## Project Structure
@@ -44,7 +64,7 @@ mcp-registry-gateway/
 │   ├── search/           # Semantic search
 │   ├── servers/          # MCP server management
 │   ├── services/         # Business logic
-│   ├── static/           # Static assets
+│   ├── static/           # Static assets (logos, branding)
 │   ├── templates/        # Jinja2 templates
 │   └── utils/            # Utilities
 ├── tests/                # Test suite
@@ -58,7 +78,7 @@ mcp-registry-gateway/
 ├── credentials-provider/ # OAuth credential management
 ├── docker/               # Docker configurations
 ├── docs/                 # Documentation
-├── frontend/             # Web UI frontend
+├── frontend/             # Web UI frontend (React 19, Vite 6, Tailwind 4)
 ├── keycloak/             # Keycloak setup
 ├── metrics-service/      # Metrics service
 ├── scripts/              # Build and utility scripts

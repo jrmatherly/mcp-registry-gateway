@@ -4,7 +4,7 @@ Complete installation instructions for the MCP Gateway & Registry on various pla
 
 ## Prerequisites
 
-- **Node.js 16+**: Required for building the React frontend (not needed with `--prebuilt` flag)
+- **Node.js 18+**: Required for building the React 19 frontend (not needed with `--prebuilt` flag)
 - **Container Runtime**: Choose one:
   - **Docker & Docker Compose**: Standard container runtime
   - **Podman & Podman Compose**: Rootless alternative (recommended for macOS)
