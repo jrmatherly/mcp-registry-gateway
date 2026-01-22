@@ -239,7 +239,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
 
   return (
     <>
-      <div className="group rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-2 border-cyan-200 dark:border-cyan-700 hover:border-cyan-300 dark:hover:border-cyan-600">
+      <div className="group rounded-2xl shadow-xs hover:shadow-xl transition-all duration-300 h-full flex flex-col bg-linear-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-2 border-cyan-200 dark:border-cyan-700 hover:border-cyan-300 dark:hover:border-cyan-600">
         {/* Header */}
         <div className="p-5 pb-4">
           <div className="flex items-start justify-between mb-4">
@@ -248,23 +248,23 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                   {agent.name}
                 </h3>
-                <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-700 dark:from-cyan-900/30 dark:to-blue-900/30 dark:text-cyan-300 rounded-full flex-shrink-0 border border-cyan-200 dark:border-cyan-600">
+                <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-cyan-100 to-blue-100 text-cyan-700 dark:from-cyan-900/30 dark:to-blue-900/30 dark:text-cyan-300 rounded-full shrink-0 border border-cyan-200 dark:border-cyan-600">
                   AGENT
                 </span>
                 {/* Check if this is an ASOR agent */}
                 {(agent.tags?.includes('asor') || (agent as any).provider === 'ASOR') && (
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full flex-shrink-0 border border-orange-200 dark:border-orange-600">
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full shrink-0 border border-orange-200 dark:border-orange-600">
                     ASOR
                   </span>
                 )}
                 {agent.trust_level && (
-                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full flex-shrink-0 flex items-center gap-1 ${getTrustLevelColor()}`}>
+                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full shrink-0 flex items-center gap-1 ${getTrustLevelColor()}`}>
                     {getTrustLevelIcon()}
                     {agent.trust_level.toUpperCase()}
                   </span>
                 )}
                 {agent.visibility && (
-                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full flex-shrink-0 flex items-center gap-1 ${
+                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full shrink-0 flex items-center gap-1 ${
                     agent.visibility === 'public'
                       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-700'
                       : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
@@ -275,7 +275,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
                 )}
               </div>
 
-              <code className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded font-mono">
+              <code className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded-sm font-mono">
                 {agent.path}
               </code>
               {agent.version && (
@@ -297,7 +297,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
 
             {canModify && (
               <button
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex-shrink-0"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 shrink-0"
                 onClick={() => onEdit?.(agent)}
                 title="Edit agent"
               >
@@ -308,7 +308,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
             {/* Security Scan Button */}
             <button
               onClick={handleViewSecurityScan}
-              className={`p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex-shrink-0 ${getSecurityIconState().color}`}
+              className={`p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 shrink-0 ${getSecurityIconState().color}`}
               title={getSecurityIconState().title}
               aria-label="View security scan results"
             >
@@ -329,7 +329,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
                   setLoadingDetails(false);
                 }
               }}
-              className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-700/50 rounded-lg transition-all duration-200 flex-shrink-0"
+              className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-700/50 rounded-lg transition-all duration-200 shrink-0"
               title="View full agent details (JSON)"
             >
               <InformationCircleIcon className="h-4 w-4" />
@@ -347,13 +347,13 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
               {agent.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-1 text-xs font-medium bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded"
+                  className="px-2 py-1 text-xs font-medium bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded-sm"
                 >
                   #{tag}
                 </span>
               ))}
               {agent.tags.length > 3 && (
-                <span className="px-2 py-1 text-xs font-medium bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded">
+                <span className="px-2 py-1 text-xs font-medium bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-sm">
                   +{agent.tags.length - 3}
                 </span>
               )}
@@ -379,7 +379,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
               }}
             />
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-cyan-50 dark:bg-cyan-900/30 rounded">
+              <div className="p-1.5 bg-cyan-50 dark:bg-cyan-900/30 rounded-sm">
                 <CpuChipIcon className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
               </div>
               <div>

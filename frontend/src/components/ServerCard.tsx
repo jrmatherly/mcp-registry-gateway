@@ -191,9 +191,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
 
   return (
     <>
-      <div className={`group rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col ${
+      <div className={`group rounded-2xl shadow-xs hover:shadow-xl transition-all duration-300 h-full flex flex-col ${
         isAnthropicServer
-          ? 'bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600'
+          ? 'bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600'
           : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600'
       }`}>
         {/* Header */}
@@ -205,36 +205,36 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                   {server.name}
                 </h3>
                 {server.official && (
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full flex-shrink-0">
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full shrink-0">
                     OFFICIAL
                   </span>
                 )}
                 {isAnthropicServer && (
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 dark:from-purple-900/30 dark:to-indigo-900/30 dark:text-purple-300 rounded-full flex-shrink-0 border border-purple-200 dark:border-purple-600">
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-purple-100 to-indigo-100 text-purple-700 dark:from-purple-900/30 dark:to-indigo-900/30 dark:text-purple-300 rounded-full shrink-0 border border-purple-200 dark:border-purple-600">
                     ANTHROPIC
                   </span>
                 )}
                 {/* Check if this is an ASOR server */}
                 {server.tags?.includes('asor') && (
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full flex-shrink-0 border border-orange-200 dark:border-orange-600">
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full shrink-0 border border-orange-200 dark:border-orange-600">
                     ASOR
                   </span>
                 )}
                 {isSecurityPending && (
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-900/30 dark:to-orange-900/30 dark:text-amber-300 rounded-full flex-shrink-0 border border-amber-200 dark:border-amber-600">
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-900/30 dark:to-orange-900/30 dark:text-amber-300 rounded-full shrink-0 border border-amber-200 dark:border-amber-600">
                     SECURITY PENDING
                   </span>
                 )}
               </div>
 
-              <code className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded font-mono">
+              <code className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded-sm font-mono">
                 {server.path}
               </code>
             </div>
 
             {canModify && (
               <button
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex-shrink-0"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 shrink-0"
                 onClick={() => onEdit?.(server)}
                 title="Edit server"
                 aria-label={`Edit ${server.name}`}
@@ -246,7 +246,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
             {/* Configuration Generator Button */}
             <button
               onClick={() => setShowConfig(true)}
-              className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-700/50 rounded-lg transition-all duration-200 flex-shrink-0"
+              className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-700/50 rounded-lg transition-all duration-200 shrink-0"
               title="Copy mcp.json configuration"
               aria-label="Generate MCP configuration"
             >
@@ -256,7 +256,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
             {/* Security Scan Button */}
             <button
               onClick={handleViewSecurityScan}
-              className={`p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex-shrink-0 ${getSecurityIconState().color}`}
+              className={`p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 shrink-0 ${getSecurityIconState().color}`}
               title={getSecurityIconState().title}
               aria-label="View security scan results"
             >
@@ -275,13 +275,13 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
               {server.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-1 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded"
+                  className="px-2 py-1 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-sm"
                 >
                   #{tag}
                 </span>
               ))}
               {server.tags.length > 3 && (
-                <span className="px-2 py-1 text-xs font-medium bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded">
+                <span className="px-2 py-1 text-xs font-medium bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-sm">
                   +{server.tags.length - 3}
                 </span>
               )}
@@ -311,10 +311,10 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                 <button
                   onClick={handleViewTools}
                   disabled={loadingTools}
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-2 py-1 -mx-2 -my-1 rounded transition-all"
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-2 py-1 -mx-2 -my-1 rounded-sm transition-all"
                   title="View tools"
                 >
-                  <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded">
+                  <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-sm">
                     <WrenchScrewdriverIcon className="h-4 w-4" />
                   </div>
                   <div>
@@ -324,7 +324,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                 </button>
               ) : (
                 <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
-                  <div className="p-1.5 bg-gray-50 dark:bg-gray-800 rounded">
+                  <div className="p-1.5 bg-gray-50 dark:bg-gray-800 rounded-sm">
                     <WrenchScrewdriverIcon className="h-4 w-4" />
                   </div>
                   <div>
@@ -427,7 +427,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
 
       {/* Tools Modal */}
       {showTools && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -458,7 +458,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                         <summary className="cursor-pointer text-gray-500 dark:text-gray-300">
                           View Schema
                         </summary>
-                        <pre className="mt-2 p-3 bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded overflow-x-auto text-gray-900 dark:text-gray-100">
+                        <pre className="mt-2 p-3 bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded-sm overflow-x-auto text-gray-900 dark:text-gray-100">
                           {JSON.stringify(tool.schema, null, 2)}
                         </pre>
                       </details>

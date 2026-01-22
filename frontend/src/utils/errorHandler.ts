@@ -69,7 +69,7 @@ export const handleApiError = (
   }
 
   // Log error in development
-  if (logError && process.env.NODE_ENV === 'development') {
+  if (logError && import.meta.env.DEV) {
     console.error(`API Error (${context}):`, error);
   }
 

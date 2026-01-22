@@ -49,11 +49,11 @@ const Toast: React.FC<ToastProps> = ({
         role="alert"
         aria-live="polite"
       >
-        <Icon className="h-5 w-5 mr-3 flex-shrink-0" aria-hidden="true" />
+        <Icon className="h-5 w-5 mr-3 shrink-0" aria-hidden="true" />
         <p className="text-sm font-medium">{message}</p>
         <button
           onClick={handleClose}
-          className="ml-3 flex-shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
+          className="ml-3 shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
           aria-label="Close notification"
         >
           <XMarkIcon className="h-4 w-4" />

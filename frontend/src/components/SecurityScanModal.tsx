@@ -183,7 +183,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[85vh] overflow-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -236,7 +236,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                 </div>
               </div>
               {scanResult.scan_failed && scanResult.error_message && (
-                <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 rounded text-sm text-red-800 dark:text-red-300">
+                <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 rounded-sm text-sm text-red-800 dark:text-red-300">
                   Error: {scanResult.error_message}
                 </div>
               )}
@@ -312,13 +312,13 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                                 {findings.map((finding: any, idx: number) => (
                                   <div
                                     key={idx}
-                                    className="p-3 bg-white dark:bg-gray-800 rounded border dark:border-gray-700"
+                                    className="p-3 bg-white dark:bg-gray-800 rounded-sm border dark:border-gray-700"
                                   >
                                     <div className="flex items-start justify-between mb-2">
                                       <span className="font-medium text-gray-900 dark:text-white">
                                         {finding.tool_name || finding.skill_name || 'Finding'}
                                       </span>
-                                      <span className={`px-2 py-0.5 text-xs font-semibold rounded ${_getSeverityBadgeClasses(finding.severity)}`}>
+                                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-sm ${_getSeverityBadgeClasses(finding.severity)}`}>
                                         {finding.severity}
                                       </span>
                                     </div>
@@ -332,7 +332,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                                         {finding.threat_names.map((threat: string, tidx: number) => (
                                           <span
                                             key={tidx}
-                                            className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
+                                            className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm"
                                           >
                                             {threat}
                                           </span>

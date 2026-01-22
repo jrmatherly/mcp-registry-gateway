@@ -47,7 +47,7 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -101,20 +101,20 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
                 <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Core Fields</h5>
                 <ul className="space-y-1 text-gray-600 dark:text-gray-400">
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">protocol_version</code> - A2A protocol
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">protocol_version</code> - A2A protocol
                     version
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">name</code> - Agent display name
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">name</code> - Agent display name
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">description</code> - Agent purpose
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">description</code> - Agent purpose
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">url</code> - Agent endpoint URL
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">url</code> - Agent endpoint URL
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">path</code> - Registry path
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">path</code> - Registry path
                   </li>
                 </ul>
               </div>
@@ -122,19 +122,19 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
                 <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Metadata Fields</h5>
                 <ul className="space-y-1 text-gray-600 dark:text-gray-400">
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">skills</code> - Agent capabilities
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">skills</code> - Agent capabilities
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">security_schemes</code> - Auth methods
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">security_schemes</code> - Auth methods
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">tags</code> - Categorization
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">tags</code> - Categorization
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">trust_level</code> - Verification status
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">trust_level</code> - Verification status
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">metadata</code> - Custom data
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">metadata</code> - Custom data
                   </li>
                 </ul>
               </div>

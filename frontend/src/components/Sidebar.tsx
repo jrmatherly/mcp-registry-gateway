@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 import {
   XMarkIcon,
   FunnelIcon,
@@ -117,7 +117,7 @@ const fetchAdminTokens = async () => {
           <div className="space-y-2 mb-6">
             <Link
               to="/"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={() => isMobile && setSidebarOpen(false)} // Only close on mobile
               tabIndex={0}
             >
@@ -127,7 +127,7 @@ const fetchAdminTokens = async () => {
 
             <Link
               to="/generate-token"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300"
               tabIndex={0}
             >
               <KeyIcon className="h-4 w-4" />
@@ -173,7 +173,7 @@ const fetchAdminTokens = async () => {
                     {showScopes && (
                       <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                         {user.scopes.map((scope) => (
-                          <div key={scope} className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded text-xs">
+                          <div key={scope} className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs">
                             <div className="font-medium text-blue-800 dark:text-blue-200">
                               {scope}
                             </div>
@@ -271,7 +271,7 @@ const fetchAdminTokens = async () => {
                       {showScopes && (
                         <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                           {user.scopes.map((scope) => (
-                            <div key={scope} className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded text-xs">
+                            <div key={scope} className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs">
                               <div className="font-medium text-blue-800 dark:text-blue-200">
                                 {scope}
                               </div>
@@ -301,7 +301,7 @@ const fetchAdminTokens = async () => {
                 <button
                   key={filter.key}
                   onClick={() => setActiveFilter(filter.key)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 ${
                     activeFilter === filter.key
                       ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'

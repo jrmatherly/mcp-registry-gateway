@@ -192,7 +192,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
             {servers.map((server) => (
               <div
                 key={server.path}
-                className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-xs hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -250,7 +250,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                           <button
                             type="button"
                             onClick={() => openToolSchema(server.path, server.server_name, tool.tool_name)}
-                            className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors"
+                            className="shrink-0 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-sm transition-colors"
                             title="View input schema"
                           >
                             <InformationCircleIcon className="h-4 w-4" />
@@ -293,7 +293,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                     {tool.description || tool.match_context || 'No description available.'}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => setSelectedToolSchema({
@@ -330,7 +330,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
             {agents.map((agent) => (
               <div
                 key={agent.path}
-                className="rounded-2xl border border-cyan-200 dark:border-cyan-900/40 bg-white dark:bg-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-2xl border border-cyan-200 dark:border-cyan-900/40 bg-white dark:bg-gray-800 p-5 shadow-xs hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>

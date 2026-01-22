@@ -175,7 +175,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   };
 
 
-  const renderStars = (count: number, filled: boolean, size: 'small' | 'large' = 'large') => {
+  const renderStars = (_count: number, filled: boolean, size: 'small' | 'large' = 'large') => {
     const sizeClass = size === 'small' ? 'h-4 w-4' : 'h-6 w-6';
     const IconComponent = filled ? StarIcon : StarIconOutline;
 
@@ -201,7 +201,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
         aria-expanded={isDropdownOpen}
         aria-haspopup="dialog"
       >
-        <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded">
+        <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded-sm">
           <StarIcon className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
         </div>
         <div>
@@ -283,7 +283,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                     onClick={() => handleStarClick(star)}
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(null)}
-                    className="p-1 hover:scale-110 transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+                    className="p-1 hover:scale-110 transition-transform duration-150 focus:outline-hidden focus:ring-2 focus:ring-yellow-400 rounded-sm"
                     role="radio"
                     aria-checked={selectedRating === star}
                     aria-label={`${star} star${star !== 1 ? 's' : ''}`}

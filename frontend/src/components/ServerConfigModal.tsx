@@ -119,7 +119,7 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[80vh] overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -141,14 +141,14 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
             <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
               <li>Copy the configuration below</li>
               <li>
-                Paste it into your <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">mcp.json</code> file
+                Paste it into your <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">mcp.json</code> file
               </li>
               <li>
-                Replace <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">[YOUR_AUTH_TOKEN]</code> with your
+                Replace <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">[YOUR_AUTH_TOKEN]</code> with your
                 gateway authentication token
               </li>
               <li>
-                Replace <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">[YOUR_CLIENT_ID]</code> with your
+                Replace <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">[YOUR_CLIENT_ID]</code> with your
                 client ID
               </li>
               <li>Restart your AI coding assistant to load the new configuration</li>

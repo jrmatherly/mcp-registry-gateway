@@ -40,7 +40,7 @@ export const formatTimeSince = (timestamp: string | null | undefined): string | 
     }
     return `${diffSeconds}s ago`;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.error('formatTimeSince error:', error, 'for timestamp:', timestamp);
     }
     return null;

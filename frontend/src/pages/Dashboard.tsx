@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { MagnifyingGlassIcon, PlusIcon, XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import { useServerStats } from '../hooks/useServerStats';
@@ -818,7 +818,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
       <div className="flex flex-col h-full">
         {/* Fixed Header Section */}
-        <div className="flex-shrink-0 space-y-4 pb-4">
+        <div className="shrink-0 space-y-4 pb-4">
           {/* View Filter Tabs */}
           <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
             <button
@@ -895,7 +895,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
             <button
               onClick={handleRegisterServer}
-              className="btn-primary flex items-center space-x-2 flex-shrink-0"
+              className="btn-primary flex items-center space-x-2 shrink-0"
             >
               <PlusIcon className="h-4 w-4" />
               <span>Register Server</span>
@@ -904,7 +904,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
             <button
               onClick={handleRefreshHealth}
               disabled={refreshing}
-              className="btn-secondary flex items-center space-x-2 flex-shrink-0"
+              className="btn-secondary flex items-center space-x-2 shrink-0"
             >
               <ArrowPathIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Refresh Health</span>

@@ -167,7 +167,7 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
               id="is_python"
               checked={form.is_python}
               onChange={(e) => onFormChange({ is_python: e.target.checked })}
-              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded-sm"
             />
             <label
               htmlFor="is_python"

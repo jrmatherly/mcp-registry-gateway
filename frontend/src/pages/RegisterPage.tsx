@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import {
   ArrowLeftIcon,
   CloudArrowUpIcon,
@@ -38,14 +38,14 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
           : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/50 dark:border-red-700 dark:text-red-200'
       }`}>
         {type === 'success' ? (
-          <CheckCircleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+          <CheckCircleIcon className="h-5 w-5 mr-3 shrink-0" />
         ) : (
-          <ExclamationCircleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+          <ExclamationCircleIcon className="h-5 w-5 mr-3 shrink-0" />
         )}
         <p className="text-sm font-medium">{message}</p>
         <button
           onClick={onClose}
-          className="ml-3 flex-shrink-0 text-current opacity-70 hover:opacity-100"
+          className="ml-3 shrink-0 text-current opacity-70 hover:opacity-100"
         >
           <XMarkIcon className="h-4 w-4" />
         </button>
@@ -397,7 +397,7 @@ const RegisterPage: React.FC = () => {
         {/* Required Fields */}
         <div className="md:col-span-2">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <span className="bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-1 rounded text-xs mr-2">Required</span>
+            <span className="bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-1 rounded-sm text-xs mr-2">Required</span>
             Basic Information
           </h3>
         </div>
@@ -458,7 +458,7 @@ const RegisterPage: React.FC = () => {
         {/* Optional Fields */}
         <div className="md:col-span-2 mt-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs mr-2">Optional</span>
+            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-sm text-xs mr-2">Optional</span>
             Additional Settings
           </h3>
         </div>
@@ -518,7 +518,7 @@ const RegisterPage: React.FC = () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded-sm"
               checked={serverForm.is_python}
               onChange={(e) => setServerForm(prev => ({ ...prev, is_python: e.target.checked }))}
             />
@@ -586,7 +586,7 @@ const RegisterPage: React.FC = () => {
         {/* Required Fields */}
         <div className="md:col-span-2">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <span className="bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-1 rounded text-xs mr-2">Required</span>
+            <span className="bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-1 rounded-sm text-xs mr-2">Required</span>
             Basic Information
           </h3>
         </div>
@@ -647,7 +647,7 @@ const RegisterPage: React.FC = () => {
         {/* Optional Fields */}
         <div className="md:col-span-2 mt-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs mr-2">Optional</span>
+            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-sm text-xs mr-2">Optional</span>
             Additional Settings
           </h3>
         </div>
@@ -718,7 +718,7 @@ const RegisterPage: React.FC = () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded-sm"
               checked={agentForm.streaming}
               onChange={(e) => setAgentForm(prev => ({ ...prev, streaming: e.target.checked }))}
             />
@@ -820,7 +820,7 @@ const RegisterPage: React.FC = () => {
       {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex">
-          <InformationCircleIcon className="h-5 w-5 text-blue-400 flex-shrink-0" />
+          <InformationCircleIcon className="h-5 w-5 text-blue-400 shrink-0" />
           <div className="ml-3">
             <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">
               About JSON Upload
@@ -1012,7 +1012,7 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* Form Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 p-6">
         {registrationMode === 'form' ? (
           registrationType === 'server' ? renderServerForm() : renderAgentForm()
         ) : (
