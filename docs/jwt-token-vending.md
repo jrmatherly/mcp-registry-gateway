@@ -81,14 +81,14 @@ graph TB
     AuthServer -.->|Self-signed JWT validation<br/>Scope enforcement| AuthServer
 
     %% Styling
-    classDef userStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-    classDef tokenStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef agentStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef idpStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef nginxStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef authStyle fill:#ffebee,stroke:#c62828,stroke-width:2px
-    classDef registryStyle fill:#fff8e1,stroke:#f57f17,stroke-width:2px
-    classDef mcpStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef userStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef tokenStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef agentStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef idpStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef nginxStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef authStyle fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    classDef registryStyle fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#000
+    classDef mcpStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
 
     class UserFlow userStyle
     class User userStyle

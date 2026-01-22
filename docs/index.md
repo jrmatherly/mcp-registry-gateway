@@ -184,16 +184,16 @@ flowchart TB
     MCP_EKS2 -->|Tool Connection| API2
     Lambda1 -->|Tool Connection| API3
 
-    %% Style definitions
-    classDef user fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    classDef agent fill:#e1f5fe,stroke:#29b6f6,stroke-width:2px
-    classDef gateway fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
-    classDef nginx fill:#f3e5f5,stroke:#ab47bc,stroke-width:2px
-    classDef mcpServer fill:#fff3e0,stroke:#ffa726,stroke-width:2px
-    classDef eks fill:#ede7f6,stroke:#7e57c2,stroke-width:2px
-    classDef apiGw fill:#fce4ec,stroke:#ec407a,stroke-width:2px
-    classDef lambda fill:#ffebee,stroke:#ef5350,stroke-width:2px
-    classDef dataSource fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    %% Style definitions - explicit color:#000 ensures text visibility in dark mode
+    classDef user fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    classDef agent fill:#e1f5fe,stroke:#29b6f6,stroke-width:2px,color:#000
+    classDef gateway fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px,color:#000
+    classDef nginx fill:#f3e5f5,stroke:#ab47bc,stroke-width:2px,color:#000
+    classDef mcpServer fill:#fff3e0,stroke:#ffa726,stroke-width:2px,color:#000
+    classDef eks fill:#ede7f6,stroke:#7e57c2,stroke-width:2px,color:#000
+    classDef apiGw fill:#fce4ec,stroke:#ec407a,stroke-width:2px,color:#000
+    classDef lambda fill:#ffebee,stroke:#ef5350,stroke-width:2px,color:#000
+    classDef dataSource fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,color:#000
 
     %% Apply styles
     class User1,User2,UserN user

@@ -74,10 +74,10 @@ graph TB
     AuthServer -.-> Cognito
     AuthRoutes -.-> LocalAuth
 
-    classDef browser fill:#e3f2fd,stroke:#1976d2
-    classDef registry fill:#f3e5f5,stroke:#7b1fa2
-    classDef session fill:#fff3e0,stroke:#f57c00
-    classDef external fill:#e8f5e8,stroke:#388e3c
+    classDef browser fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef registry fill:#f3e5f5,stroke:#7b1fa2,color:#000
+    classDef session fill:#fff3e0,stroke:#f57c00,color:#000
+    classDef external fill:#e8f5e8,stroke:#388e3c,color:#000
 
     class UI,LoginForm browser
     class AuthRoutes,AuthDeps,ServerRoutes,Templates registry
@@ -177,9 +177,9 @@ graph LR
     OAuth2Section --> SAMLBtn
     OAuth2Section --> CustomBtn
 
-    classDef form fill:#e3f2fd,stroke:#1976d2
-    classDef oauth fill:#fff3e0,stroke:#f57c00
-    classDef input fill:#f3e5f5,stroke:#7b1fa2
+    classDef form fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef oauth fill:#fff3e0,stroke:#f57c00,color:#000
+    classDef input fill:#f3e5f5,stroke:#7b1fa2,color:#000
 
     class TraditionalForm,UsernameField,PasswordField,LoginButton form
     class OAuth2Section,CognitoBtn,SAMLBtn,CustomBtn oauth
@@ -259,10 +259,10 @@ graph TB
     MainContent --> ToggleControls
     MainContent --> EditButtons
 
-    classDef header fill:#e8eaf6,stroke:#3f51b5
-    classDef sidebar fill:#e0f2f1,stroke:#4caf50
-    classDef content fill:#fff3e0,stroke:#ff9800
-    classDef controls fill:#fce4ec,stroke:#e91e63
+    classDef header fill:#e8eaf6,stroke:#3f51b5,color:#000
+    classDef sidebar fill:#e0f2f1,stroke:#4caf50,color:#000
+    classDef content fill:#fff3e0,stroke:#ff9800,color:#000
+    classDef controls fill:#fce4ec,stroke:#e91e63,color:#000
 
     class Header,Logo,UserDisplay,LogoutBtn header
     class Sidebar,AllServers,UserServers,AdminTools,HealthStatus sidebar
@@ -389,9 +389,9 @@ graph TB
     ServerAccess --> AdminAccess
     ServerAccess --> ServerSpecific
 
-    classDef identity fill:#e3f2fd,stroke:#1976d2
-    classDef mapping fill:#f3e5f5,stroke:#7b1fa2
-    classDef capability fill:#e8f5e8,stroke:#388e3c
+    classDef identity fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef mapping fill:#f3e5f5,stroke:#7b1fa2,color:#000
+    classDef capability fill:#e8f5e8,stroke:#388e3c,color:#000
 
     class User,Groups,AuthMethod identity
     class Scopes,GroupMapping,ServerAccess mapping
@@ -640,9 +640,9 @@ graph LR
     ProviderManager --> Custom
     TokenValidator --> Cognito
 
-    classDef registry fill:#e3f2fd,stroke:#1976d2
-    classDef auth fill:#f3e5f5,stroke:#7b1fa2
-    classDef provider fill:#e8f5e8,stroke:#388e3c
+    classDef registry fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef auth fill:#f3e5f5,stroke:#7b1fa2,color:#000
+    classDef provider fill:#e8f5e8,stroke:#388e3c,color:#000
 
     class AuthRoutes,AuthDeps,Config registry
     class OAuth2Handler,ProviderManager,TokenValidator auth

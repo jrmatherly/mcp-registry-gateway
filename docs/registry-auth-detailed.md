@@ -79,10 +79,10 @@ graph TB
     AuthServer -.-> Cognito
     AuthRoutes -.-> LocalAuth
 
-    classDef browser fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef registry fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef session fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef external fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef browser fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef registry fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef session fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef external fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
 
     class UI,LoginForm,Dashboard browser
     class AuthRoutes,AuthDeps,ServerRoutes,Templates registry
@@ -216,10 +216,10 @@ flowchart TD
 
     LoginError --> LoginPage
 
-    classDef startEnd fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
-    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    classDef process fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px
+    classDef startEnd fill:#e8f5e8,stroke:#4caf50,stroke-width:2px,color:#000
+    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000
+    classDef process fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,color:#000
+    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#000
 
     class Start,RenderUI startEnd
     class HasSession,SessionValid,UserChoice,ValidateCreds decision
@@ -269,10 +269,10 @@ graph LR
     ProviderButtons --> SAMLBtn
     ProviderButtons --> CustomBtn
 
-    classDef header fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
-    classDef auth fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef form fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef oauth fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef header fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#000
+    classDef auth fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef form fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef oauth fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
 
     class LoginHeader,ErrorDisplay header
     class TraditionalSection,OAuth2Section auth
@@ -413,10 +413,10 @@ graph TB
     ManagementControls --> CreateButtons
     ManagementControls --> AdminPanels
 
-    classDef header fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
-    classDef sidebar fill:#e0f2f1,stroke:#4caf50,stroke-width:2px
-    classDef content fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    classDef permissions fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    classDef header fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#000
+    classDef sidebar fill:#e0f2f1,stroke:#4caf50,stroke-width:2px,color:#000
+    classDef content fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000
+    classDef permissions fill:#fce4ec,stroke:#e91e63,stroke-width:2px,color:#000
 
     class HeaderSection,Logo,UserInfo,LogoutControls header
     class Sidebar,ServerList,AdminTools,HealthStatus sidebar
@@ -716,10 +716,10 @@ flowchart TD
     ShowConflictError --> ShowForm
     Success --> End
 
-    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px
-    classDef process fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:2px,color:#000
+    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#000
+    classDef process fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,color:#000
+    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000
 
     class Success success
     class ShowError,ShowValidationErrors,ShowConflictError error
@@ -777,10 +777,10 @@ graph TB
     AdminAccess --> AdminUI
     ServerSpecific --> FilteredContent
 
-    classDef identity fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef mapping fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef capability fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef ui fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef identity fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef mapping fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef capability fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef ui fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
 
     class User,Groups,AuthMethod identity
     class ScopeMapping,Scopes,ServerAccess mapping
@@ -1156,10 +1156,10 @@ flowchart TD
     Forbidden --> End
     RenderResponse --> End
 
-    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px
-    classDef process fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:2px,color:#000
+    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#000
+    classDef process fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,color:#000
+    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000
 
     class AllowAccess,RenderResponse success
     class Unauthorized,Forbidden error
@@ -1317,8 +1317,8 @@ graph TB
     BasicAuth -.-> SessionAuth
     SessionAuth -.-> EnhancedAuth
 
-    classDef dependency fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef usage fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef dependency fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef usage fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
 
     class BasicAuth,SessionAuth,EnhancedAuth dependency
     class SimpleRoutes,DataRoutes,ProtectedRoutes usage
