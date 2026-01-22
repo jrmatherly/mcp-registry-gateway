@@ -5,18 +5,24 @@ Provides fixtures specific to integration tests that involve multiple
 components working together.
 """
 
+from __future__ import annotations
+
 import logging
-from collections.abc import Generator
+from collections.abc import AsyncGenerator, Generator
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
+if TYPE_CHECKING:
+    from httpx import AsyncClient
+
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="function", autouse=True)
-def reset_mongodb_client():
+def reset_mongodb_client() -> Generator[None, None, None]:
     """Reset MongoDB client singleton before each test to pick up correct settings."""
     from registry.repositories.documentdb import client
 
@@ -30,7 +36,7 @@ def reset_mongodb_client():
 
 
 @pytest.fixture(autouse=True)
-def mock_security_scanner():
+def mock_security_scanner() -> Generator[MagicMock, None, None]:
     """Mock security scanner for integration tests to avoid mcp-scanner dependency."""
     from registry.schemas.security import SecurityScanConfig, SecurityScanResult
 
@@ -81,7 +87,7 @@ def test_client(mock_settings) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture
-async def async_test_client(mock_settings):
+async def async_test_client(mock_settings) -> AsyncGenerator[AsyncClient, None]:
     """
     Create an async FastAPI test client for integration tests.
 

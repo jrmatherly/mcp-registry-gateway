@@ -6,7 +6,7 @@ from typing import Any
 
 import aiosqlite
 
-from ..storage.database import MetricsStorage
+from ..storage.database import get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class RetentionManager:
     """Manages data retention policies and cleanup operations."""
 
     def __init__(self):
-        self.storage = MetricsStorage()
+        self.storage = get_storage()
         self.policies: dict[str, RetentionPolicy] = {}
         self._load_default_policies()
 

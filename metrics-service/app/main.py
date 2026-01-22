@@ -4,12 +4,13 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 from .api.routes import router as api_router
 from .config import settings
 from .core.rate_limiter import rate_limiter
 from .core.retention import retention_manager
-from .storage.database import MetricsStorage, init_database, wait_for_database
+from .storage.database import get_storage, init_database, wait_for_database
 from .utils.helpers import hash_api_key
 
 # Configure logging
@@ -80,7 +81,7 @@ async def rate_limit_cleanup_task():
     """Background task to clean up old rate limit buckets."""
     while True:
         try:
-            await asyncio.sleep(3600)  # Run every hour
+            await asyncio.sleep(settings.RATE_LIMIT_CLEANUP_INTERVAL_SECONDS)
             await rate_limiter.cleanup_old_buckets(max_age_hours=24)
         except asyncio.CancelledError:
             break
@@ -93,7 +94,7 @@ async def retention_cleanup_task():
     """Background task to run data retention cleanup."""
     while True:
         try:
-            await asyncio.sleep(86400)  # Run once per day (24 hours)
+            await asyncio.sleep(settings.RETENTION_CLEANUP_INTERVAL_SECONDS)
             logger.info("Starting scheduled data retention cleanup...")
             result = await retention_manager.cleanup_all_tables(dry_run=False)
 
@@ -111,29 +112,29 @@ async def retention_cleanup_task():
             break
         except Exception as e:
             logger.error(f"Error in retention cleanup task: {e}")
-            await asyncio.sleep(3600)  # Wait an hour before retry
+            await asyncio.sleep(settings.RATE_LIMIT_CLEANUP_INTERVAL_SECONDS)  # Wait before retry
 
 
 async def metrics_flush_task():
-    """Background task to flush metrics buffer every 5 seconds."""
+    """Background task to flush metrics buffer periodically."""
     # Import the shared processor instance from routes
     from .api.routes import processor
 
     while True:
         try:
-            await asyncio.sleep(5)  # Flush every 5 seconds
+            await asyncio.sleep(settings.METRICS_FLUSH_INTERVAL_SECONDS)
             await processor.force_flush()
             logger.debug("Metrics buffer flushed to database")
         except asyncio.CancelledError:
             break
         except Exception as e:
             logger.error(f"Error in metrics flush task: {e}")
-            await asyncio.sleep(5)  # Wait 5 seconds before retry
+            await asyncio.sleep(settings.METRICS_FLUSH_INTERVAL_SECONDS)
 
 
 async def setup_preshared_api_keys():
     """Setup pre-shared API keys from environment variables dynamically."""
-    storage = MetricsStorage()
+    storage = get_storage()
 
     # Dynamically discover all METRICS_API_KEY_* environment variables
     api_key_count = 0
@@ -164,6 +165,31 @@ async def setup_preshared_api_keys():
         logger.info(f"Configured {api_key_count} API keys from environment variables")
 
 
+class HealthResponse(BaseModel):
+    """Health check response model."""
+
+    status: str
+    service: str
+
+
+class EndpointsInfo(BaseModel):
+    """API endpoints information."""
+
+    metrics: str
+    health: str
+    flush: str
+    rate_limit: str
+
+
+class RootResponse(BaseModel):
+    """Root endpoint response model."""
+
+    service: str
+    version: str
+    status: str
+    endpoints: EndpointsInfo
+
+
 app = FastAPI(
     title="MCP Metrics Collection Service",
     description="Centralized metrics collection for MCP Gateway Registry components",
@@ -175,26 +201,26 @@ app = FastAPI(
 app.include_router(api_router)
 
 
-@app.get("/health")
-async def health_check():
+@app.get("/health", response_model=HealthResponse)
+async def health_check() -> HealthResponse:
     """Health check endpoint."""
-    return {"status": "healthy", "service": "metrics-collection"}
+    return HealthResponse(status="healthy", service="metrics-collection")
 
 
-@app.get("/")
-async def root():
+@app.get("/", response_model=RootResponse)
+async def root() -> RootResponse:
     """Root endpoint with service information."""
-    return {
-        "service": "MCP Metrics Collection Service",
-        "version": "1.0.0",
-        "status": "running",
-        "endpoints": {
-            "metrics": "/metrics",
-            "health": "/health",
-            "flush": "/flush",
-            "rate-limit": "/rate-limit",
-        },
-    }
+    return RootResponse(
+        service="MCP Metrics Collection Service",
+        version="1.0.0",
+        status="running",
+        endpoints=EndpointsInfo(
+            metrics="/metrics",
+            health="/health",
+            flush="/flush",
+            rate_limit="/rate-limit",
+        ),
+    )
 
 
 if __name__ == "__main__":

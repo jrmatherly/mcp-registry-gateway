@@ -1,8 +1,13 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+
+def _utc_now() -> datetime:
+    """Return current UTC datetime (timezone-aware)."""
+    return datetime.now(UTC)
 
 
 class MetricType(str, Enum):
@@ -17,7 +22,7 @@ class MetricType(str, Enum):
 
 class Metric(BaseModel):
     type: MetricType
-    timestamp: datetime | None = Field(default_factory=datetime.utcnow)
+    timestamp: datetime | None = Field(default_factory=_utc_now)
     value: float
     duration_ms: float | None = None
     dimensions: dict[str, Any] = Field(default_factory=dict)
@@ -35,7 +40,7 @@ class MetricResponse(BaseModel):
     status: str
     accepted: int
     rejected: int
-    errors: list[str] = []
+    errors: list[str] = Field(default_factory=list)
     request_id: str
 
 

@@ -197,6 +197,22 @@ async def init_database():
         logger.info("Database tables and indexes created successfully")
 
 
+# Singleton storage instance
+_storage_instance: "MetricsStorage | None" = None
+
+
+def get_storage() -> "MetricsStorage":
+    """Get singleton MetricsStorage instance.
+
+    Returns:
+        The shared MetricsStorage instance.
+    """
+    global _storage_instance
+    if _storage_instance is None:
+        _storage_instance = MetricsStorage()
+    return _storage_instance
+
+
 class MetricsStorage:
     """SQLite storage handler for containerized database."""
 

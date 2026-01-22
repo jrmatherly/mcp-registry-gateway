@@ -1,5 +1,13 @@
+"""Helper utility functions for the metrics service."""
+
 import hashlib
 import secrets
+
+__all__ = [
+    "generate_api_key",
+    "generate_request_id",
+    "hash_api_key",
+]
 
 
 def generate_api_key() -> str:

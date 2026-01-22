@@ -4,7 +4,7 @@ from fastapi import HTTPException, Request
 from fastapi.security import HTTPBearer
 
 from ..core.rate_limiter import rate_limiter
-from ..storage.database import MetricsStorage
+from ..storage.database import get_storage
 from ..utils.helpers import hash_api_key
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ async def verify_api_key(request: Request) -> str:
     key_hash = hash_api_key(api_key)
 
     # Verify against database
-    storage = MetricsStorage()
+    storage = get_storage()
     key_info = await storage.get_api_key(key_hash)
 
     if not key_info:
@@ -64,7 +64,7 @@ async def get_rate_limit_status(api_key: str) -> dict:
     key_hash = hash_api_key(api_key)
 
     # Get key info from database
-    storage = MetricsStorage()
+    storage = get_storage()
     key_info = await storage.get_api_key(key_hash)
 
     if not key_info:

@@ -9,11 +9,14 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from tests.fixtures.mocks.mock_embeddings import MockEmbeddingsClient
+from tests.fixtures.mocks.mock_http import MockAsyncClient
+
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def mock_faiss_service():
+def mock_faiss_service() -> MagicMock:
     """
     Create a mock FAISS service for testing.
 
@@ -29,33 +32,29 @@ def mock_faiss_service():
 
 
 @pytest.fixture
-def mock_embeddings_client():
+def mock_embeddings_client() -> MockEmbeddingsClient:
     """
     Create a mock embeddings client for testing.
 
     Returns:
         Mock embeddings client
     """
-    from tests.fixtures.mocks.mock_embeddings import MockEmbeddingsClient
-
     return MockEmbeddingsClient()
 
 
 @pytest.fixture
-def mock_http_client():
+def mock_http_client() -> MockAsyncClient:
     """
     Create a mock HTTP client for testing.
 
     Returns:
         Mock HTTP client
     """
-    from tests.fixtures.mocks.mock_http import MockAsyncClient
-
     return MockAsyncClient()
 
 
 @pytest.fixture
-def mock_mcp_client():
+def mock_mcp_client() -> AsyncMock:
     """
     Create a mock MCP client for testing.
 

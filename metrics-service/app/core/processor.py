@@ -3,7 +3,7 @@ import logging
 
 from ..core.models import Metric, MetricRequest, MetricType
 from ..core.validator import validator
-from ..storage.database import MetricsStorage
+from ..storage.database import get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class MetricsProcessor:
     """Core metrics processing engine."""
 
     def __init__(self):
-        self.storage = MetricsStorage()
+        self.storage = get_storage()
         self._buffer = []
         self._buffer_lock = asyncio.Lock()
 
