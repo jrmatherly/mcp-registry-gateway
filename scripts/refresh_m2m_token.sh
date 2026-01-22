@@ -103,7 +103,7 @@ if echo "$RESPONSE" | jq -e '.access_token' > /dev/null 2>&1; then
     echo "✓ Token refreshed successfully!"
     echo ""
     echo "Token file: $TOKEN_FILE"
-    echo "Expires in: $EXPIRES_IN seconds ($(($EXPIRES_IN / 60)) minutes)"
+    echo "Expires in: $EXPIRES_IN seconds ($((EXPIRES_IN / 60)) minutes)"
     echo "Expires at: $(date -d @$EXPIRES_AT)"
     echo ""
     echo "To use this token:"

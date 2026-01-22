@@ -24,31 +24,29 @@ echo ""
 # Step 1: Build and push Docker image
 echo "Step 1/3: Building and pushing Docker image..."
 echo "----------------------------------------"
+cd "$REPO_ROOT"
 if [[ "${NO_CACHE:-}" == "true" ]]; then
     echo "Building without cache (NO_CACHE=true)"
-    cd "$REPO_ROOT"
-    NO_CACHE=true make build-push IMAGE=registry
+    if ! NO_CACHE=true make build-push IMAGE=registry; then
+        echo "Error: Docker build and push failed"
+        exit 1
+    fi
 else
-    cd "$REPO_ROOT"
-    make build-push IMAGE=registry
-fi
-
-if [ $? -ne 0 ]; then
-    echo "Error: Docker build and push failed"
-    exit 1
+    if ! make build-push IMAGE=registry; then
+        echo "Error: Docker build and push failed"
+        exit 1
+    fi
 fi
 
 echo ""
 echo "Step 2/3: Forcing new deployment..."
 echo "----------------------------------------"
-aws ecs update-service \
+if ! aws ecs update-service \
     --cluster "$ECS_CLUSTER" \
     --service "$ECS_SERVICE" \
     --force-new-deployment \
     --region "$AWS_REGION" \
-    --output json | jq '{service: .service.serviceName, status: .service.status, desiredCount: .service.desiredCount}'
-
-if [ $? -ne 0 ]; then
+    --output json | jq '{service: .service.serviceName, status: .service.status, desiredCount: .service.desiredCount}'; then
     echo "Error: Force new deployment failed"
     exit 1
 fi

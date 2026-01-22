@@ -1,14 +1,21 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
+  scrape_timeout: 10s
+  external_labels:
+    environment: '${ENVIRONMENT:-development}'
+    cluster: '${CLUSTER_NAME:-local}'
 
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['prometheus:9090']
+    honor_labels: true
 
   - job_name: 'mcp-metrics-service'
     static_configs:
       - targets: ['metrics-service:9465']
     scrape_interval: 10s
+    scrape_timeout: 8s
     metrics_path: /metrics
+    honor_labels: true

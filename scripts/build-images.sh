@@ -175,18 +175,15 @@ PYEOF
 setup_a2a_agent() {
     local image_name="$1"
     local context="$2"
-    local agent_dir=""
     local tmp_dir=""
     local deps_source_dir=""
 
     # Determine which agent this is and where to place .tmp files
     if [[ "$image_name" == "flight_booking_agent" ]]; then
-        agent_dir="${REPO_ROOT}/${context}"
         tmp_dir="${REPO_ROOT}/${context}/.tmp"
         # Dependencies are at agents/a2a level
         deps_source_dir="${REPO_ROOT}/agents/a2a"
     elif [[ "$image_name" == "travel_assistant_agent" ]]; then
-        agent_dir="${REPO_ROOT}/${context}"
         tmp_dir="${REPO_ROOT}/${context}/.tmp"
         # Dependencies are at agents/a2a level
         deps_source_dir="${REPO_ROOT}/agents/a2a"
@@ -286,6 +283,7 @@ build_image() {
 
     # Build the Docker image using buildx (faster, better caching, future-proof)
     # Tag with :latest only (ECS will pull fresh images with imagePullPolicy: always)
+    # shellcheck disable=SC2086 # Intentional word splitting for flags
     docker buildx build \
         --load \
         -f "$REPO_ROOT/$dockerfile" \
@@ -352,8 +350,15 @@ if [ -z "$TARGET_IMAGE" ]; then
     log_info "Processing all ${#IMAGE_NAMES[@]} images..."
     IMAGES_TO_PROCESS=("${IMAGE_NAMES[@]}")
 else
-    # Process specific image
-    if [[ " ${IMAGE_NAMES[@]} " =~ " ${TARGET_IMAGE} " ]]; then
+    # Process specific image - check if it exists in IMAGE_NAMES array
+    image_found=false
+    for img in "${IMAGE_NAMES[@]}"; do
+        if [[ "$img" == "$TARGET_IMAGE" ]]; then
+            image_found=true
+            break
+        fi
+    done
+    if [[ "$image_found" == "true" ]]; then
         log_info "Processing specific image: $TARGET_IMAGE"
         IMAGES_TO_PROCESS=("$TARGET_IMAGE")
     else

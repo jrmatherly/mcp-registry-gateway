@@ -120,7 +120,7 @@ declare -A SERVER_PATH_MAP=(
 print_color() {
     local color=$1
     shift
-    echo -e "${color}$@${NC}"
+    echo -e "${color}$*${NC}"
 }
 
 # Function to print section headers
@@ -207,7 +207,7 @@ generate_tags() {
     # Add branch tag if not main/master
     if [ "$BRANCH_NAME" != "main" ] && [ "$BRANCH_NAME" != "master" ] && [ "$BRANCH_NAME" != "unknown" ]; then
         # Sanitize branch name for Docker tag
-        sanitized_branch=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9._-]/-/g')
+        sanitized_branch="${BRANCH_NAME//[^a-zA-Z0-9._-]/-}"
         tags="$tags --tag $registry/$base_name:$sanitized_branch"
     fi
 
@@ -260,11 +260,6 @@ build_and_push_component() {
     # Build and push with buildx
     print_color "$GREEN" "✅ Building for platforms: $PLATFORMS"
 
-    local push_flag=""
-    if [ "$push_dockerhub" = true ] || [ "$push_ghcr" = true ]; then
-        push_flag="--push"
-    fi
-
     cd "$PROJECT_ROOT"
 
     # Build the image first
@@ -279,6 +274,7 @@ build_and_push_component() {
         print_color "$YELLOW" "   Adding build arg: SERVER_DIR=$server_path"
     fi
 
+    # shellcheck disable=SC2086 # Intentional word splitting for build_args
     docker build \
         --file "$dockerfile" \
         $build_args \
@@ -290,12 +286,10 @@ build_and_push_component() {
         --label "org.opencontainers.image.description=MCP Gateway Registry - $name component" \
         --label "org.opencontainers.image.vendor=${GITHUB_OWNER}" \
         --tag "local/$name:$VERSION" \
-        "$context"
-
-    if [ $? -ne 0 ]; then
+        "$context" || {
         print_color "$RED" "❌ Failed to build $name"
         return 1
-    fi
+    }
 
     # Tag and push images if needed
     if [ "$push_dockerhub" = true ] || [ "$push_ghcr" = true ]; then
@@ -304,7 +298,8 @@ build_and_push_component() {
         # Parse all tags and push them
         # Convert the tag string to an array
         eval "tag_array=($all_tags)"
-        i=0
+        local i=0
+        # shellcheck disable=SC2154 # tag_array is assigned via eval above
         while [ $i -lt ${#tag_array[@]} ]; do
             if [ "${tag_array[$i]}" = "--tag" ]; then
                 # Next element is the tag value
@@ -324,12 +319,7 @@ build_and_push_component() {
         done
     fi
 
-    if [ $? -eq 0 ]; then
-        print_color "$GREEN" "✅ Successfully built and pushed $name"
-    else
-        print_color "$RED" "❌ Failed to build and push $name"
-        return 1
-    fi
+    print_color "$GREEN" "✅ Successfully built and pushed $name"
 }
 
 # Function to mirror external images
