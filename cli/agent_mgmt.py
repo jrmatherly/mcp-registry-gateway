@@ -71,32 +71,14 @@ REQUEST_TIMEOUT: int = 10
 API_BASE: str = "/api/agents"
 
 
-def _extract_username_from_jwt(token: str) -> str:
-    """Extract username from JWT token payload."""
-    try:
-        parts = token.split(".")
-        if len(parts) != 3:
-            return "unknown"
+def _decode_jwt_payload(token: str) -> dict[str, Any] | None:
+    """Decode JWT payload without verification.
 
-        payload = parts[1]
-        padding = 4 - (len(payload) % 4)
-        if padding != 4:
-            payload += "=" * padding
-
-        decoded = base64.urlsafe_b64decode(payload)
-        claims = json.loads(decoded)
-
-        username = claims.get("preferred_username") or claims.get("sub") or "unknown"
-        return username
-    except Exception:
-        return "unknown"
-
-
-def _get_token_expiration(token: str) -> int | None:
-    """Extract expiration timestamp from JWT token.
+    Args:
+        token: JWT token string
 
     Returns:
-        Expiration timestamp (seconds since epoch) or None if unable to extract
+        Decoded claims dict or None if decoding fails
     """
     try:
         parts = token.split(".")
@@ -109,10 +91,27 @@ def _get_token_expiration(token: str) -> int | None:
             payload += "=" * padding
 
         decoded = base64.urlsafe_b64decode(payload)
-        claims = json.loads(decoded)
-        return claims.get("exp")
-    except Exception:
+        return json.loads(decoded)
+    except (json.JSONDecodeError, ValueError, UnicodeDecodeError):
         return None
+
+
+def _extract_username_from_jwt(token: str) -> str:
+    """Extract username from JWT token payload."""
+    claims = _decode_jwt_payload(token)
+    if not claims:
+        return "unknown"
+    return claims.get("preferred_username") or claims.get("sub") or "unknown"
+
+
+def _get_token_expiration(token: str) -> int | None:
+    """Extract expiration timestamp from JWT token.
+
+    Returns:
+        Expiration timestamp (seconds since epoch) or None if unable to extract
+    """
+    claims = _decode_jwt_payload(token)
+    return claims.get("exp") if claims else None
 
 
 def _is_token_expired(token: str, buffer_seconds: int = 30) -> bool:
@@ -260,24 +259,24 @@ def _make_request(
         "Content-Type": "application/json",
     }
 
-    logger.info(f"HTTP {method} Request:")
-    logger.info(f"  URL: {url}")
-    logger.info("  Headers:")
-    logger.info(
+    logger.debug(f"HTTP {method} Request:")
+    logger.debug(f"  URL: {url}")
+    logger.debug("  Headers:")
+    logger.debug(
         f"    Authorization: Bearer {token[:50]}..." if token else "    Authorization: <NO_TOKEN>"
     )
-    logger.info("    Content-Type: application/json")
+    logger.debug("    Content-Type: application/json")
     if params:
-        logger.info(f"  Query Params: {json.dumps(params, indent=2)}")
+        logger.debug(f"  Query Params: {json.dumps(params, indent=2)}")
     if data:
-        logger.info(f"  Request Body: {len(json.dumps(data))} bytes")
+        logger.debug(f"  Request Body: {len(json.dumps(data))} bytes")
         logger.debug(f"  Request Data: {json.dumps(data, indent=2)}")
-    logger.info(f"  Timeout: {timeout}s")
+    logger.debug(f"  Timeout: {timeout}s")
 
     headers["Authorization"] = f"Bearer {token}"
 
     try:
-        logger.info(f"→ Sending {method} request to {url}...")
+        logger.debug(f"→ Sending {method} request to {url}...")
         response = requests.request(
             method=method,
             url=url,
@@ -288,21 +287,21 @@ def _make_request(
         )
 
         # Log response details
-        logger.info(f"← Received HTTP {response.status_code}")
-        logger.info("  Response Headers:")
+        logger.debug(f"← Received HTTP {response.status_code}")
+        logger.debug("  Response Headers:")
         for header_name, header_value in response.headers.items():
             # Hide sensitive headers
             if header_name.lower() in ["authorization", "x-scopes"]:
-                logger.info(
+                logger.debug(
                     f"    {header_name}: {header_value[:50]}..."
                     if len(str(header_value)) > 50
                     else f"    {header_name}: {header_value}"
                 )
             else:
-                logger.info(f"    {header_name}: {header_value}")
+                logger.debug(f"    {header_name}: {header_value}")
 
         response_size = len(response.content) if response.content else 0
-        logger.info(f"  Response Body: {response_size} bytes")
+        logger.debug(f"  Response Body: {response_size} bytes")
 
         if response.status_code >= 400:
             logger.warning(f"✗ HTTP {response.status_code} Error")
@@ -312,7 +311,7 @@ def _make_request(
             except json.JSONDecodeError:
                 logger.warning(f"  Error Response (raw): {response.text[:200]}")
         else:
-            logger.info(f"✓ HTTP {response.status_code} Success")
+            logger.debug(f"✓ HTTP {response.status_code} Success")
 
         return response
 

@@ -29,6 +29,13 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+__all__ = [
+    "MCPClient",
+    "MCPSession",
+    "create_mcp_client",
+    "create_mcp_session",
+]
+
 
 def _load_oauth_token_from_file(token_file_path: str | Path) -> str | None:
     """

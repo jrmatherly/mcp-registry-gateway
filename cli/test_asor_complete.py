@@ -108,8 +108,8 @@ def test_agent_definition_crud(token):
                 print("   " + "=" * 50)
                 print(json.dumps(agent, indent=2))
                 print("   " + "=" * 50)
-        except:
-            pass
+        except (json.JSONDecodeError, KeyError, IndexError):
+            pass  # Response may not be valid JSON or have expected structure
     else:
         print(f"❌ Failed: {status} - {response[:200]}")
 

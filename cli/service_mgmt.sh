@@ -7,13 +7,28 @@
 # Service Management Script for MCP Gateway Registry
 # Usage: ./cli/service_mgmt.sh {add|delete|monitor|test|add-to-groups|remove-from-groups|create-group|delete-group|list-groups} [args...]
 
-echo "WARNING: This script is DEPRECATED. Please use the Registry Management API instead:"
+echo ""
+echo "============================================================"
+echo "  WARNING: This script is DEPRECATED"
+echo "============================================================"
+echo ""
+echo "Please use the Registry Management API instead:"
 echo "  uv run python api/registry_management.py --help"
 echo "  OR cli/registry_cli_wrapper.py --help"
+echo ""
 echo "See api/README.md for full documentation."
 echo ""
+echo "To continue using this deprecated script, set:"
+echo "  export ALLOW_DEPRECATED=1"
+echo "============================================================"
+echo ""
 
-set -e
+if [ "${ALLOW_DEPRECATED:-0}" != "1" ]; then
+    echo "Exiting. Set ALLOW_DEPRECATED=1 to proceed."
+    exit 1
+fi
+
+set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'
