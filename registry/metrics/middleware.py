@@ -107,7 +107,7 @@ class RegistryMetricsMiddleware(BaseHTTPMiddleware):
 
         # Skip static files and non-API endpoints
         if (
-            path.startswith("/static/")
+            path.startswith("/assets/")
             or path.startswith("/favicon.ico")
             or path == "/"
             or path == "/docs"

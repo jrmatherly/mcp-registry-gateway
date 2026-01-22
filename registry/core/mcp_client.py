@@ -98,7 +98,7 @@ def normalize_sse_endpoint_url_for_request(url_str: str) -> str:
         messages_path = match.group(3)  # /messages/...
 
         # Skip common paths that aren't mount paths
-        if mount_path in ["api", "static", "health"]:
+        if mount_path in ["api", "assets", "health"]:
             return url_str
 
         normalized = f"{base_url}{messages_path}"
