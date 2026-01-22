@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import {
   CpuChipIcon,
-  StarIcon,
   ArrowPathIcon,
   PencilIcon,
   ClockIcon,
@@ -18,6 +17,9 @@ import {
 import AgentDetailsModal from './AgentDetailsModal';
 import SecurityScanModal from './SecurityScanModal';
 import StarRatingWidget from './StarRatingWidget';
+import { formatTimeSince } from '../utils/dateUtils';
+import { handleApiError } from '../utils/errorHandler';
+import type { HealthStatus, TrustLevel, Visibility, RatingDetail, ShowToastCallback } from '../types';
 
 /**
  * Agent interface representing an A2A agent.
@@ -28,15 +30,15 @@ export interface Agent {
   url?: string;
   description?: string;
   version?: string;
-  visibility?: 'public' | 'private' | 'group-restricted';
-  trust_level?: 'community' | 'verified' | 'trusted' | 'unverified';
+  visibility?: Visibility;
+  trust_level?: TrustLevel;
   enabled: boolean;
   tags?: string[];
   last_checked_time?: string;
   usersCount?: number;
   rating?: number;
-  rating_details?: Array<{ user: string; rating: number }>;
-  status?: 'healthy' | 'healthy-auth-expired' | 'unhealthy' | 'unknown';
+  rating_details?: RatingDetail[];
+  status?: HealthStatus;
 }
 
 /**
@@ -50,54 +52,12 @@ interface AgentCardProps {
   canHealthCheck?: boolean;  // Whether user can run health check on this agent
   canToggle?: boolean;       // Whether user can enable/disable this agent
   onRefreshSuccess?: () => void;
-  onShowToast?: (message: string, type: 'success' | 'error') => void;
+  onShowToast?: ShowToastCallback;
   onAgentUpdate?: (path: string, updates: Partial<Agent>) => void;
   authToken?: string | null;
 }
 
-/**
- * Helper function to format time since last checked.
- */
-const formatTimeSince = (timestamp: string | null | undefined): string | null => {
-  if (!timestamp) {
-    return null;
-  }
-
-  try {
-    const now = new Date();
-    const lastChecked = new Date(timestamp);
-
-    // Check if the date is valid
-    if (isNaN(lastChecked.getTime())) {
-      return null;
-    }
-
-    const diffMs = now.getTime() - lastChecked.getTime();
-
-    const diffSeconds = Math.floor(diffMs / 1000);
-    const diffMinutes = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    let result;
-    if (diffDays > 0) {
-      result = `${diffDays}d ago`;
-    } else if (diffHours > 0) {
-      result = `${diffHours}h ago`;
-    } else if (diffMinutes > 0) {
-      result = `${diffMinutes}m ago`;
-    } else {
-      result = `${diffSeconds}s ago`;
-    }
-
-    return result;
-  } catch (error) {
-    console.error('formatTimeSince error:', error, 'for timestamp:', timestamp);
-    return null;
-  }
-};
-
-const normalizeHealthStatus = (status?: string | null): Agent['status'] => {
+const normalizeHealthStatus = (status?: string | null): HealthStatus => {
   if (status === 'healthy' || status === 'healthy-auth-expired') {
     return status;
   }
@@ -130,6 +90,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
   const [fullAgentDetails, setFullAgentDetails] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [showSecurityScan, setShowSecurityScan] = useState(false);
+  // Using any type to match SecurityScanModal's expected type which differs from our shared type
   const [securityScanResult, setSecurityScanResult] = useState<any>(null);
   const [loadingSecurityScan, setLoadingSecurityScan] = useState(false);
 
@@ -222,24 +183,20 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
       if (onShowToast) {
         onShowToast('Agent health status refreshed successfully', 'success');
       }
-    } catch (error: any) {
-      console.error('Failed to refresh agent health:', error);
-      if (onShowToast) {
-        onShowToast(error.response?.data?.detail || 'Failed to refresh agent health status', 'error');
-      }
+    } catch (error: unknown) {
+      handleApiError(error, 'refresh agent health', onShowToast);
     } finally {
       setLoadingRefresh(false);
     }
   }, [agent.path, authToken, loadingRefresh, onRefreshSuccess, onShowToast, onAgentUpdate]);
 
   const handleCopyDetails = useCallback(
-    async (data: any) => {
+    async (data: unknown) => {
       try {
         await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
         onShowToast?.('Full agent JSON copied to clipboard!', 'success');
-      } catch (error) {
-        console.error('Failed to copy JSON:', error);
-        onShowToast?.('Failed to copy JSON', 'error');
+      } catch (error: unknown) {
+        handleApiError(error, 'copy JSON', onShowToast);
       }
     },
     [onShowToast]
@@ -257,13 +214,8 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
         headers ? { headers } : undefined
       );
       setSecurityScanResult(response.data);
-    } catch (error: any) {
-      if (error.response?.status !== 404) {
-        console.error('Failed to fetch security scan:', error);
-        if (onShowToast) {
-          onShowToast('Failed to load security scan results', 'error');
-        }
-      }
+    } catch (error: unknown) {
+      handleApiError(error, 'load security scan results', onShowToast, { silentOn404: true });
       setSecurityScanResult(null);
     } finally {
       setLoadingSecurityScan(false);
@@ -289,10 +241,10 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
     if (securityScanResult.scan_failed) {
       return { Icon: ShieldExclamationIcon, color: 'text-red-500 dark:text-red-400', title: 'Security scan failed' };
     }
-    const hasVulnerabilities = securityScanResult.critical_issues > 0 ||
-      securityScanResult.high_severity > 0 ||
-      securityScanResult.medium_severity > 0 ||
-      securityScanResult.low_severity > 0;
+    const hasVulnerabilities = (securityScanResult.critical_issues ?? 0) > 0 ||
+      (securityScanResult.high_severity ?? 0) > 0 ||
+      (securityScanResult.medium_severity ?? 0) > 0 ||
+      (securityScanResult.low_severity ?? 0) > 0;
     if (hasVulnerabilities) {
       return { Icon: ShieldExclamationIcon, color: 'text-red-500 dark:text-red-400', title: 'Security issues found' };
     }
@@ -386,11 +338,8 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
                 try {
                   const response = await axios.get(`/api/agents${agent.path}`);
                   setFullAgentDetails(response.data);
-                } catch (error) {
-                  console.error('Failed to fetch agent details:', error);
-                  if (onShowToast) {
-                    onShowToast('Failed to load full agent details', 'error');
-                  }
+                } catch (error: unknown) {
+                  handleApiError(error, 'load agent details', onShowToast);
                 } finally {
                   setLoadingDetails(false);
                 }

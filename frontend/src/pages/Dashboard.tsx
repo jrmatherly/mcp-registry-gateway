@@ -1,13 +1,20 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, XMarkIcon, ArrowPathIcon, CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import axios from 'axios';
 import { useServerStats } from '../hooks/useServerStats';
 import { useAuth } from '../contexts/AuthContext';
+import { useSemanticSearch } from '../hooks/useSemanticSearch';
 import ServerCard from '../components/ServerCard';
 import AgentCard from '../components/AgentCard';
 import SemanticSearchResults from '../components/SemanticSearchResults';
-import { useSemanticSearch } from '../hooks/useSemanticSearch';
-import axios from 'axios';
+import Toast from '../components/Toast';
+import EditServerModal from '../components/EditServerModal';
+import EditAgentModal from '../components/EditAgentModal';
+import type { EditServerForm } from '../components/EditServerModal';
+import type { EditAgentForm } from '../components/EditAgentModal';
+import { hasExternalRegistryTag } from '../constants';
+import type { HealthStatus, TrustLevel, Visibility, ToastType } from '../types';
 
 
 interface Server {
@@ -20,7 +27,7 @@ interface Server {
   last_checked_time?: string;
   usersCount?: number;
   rating?: number;
-  status?: 'healthy' | 'healthy-auth-expired' | 'unhealthy' | 'unknown';
+  status?: HealthStatus;
   num_tools?: number;
   proxy_pass_url?: string;
   license?: string;
@@ -34,56 +41,17 @@ interface Agent {
   url?: string;
   description?: string;
   version?: string;
-  visibility?: 'public' | 'private' | 'group-restricted';
-  trust_level?: 'community' | 'verified' | 'trusted' | 'unverified';
+  visibility?: Visibility;
+  trust_level?: TrustLevel;
   enabled: boolean;
   tags?: string[];
   last_checked_time?: string;
   usersCount?: number;
   rating?: number;
-  status?: 'healthy' | 'healthy-auth-expired' | 'unhealthy' | 'unknown';
+  status?: HealthStatus;
 }
 
-// Toast notification component
-interface ToastProps {
-  message: string;
-  type: 'success' | 'error';
-  onClose: () => void;
-}
-
-const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div className="fixed top-4 right-4 z-50 animate-slide-in-top">
-      <div className={`flex items-center p-4 rounded-lg shadow-lg border ${
-        type === 'success'
-          ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/50 dark:border-green-700 dark:text-green-200'
-          : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/50 dark:border-red-700 dark:text-red-200'
-      }`}>
-        {type === 'success' ? (
-          <CheckCircleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-        ) : (
-          <ExclamationCircleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-        )}
-        <p className="text-sm font-medium">{message}</p>
-        <button
-          onClick={onClose}
-          className="ml-3 flex-shrink-0 text-current opacity-70 hover:opacity-100"
-        >
-          <XMarkIcon className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const normalizeAgentStatus = (status?: string | null): Agent['status'] => {
+const normalizeAgentStatus = (status?: string | null): HealthStatus => {
   if (status === 'healthy' || status === 'healthy-auth-expired') {
     return status;
   }
@@ -118,19 +86,19 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [editingServer, setEditingServer] = useState<Server | null>(null);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<EditServerForm>({
     name: '',
     path: '',
     proxyPass: '',
     description: '',
-    tags: [] as string[],
+    tags: [],
     license: 'N/A',
     num_tools: 0,
     num_stars: 0,
-    is_python: false
+    is_python: false,
   });
   const [editLoading, setEditLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
   // Agent state management - using agents from useServerStats hook instead of separate fetch
   // Agents loading state is now handled by the useServerStats hook's 'loading' state
@@ -140,14 +108,14 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
   // View filter state
   const [viewFilter, setViewFilter] = useState<'all' | 'servers' | 'agents' | 'external'>('all');
-  const [editAgentForm, setEditAgentForm] = useState({
+  const [editAgentForm, setEditAgentForm] = useState<EditAgentForm>({
     name: '',
     path: '',
     description: '',
     version: '',
-    visibility: 'private' as 'public' | 'private' | 'group-restricted',
-    trust_level: 'community' as 'community' | 'verified' | 'trusted' | 'unverified',
-    tags: [] as string[]
+    visibility: 'private',
+    trust_level: 'community',
+    tags: [],
   });
   const [editAgentLoading, setEditAgentLoading] = useState(false);
 
@@ -209,23 +177,13 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
     return permissions.includes('all') || permissions.includes(serviceName);
   }, [user?.ui_permissions]);
 
-  // External registry tags - can be configured via environment or constants
-  // Default tags that identify servers from external registries
-  const EXTERNAL_REGISTRY_TAGS = ['anthropic-registry', 'workday-asor', 'asor', 'federated'];
-
-  // Separate internal and external registry servers
+  // Separate internal and external registry servers using shared helper
   const internalServers = useMemo(() => {
-    return servers.filter(s => {
-      const serverTags = s.tags || [];
-      return !EXTERNAL_REGISTRY_TAGS.some(tag => serverTags.includes(tag));
-    });
+    return servers.filter(s => !hasExternalRegistryTag(s.tags));
   }, [servers]);
 
   const externalServers = useMemo(() => {
-    return servers.filter(s => {
-      const serverTags = s.tags || [];
-      return EXTERNAL_REGISTRY_TAGS.some(tag => serverTags.includes(tag));
-    });
+    return servers.filter(s => hasExternalRegistryTag(s.tags));
   }, [servers]);
 
   // Separate internal and external registry agents
@@ -249,17 +207,11 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   }, [agentsFromStats]);
 
   const internalAgents = useMemo(() => {
-    return agents.filter(a => {
-      const agentTags = a.tags || [];
-      return !EXTERNAL_REGISTRY_TAGS.some(tag => agentTags.includes(tag));
-    });
+    return agents.filter(a => !hasExternalRegistryTag(a.tags));
   }, [agents]);
 
   const externalAgents = useMemo(() => {
-    return agents.filter(a => {
-      const agentTags = a.tags || [];
-      return EXTERNAL_REGISTRY_TAGS.some(tag => agentTags.includes(tag));
-    });
+    return agents.filter(a => hasExternalRegistryTag(a.tags));
   }, [agents]);
 
   // Semantic search
@@ -367,16 +319,6 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
     return filtered;
   }, [internalAgents, activeFilter, searchTerm]);
 
-  // Debug logging for filtering
-  console.log('Dashboard filtering debug:');
-  console.log(`Current user:`, user);
-  console.log(`Total servers from hook: ${servers.length}`);
-  console.log(`Total agents from API: ${agents.length}`);
-  console.log(`Active filter: ${activeFilter}`);
-  console.log(`Search term: "${searchTerm}"`);
-  console.log(`Filtered servers: ${filteredServers.length}`);
-  console.log(`Filtered agents: ${filteredAgents.length}`);
-
   useEffect(() => {
     if (searchTerm.trim().length === 0 && committedQuery.length > 0) {
       setCommittedQuery('');
@@ -469,7 +411,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
     setEditingAgent(null);
   };
 
-  const showToast = useCallback((message: string, type: 'success' | 'error') => {
+  const showToast = useCallback((message: string, type: ToastType) => {
     setToast({ message, type });
   }, []);
 
@@ -1246,288 +1188,26 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
       {/* Edit Server Modal */}
       {editingServer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Edit Server: {editingServer.name}
-            </h3>
-
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                await handleSaveEdit();
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Server Name *
-                </label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Proxy Pass URL *
-                </label>
-                <input
-                  type="url"
-                  value={editForm.proxyPass}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, proxyPass: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="http://localhost:8080"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={editForm.description}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                  rows={3}
-                  placeholder="Brief description of the server"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  value={editForm.tags.join(',')}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="tag1,tag2,tag3"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    Number of Tools
-                  </label>
-                  <input
-                    type="number"
-                    value={editForm.num_tools}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, num_tools: parseInt(e.target.value) || 0 }))}
-                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                    min="0"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    Stars
-                  </label>
-                  <input
-                    type="number"
-                    value={editForm.num_stars}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, num_stars: parseInt(e.target.value) || 0 }))}
-                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                    min="0"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  License
-                </label>
-                <input
-                  type="text"
-                  value={editForm.license}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, license: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="MIT, Apache-2.0, etc."
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="is_python"
-                  checked={editForm.is_python}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, is_python: e.target.checked }))}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                />
-                <label htmlFor="is_python" className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
-                  Python-based server
-                </label>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Path (read-only)
-                </label>
-                <input
-                  type="text"
-                  value={editForm.path}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300"
-                  disabled
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={editLoading}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-md transition-colors"
-                >
-                  {editLoading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseEdit}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditServerModal
+          serverName={editingServer.name}
+          form={editForm}
+          loading={editLoading}
+          onFormChange={(updates) => setEditForm((prev) => ({ ...prev, ...updates }))}
+          onSave={handleSaveEdit}
+          onClose={handleCloseEdit}
+        />
       )}
 
       {/* Edit Agent Modal */}
       {editingAgent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Edit Agent: {editingAgent.name}
-            </h3>
-
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                await handleSaveEditAgent();
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Agent Name *
-                </label>
-                <input
-                  type="text"
-                  value={editAgentForm.name}
-                  onChange={(e) => setEditAgentForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={editAgentForm.description}
-                  onChange={(e) => setEditAgentForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
-                  rows={3}
-                  placeholder="Brief description of the agent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Version
-                </label>
-                <input
-                  type="text"
-                  value={editAgentForm.version}
-                  onChange={(e) => setEditAgentForm(prev => ({ ...prev, version: e.target.value }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
-                  placeholder="1.0.0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Visibility
-                </label>
-                <select
-                  value={editAgentForm.visibility}
-                  onChange={(e) => setEditAgentForm(prev => ({ ...prev, visibility: e.target.value as 'public' | 'private' | 'group-restricted' }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
-                >
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
-                  <option value="group-restricted">Group Restricted</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Trust Level
-                </label>
-                <select
-                  value={editAgentForm.trust_level}
-                  onChange={(e) => setEditAgentForm(prev => ({ ...prev, trust_level: e.target.value as 'community' | 'verified' | 'trusted' | 'unverified' }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
-                >
-                  <option value="unverified">Unverified</option>
-                  <option value="community">Community</option>
-                  <option value="verified">Verified</option>
-                  <option value="trusted">Trusted</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  value={editAgentForm.tags.join(',')}
-                  onChange={(e) => setEditAgentForm(prev => ({ ...prev, tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) }))}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
-                  placeholder="tag1,tag2,tag3"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Path (read-only)
-                </label>
-                <input
-                  type="text"
-                  value={editAgentForm.path}
-                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300"
-                  disabled
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={editAgentLoading}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 rounded-md transition-colors"
-                >
-                  {editAgentLoading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseEdit}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditAgentModal
+          agentName={editingAgent.name}
+          form={editAgentForm}
+          loading={editAgentLoading}
+          onFormChange={(updates) => setEditAgentForm((prev) => ({ ...prev, ...updates }))}
+          onSave={handleSaveEditAgent}
+          onClose={handleCloseEdit}
+        />
       )}
     </>
   );

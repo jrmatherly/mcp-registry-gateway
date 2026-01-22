@@ -1,9 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import {
-  EyeIcon,
   WrenchScrewdriverIcon,
-  StarIcon,
   ArrowPathIcon,
   PencilIcon,
   ClockIcon,
@@ -17,6 +15,8 @@ import {
 import ServerConfigModal from './ServerConfigModal';
 import SecurityScanModal from './SecurityScanModal';
 import StarRatingWidget from './StarRatingWidget';
+import { formatTimeSince } from '../utils/dateUtils';
+import type { HealthStatus, RatingDetail, Tool, ShowToastCallback } from '../types';
 
 export interface Server {
   name: string;
@@ -27,9 +27,9 @@ export interface Server {
   tags?: string[];
   last_checked_time?: string;
   usersCount?: number;
-  num_stars?: number;  // Average rating from backend
-  rating_details?: Array<{ user: string; rating: number }>;
-  status?: 'healthy' | 'healthy-auth-expired' | 'unhealthy' | 'unknown';
+  num_stars?: number;
+  rating_details?: RatingDetail[];
+  status?: HealthStatus;
   num_tools?: number;
 }
 
@@ -41,56 +41,10 @@ interface ServerCardProps {
   canHealthCheck?: boolean;
   canToggle?: boolean;
   onRefreshSuccess?: () => void;
-  onShowToast?: (message: string, type: 'success' | 'error') => void;
+  onShowToast?: ShowToastCallback;
   onServerUpdate?: (path: string, updates: Partial<Server>) => void;
   authToken?: string | null;
 }
-
-interface Tool {
-  name: string;
-  description?: string;
-  schema?: any;
-}
-
-// Helper function to format time since last checked
-const formatTimeSince = (timestamp: string | null | undefined): string | null => {
-  if (!timestamp) {
-    return null;
-  }
-
-  try {
-    const now = new Date();
-    const lastChecked = new Date(timestamp);
-
-    // Check if the date is valid
-    if (isNaN(lastChecked.getTime())) {
-      return null;
-    }
-
-    const diffMs = now.getTime() - lastChecked.getTime();
-
-    const diffSeconds = Math.floor(diffMs / 1000);
-    const diffMinutes = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    let result;
-    if (diffDays > 0) {
-      result = `${diffDays}d ago`;
-    } else if (diffHours > 0) {
-      result = `${diffHours}h ago`;
-    } else if (diffMinutes > 0) {
-      result = `${diffMinutes}m ago`;
-    } else {
-      result = `${diffSeconds}s ago`;
-    }
-
-    return result;
-  } catch (error) {
-    console.error('formatTimeSince error:', error, 'for timestamp:', timestamp);
-    return null;
-  }
-};
 
 const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, onEdit, canModify, canHealthCheck = true, canToggle = true, onRefreshSuccess, onShowToast, onServerUpdate, authToken }) => {
   const [tools, setTools] = useState<Tool[]>([]);

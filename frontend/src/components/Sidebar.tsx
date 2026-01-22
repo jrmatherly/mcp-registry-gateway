@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -11,10 +11,12 @@ import {
   ChevronUpIcon,
   ClipboardIcon,
   CheckIcon,
-  ArrowDownTrayIcon
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+import { useIsMobile } from '../hooks/useMediaQuery';
+import { getScopeDescription } from '../constants';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -31,12 +33,12 @@ interface SidebarProps {
 
 
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, stats, activeFilter, setActiveFilter }) => {
-  // const { stats, activeFilter, setActiveFilter } = useServerStats();
   const { user } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const [showScopes, setShowScopes] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
-  const [tokenData, setTokenData] = useState<any>(null);
+  const [tokenData, setTokenData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string>('');
@@ -49,26 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, stats, a
   ];
 
   const isTokenPage = location.pathname === '/generate-token';
-
-  // Debug logging
-  useEffect(() => {
-    console.log('Sidebar state changed:', sidebarOpen);
-  }, [sidebarOpen]);
-
-  // Scope descriptions mapping
-  const getScopeDescription = (scope: string) => {
-    const scopeMappings: { [key: string]: string } = {
-      'mcp-servers-restricted/read': 'Read access to restricted MCP servers',
-      'mcp-servers/read': 'Read access to all MCP servers',
-      'mcp-servers/write': 'Write access to MCP servers',
-      'mcp-registry-user': 'Basic registry user permissions',
-      'mcp-registry-admin': 'Full registry administration access',
-      'health-check': 'Health check and monitoring access',
-      'token-generation': 'Ability to generate access tokens',
-      'server-management': 'Manage server configurations',
-    };
-    return scopeMappings[scope] || 'Custom permission scope';
-  };
 
 const fetchAdminTokens = async () => {
   setLoading(true);
@@ -136,7 +118,7 @@ const fetchAdminTokens = async () => {
             <Link
               to="/"
               className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => window.innerWidth < 768 && setSidebarOpen(false)} // Only close on mobile
+              onClick={() => isMobile && setSidebarOpen(false)} // Only close on mobile
               tabIndex={0}
             >
               <ArrowLeftIcon className="h-4 w-4" />
@@ -371,7 +353,7 @@ const fetchAdminTokens = async () => {
   return (
     <>
       {/* Mobile sidebar only */}
-      {window.innerWidth < 768 && (
+      {isMobile && (
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog as="div" className="relative z-50" onClose={setSidebarOpen}>
             <Transition.Child
@@ -429,7 +411,7 @@ const fetchAdminTokens = async () => {
       )}
 
       {/* Desktop sidebar only */}
-      {window.innerWidth >= 768 && (
+      {!isMobile && (
         <Transition show={sidebarOpen} as={Fragment}>
           <Transition.Child
             as={Fragment}
@@ -474,60 +456,62 @@ const fetchAdminTokens = async () => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"
-                  >
-                    JWT Access Token
-                  </Dialog.Title>
+                  <>
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"
+                    >
+                      JWT Access Token
+                    </Dialog.Title>
 
-                  {tokenData && (
-                    <div className="space-y-4">
-                      {/* Action Buttons */}
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={handleCopyTokens}
-                          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                        >
-                          {copied ? (
-                            <>
-                              <CheckIcon className="h-4 w-4" />
-                              <span>Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <ClipboardIcon className="h-4 w-4" />
-                              <span>Copy JSON</span>
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={handleDownloadTokens}
-                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                        >
-                          <ArrowDownTrayIcon className="h-4 w-4" />
-                          <span>Download JSON</span>
-                        </button>
-                      </div>
+                    {tokenData && (
+                      <div className="space-y-4">
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={handleCopyTokens}
+                            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                          >
+                            {copied ? (
+                              <>
+                                <CheckIcon className="h-4 w-4" />
+                                <span>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <ClipboardIcon className="h-4 w-4" />
+                                <span>Copy JSON</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={handleDownloadTokens}
+                            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                          >
+                            <ArrowDownTrayIcon className="h-4 w-4" />
+                            <span>Download JSON</span>
+                          </button>
+                        </div>
 
-                      {/* Token Data Display */}
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                        <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
-                          {JSON.stringify(tokenData, null, 2)}
-                        </pre>
-                      </div>
+                        {/* Token Data Display */}
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
+                          <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
+                            {JSON.stringify(tokenData, null, 2)}
+                          </pre>
+                        </div>
 
-                      {/* Close Button */}
-                      <div className="flex justify-end">
-                        <button
-                          onClick={() => setShowTokenModal(false)}
-                          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
-                        >
-                          Close
-                        </button>
+                        {/* Close Button */}
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => setShowTokenModal(false)}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
+                          >
+                            Close
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </>
                 </Dialog.Panel>
               </Transition.Child>
             </div>

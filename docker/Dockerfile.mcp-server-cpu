@@ -49,26 +49,11 @@ RUN . .venv/bin/activate && \
 EXPOSE 8000
 
 # Health check (generic for all MCP servers)
-HEALTHCHECK --interval=500s --timeout=10s --start-period=30s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD nc -z localhost ${PORT:-8000} || exit 1
 
-# Create entrypoint script
-RUN cat > /entrypoint.sh <<'EOF'
-#!/bin/bash
-set -e
-SERVER_PORT=${PORT:-8000}
-if [ ! -z "$POLYGON_API_KEY" ]; then
-    echo "POLYGON_API_KEY=$POLYGON_API_KEY" > /app/.env
-fi
-if [ ! -z "$REGISTRY_BASE_URL" ]; then
-    echo "REGISTRY_BASE_URL=$REGISTRY_BASE_URL" > /app/.env
-    echo "REGISTRY_USERNAME=$REGISTRY_USERNAME" >> /app/.env
-    echo "REGISTRY_PASSWORD=$REGISTRY_PASSWORD" >> /app/.env
-fi
-source .venv/bin/activate
-exec python server.py --port $SERVER_PORT
-EOF
-
+# Copy and use shared entrypoint script
+COPY docker/mcp-server-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

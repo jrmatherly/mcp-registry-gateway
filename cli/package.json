@@ -15,10 +15,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.21.0",
-    "@aws-sdk/client-bedrock-runtime": "^3.918.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.972.0",
     "dotenv": "^17.2.3",
     "ink": "^5.1.0",
-    "ink-select-input": "^6.0.0",
+    "ink-select-input": "^6.2.0",
     "ink-spinner": "^5.0.0",
     "ink-text-input": "^6.0.0",
     "marked": "^15.0.12",
@@ -30,8 +30,8 @@
     "@types/marked-terminal": "^6.1.1",
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.3",
-    "tsx": "^4.7.1",
-    "typescript": "^5.5.4"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.19.0"

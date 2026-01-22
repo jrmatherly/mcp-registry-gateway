@@ -9,38 +9,41 @@ import RegisterPage from './pages/RegisterPage';
 import Login from './pages/Login';
 import OAuthCallback from './pages/OAuthCallback';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth/callback" element={<OAuthCallback />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/generate-token" element={
-              <ProtectedRoute>
-                <Layout>
-                  <TokenGeneration />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/servers/register" element={
-              <ProtectedRoute>
-                <Layout>
-                  <RegisterPage />
-                </Layout>
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </Router>
+        <ErrorBoundary>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/auth/callback" element={<OAuthCallback />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/generate-token" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <TokenGeneration />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/servers/register" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RegisterPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Router>
+        </ErrorBoundary>
       </AuthProvider>
     </ThemeProvider>
   );
