@@ -337,15 +337,15 @@ async def get_user_accessible_servers(user_scopes: list[str]) -> list[str]:
     """
     accessible_servers = set()
 
-    logger.info(f"DEBUG: get_user_accessible_servers called with scopes: {user_scopes}")
+    logger.debug(f"get_user_accessible_servers called with scopes: {user_scopes}")
 
     for scope in user_scopes:
-        logger.info(f"DEBUG: Processing scope: {scope}")
+        logger.debug(f"Processing scope: {scope}")
         server_names = await get_servers_for_scope(scope)
-        logger.info(f"DEBUG: Scope {scope} maps to servers: {server_names}")
+        logger.debug(f"Scope {scope} maps to servers: {server_names}")
         accessible_servers.update(server_names)
 
-    logger.info(f"DEBUG: Final accessible servers: {list(accessible_servers)}")
+    logger.debug(f"Final accessible servers: {list(accessible_servers)}")
     logger.debug(
         f"User with scopes {user_scopes} has access to servers: {list(accessible_servers)}"
     )

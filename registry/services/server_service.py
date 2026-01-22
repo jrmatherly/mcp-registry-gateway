@@ -144,10 +144,8 @@ class ServerService:
         # Query repository directly instead of using cache
         all_servers = await self._repo.list_all()
 
-        logger.info(
-            f"DEBUG: get_filtered_servers called with accessible_servers: {accessible_servers}"
-        )
-        logger.info(f"DEBUG: Available registered servers paths: {list(all_servers.keys())}")
+        logger.info(f"get_filtered_servers called with accessible_servers: {accessible_servers}")
+        logger.debug(f"Available registered servers paths: {list(all_servers.keys())}")
 
         filtered_servers = {}
         for path, server_info in all_servers.items():
@@ -155,16 +153,16 @@ class ServerService:
             # Extract technical name from path (remove leading and trailing slashes)
             technical_name = path.strip("/")
             logger.info(
-                f"DEBUG: Checking server path='{path}', server_name='{server_name}', technical_name='{technical_name}' against accessible_servers"
+                f"Checking server path='{path}', server_name='{server_name}', technical_name='{technical_name}' against accessible_servers"
             )
 
             # Check if user has access to this server using technical name
             if technical_name in accessible_servers:
                 filtered_servers[path] = server_info
-                logger.info(f"DEBUG: ✓ User has access to server: {technical_name} ({server_name})")
+                logger.debug(f"✓ User has access to server: {technical_name} ({server_name})")
             else:
                 logger.info(
-                    f"DEBUG: ✗ User does not have access to server: {technical_name} ({server_name})"
+                    f"✗ User does not have access to server: {technical_name} ({server_name})"
                 )
 
         logger.info(

@@ -93,7 +93,7 @@ class AsorFederationClient(BaseFederationClient):
                         decoded_client_id = base64.b64decode(client_id).decode("utf-8")
                         client_id = decoded_client_id
                         logger.info(f"Decoded base64 client_id: {client_id}")
-                    except Exception:
+                    except (ValueError, UnicodeDecodeError):
                         # If decoding fails, use original client_id
                         logger.info(f"Using original client_id: {client_id}")
                 except ValueError:

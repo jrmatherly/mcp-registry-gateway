@@ -20,7 +20,7 @@ def extract_server_name_from_url(url: str) -> str:
         parsed = urlparse(url)
         path_parts = [p for p in parsed.path.split("/") if p]
         return path_parts[0] if path_parts else "unknown"
-    except Exception:
+    except (ValueError, IndexError):
         return "unknown"
 
 

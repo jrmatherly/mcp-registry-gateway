@@ -3,8 +3,6 @@ DEPRECATED: This module is deprecated. Use registry.services.scope_service inste
 
 This module is kept for backward compatibility only. All functions are thin
 wrappers around the new scope_service module with deprecation warnings.
-
-The old implementation has been preserved in scopes_manager_old.py for reference.
 """
 
 import logging

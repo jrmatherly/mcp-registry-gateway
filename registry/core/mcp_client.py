@@ -248,9 +248,9 @@ async def _get_tools_streamable_http(base_url: str, server_info: dict = None) ->
             elif "instance_id=" not in mcp_url:
                 mcp_url += "&instance_id=default"
         else:
-            logger.info(f"DEBUG: Not a Strata server, URL unchanged: {mcp_url}")
+            logger.debug(f"Not a Strata server, URL unchanged: {mcp_url}")
 
-        logger.info(f"DEBUG: About to connect to: {mcp_url}")
+        logger.debug(f"About to connect to: {mcp_url}")
         try:
             async with streamablehttp_client(url=mcp_url, headers=headers) as (
                 read,

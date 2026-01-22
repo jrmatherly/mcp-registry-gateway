@@ -1,12 +1,14 @@
 """
-This server provides an interface to get the current time in a specified timezone using the timeapi.io API.
+This server provides an interface to get the current time in a specified timezone using pytz.
 """
 
 import argparse
 import logging
 import os
+from datetime import datetime
 from typing import Annotated
 
+import pytz
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
@@ -18,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def parse_arguments():
+def _parse_arguments():
     """Parse command line arguments with defaults matching environment variables."""
     parser = argparse.ArgumentParser(description="Current Time MCP Server")
 
@@ -41,7 +43,7 @@ def parse_arguments():
 
 
 # Parse arguments at module level to make them available
-args = parse_arguments()
+args = _parse_arguments()
 
 # Log parsed arguments for debugging
 logger.info(f"Parsed arguments - port: {args.port}, transport: {args.transport}")
@@ -80,29 +82,6 @@ The user's location is: {location}
     return system_prompt
 
 
-from datetime import datetime
-
-import pytz
-
-
-def get_current_time_in_timezone(timezone_name):
-    """
-    Retrieves the current time in a specified timezone.
-
-    Args:
-        timezone_name: A string representing the timezone name (e.g., 'America/New_York', 'Europe/London').
-
-    Returns:
-        A datetime object representing the current time in the specified timezone, or None if the timezone is invalid.
-    """
-    try:
-        timezone = pytz.timezone(timezone_name)
-        current_time = datetime.now(timezone)
-        return current_time
-    except pytz.exceptions.UnknownTimeZoneError:
-        return None
-
-
 @mcp.tool()
 def current_time_by_timezone(
     tz_name: Annotated[
@@ -114,7 +93,7 @@ def current_time_by_timezone(
     ] = "America/New_York",
 ) -> str:
     """
-    Get the current time for a specified timezone using the timeapi.io API.
+    Get the current time for a specified timezone using pytz.
 
     Args:
         tz_name: Name of the timezone for which to find out the current time (default: America/New_York)
@@ -123,13 +102,16 @@ def current_time_by_timezone(
         str: string representation of the current time in the %Y-%m-%d %H:%M:%S %Z%z format for the specified timezone.
 
     Raises:
-        Exception: If the API request fails
+        pytz.exceptions.UnknownTimeZoneError: If timezone name is invalid
     """
-
     try:
-        timezone = pytz.timezone(tz_name)
-        current_time = datetime.now(timezone)
+        tz = pytz.timezone(tz_name)
+        current_time = datetime.now(tz)
         return current_time.strftime("%Y-%m-%d %H:%M:%S %Z%z")
+    except pytz.exceptions.UnknownTimeZoneError as e:
+        return (
+            f"Error: Unknown timezone '{tz_name}'. Use IANA timezone names like 'America/New_York'."
+        )
     except Exception as e:
         return f"Error: {e!s}"
 

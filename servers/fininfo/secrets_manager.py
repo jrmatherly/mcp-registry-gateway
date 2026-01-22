@@ -17,6 +17,7 @@ import hashlib
 import logging
 import os
 from pathlib import Path
+from typing import Any
 
 import yaml
 from cryptography.fernet import Fernet
@@ -305,7 +306,7 @@ class SecretsManager:
             logger.error(f"Failed to encrypt secrets file: {e}")
             return False
 
-    def get_stats(self) -> dict[str, any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Get statistics about the secrets manager.
 

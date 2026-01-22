@@ -1085,11 +1085,11 @@ class HealthMonitoringService:
 
                     # Schedule tool list fetch in background only for fully healthy status
                     logger.info(
-                        f"DEBUG: Health check status for {service_path}: status_detail='{status_detail}' (type: {type(status_detail)}) vs HealthStatus.HEALTHY='{HealthStatus.HEALTHY}' (type: {type(HealthStatus.HEALTHY)})"
+                        f"Health check status for {service_path}: status_detail='{status_detail}' (type: {type(status_detail)}) vs HealthStatus.HEALTHY='{HealthStatus.HEALTHY}' (type: {type(HealthStatus.HEALTHY)})"
                     )
                     if status_detail == HealthStatus.HEALTHY:
                         logger.info(
-                            f"DEBUG: Status detail matches HealthStatus.HEALTHY, triggering background tool update for {service_path}"
+                            f"Status detail matches HealthStatus.HEALTHY, triggering background tool update for {service_path}"
                         )
                         asyncio.create_task(
                             self._update_tools_background(service_path, proxy_pass_url)
@@ -1100,7 +1100,7 @@ class HealthMonitoringService:
                         )
                     else:
                         logger.info(
-                            f"DEBUG: Status detail '{status_detail}' does not match HealthStatus.HEALTHY, NOT triggering background tool update"
+                            f"Status detail '{status_detail}' does not match HealthStatus.HEALTHY, NOT triggering background tool update"
                         )
 
                 else:

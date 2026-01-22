@@ -48,10 +48,10 @@ def main():
             # Try to load the encrypted file
             secrets_manager = SecretsManager(args.input_file)
             client_ids = secrets_manager.get_all_client_ids()
-            print(f"✅ Successfully decrypted and loaded {len(client_ids)} client configurations")
+            print(f"Successfully decrypted and loaded {len(client_ids)} client configurations")
             print(f"Client IDs: {client_ids}")
         except Exception as e:
-            print(f"❌ Failed to decrypt file: {e}")
+            print(f"Failed to decrypt file: {e}")
             sys.exit(1)
 
     elif args.decrypt:
@@ -68,10 +68,10 @@ def main():
             with open(output_file, "w") as f:
                 yaml.dump(secrets_manager.secrets, f, default_flow_style=False)
 
-            print(f"✅ Successfully decrypted to: {output_file}")
+            print(f"Successfully decrypted to: {output_file}")
 
         except Exception as e:
-            print(f"❌ Failed to decrypt file: {e}")
+            print(f"Failed to decrypt file: {e}")
             sys.exit(1)
 
     else:
@@ -91,13 +91,13 @@ def main():
 
         if success:
             output_file = args.output_file or (args.input_file + ".encrypted")
-            print(f"✅ Successfully encrypted to: {output_file}")
+            print(f"Successfully encrypted to: {output_file}")
             print("\nTo use the encrypted file:")
             print("1. Replace your plain text secrets file with the encrypted version")
             print("2. The secrets manager will automatically detect and decrypt it")
             print("3. Ensure SECRET_KEY environment variable is available")
         else:
-            print("❌ Encryption failed")
+            print("Encryption failed")
             sys.exit(1)
 
 

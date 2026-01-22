@@ -62,7 +62,7 @@ class Constants(BaseModel):
         frozen = True  # Make instances immutable
 
 
-def parse_arguments():
+def _parse_arguments():
     """Parse command line arguments with defaults matching environment variables."""
     parser = argparse.ArgumentParser(description=Constants.DESCRIPTION)
 
@@ -85,7 +85,7 @@ def parse_arguments():
 
 
 # Parse arguments at module level to make them available
-args = parse_arguments()
+args = _parse_arguments()
 
 # Log parsed arguments for debugging
 logger.info(f"Parsed arguments - port: {args.port}, transport: {args.transport}")

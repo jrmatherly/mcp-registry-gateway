@@ -273,8 +273,8 @@ async def _add_service_principal_to_group(
         try:
             error_detail = response.json()
             logger.debug(f"Error details: {error_detail}")
-        except Exception:
-            pass
+        except (ValueError, KeyError):
+            pass  # JSON parsing failed, skip logging details
         return
 
     logger.warning(

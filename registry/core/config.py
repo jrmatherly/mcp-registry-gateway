@@ -30,7 +30,6 @@ class Settings(BaseSettings):
     embeddings_provider: str = "sentence-transformers"  # 'sentence-transformers' or 'litellm'
     embeddings_model_name: str = "all-MiniLM-L6-v2"
     embeddings_model_dimensions: int = 384  # 384 for default and 1024 for bedrock titan v2
-    print(embeddings_provider, embeddings_model_name, embeddings_model_dimensions)
 
     # LiteLLM-specific settings (only used when embeddings_provider='litellm')
     # For Bedrock: Set to None and configure AWS credentials via standard methods

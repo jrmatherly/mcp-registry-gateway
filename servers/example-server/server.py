@@ -6,6 +6,7 @@ This server provides simple tools for demonstration purposes.
 import argparse
 import logging
 import os
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from mcp.server.fastmcp import FastMCP
@@ -99,7 +100,7 @@ def _process_message(message: str) -> dict[str, Any]:
         "processed_message": message.upper(),
         "message_length": len(message),
         "word_count": len(message.split()),
-        "timestamp": "2025-09-26T23:00:00Z",
+        "timestamp": datetime.now(UTC).isoformat(),
     }
     return processed
 
@@ -121,16 +122,21 @@ def example_tool(
         Dict[str, Any]: Result of the example operation containing processed message info
 
     Raises:
-        Exception: If the operation fails
+        ValueError: If the message is invalid
+        RuntimeError: If processing fails
     """
     try:
         logger.info(f"Processing message: {message}")
+        if not message:
+            raise ValueError("Message cannot be empty")
         result = _process_message(message)
         logger.info("Successfully processed message")
         return result
+    except ValueError:
+        raise
     except Exception as e:
         logger.error(f"Error processing message: {e!s}")
-        raise Exception(f"Failed to process message: {e!s}")
+        raise RuntimeError(f"Failed to process message: {e!s}") from e
 
 
 @mcp.tool()
@@ -151,10 +157,13 @@ def echo_tool(
         Dict[str, Any]: Echo response with optional metadata
 
     Raises:
-        Exception: If the operation fails
+        ValueError: If input_text is invalid
+        RuntimeError: If echo operation fails
     """
     try:
         logger.info(f"Echoing text: {input_text}")
+        if input_text is None:
+            raise ValueError("Input text cannot be None")
         response = {"echo": input_text, "success": True}
 
         if include_metadata:
@@ -169,9 +178,11 @@ def echo_tool(
             )
 
         return response
+    except ValueError:
+        raise
     except Exception as e:
         logger.error(f"Error in echo tool: {e!s}")
-        raise Exception(f"Echo operation failed: {e!s}")
+        raise RuntimeError(f"Echo operation failed: {e!s}") from e
 
 
 @mcp.tool()
@@ -183,7 +194,7 @@ def status_tool() -> dict[str, Any]:
         Dict[str, Any]: Server status information
 
     Raises:
-        Exception: If unable to get status
+        RuntimeError: If unable to get status
     """
     try:
         logger.info("Getting server status")
@@ -199,7 +210,7 @@ def status_tool() -> dict[str, Any]:
         return status
     except Exception as e:
         logger.error(f"Error getting status: {e!s}")
-        raise Exception(f"Failed to get server status: {e!s}")
+        raise RuntimeError(f"Failed to get server status: {e!s}") from e
 
 
 @mcp.resource("config://app")
