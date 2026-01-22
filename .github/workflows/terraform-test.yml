@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'terraform/**'
-      - '.github/workflows/terraform-test.yml'
+      - "terraform/**"
+      - ".github/workflows/terraform-test.yml"
   pull_request:
     paths:
-      - 'terraform/**'
-      - '.github/workflows/terraform-test.yml'
+      - "terraform/**"
+      - ".github/workflows/terraform-test.yml"
   workflow_dispatch:
 
 permissions:

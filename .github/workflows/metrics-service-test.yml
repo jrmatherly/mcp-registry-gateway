@@ -4,13 +4,13 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'metrics-service/**'
-      - '.github/workflows/metrics-service-test.yml'
+      - "metrics-service/**"
+      - ".github/workflows/metrics-service-test.yml"
   pull_request:
     branches: [main, develop]
     paths:
-      - 'metrics-service/**'
-      - '.github/workflows/metrics-service-test.yml'
+      - "metrics-service/**"
+      - ".github/workflows/metrics-service-test.yml"
   workflow_dispatch:
 
 permissions:

@@ -9,22 +9,26 @@ This document describes the manual configuration steps required after forking/cl
 The `docs.yml` workflow automatically builds and deploys documentation using MkDocs.
 
 **Setup Steps:**
+
 1. Go to **Settings > Pages**
 2. Under "Build and deployment", set **Source** to: `GitHub Actions`
 3. The documentation will be available at: `https://jrmatherly.github.io/mcp-registry-gateway/`
 
 **Verification:**
+
 - After the first successful `docs.yml` workflow run, check that the Pages deployment succeeded
 - Visit the documentation URL to confirm it's working
 
 ### 2. Codecov Integration (Optional - for Code Coverage)
 
 Three workflows use Codecov for coverage reporting:
+
 - `registry-test.yml`
 - `auth-server-test.yml`
 - `metrics-service-test.yml`
 
 **Setup Steps:**
+
 1. Go to [codecov.io](https://codecov.io) and sign in with GitHub
 2. Add this repository to Codecov
 3. Copy the `CODECOV_TOKEN` from Codecov dashboard
@@ -40,9 +44,11 @@ Three workflows use Codecov for coverage reporting:
 The `terraform-test.yml` workflow uploads SARIF files for security scanning.
 
 **For Public Repositories:**
+
 - SARIF uploads work automatically (GitHub Advanced Security is free for public repos)
 
 **For Private Repositories:**
+
 - Requires GitHub Advanced Security license
 - Go to **Settings > Security > Code security and analysis**
 - Enable "Code scanning"

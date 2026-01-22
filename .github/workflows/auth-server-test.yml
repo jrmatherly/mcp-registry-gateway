@@ -4,15 +4,15 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'auth_server/**'
-      - 'tests/auth_server/**'
-      - '.github/workflows/auth-server-test.yml'
+      - "auth_server/**"
+      - "tests/auth_server/**"
+      - ".github/workflows/auth-server-test.yml"
   pull_request:
     branches: [main, develop]
     paths:
-      - 'auth_server/**'
-      - 'tests/auth_server/**'
-      - '.github/workflows/auth-server-test.yml'
+      - "auth_server/**"
+      - "tests/auth_server/**"
+      - ".github/workflows/auth-server-test.yml"
   workflow_dispatch:
 
 permissions:
