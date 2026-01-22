@@ -12,7 +12,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_VERSION = "1.0.0"
+DEFAULT_VERSION = "2.0.0"
 
 
 def _get_git_version() -> str:
