@@ -420,9 +420,16 @@ async def get_version():
 # Serve React static files
 FRONTEND_BUILD_PATH = Path(__file__).parent.parent / "frontend" / "build"
 
-if FRONTEND_BUILD_PATH.exists():
-    # Serve static assets
-    app.mount("/static", StaticFiles(directory=FRONTEND_BUILD_PATH / "static"), name="static")
+# Vite uses 'assets/', CRA uses 'static/' - support both
+FRONTEND_ASSETS_PATH = FRONTEND_BUILD_PATH / "assets"
+FRONTEND_STATIC_PATH = FRONTEND_BUILD_PATH / "static"
+
+if FRONTEND_BUILD_PATH.exists() and (
+    FRONTEND_ASSETS_PATH.exists() or FRONTEND_STATIC_PATH.exists()
+):
+    # Serve static assets - prefer Vite's 'assets/' directory, fall back to CRA's 'static/'
+    static_dir = FRONTEND_ASSETS_PATH if FRONTEND_ASSETS_PATH.exists() else FRONTEND_STATIC_PATH
+    app.mount("/assets", StaticFiles(directory=static_dir), name="assets")
 
     # Serve React app for all other routes (SPA)
     @app.get("/{full_path:path}")
