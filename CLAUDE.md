@@ -70,13 +70,13 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
 
   ```python
   from typing import Optional, List
-  
+
   def process_samples(
       sample_size: Optional[int] = None,  # None means use default
       language: Optional[str] = None      # None means no filtering
   ) -> List[dict]:
       """Process dataset samples.
-      
+
       Args:
           sample_size: Number of samples. None uses default, 0 means all.
           language: Language filter. None means all languages.
@@ -87,7 +87,7 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
       elif sample_size is None:
           # Use default sample size
           sample_size = DEFAULT_SAMPLE_SIZE
-          
+
       # Process with explicit sample size
       return process_with_size(sample_size)
   ```
@@ -101,15 +101,15 @@ When evaluating pull requests for merge, adopt the **Merge Specialist** persona 
   ```python
   from pydantic import BaseModel, Field, validator
   from typing import Optional
-  
+
   class UserConfig(BaseModel):
       """User configuration settings."""
-      
+
       username: str = Field(..., min_length=3, max_length=50)
       email: str = Field(..., regex=r'^[\w\.-]+@[\w\.-]+\.\w+$')
       timeout_seconds: int = Field(default=30, ge=1, le=300)
       debug_enabled: bool = False
-      
+
       @validator('username')
       def username_alphanumeric(cls, v: str) -> str:
           if not v.replace('_', '').isalnum():
@@ -137,7 +137,7 @@ When creating CLI applications:
    Example usage:
        # Basic usage
        uv run python -m module --param value
-       
+
        # With environment variable
        export PARAM=value
        uv run python -m module
@@ -151,11 +151,11 @@ When creating CLI applications:
    def _get_config_value(cli_value: Optional[str] = None) -> str:
        if cli_value:
            return cli_value
-       
+
        env_value = os.getenv("CONFIG_VAR")
        if env_value:
            return env_value
-       
+
        raise ValueError("Value must be provided via --param or CONFIG_VAR env var")
    ```
 
@@ -209,7 +209,7 @@ When creating CLI applications:
 
   ```python
   import logging
-  
+
   # Configure logging with basicConfig
   logging.basicConfig(
       level=logging.INFO,  # Set the log level to INFO
@@ -247,7 +247,7 @@ Provide users with feedback on long-running operations:
    elapsed_time = time.time() - start_time
    minutes = int(elapsed_time // 60)
    seconds = elapsed_time % 60
-   
+
    if minutes > 0:
        logger.info(f"Completed in {minutes} minutes and {seconds:.1f} seconds")
    else:
@@ -301,20 +301,20 @@ When working with external data sources (APIs, datasets, databases):
        limit: Optional[int] = None
    ) -> List[dict]:
        data = fetch_from_source()
-       
+
        # Apply filters with clear feedback
        for key, value in filters.items():
            filtered = [item for item in data if item.get(key) == value]
            logger.info(f"Filter '{key}={value}': {len(data)} -> {len(filtered)} items")
            data = filtered
-       
+
        if not data:
            raise ValueError(f"No data found matching filters: {filters}")
-       
+
        # Handle size limits
        if limit and len(data) < limit:
            logger.warning(f"Only {len(data)} items available (requested: {limit})")
-           
+
        return data[:limit] if limit else data
    ```
 
@@ -383,7 +383,7 @@ Example - Avoid complex patterns:
 
 ```python
 # Bad - too complex, hard to understand
-result = reduce(lambda x, y: x + y, 
+result = reduce(lambda x, y: x + y,
                 filter(lambda x: x % 2 == 0,
                        map(lambda x: x**2, range(10))))
 
@@ -417,18 +417,18 @@ def process_data(data):
 def process_data(data):
     if not data:
         return
-    
+
     users = data.get("users", [])
     if not users:
         return
-    
+
     for user in users:
         _process_active_user(user)
 
 def _process_active_user(user):
     if not user.get("active"):
         return
-    
+
     email = user.get("email")
     if email:
         send_email(email)
@@ -494,22 +494,22 @@ from unittest.mock import Mock, patch
 
 class TestFeatureName:
     """Tests for feature_name module"""
-    
+
     def test_happy_path(self):
         """Test normal operation with valid inputs"""
         # Arrange
         input_data = {"key": "value"}
-        
+
         # Act
         result = function_under_test(input_data)
-        
+
         # Assert
         assert result["status"] == "success"
-    
+
     def test_edge_case(self):
         """Test boundary conditions"""
         pass
-    
+
     def test_error_handling(self):
         """Test error scenarios"""
         with pytest.raises(ValueError, match="Invalid input"):
@@ -653,20 +653,20 @@ def calculate_metrics(
     threshold: float = 0.5
 ) -> Dict[str, float]:
     """Calculate statistical metrics for the given data.
-    
+
     Args:
         data: List of numerical values to analyze
         threshold: Minimum value to include in calculations
-        
+
     Returns:
         Dictionary containing calculated metrics:
         - mean: Average value
         - std: Standard deviation
         - count: Number of values above threshold
-        
+
     Raises:
         ValueError: If data is empty or contains non-numeric values
-        
+
     Example:
         >>> metrics = calculate_metrics([1.0, 2.0, 3.0])
         >>> print(metrics['mean'])
@@ -699,7 +699,7 @@ from typing import Optional
 
 def get_secret(key: str, default: Optional[str] = None) -> str:
     """Retrieve secret from environment variable.
-    
+
     Never hardcode secrets in source code.
     """
     value = os.environ.get(key, default)
@@ -727,7 +727,7 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
   # This is not for security/cryptographic purposes - nosec B311
   random.seed(random_seed)
   samples = random.sample(dataset, size)  # nosec B311
-  
+
   # When loading from trusted sources with version pinning
   # This is acceptable for evaluation tools using well-known datasets - nosec B615
   ds = load_dataset(DATASET_NAME, revision="main")  # nosec B615
@@ -744,10 +744,10 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
   ```python
   # Bad - exposes to all interfaces
   app.run(host="0.0.0.0", port=8000)
-  
+
   # Good - local only
   app.run(host="127.0.0.1", port=8000)
-  
+
   # Good - specific private IP
   import socket
   private_ip = socket.gethostbyname(socket.gethostname())
@@ -973,13 +973,13 @@ from typing import Optional
 
 class Settings(BaseSettings):
     """Application settings from environment variables."""
-    
+
     app_name: str = "MyApp"
     debug: bool = False
     database_url: str
     api_key: str
     redis_url: Optional[str] = None
-    
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -1008,18 +1008,18 @@ from datetime import datetime
 
 class UserRequest(BaseModel):
     """User creation request model."""
-    
+
     username: str = Field(..., min_length=3, max_length=50)
     email: str = Field(..., regex=r'^[\w\.-]+@[\w\.-]+\.\w+$')
     age: Optional[int] = Field(None, ge=0, le=150)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     @validator('username')
     def username_alphanumeric(cls, v: str) -> str:
         if not v.replace('_', '').isalnum():
             raise ValueError('Username must be alphanumeric')
         return v.lower()
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -1091,10 +1091,10 @@ A well-structured README should include:
    ## Usage
    # Basic usage
    uv run python -m module_name --required-param value
-   
+
    # With all options
    uv run python -m module_name --param1 value1 --param2 value2
-   
+
    # Using environment variables
    export CONFIG_VAR=value
    uv run python -m module_name

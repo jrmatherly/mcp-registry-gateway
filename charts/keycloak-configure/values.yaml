@@ -6,4 +6,3 @@ keycloak:
 # Auth server configuration
 authServer:
   externalUrl: http://localhost:8888
-

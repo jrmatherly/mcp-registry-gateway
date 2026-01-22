@@ -44,9 +44,9 @@ def admin_user_context() -> dict[str, Any]:
             "register_service": ["all"],
             "view_tools": ["all"],
             "refresh_service": ["all"],
-            "modify_service": ["all"]
+            "modify_service": ["all"],
         },
-        "auth_method": "session"
+        "auth_method": "session",
     }
 
 
@@ -61,11 +61,8 @@ def regular_user_context() -> dict[str, Any]:
         "accessible_servers": ["test-server"],
         "accessible_services": ["test-server"],
         "accessible_agents": ["test-agent"],
-        "ui_permissions": {
-            "list_service": ["test-server"],
-            "view_tools": ["test-server"]
-        },
-        "auth_method": "session"
+        "ui_permissions": {"list_service": ["test-server"], "view_tools": ["test-server"]},
+        "auth_method": "session",
     }
 
 
@@ -156,14 +153,9 @@ def mock_health_service():
     """Mock health_service dependency."""
     mock_service = MagicMock()
     mock_service._get_service_health_data = MagicMock(
-        return_value={
-            "status": "healthy",
-            "last_checked_iso": "2025-01-01T00:00:00Z"
-        }
+        return_value={"status": "healthy", "last_checked_iso": "2025-01-01T00:00:00Z"}
     )
-    mock_service.perform_immediate_health_check = AsyncMock(
-        return_value=("healthy", None)
-    )
+    mock_service.perform_immediate_health_check = AsyncMock(return_value=("healthy", None))
     mock_service.broadcast_health_update = AsyncMock()
     return mock_service
 
@@ -177,25 +169,25 @@ def mock_security_scanner_service():
 
     # Return config with scanning disabled to avoid scan during registration
     mock_service.get_scan_config.return_value = SecurityScanConfig(
-        enabled=False,
-        scan_on_registration=False,
-        block_unsafe_servers=False
+        enabled=False, scan_on_registration=False, block_unsafe_servers=False
     )
 
     # If scan is called anyway, return a passing result
-    mock_service.scan_server = AsyncMock(return_value=SecurityScanResult(
-        server_url="http://localhost:9000/mcp",
-        server_path="/test-server",
-        scan_timestamp="2025-01-01T00:00:00Z",
-        is_safe=True,
-        critical_issues=0,
-        high_severity=0,
-        medium_severity=0,
-        low_severity=0,
-        analyzers_used=["yara"],
-        raw_output={},
-        scan_failed=False
-    ))
+    mock_service.scan_server = AsyncMock(
+        return_value=SecurityScanResult(
+            server_url="http://localhost:9000/mcp",
+            server_path="/test-server",
+            scan_timestamp="2025-01-01T00:00:00Z",
+            is_safe=True,
+            critical_issues=0,
+            high_severity=0,
+            medium_severity=0,
+            low_severity=0,
+            analyzers_used=["yara"],
+            raw_output={},
+            scan_failed=False,
+        )
+    )
 
     return mock_service
 
@@ -230,12 +222,8 @@ def sample_server_info() -> dict[str, Any]:
         "is_python": True,
         "license": "MIT",
         "tool_list": [
-            {
-                "name": "test_tool",
-                "description": "A test tool",
-                "inputSchema": {"type": "object"}
-            }
-        ]
+            {"name": "test_tool", "description": "A test tool", "inputSchema": {"type": "object"}}
+        ],
     }
 
 
@@ -248,9 +236,10 @@ def test_client_admin(
     mock_nginx_service,
     mock_security_scanner_service,
     mock_auth_admin,
-    admin_user_context
+    admin_user_context,
 ):
     """Create FastAPI test client with admin auth and all services mocked."""
+
     # For /api/ route, enhanced_auth is called directly (not as dependency)
     def mock_enhanced_auth_func(session=None):
         return admin_user_context
@@ -258,14 +247,17 @@ def test_client_admin(
     # Patch services - server_service is imported at module level, others are lazy imports
     # For module-level imports, patch where used: registry.api.server_routes.server_service
     # For lazy imports (inside functions), patch at definition: registry.search.service.faiss_service
-    with patch("registry.api.server_routes.server_service", mock_server_service), \
-         patch("registry.search.service.faiss_service", mock_faiss_service), \
-         patch("registry.health.service.health_service", mock_health_service), \
-         patch("registry.core.nginx_service.nginx_service", mock_nginx_service), \
-         patch("registry.api.server_routes.security_scanner_service", mock_security_scanner_service), \
-         patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock), \
-         patch("registry.api.server_routes.enhanced_auth", mock_enhanced_auth_func):
+    with (
+        patch("registry.api.server_routes.server_service", mock_server_service),
+        patch("registry.search.service.faiss_service", mock_faiss_service),
+        patch("registry.health.service.health_service", mock_health_service),
+        patch("registry.core.nginx_service.nginx_service", mock_nginx_service),
+        patch("registry.api.server_routes.security_scanner_service", mock_security_scanner_service),
+        patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock),
+        patch("registry.api.server_routes.enhanced_auth", mock_enhanced_auth_func),
+    ):
         from registry.main import app
+
         # Create client with session cookie (uses the default cookie name mcp_gateway_session)
         client = TestClient(app, cookies={"mcp_gateway_session": "test-session"})
         yield client
@@ -280,22 +272,26 @@ def test_client_regular(
     mock_nginx_service,
     mock_security_scanner_service,
     mock_auth_regular,
-    regular_user_context
+    regular_user_context,
 ):
     """Create FastAPI test client with regular user auth and all services mocked."""
+
     # For /api/ route, enhanced_auth is called directly (not as dependency)
     def mock_enhanced_auth_func(session=None):
         return regular_user_context
 
     # Patch services - server_service is imported at module level, others are lazy imports
-    with patch("registry.api.server_routes.server_service", mock_server_service), \
-         patch("registry.search.service.faiss_service", mock_faiss_service), \
-         patch("registry.health.service.health_service", mock_health_service), \
-         patch("registry.core.nginx_service.nginx_service", mock_nginx_service), \
-         patch("registry.api.server_routes.security_scanner_service", mock_security_scanner_service), \
-         patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock), \
-         patch("registry.api.server_routes.enhanced_auth", mock_enhanced_auth_func):
+    with (
+        patch("registry.api.server_routes.server_service", mock_server_service),
+        patch("registry.search.service.faiss_service", mock_faiss_service),
+        patch("registry.health.service.health_service", mock_health_service),
+        patch("registry.core.nginx_service.nginx_service", mock_nginx_service),
+        patch("registry.api.server_routes.security_scanner_service", mock_security_scanner_service),
+        patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock),
+        patch("registry.api.server_routes.enhanced_auth", mock_enhanced_auth_func),
+    ):
         from registry.main import app
+
         # Create client with session cookie (uses the default cookie name mcp_gateway_session)
         client = TestClient(app, cookies={"mcp_gateway_session": "test-session"})
         yield client
@@ -308,17 +304,20 @@ def test_client_no_auth(
     mock_faiss_service,
     mock_health_service,
     mock_nginx_service,
-    mock_security_scanner_service
+    mock_security_scanner_service,
 ):
     """Create FastAPI test client without auth mocking."""
     # Patch services - server_service is imported at module level, others are lazy imports
-    with patch("registry.api.server_routes.server_service", mock_server_service), \
-         patch("registry.search.service.faiss_service", mock_faiss_service), \
-         patch("registry.health.service.health_service", mock_health_service), \
-         patch("registry.core.nginx_service.nginx_service", mock_nginx_service), \
-         patch("registry.api.server_routes.security_scanner_service", mock_security_scanner_service), \
-         patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock):
+    with (
+        patch("registry.api.server_routes.server_service", mock_server_service),
+        patch("registry.search.service.faiss_service", mock_faiss_service),
+        patch("registry.health.service.health_service", mock_health_service),
+        patch("registry.core.nginx_service.nginx_service", mock_nginx_service),
+        patch("registry.api.server_routes.security_scanner_service", mock_security_scanner_service),
+        patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock),
+    ):
         from registry.main import app
+
         # Clear any leftover auth overrides
         app.dependency_overrides.clear()
         client = TestClient(app)
@@ -349,11 +348,7 @@ class TestRootDashboard:
         reason="Root dashboard uses Cookie() parameter which requires complex session mocking. "
         "Business logic is tested via TestGetServersJSON.test_admin_gets_all_servers"
     )
-    def test_admin_sees_all_servers(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_admin_sees_all_servers(self, test_client_admin, mock_server_service):
         """Test that admin user sees all servers."""
         pass
 
@@ -362,10 +357,7 @@ class TestRootDashboard:
         "Business logic is tested via TestGetServersJSON.test_non_admin_gets_filtered_servers"
     )
     def test_non_admin_sees_filtered_servers(
-        self,
-        test_client_regular,
-        mock_server_service,
-        regular_user_context
+        self, test_client_regular, mock_server_service, regular_user_context
     ):
         """Test that non-admin user sees only accessible servers."""
         pass
@@ -374,11 +366,7 @@ class TestRootDashboard:
         reason="Root dashboard uses Cookie() parameter which requires complex session mocking. "
         "Business logic is tested via TestGetServersJSON.test_search_query_filters_results"
     )
-    def test_search_query_filters_services(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_search_query_filters_services(self, test_client_admin, mock_server_service):
         """Test that search query filters services by name, description, and tags."""
         pass
 
@@ -394,11 +382,7 @@ class TestRootDashboard:
 class TestGetServersJSON:
     """Tests for GET /servers endpoint."""
 
-    def test_admin_gets_all_servers(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_admin_gets_all_servers(self, test_client_admin, mock_server_service):
         """Test that admin user gets all servers via JSON API."""
         # Arrange
         mock_server_service.get_all_servers.return_value = {
@@ -410,7 +394,7 @@ class TestGetServersJSON:
                 "num_stars": 5,
                 "is_python": True,
                 "license": "MIT",
-                "proxy_pass_url": "http://localhost:8080"
+                "proxy_pass_url": "http://localhost:8080",
             }
         }
 
@@ -425,10 +409,7 @@ class TestGetServersJSON:
         mock_server_service.get_all_servers.assert_called_once()
 
     def test_non_admin_gets_filtered_servers(
-        self,
-        test_client_regular,
-        mock_server_service,
-        regular_user_context
+        self, test_client_regular, mock_server_service, regular_user_context
     ):
         """Test that non-admin user gets only accessible servers."""
         # Arrange
@@ -441,7 +422,7 @@ class TestGetServersJSON:
                 "num_stars": 4,
                 "is_python": False,
                 "license": "Apache-2.0",
-                "proxy_pass_url": "http://localhost:9000"
+                "proxy_pass_url": "http://localhost:9000",
             }
         }
 
@@ -455,11 +436,7 @@ class TestGetServersJSON:
         assert len(data["servers"]) == 1
         assert data["servers"][0]["display_name"] == "test-server"
 
-    def test_search_query_filters_results(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_search_query_filters_results(self, test_client_admin, mock_server_service):
         """Test that search query filters server results."""
         # Arrange
         mock_server_service.get_all_servers.return_value = {
@@ -471,7 +448,7 @@ class TestGetServersJSON:
                 "num_stars": 5,
                 "is_python": True,
                 "license": "MIT",
-                "proxy_pass_url": "http://localhost:8080"
+                "proxy_pass_url": "http://localhost:8080",
             },
             "/server2": {
                 "server_name": "Node Server",
@@ -481,8 +458,8 @@ class TestGetServersJSON:
                 "num_stars": 4,
                 "is_python": False,
                 "license": "MIT",
-                "proxy_pass_url": "http://localhost:8081"
-            }
+                "proxy_pass_url": "http://localhost:8081",
+            },
         }
 
         # Act
@@ -496,10 +473,7 @@ class TestGetServersJSON:
         assert "Python" in data["servers"][0]["display_name"]
 
     def test_returns_health_status(
-        self,
-        test_client_admin,
-        mock_server_service,
-        mock_health_service
+        self, test_client_admin, mock_server_service, mock_health_service
     ):
         """Test that server list includes health status."""
         # Arrange
@@ -512,12 +486,12 @@ class TestGetServersJSON:
                 "num_stars": 5,
                 "is_python": True,
                 "license": "MIT",
-                "proxy_pass_url": "http://localhost:8080"
+                "proxy_pass_url": "http://localhost:8080",
             }
         }
         mock_health_service._get_service_health_data.return_value = {
             "status": "healthy",
-            "last_checked_iso": "2025-01-01T12:00:00Z"
+            "last_checked_iso": "2025-01-01T12:00:00Z",
         }
 
         # Act
@@ -548,7 +522,7 @@ class TestToggleService:
         mock_faiss_service,
         mock_nginx_service,
         mock_health_service,
-        sample_server_info
+        sample_server_info,
     ):
         """Test successful toggle service on."""
         # Arrange
@@ -556,12 +530,11 @@ class TestToggleService:
         mock_server_service.toggle_service.return_value = True
 
         # Patch at the actual module location (imported inside functions)
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
-            response = test_client_admin.post(
-                "/api/toggle/test-server",
-                data={"enabled": "on"}
-            )
+            response = test_client_admin.post("/api/toggle/test-server", data={"enabled": "on"})
 
             # Assert
             assert response.status_code == 200
@@ -578,7 +551,7 @@ class TestToggleService:
         mock_server_service,
         mock_faiss_service,
         mock_nginx_service,
-        sample_server_info
+        sample_server_info,
     ):
         """Test successful toggle service off."""
         # Arrange
@@ -586,12 +559,11 @@ class TestToggleService:
         mock_server_service.toggle_service.return_value = True
 
         # Patch at the actual module location (imported inside functions)
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
-            response = test_client_admin.post(
-                "/api/toggle/test-server",
-                data={"enabled": "off"}
-            )
+            response = test_client_admin.post("/api/toggle/test-server", data={"enabled": "off"})
 
             # Assert
             assert response.status_code == 200
@@ -600,76 +572,61 @@ class TestToggleService:
             assert data["status"] == "disabled"
             mock_server_service.toggle_service.assert_called_once_with("/test-server", False)
 
-    def test_toggle_service_not_found(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_toggle_service_not_found(self, test_client_admin, mock_server_service):
         """Test toggle fails when service not found."""
         # Arrange
         mock_server_service.get_server_info.return_value = None
 
         # Act
-        response = test_client_admin.post(
-            "/api/toggle/nonexistent",
-            data={"enabled": "on"}
-        )
+        response = test_client_admin.post("/api/toggle/nonexistent", data={"enabled": "on"})
 
         # Assert
         assert response.status_code == 404
         assert "not registered" in response.json()["detail"]
 
-    @pytest.mark.skip(reason="Bug in server_routes.py: local variable 'status' shadows imported 'status' module")
+    @pytest.mark.skip(
+        reason="Bug in server_routes.py: local variable 'status' shadows imported 'status' module"
+    )
     def test_toggle_service_no_permission(
-        self,
-        test_client_regular,
-        mock_server_service,
-        sample_server_info
+        self, test_client_regular, mock_server_service, sample_server_info
     ):
         """Test toggle fails when user lacks toggle_service permission."""
         # Arrange
         mock_server_service.get_server_info.return_value = sample_server_info
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=False):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=False
+        ):
             # Act
-            response = test_client_regular.post(
-                "/api/toggle/test-server",
-                data={"enabled": "on"}
-            )
+            response = test_client_regular.post("/api/toggle/test-server", data={"enabled": "on"})
 
             # Assert
             assert response.status_code == 403
             assert "permission" in response.json()["detail"].lower()
 
-    @pytest.mark.skip(reason="Bug in server_routes.py: local variable 'status' shadows imported 'status' module")
+    @pytest.mark.skip(
+        reason="Bug in server_routes.py: local variable 'status' shadows imported 'status' module"
+    )
     def test_toggle_service_no_server_access(
-        self,
-        test_client_regular,
-        mock_server_service,
-        sample_server_info
+        self, test_client_regular, mock_server_service, sample_server_info
     ):
         """Test toggle fails when non-admin user lacks server access."""
         # Arrange
         mock_server_service.get_server_info.return_value = sample_server_info
         mock_server_service.user_can_access_server_path.return_value = False
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
-            response = test_client_regular.post(
-                "/api/toggle/test-server",
-                data={"enabled": "on"}
-            )
+            response = test_client_regular.post("/api/toggle/test-server", data={"enabled": "on"})
 
             # Assert
             assert response.status_code == 403
             assert "access" in response.json()["detail"].lower()
 
     def test_toggle_service_performs_health_check_when_enabling(
-        self,
-        test_client_admin,
-        mock_server_service,
-        mock_health_service,
-        sample_server_info
+        self, test_client_admin, mock_server_service, mock_health_service, sample_server_info
     ):
         """Test that enabling a service triggers immediate health check."""
         # Arrange
@@ -677,16 +634,17 @@ class TestToggleService:
         mock_server_service.toggle_service.return_value = True
         mock_health_service.perform_immediate_health_check.return_value = ("healthy", None)
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
-            response = test_client_admin.post(
-                "/api/toggle/test-server",
-                data={"enabled": "on"}
-            )
+            response = test_client_admin.post("/api/toggle/test-server", data={"enabled": "on"})
 
             # Assert
             assert response.status_code == 200
-            mock_health_service.perform_immediate_health_check.assert_called_once_with("/test-server")
+            mock_health_service.perform_immediate_health_check.assert_called_once_with(
+                "/test-server"
+            )
             mock_health_service.broadcast_health_update.assert_called_once_with("/test-server")
 
 
@@ -707,13 +665,15 @@ class TestRegisterService:
         mock_server_service,
         mock_faiss_service,
         mock_nginx_service,
-        mock_health_service
+        mock_health_service,
     ):
         """Test successful service registration."""
         # Arrange
         mock_server_service.register_server.return_value = True
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
             response = test_client_admin.post(
                 "/api/register",
@@ -726,8 +686,8 @@ class TestRegisterService:
                     "num_tools": 5,
                     "num_stars": 4,
                     "is_python": "true",
-                    "license": "MIT"
-                }
+                    "license": "MIT",
+                },
             )
 
             # Assert
@@ -739,11 +699,7 @@ class TestRegisterService:
             mock_faiss_service.add_or_update_service.assert_called_once()
             mock_nginx_service.generate_config_async.assert_called_once()
 
-    def test_register_service_no_permission(
-        self,
-        test_client_regular,
-        mock_server_service
-    ):
+    def test_register_service_no_permission(self, test_client_regular, mock_server_service):
         """Test registration fails when user lacks register_service permission."""
         # Arrange - regular user context already lacks register_service permission
 
@@ -754,24 +710,22 @@ class TestRegisterService:
                 "name": "New Server",
                 "description": "Test",
                 "path": "/new-server",
-                "proxy_pass_url": "http://localhost:9000"
-            }
+                "proxy_pass_url": "http://localhost:9000",
+            },
         )
 
         # Assert
         assert response.status_code == 403
         assert "permission" in response.json()["detail"].lower()
 
-    def test_register_service_path_already_exists(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_register_service_path_already_exists(self, test_client_admin, mock_server_service):
         """Test registration fails when path already exists."""
         # Arrange
         mock_server_service.register_server.return_value = False
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
             response = test_client_admin.post(
                 "/api/register",
@@ -779,24 +733,22 @@ class TestRegisterService:
                     "name": "Duplicate Server",
                     "description": "Test",
                     "path": "/existing-server",
-                    "proxy_pass_url": "http://localhost:9000"
-                }
+                    "proxy_pass_url": "http://localhost:9000",
+                },
             )
 
             # Assert
             assert response.status_code == 400
             assert "already exists" in response.json()["error"].lower()
 
-    def test_register_service_normalizes_path(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_register_service_normalizes_path(self, test_client_admin, mock_server_service):
         """Test that service path is normalized to start with /."""
         # Arrange
         mock_server_service.register_server.return_value = True
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
             response = test_client_admin.post(
                 "/api/register",
@@ -804,8 +756,8 @@ class TestRegisterService:
                     "name": "New Server",
                     "description": "Test",
                     "path": "new-server",  # Missing leading slash
-                    "proxy_pass_url": "http://localhost:9000"
-                }
+                    "proxy_pass_url": "http://localhost:9000",
+                },
             )
 
             # Assert
@@ -832,15 +784,17 @@ class TestInternalRegister:
         mock_server_service,
         mock_faiss_service,
         mock_nginx_service,
-        mock_health_service
+        mock_health_service,
     ):
         """Test successful internal registration with valid Basic Auth."""
         # Arrange
         mock_server_service.register_server.return_value = True
         credentials = base64.b64encode(b"admin:testpass").decode("utf-8")
 
-        with patch.dict("os.environ", {"ADMIN_USER": "admin", "ADMIN_PASSWORD": "testpass"}), \
-             patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock):
+        with (
+            patch.dict("os.environ", {"ADMIN_USER": "admin", "ADMIN_PASSWORD": "testpass"}),
+            patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock),
+        ):
             # Act
             response = test_client_no_auth.post(
                 "/api/internal/register",
@@ -850,9 +804,9 @@ class TestInternalRegister:
                     "path": "/internal-server",
                     "proxy_pass_url": "http://localhost:9000",
                     "tags": "internal",
-                    "num_tools": 3
+                    "num_tools": 3,
                 },
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -871,8 +825,8 @@ class TestInternalRegister:
                 "name": "Server",
                 "description": "Test",
                 "path": "/test",
-                "proxy_pass_url": "http://localhost:9000"
-            }
+                "proxy_pass_url": "http://localhost:9000",
+            },
         )
 
         # Assert
@@ -880,11 +834,7 @@ class TestInternalRegister:
         assert "Authentication required" in response.json()["detail"]
         assert response.headers.get("WWW-Authenticate") == "Basic"
 
-    def test_internal_register_invalid_credentials(
-        self,
-        test_client_no_auth,
-        mock_server_service
-    ):
+    def test_internal_register_invalid_credentials(self, test_client_no_auth, mock_server_service):
         """Test internal registration fails with invalid credentials."""
         # Arrange
         credentials = base64.b64encode(b"admin:wrongpass").decode("utf-8")
@@ -897,9 +847,9 @@ class TestInternalRegister:
                     "name": "Server",
                     "description": "Test",
                     "path": "/test",
-                    "proxy_pass_url": "http://localhost:9000"
+                    "proxy_pass_url": "http://localhost:9000",
                 },
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -920,9 +870,9 @@ class TestInternalRegister:
                     "name": "Server",
                     "description": "Test",
                     "path": "/test",
-                    "proxy_pass_url": "http://localhost:9000"
+                    "proxy_pass_url": "http://localhost:9000",
                 },
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -930,10 +880,7 @@ class TestInternalRegister:
             assert "Internal server configuration error" in response.json()["detail"]
 
     def test_internal_register_overwrite_existing_service(
-        self,
-        test_client_no_auth,
-        mock_server_service,
-        sample_server_info
+        self, test_client_no_auth, mock_server_service, sample_server_info
     ):
         """Test internal registration can overwrite existing service."""
         # Arrange
@@ -941,8 +888,10 @@ class TestInternalRegister:
         mock_server_service.update_server.return_value = True
         credentials = base64.b64encode(b"admin:testpass").decode("utf-8")
 
-        with patch.dict("os.environ", {"ADMIN_USER": "admin", "ADMIN_PASSWORD": "testpass"}), \
-             patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock):
+        with (
+            patch.dict("os.environ", {"ADMIN_USER": "admin", "ADMIN_PASSWORD": "testpass"}),
+            patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock),
+        ):
             # Act
             response = test_client_no_auth.post(
                 "/api/internal/register",
@@ -951,9 +900,9 @@ class TestInternalRegister:
                     "description": "Updated",
                     "path": "/test-server",
                     "proxy_pass_url": "http://localhost:9001",
-                    "overwrite": "true"
+                    "overwrite": "true",
                 },
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -961,10 +910,7 @@ class TestInternalRegister:
             mock_server_service.update_server.assert_called_once()
 
     def test_internal_register_no_overwrite_existing_service(
-        self,
-        test_client_no_auth,
-        mock_server_service,
-        sample_server_info
+        self, test_client_no_auth, mock_server_service, sample_server_info
     ):
         """Test internal registration fails without overwrite flag for existing service."""
         # Arrange
@@ -980,9 +926,9 @@ class TestInternalRegister:
                     "description": "Test",
                     "path": "/test-server",
                     "proxy_pass_url": "http://localhost:9000",
-                    "overwrite": "false"
+                    "overwrite": "false",
                 },
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -990,11 +936,7 @@ class TestInternalRegister:
             assert "already exists" in response.json()["reason"].lower()
 
     def test_internal_register_auto_enables_service(
-        self,
-        test_client_no_auth,
-        mock_server_service,
-        mock_faiss_service,
-        mock_nginx_service
+        self, test_client_no_auth, mock_server_service, mock_faiss_service, mock_nginx_service
     ):
         """Test that internal registration auto-enables the service."""
         # Arrange
@@ -1003,8 +945,10 @@ class TestInternalRegister:
         mock_server_service.is_service_enabled.return_value = True
         credentials = base64.b64encode(b"admin:testpass").decode("utf-8")
 
-        with patch.dict("os.environ", {"ADMIN_USER": "admin", "ADMIN_PASSWORD": "testpass"}), \
-             patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock):
+        with (
+            patch.dict("os.environ", {"ADMIN_USER": "admin", "ADMIN_PASSWORD": "testpass"}),
+            patch("registry.utils.scopes_manager.update_server_scopes", new_callable=AsyncMock),
+        ):
             # Act
             response = test_client_no_auth.post(
                 "/api/internal/register",
@@ -1012,9 +956,9 @@ class TestInternalRegister:
                     "name": "Auto-Enabled Server",
                     "description": "Test",
                     "path": "/auto-enabled",
-                    "proxy_pass_url": "http://localhost:9000"
+                    "proxy_pass_url": "http://localhost:9000",
                 },
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -1034,10 +978,7 @@ class TestInternalRemove:
     """Tests for POST /internal/remove endpoint."""
 
     def test_internal_remove_success(
-        self,
-        test_client_no_auth,
-        mock_server_service,
-        sample_server_info
+        self, test_client_no_auth, mock_server_service, sample_server_info
     ):
         """Test successful internal service removal."""
         # Arrange
@@ -1050,18 +991,14 @@ class TestInternalRemove:
             response = test_client_no_auth.post(
                 "/api/internal/remove",
                 data={"service_path": "/test-server"},
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
             assert response.status_code == 200
             mock_server_service.remove_server.assert_called_once_with("/test-server")
 
-    def test_internal_remove_service_not_found(
-        self,
-        test_client_no_auth,
-        mock_server_service
-    ):
+    def test_internal_remove_service_not_found(self, test_client_no_auth, mock_server_service):
         """Test internal removal fails when service not found."""
         # Arrange
         mock_server_service.get_server_info.return_value = None
@@ -1072,7 +1009,7 @@ class TestInternalRemove:
             response = test_client_no_auth.post(
                 "/api/internal/remove",
                 data={"service_path": "/nonexistent"},
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -1082,20 +1019,14 @@ class TestInternalRemove:
     def test_internal_remove_missing_auth(self, test_client_no_auth):
         """Test internal removal requires authentication."""
         # Act
-        response = test_client_no_auth.post(
-            "/api/internal/remove",
-            data={"service_path": "/test"}
-        )
+        response = test_client_no_auth.post("/api/internal/remove", data={"service_path": "/test"})
 
         # Assert
         assert response.status_code == 401
         assert "Authentication required" in response.json()["detail"]
 
     def test_internal_remove_normalizes_path(
-        self,
-        test_client_no_auth,
-        mock_server_service,
-        sample_server_info
+        self, test_client_no_auth, mock_server_service, sample_server_info
     ):
         """Test that service path is normalized in removal."""
         # Arrange
@@ -1108,7 +1039,7 @@ class TestInternalRemove:
             response = test_client_no_auth.post(
                 "/api/internal/remove",
                 data={"service_path": "test-server"},  # Missing leading slash
-                headers={"Authorization": f"Basic {credentials}"}
+                headers={"Authorization": f"Basic {credentials}"},
             )
 
             # Assert
@@ -1128,21 +1059,20 @@ class TestHelperFunctions:
     """Tests for helper functions and edge cases."""
 
     def test_path_normalization_in_toggle(
-        self,
-        test_client_admin,
-        mock_server_service,
-        sample_server_info
+        self, test_client_admin, mock_server_service, sample_server_info
     ):
         """Test that paths without leading slash are normalized in toggle endpoint."""
         # Arrange
         mock_server_service.get_server_info.return_value = sample_server_info
         mock_server_service.toggle_service.return_value = True
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
             response = test_client_admin.post(
                 "/api/toggle/test-server",  # Path in URL
-                data={"enabled": "on"}
+                data={"enabled": "on"},
             )
 
             # Assert
@@ -1150,16 +1080,14 @@ class TestHelperFunctions:
             # Verify the path was normalized
             mock_server_service.get_server_info.assert_called_with("/test-server")
 
-    def test_tags_parsing_in_register(
-        self,
-        test_client_admin,
-        mock_server_service
-    ):
+    def test_tags_parsing_in_register(self, test_client_admin, mock_server_service):
         """Test that tags are properly parsed from comma-separated string."""
         # Arrange
         mock_server_service.register_server.return_value = True
 
-        with patch("registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True):
+        with patch(
+            "registry.auth.dependencies.user_has_ui_permission_for_service", return_value=True
+        ):
             # Act
             response = test_client_admin.post(
                 "/api/register",
@@ -1168,8 +1096,8 @@ class TestHelperFunctions:
                     "description": "Test",
                     "path": "/tagged",
                     "proxy_pass_url": "http://localhost:9000",
-                    "tags": "tag1, tag2, tag3"  # Comma-separated with spaces
-                }
+                    "tags": "tag1, tag2, tag3",  # Comma-separated with spaces
+                },
             )
 
             # Assert

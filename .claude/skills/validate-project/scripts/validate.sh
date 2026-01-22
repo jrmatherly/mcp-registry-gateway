@@ -20,7 +20,7 @@ FAILURES=0
 run_check() {
     local name="$1"
     local cmd="$2"
-    
+
     echo -n "Running $name... "
     if eval "$cmd" > /dev/null 2>&1; then
         echo -e "${GREEN}PASSED${NC}"

@@ -389,11 +389,11 @@ fi
 if ! grep -q "SECRET_KEY=" .env || grep -q "SECRET_KEY=$" .env || grep -q "SECRET_KEY=\"\"" .env; then
     log "Generating SECRET_KEY..."
     SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))') || handle_error "Failed to generate SECRET_KEY"
-    
+
     # Remove any existing empty SECRET_KEY line
     sed -i '/^SECRET_KEY=$/d' .env 2>/dev/null || true
     sed -i '/^SECRET_KEY=""$/d' .env 2>/dev/null || true
-    
+
     # Add new SECRET_KEY
     echo "SECRET_KEY=$SECRET_KEY" >> .env
     log "SECRET_KEY added to .env"
@@ -502,22 +502,22 @@ for service in $METRICS_SERVICES; do
     # auth-server -> METRICS_API_KEY_AUTH_SERVER
     # metrics-service -> METRICS_API_KEY_METRICS_SERVICE (will be skipped as it's the metrics service itself)
     ENV_VAR_NAME="METRICS_API_KEY_$(echo "$service" | tr '[:lower:]-' '[:upper:]_')"
-    
+
     # Skip the metrics service itself and non-metrics services
     if [ "$service" = "metrics-service" ] || [ "$service" = "prometheus" ] || [ "$service" = "grafana" ]; then
         continue
     fi
-    
+
     # Get current value
     CURRENT_VALUE=$(eval echo "\$$ENV_VAR_NAME")
-    
+
     # Generate token only if it doesn't exist or is empty
     if [ -z "$CURRENT_VALUE" ] || [ "$CURRENT_VALUE" = "" ]; then
         NEW_TOKEN="mcp_metrics_$(openssl rand -hex 16)"
-        
+
         # Remove any existing line for this variable
         sed -i "/^$ENV_VAR_NAME=/d" .env 2>/dev/null || true
-        
+
         # Add new token
         echo "$ENV_VAR_NAME=$NEW_TOKEN" >> .env
         log "Generated new $service token: ${NEW_TOKEN:0:20}..."
@@ -570,7 +570,7 @@ sleep 5  # Give registry service time to create the index
 
 if [ -f "$MCPGATEWAY_SERVERS_DIR/service_index.faiss" ]; then
     log "FAISS index created successfully at $MCPGATEWAY_SERVERS_DIR/service_index.faiss"
-    
+
     # Check if metadata file also exists
     if [ -f "$MCPGATEWAY_SERVERS_DIR/service_index_metadata.json" ]; then
         log "FAISS index metadata created successfully"

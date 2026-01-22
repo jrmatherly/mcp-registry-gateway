@@ -14,22 +14,22 @@ from unittest.mock import Mock, patch, AsyncMock
 
 class TestFeatureName:
     """Tests for feature_name module"""
-    
+
     def test_happy_path(self):
         """Test normal operation with valid inputs"""
         # Arrange
         input_data = {"key": "value"}
-        
+
         # Act
         result = function_under_test(input_data)
-        
+
         # Assert
         assert result["status"] == "success"
-    
+
     def test_edge_case(self):
         """Test boundary conditions"""
         pass
-    
+
     def test_error_handling(self):
         """Test error scenarios"""
         with pytest.raises(ValueError, match="Invalid input"):
@@ -44,10 +44,10 @@ async def test_async_operation(
 ) -> None:
     # Arrange
     mock_repository.get.return_value = expected_value
-    
+
     # Act
     result = await service.get_item(item_id)
-    
+
     # Assert
     assert result == expected_value
     mock_repository.get.assert_awaited_once_with(item_id)

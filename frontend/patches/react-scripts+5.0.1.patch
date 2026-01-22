@@ -24,7 +24,7 @@ index 522a81b..75d3959 100644
 +
        // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
        devServer.app.use(redirectServedPath(paths.publicUrlOrPath));
- 
+
 @@ -130,6 +133,8 @@ module.exports = function (proxy, allowedHost) {
        // it used the same host and port.
        // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432

@@ -69,7 +69,7 @@ providers:
     grant_type: "authorization_code"
     # GitHub specific claim mapping
     username_claim: "login"
-    groups_claim: null  # GitHub doesn't provide groups in basic scope
+    groups_claim: null # GitHub doesn't provide groups in basic scope
     email_claim: "email"
     name_claim: "name"
     enabled: "${GITHUB_ENABLED}"
@@ -86,22 +86,22 @@ providers:
     grant_type: "authorization_code"
     # Google specific claim mapping
     username_claim: "email"
-    groups_claim: null  # Google doesn't provide groups in basic scope
+    groups_claim: null # Google doesn't provide groups in basic scope
     email_claim: "email"
     name_claim: "name"
     enabled: "${GOOGLE_ENABLED}"
 
 # Default session settings
 session:
-  max_age_seconds: 28800  # 8 hours
+  max_age_seconds: 28800 # 8 hours
   cookie_name: "mcp_oauth_session"
-  secure: true  # Set to false for development
+  secure: true # Set to false for development
   httponly: true
   samesite: "lax"
-  domain: "${SESSION_COOKIE_DOMAIN}"  # Set to your domain (with leading dot) to share cookies across subdomains, e.g., ".example.com"
+  domain: "${SESSION_COOKIE_DOMAIN}" # Set to your domain (with leading dot) to share cookies across subdomains, e.g., ".example.com"
 
 # Registry integration settings
 registry:
   callback_url: "${REGISTRY_URL}/auth/callback"
   success_redirect: "${REGISTRY_URL}/"
-  error_redirect: "${REGISTRY_URL}/login" 
+  error_redirect: "${REGISTRY_URL}/login"

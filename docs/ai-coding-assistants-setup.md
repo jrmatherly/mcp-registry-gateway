@@ -81,7 +81,7 @@ ln -sf "$(pwd)/.oauth-tokens/mcp.json" ~/.vscode/mcp_settings.json
 **Enterprise Tool Catalog**
 
 - Curated MCP servers approved by IT
-- Consistent across all developer environments  
+- Consistent across all developer environments
 - Centralized authentication and governance
 - Real-time health monitoring
 
@@ -109,7 +109,7 @@ ln -sf "$(pwd)/.oauth-tokens/mcp.json" ~/.vscode/mcp_settings.json
 - Consistent tool availability regardless of developer setup
 - Rapid deployment of new tools to entire organization
 
-**Secure Authentication**  
+**Secure Authentication**
 
 - All tool access routes through enterprise identity systems (Amazon Cognito)
 - No individual API key management required
@@ -265,7 +265,7 @@ cp .oauth-tokens/dev-* ~/.vscode/
 **Production Environment:**
 
 ```bash
-# Generate production configurations  
+# Generate production configurations
 ENVIRONMENT=prod ./credentials-provider/generate_creds.sh
 cp .oauth-tokens/prod-* ~/.vscode/
 ```

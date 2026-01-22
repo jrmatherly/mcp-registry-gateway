@@ -56,17 +56,17 @@ Choose between Docker and Podman based on your needs:
 
 ### Docker (Default)
 
-✅ Best for: Standard deployment, familiar workflow  
-✅ Uses privileged ports (80, 443)  
-✅ Access at `http://localhost`  
-⚠️ Requires Docker daemon running  
+✅ Best for: Standard deployment, familiar workflow
+✅ Uses privileged ports (80, 443)
+✅ Access at `http://localhost`
+⚠️ Requires Docker daemon running
 
 ### Podman (Rootless Alternative)
 
-✅ Best for: Rootless deployment, no Docker daemon  
-✅ Uses non-privileged ports (8080, 8443)  
-✅ Access at `http://localhost:8080`  
-✅ More secure, no root access needed  
+✅ Best for: Rootless deployment, no Docker daemon
+✅ Uses non-privileged ports (8080, 8443)
+✅ Access at `http://localhost:8080`
+✅ More secure, no root access needed
 
 **This guide uses Docker by default**. For Podman-specific instructions, see [Section 10: Podman Deployment](#10-podman-deployment).
 

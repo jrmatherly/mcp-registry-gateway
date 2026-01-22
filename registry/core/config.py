@@ -1,7 +1,6 @@
-import os
 import secrets
+from datetime import UTC
 from pathlib import Path
-from typing import Optional
 
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
@@ -9,13 +8,13 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Application settings with environment variable support."""
-    
+
     model_config = ConfigDict(
         env_file=".env",
         case_sensitive=False,
-        extra="ignore"  # Ignore extra environment variables
+        extra="ignore",  # Ignore extra environment variables
     )
-    
+
     # Auth settings
     secret_key: str = ""
     admin_user: str = "admin"
@@ -23,28 +22,30 @@ class Settings(BaseSettings):
     session_cookie_name: str = "mcp_gateway_session"
     session_max_age_seconds: int = 60 * 60 * 8  # 8 hours
     session_cookie_secure: bool = False  # Set to True in production with HTTPS
-    session_cookie_domain: Optional[str] = None  # e.g., ".example.com" for cross-subdomain sharing
+    session_cookie_domain: str | None = None  # e.g., ".example.com" for cross-subdomain sharing
     auth_server_url: str = "http://localhost:8888"
     auth_server_external_url: str = "http://localhost:8888"  # External URL for OAuth redirects
-    
+
     # Embeddings settings [Default]
     embeddings_provider: str = "sentence-transformers"  # 'sentence-transformers' or 'litellm'
     embeddings_model_name: str = "all-MiniLM-L6-v2"
-    embeddings_model_dimensions: int = 384 # 384 for default and 1024 for bedrock titan v2
+    embeddings_model_dimensions: int = 384  # 384 for default and 1024 for bedrock titan v2
     print(embeddings_provider, embeddings_model_name, embeddings_model_dimensions)
 
     # LiteLLM-specific settings (only used when embeddings_provider='litellm')
     # For Bedrock: Set to None and configure AWS credentials via standard methods
     # (IAM roles, AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY env vars, or ~/.aws/credentials)
-    embeddings_api_key: Optional[str] = None
-    embeddings_secret_key: Optional[str] = None
-    embeddings_api_base: Optional[str] = None
-    embeddings_aws_region: Optional[str] = "us-east-1"
-    
+    embeddings_api_key: str | None = None
+    embeddings_secret_key: str | None = None
+    embeddings_api_base: str | None = None
+    embeddings_aws_region: str | None = "us-east-1"
+
     # Health check settings
-    health_check_interval_seconds: int = 300  # 5 minutes for automatic background checks (configurable via env var)
+    health_check_interval_seconds: int = (
+        300  # 5 minutes for automatic background checks (configurable via env var)
+    )
     health_check_timeout_seconds: int = 2  # Very fast timeout for user-driven actions
-    
+
     # WebSocket performance settings
     max_websocket_connections: int = 100  # Reasonable limit for development/testing
     websocket_send_timeout_seconds: float = 2.0  # Allow slightly more time per connection
@@ -69,11 +70,13 @@ class Settings(BaseSettings):
     agent_security_scan_enabled: bool = True
     agent_security_scan_on_registration: bool = True
     agent_security_block_unsafe_agents: bool = True
-    agent_security_analyzers: str = "yara,spec"  # Comma-separated: yara, spec, heuristic, llm, endpoint
+    agent_security_analyzers: str = (
+        "yara,spec"  # Comma-separated: yara, spec, heuristic, llm, endpoint
+    )
     agent_security_scan_timeout: int = 60  # 1 minute
     agent_security_add_pending_tag: bool = True
     a2a_scanner_llm_api_key: str = ""  # Optional Azure OpenAI API key for LLM-based analysis
-    
+
     # Storage Backend Configuration
     storage_backend: str = "file"  # Options: "file", "documentdb"
 
@@ -81,12 +84,12 @@ class Settings(BaseSettings):
     documentdb_host: str = "localhost"
     documentdb_port: int = 27017
     documentdb_database: str = "mcp_registry"
-    documentdb_username: Optional[str] = None
-    documentdb_password: Optional[str] = None
+    documentdb_username: str | None = None
+    documentdb_password: str | None = None
     documentdb_use_tls: bool = True
     documentdb_tls_ca_file: str = "global-bundle.pem"
     documentdb_use_iam: bool = False
-    documentdb_replica_set: Optional[str] = None
+    documentdb_replica_set: str | None = None
     documentdb_read_preference: str = "secondaryPreferred"
     documentdb_direct_connection: bool = False  # Set to True only for single-node MongoDB (tests)
 
@@ -97,7 +100,7 @@ class Settings(BaseSettings):
     container_app_dir: Path = Path("/app")
     container_registry_dir: Path = Path("/app/registry")
     container_log_dir: Path = Path("/app/logs")
-    
+
     # Local development mode detection
     @property
     def is_local_dev(self) -> bool:
@@ -185,12 +188,8 @@ class Settings(BaseSettings):
 class EmbeddingConfig:
     """Helper class for embedding configuration and metadata generation."""
 
-    def __init__(
-        self,
-        settings_instance: Settings
-    ):
+    def __init__(self, settings_instance: Settings):
         self.settings = settings_instance
-
 
     @property
     def model_family(self) -> str:
@@ -213,7 +212,6 @@ class EmbeddingConfig:
         else:
             return self.settings.embeddings_provider
 
-
     @property
     def index_name(self) -> str:
         """Generate dimension-specific collection/index name.
@@ -228,7 +226,6 @@ class EmbeddingConfig:
         # Replace base name with dimension-specific name
         return f"{base_name}-{dimensions}-{namespace}"
 
-
     def get_embedding_metadata(self) -> dict:
         """Generate embedding metadata for document storage.
 
@@ -242,7 +239,7 @@ class EmbeddingConfig:
             - created_at: Current timestamp in ISO format
             - indexing_strategy: Search strategy (currently "hybrid")
         """
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         model_name = self.settings.embeddings_model_name
 
@@ -261,8 +258,8 @@ class EmbeddingConfig:
             "model_family": self.model_family,
             "dimensions": self.settings.embeddings_model_dimensions,
             "version": version,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "indexing_strategy": "hybrid"
+            "created_at": datetime.now(UTC).isoformat(),
+            "indexing_strategy": "hybrid",
         }
 
 
@@ -270,4 +267,4 @@ class EmbeddingConfig:
 settings = Settings()
 
 # Global embedding config instance
-embedding_config = EmbeddingConfig(settings) 
+embedding_config = EmbeddingConfig(settings)

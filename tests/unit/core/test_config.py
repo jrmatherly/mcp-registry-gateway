@@ -47,11 +47,14 @@ class TestSettingsInstantiation:
         assert settings.auth_server_external_url == "http://localhost:8888"
 
     def test_settings_embeddings_default_values(self) -> None:
-        """Test embeddings-related default values."""
-        # Act
-        settings = Settings()
+        """Test embeddings-related default values.
 
-        # Assert - Embeddings settings
+        Uses _env_file=None to test code defaults without .env file influence.
+        """
+        # Act - disable .env file loading to test actual code defaults
+        settings = Settings(_env_file=None)
+
+        # Assert - Embeddings settings (code defaults)
         assert settings.embeddings_provider == "sentence-transformers"
         assert settings.embeddings_model_name == "all-MiniLM-L6-v2"
         assert settings.embeddings_model_dimensions == 384
@@ -258,9 +261,12 @@ class TestSettingsEnvironmentVariables:
         assert not hasattr(settings, "another_unknown")
 
     def test_settings_optional_fields_none(self) -> None:
-        """Test that optional fields can be None."""
-        # Act
-        settings = Settings()
+        """Test that optional fields can be None.
+
+        Uses _env_file=None to test code defaults without .env file influence.
+        """
+        # Act - disable .env file loading to test actual code defaults
+        settings = Settings(_env_file=None)
 
         # Assert - Optional fields should be None by default
         assert settings.embeddings_api_key is None
@@ -809,9 +815,12 @@ class TestSettingsSessionCookie:
         assert settings.session_cookie_secure is True
 
     def test_session_cookie_domain_none_by_default(self) -> None:
-        """Test that session_cookie_domain is None by default."""
-        # Act
-        settings = Settings()
+        """Test that session_cookie_domain is None by default.
+
+        Uses _env_file=None to test code defaults without .env file influence.
+        """
+        # Act - disable .env file loading to test actual code defaults
+        settings = Settings(_env_file=None)
 
         # Assert
         assert settings.session_cookie_domain is None

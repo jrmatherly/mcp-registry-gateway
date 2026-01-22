@@ -1,21 +1,21 @@
 # Unified Container Build Configuration
-# Central definition of all Docker images to build and push to ECR
+# Central definition of all Docker images to build and push to GitHub Container Registry (ghcr.io)
 # This is the SINGLE SOURCE OF TRUTH for all container builds
 #
-# NOTE: The build scripts now dynamically construct the ECR registry URL
-# based on the AWS_REGION environment variable and current AWS credentials.
-# The values below are DEFAULTS and will be overridden if AWS_REGION is set.
+# NOTE: The build scripts dynamically determine the GitHub owner from git remote.
+# In GitHub Actions, use ${{ github.repository_owner }} for the owner.
 #
-# To deploy to a different region:
-#   export AWS_REGION=us-east-1
+# To build and push locally:
 #   make build-push
 #
-# The build scripts will automatically use the correct ECR registry for your region.
+# The GITHUB_OWNER environment variable can override the auto-detected owner.
 
-aws:
-  account_id: "123456789012" # Placeholder - overridden by AWS credentials at runtime
-  region: "us-west-2" # Default region - override with AWS_REGION env var
-  ecr_registry: "123456789012.dkr.ecr.us-west-2.amazonaws.com" # Placeholder - constructed dynamically at runtime
+github:
+  # Registry base URL - ghcr.io is GitHub's container registry
+  registry: "ghcr.io"
+  # Owner is auto-detected from git remote or GITHUB_OWNER env var
+  # In CI, use: ${{ github.repository_owner }}
+  owner: ""  # Leave empty for auto-detection, or set GITHUB_OWNER env var
 
 images:
   # ========================================

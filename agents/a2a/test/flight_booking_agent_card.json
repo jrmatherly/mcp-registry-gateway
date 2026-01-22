@@ -2,12 +2,8 @@
   "capabilities": {
     "streaming": true
   },
-  "defaultInputModes": [
-    "text"
-  ],
-  "defaultOutputModes": [
-    "text"
-  ],
+  "defaultInputModes": ["text"],
+  "defaultOutputModes": ["text"],
   "description": "Flight booking and reservation management agent",
   "name": "Flight Booking Agent",
   "preferredTransport": "JSONRPC",

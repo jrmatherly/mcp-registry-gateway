@@ -1,5 +1,5 @@
 # Financial Info MCP Server - Client API Keys Configuration
-# 
+#
 # This file maps client IDs to their respective Polygon API keys.
 # Format: client_id: api_key
 #

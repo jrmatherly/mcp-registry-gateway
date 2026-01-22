@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 from ..repositories.factory import get_server_repository
 from ..repositories.interfaces import ServerRepositoryBase
@@ -13,6 +13,7 @@ class ServerService:
     def __init__(self):
         self._repo: ServerRepositoryBase = get_server_repository()
         from ..repositories.factory import get_search_repository
+
         self._search_repo = get_search_repository()
 
     async def load_servers_and_state(self):
@@ -20,8 +21,7 @@ class ServerService:
         # Delegate to repository - no longer maintains service-level cache
         await self._repo.load_all()
 
-
-    async def register_server(self, server_info: Dict[str, Any]) -> bool:
+    async def register_server(self, server_info: dict[str, Any]) -> bool:
         """Register a new server."""
         result = await self._repo.create(server_info)
 
@@ -37,7 +37,7 @@ class ServerService:
 
         return result
 
-    async def update_server(self, path: str, server_info: Dict[str, Any]) -> bool:
+    async def update_server(self, path: str, server_info: dict[str, Any]) -> bool:
         """Update an existing server."""
         result = await self._repo.update(path, server_info)
 
@@ -53,6 +53,7 @@ class ServerService:
             if await self._repo.get_state(path):
                 try:
                     from ..core.nginx_service import nginx_service
+
                     enabled_servers = {
                         service_path: await self.get_server_info(service_path)
                         for service_path in await self.get_enabled_services()
@@ -61,7 +62,9 @@ class ServerService:
                     nginx_service.reload_nginx()
                     logger.info(f"Regenerated nginx config due to server update: {path}")
                 except Exception as e:
-                    logger.error(f"Failed to regenerate nginx configuration after server update: {e}")
+                    logger.error(
+                        f"Failed to regenerate nginx configuration after server update: {e}"
+                    )
 
         return result
 
@@ -73,6 +76,7 @@ class ServerService:
             # Trigger nginx config regeneration
             try:
                 from ..core.nginx_service import nginx_service
+
                 enabled_servers = {
                     service_path: await self.get_server_info(service_path)
                     for service_path in await self.get_enabled_services()
@@ -84,11 +88,11 @@ class ServerService:
 
         return result
 
-    async def get_server_info(self, path: str) -> Optional[Dict[str, Any]]:
+    async def get_server_info(self, path: str) -> dict[str, Any] | None:
         """Get server information by path - queries repository directly."""
         return await self._repo.get(path)
 
-    async def get_all_servers(self, include_federated: bool = True) -> Dict[str, Dict[str, Any]]:
+    async def get_all_servers(self, include_federated: bool = True) -> dict[str, dict[str, Any]]:
         """
         Get all registered servers.
 
@@ -105,6 +109,7 @@ class ServerService:
         if include_federated:
             try:
                 from .federation_service import get_federation_service
+
                 federation_service = get_federation_service()
                 federated_servers = await federation_service.get_federated_servers()
 
@@ -120,7 +125,9 @@ class ServerService:
 
         return all_servers
 
-    async def get_filtered_servers(self, accessible_servers: List[str]) -> Dict[str, Dict[str, Any]]:
+    async def get_filtered_servers(
+        self, accessible_servers: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """
         Get servers filtered by user's accessible servers list.
 
@@ -137,31 +144,37 @@ class ServerService:
         # Query repository directly instead of using cache
         all_servers = await self._repo.list_all()
 
-        logger.info(f"DEBUG: get_filtered_servers called with accessible_servers: {accessible_servers}")
+        logger.info(
+            f"DEBUG: get_filtered_servers called with accessible_servers: {accessible_servers}"
+        )
         logger.info(f"DEBUG: Available registered servers paths: {list(all_servers.keys())}")
 
         filtered_servers = {}
         for path, server_info in all_servers.items():
             server_name = server_info.get("server_name", "")
             # Extract technical name from path (remove leading and trailing slashes)
-            technical_name = path.strip('/')
-            logger.info(f"DEBUG: Checking server path='{path}', server_name='{server_name}', technical_name='{technical_name}' against accessible_servers")
+            technical_name = path.strip("/")
+            logger.info(
+                f"DEBUG: Checking server path='{path}', server_name='{server_name}', technical_name='{technical_name}' against accessible_servers"
+            )
 
             # Check if user has access to this server using technical name
             if technical_name in accessible_servers:
                 filtered_servers[path] = server_info
                 logger.info(f"DEBUG: ✓ User has access to server: {technical_name} ({server_name})")
             else:
-                logger.info(f"DEBUG: ✗ User does not have access to server: {technical_name} ({server_name})")
+                logger.info(
+                    f"DEBUG: ✗ User does not have access to server: {technical_name} ({server_name})"
+                )
 
-        logger.info(f"Filtered {len(filtered_servers)} servers from {len(all_servers)} total servers")
+        logger.info(
+            f"Filtered {len(filtered_servers)} servers from {len(all_servers)} total servers"
+        )
         return filtered_servers
 
     async def get_all_servers_with_permissions(
-        self,
-        accessible_servers: Optional[List[str]] = None,
-        include_federated: bool = True
-    ) -> Dict[str, Dict[str, Any]]:
+        self, accessible_servers: list[str] | None = None, include_federated: bool = True
+    ) -> dict[str, dict[str, Any]]:
         """
         Get servers with optional filtering based on user permissions.
 
@@ -179,7 +192,9 @@ class ServerService:
             return await self.get_all_servers(include_federated=include_federated)
         else:
             # Filtered access - return only accessible servers
-            logger.debug(f"Filtered access - returning servers accessible to user: {accessible_servers}")
+            logger.debug(
+                f"Filtered access - returning servers accessible to user: {accessible_servers}"
+            )
             # Note: Federated servers are read-only, so we include them in filtered results too
             all_servers = await self.get_all_servers(include_federated=include_federated)
 
@@ -190,17 +205,21 @@ class ServerService:
 
             for path, server_info in all_servers.items():
                 server_name = server_info.get("server_name", "")
-                technical_name = path.strip('/')
+                technical_name = path.strip("/")
 
-                logger.info(f"[FILTER DEBUG] Checking server: path='{path}', technical_name='{technical_name}', server_name='{server_name}'")
+                logger.info(
+                    f"[FILTER DEBUG] Checking server: path='{path}', technical_name='{technical_name}', server_name='{server_name}'"
+                )
 
                 # Check if user has access to this server using multiple formats
                 # Support: "currenttime", "/currenttime", "/currenttime/"
                 has_access = False
                 for accessible_server in accessible_servers:
                     # Normalize both sides by stripping slashes for comparison
-                    normalized_accessible = accessible_server.strip('/')
-                    logger.info(f"[FILTER DEBUG]   Comparing: '{technical_name}' == '{normalized_accessible}' ? {technical_name == normalized_accessible}")
+                    normalized_accessible = accessible_server.strip("/")
+                    logger.info(
+                        f"[FILTER DEBUG]   Comparing: '{technical_name}' == '{normalized_accessible}' ? {technical_name == normalized_accessible}"
+                    )
                     if technical_name == normalized_accessible:
                         has_access = True
                         break
@@ -213,7 +232,7 @@ class ServerService:
             logger.info(f"[FILTER DEBUG] Filtered server paths: {list(filtered_servers.keys())}")
             return filtered_servers
 
-    async def user_can_access_server_path(self, path: str, accessible_servers: List[str]) -> bool:
+    async def user_can_access_server_path(self, path: str, accessible_servers: list[str]) -> bool:
         """
         Check if user can access a specific server by path.
 
@@ -229,11 +248,11 @@ class ServerService:
             return False
 
         # Extract technical name from path (remove leading and trailing slashes)
-        technical_name = path.strip('/')
+        technical_name = path.strip("/")
 
         # Check with normalized paths - support "currenttime", "/currenttime", "/currenttime/"
         for accessible_server in accessible_servers:
-            normalized_accessible = accessible_server.strip('/')
+            normalized_accessible = accessible_server.strip("/")
             if technical_name == normalized_accessible:
                 return True
 
@@ -243,7 +262,7 @@ class ServerService:
         """Check if a service is enabled."""
         return await self._repo.get_state(path)
 
-    async def get_enabled_services(self) -> List[str]:
+    async def get_enabled_services(self) -> list[str]:
         """Get list of enabled service paths - queries repository directly."""
         all_servers = await self._repo.list_all()
         enabled_paths = []
@@ -267,10 +286,13 @@ class ServerService:
         current_enabled_services = set(await self.get_enabled_services())
 
         if previous_enabled_services != current_enabled_services:
-            logger.info(f"Service state changes detected: {len(previous_enabled_services)} -> {len(current_enabled_services)} enabled services")
+            logger.info(
+                f"Service state changes detected: {len(previous_enabled_services)} -> {len(current_enabled_services)} enabled services"
+            )
 
             try:
                 from ..core.nginx_service import nginx_service
+
                 enabled_servers = {
                     service_path: await self.get_server_info(service_path)
                     for service_path in await self.get_enabled_services()
@@ -320,9 +342,7 @@ class ServerService:
 
         # Update rating details using shared service
         updated_details, is_new_rating = rating_service.update_rating_details(
-            server_info["rating_details"],
-            username,
-            rating
+            server_info["rating_details"], username, rating
         )
         server_info["rating_details"] = updated_details
 

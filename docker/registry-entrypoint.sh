@@ -186,7 +186,7 @@ echo "Processing MCP Server configuration files..."
 for i in $(seq 1 99); do
     env_var_name="MCP_SERVER${i}_AUTH_TOKEN"
     env_var_value=$(eval echo \$$env_var_name)
-    
+
     if [ ! -z "$env_var_value" ]; then
         echo "Found $env_var_name, substituting in server JSON files..."
         # Replace the literal environment variable name with its value in all JSON files
@@ -234,4 +234,4 @@ nginx
 
 echo "Registry service fully started. Keeping container alive..."
 # Keep the container running indefinitely
-tail -f /dev/null 
+tail -f /dev/null

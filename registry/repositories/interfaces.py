@@ -5,7 +5,7 @@ These abstract base classes define the contract that ALL repository implementati
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 from ..schemas.agent_models import AgentCard
 from ..schemas.federation_schema import FederationConfig
@@ -18,19 +18,19 @@ class ServerRepositoryBase(ABC):
     async def get(
         self,
         path: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Get server by path."""
         pass
 
     @abstractmethod
-    async def list_all(self) -> Dict[str, Dict[str, Any]]:
+    async def list_all(self) -> dict[str, dict[str, Any]]:
         """List all servers."""
         pass
 
     @abstractmethod
     async def create(
         self,
-        server_info: Dict[str, Any],
+        server_info: dict[str, Any],
     ) -> bool:
         """Create a new server."""
         pass
@@ -39,7 +39,7 @@ class ServerRepositoryBase(ABC):
     async def update(
         self,
         path: str,
-        server_info: Dict[str, Any],
+        server_info: dict[str, Any],
     ) -> bool:
         """Update an existing server."""
         pass
@@ -82,12 +82,12 @@ class AgentRepositoryBase(ABC):
     async def get(
         self,
         path: str,
-    ) -> Optional[AgentCard]:
+    ) -> AgentCard | None:
         """Get agent by path."""
         pass
 
     @abstractmethod
-    async def list_all(self) -> List[AgentCard]:
+    async def list_all(self) -> list[AgentCard]:
         """List all agents."""
         pass
 
@@ -103,7 +103,7 @@ class AgentRepositoryBase(ABC):
     async def update(
         self,
         path: str,
-        updates: Dict[str, Any],
+        updates: dict[str, Any],
     ) -> AgentCard:
         """Update an existing agent."""
         pass
@@ -152,7 +152,7 @@ class ScopeRepositoryBase(ABC):
     async def get_ui_scopes(
         self,
         group_name: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get UI scopes for a Keycloak group.
 
@@ -169,7 +169,7 @@ class ScopeRepositoryBase(ABC):
     async def get_group_mappings(
         self,
         keycloak_group: str,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Get scope names mapped to a Keycloak group.
 
@@ -185,7 +185,7 @@ class ScopeRepositoryBase(ABC):
     async def get_server_scopes(
         self,
         scope_name: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get server access rules for a scope.
 
@@ -211,8 +211,8 @@ class ScopeRepositoryBase(ABC):
         self,
         server_path: str,
         scope_name: str,
-        methods: List[str],
-        tools: Optional[List[str]] = None,
+        methods: list[str],
+        tools: list[str] | None = None,
     ) -> bool:
         """
         Add scope for a server.
@@ -289,7 +289,7 @@ class ScopeRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def get_group(self, group_name: str) -> Dict[str, Any]:
+    async def get_group(self, group_name: str) -> dict[str, Any]:
         """
         Get full details of a specific group.
 
@@ -311,8 +311,7 @@ class ScopeRepositoryBase(ABC):
         """
         pass
 
-
-    async def list_groups(self) -> Dict[str, Any]:
+    async def list_groups(self) -> dict[str, Any]:
         """
         List all groups with server counts.
 
@@ -438,7 +437,7 @@ class ScopeRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def get_all_group_mappings(self) -> Dict[str, List[str]]:
+    async def get_all_group_mappings(self) -> dict[str, list[str]]:
         """
         Get all group mappings.
 
@@ -462,9 +461,9 @@ class ScopeRepositoryBase(ABC):
     async def add_server_to_multiple_scopes(
         self,
         server_path: str,
-        scope_names: List[str],
-        methods: List[str],
-        tools: List[str],
+        scope_names: list[str],
+        methods: list[str],
+        tools: list[str],
     ) -> bool:
         """
         Add server to multiple scopes at once.
@@ -518,7 +517,7 @@ class SecurityScanRepositoryBase(ABC):
     async def get(
         self,
         server_path: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get latest security scan result for a server.
 
@@ -531,7 +530,7 @@ class SecurityScanRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def list_all(self) -> List[Dict[str, Any]]:
+    async def list_all(self) -> list[dict[str, Any]]:
         """
         List all security scan results.
 
@@ -543,7 +542,7 @@ class SecurityScanRepositoryBase(ABC):
     @abstractmethod
     async def create(
         self,
-        scan_result: Dict[str, Any],
+        scan_result: dict[str, Any],
     ) -> bool:
         """
         Create/update a security scan result.
@@ -560,7 +559,7 @@ class SecurityScanRepositoryBase(ABC):
     async def get_latest(
         self,
         server_path: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get latest scan result for a server.
 
@@ -576,7 +575,7 @@ class SecurityScanRepositoryBase(ABC):
     async def query_by_status(
         self,
         status: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Query scan results by status.
 
@@ -609,7 +608,7 @@ class SearchRepositoryBase(ABC):
     async def index_server(
         self,
         path: str,
-        server_info: Dict[str, Any],
+        server_info: dict[str, Any],
         is_enabled: bool = False,
     ) -> None:
         """Index a server for search."""
@@ -637,9 +636,9 @@ class SearchRepositoryBase(ABC):
     async def search(
         self,
         query: str,
-        entity_types: Optional[List[str]] = None,
+        entity_types: list[str] | None = None,
         max_results: int = 10,
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    ) -> dict[str, list[dict[str, Any]]]:
         """Perform search."""
         pass
 
@@ -648,10 +647,7 @@ class FederationConfigRepositoryBase(ABC):
     """Abstract base class for federation configuration storage."""
 
     @abstractmethod
-    async def get_config(
-        self,
-        config_id: str = "default"
-    ) -> Optional[FederationConfig]:
+    async def get_config(self, config_id: str = "default") -> FederationConfig | None:
         """
         Get federation configuration by ID.
 
@@ -665,9 +661,7 @@ class FederationConfigRepositoryBase(ABC):
 
     @abstractmethod
     async def save_config(
-        self,
-        config: FederationConfig,
-        config_id: str = "default"
+        self, config: FederationConfig, config_id: str = "default"
     ) -> FederationConfig:
         """
         Save or update federation configuration.
@@ -682,10 +676,7 @@ class FederationConfigRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def delete_config(
-        self,
-        config_id: str = "default"
-    ) -> bool:
+    async def delete_config(self, config_id: str = "default") -> bool:
         """
         Delete federation configuration.
 
@@ -698,7 +689,7 @@ class FederationConfigRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def list_configs(self) -> List[Dict[str, Any]]:
+    async def list_configs(self) -> list[dict[str, Any]]:
         """
         List all federation configurations.
 

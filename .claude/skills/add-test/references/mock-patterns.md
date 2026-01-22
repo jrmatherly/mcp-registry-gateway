@@ -29,19 +29,19 @@ mock_repo.list.side_effect = [
 @pytest.mark.asyncio
 async def test_with_assertions(mock_repository, service):
     await service.get("123")
-    
+
     # Assert called
     mock_repository.get.assert_awaited()
-    
+
     # Assert called once
     mock_repository.get.assert_awaited_once()
-    
+
     # Assert called with specific args
     mock_repository.get.assert_awaited_once_with("123")
-    
+
     # Assert call count
     assert mock_repository.get.await_count == 1
-    
+
     # Assert not called
     mock_repository.delete.assert_not_awaited()
 ```

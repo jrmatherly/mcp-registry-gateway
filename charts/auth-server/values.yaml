@@ -47,4 +47,3 @@ ingress:
   hostname: ""
   annotations: { }
   tls: false
-

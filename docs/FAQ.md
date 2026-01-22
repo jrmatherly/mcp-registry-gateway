@@ -113,7 +113,7 @@ headers = {
        session_cookie=session_cookie,
        top_n_tools=3
    )
-   
+
    # Then invoke the discovered tool
    if tools:
        result = await invoke_mcp_tool(
@@ -169,7 +169,7 @@ except AuthenticationError as e:
    cd agents/
    python cli_user_auth.py
    python agent.py --use-session-cookie --message "test message"
-   
+
    # For agent identity mode
    python agent.py --message "test message"
    ```
@@ -334,7 +334,7 @@ The registry will automatically:
    ```bash
    # View all service logs
    docker-compose logs -f
-   
+
    # View specific service logs
    docker-compose logs -f registry
    docker-compose logs -f auth-server
@@ -364,7 +364,7 @@ The registry will automatically:
    # Test user authentication
    cd agents/
    python cli_user_auth.py
-   
+
    # Test M2M authentication
    python -c "from auth_server.cognito_utils import generate_token; print('M2M test passed')"
    ```

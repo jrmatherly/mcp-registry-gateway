@@ -80,13 +80,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
-    
+
     const response = await axios.post('/api/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
-    
+
     if (response.status === 200) {
       await checkAuth();
     }
@@ -110,4 +110,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}; 
+};

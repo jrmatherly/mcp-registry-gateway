@@ -1,9 +1,9 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { Link } from 'react-router-dom';
-import { 
-  Bars3Icon, 
-  UserIcon, 
+import {
+  Bars3Icon,
+  UserIcon,
   ChevronDownIcon,
   ArrowRightOnRectangleIcon,
   KeyIcon,
@@ -163,7 +163,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </Menu.Item>
 
                     <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
-                    
+
                     <Menu.Item>
                       {({ active }) => (
                         <button
@@ -187,8 +187,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       <div className="flex h-screen pt-16">
         {/* Sidebar */}
-        <Sidebar 
-          sidebarOpen={sidebarOpen} 
+        <Sidebar
+          sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           stats={stats}
           activeFilter={activeFilter}
@@ -209,4 +209,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default Layout; 
+export default Layout;

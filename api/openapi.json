@@ -8,9 +8,7 @@
   "paths": {
     "/api/auth/login": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Login Form",
         "description": "Show login form with OAuth2 providers",
         "operationId": "login_form_api_auth_login_get",
@@ -56,9 +54,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Login Submit",
         "description": "Handle login form submission - supports both traditional and API calls",
         "operationId": "login_submit_api_auth_login_post",
@@ -96,9 +92,7 @@
     },
     "/api/auth/auth/{provider}": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Oauth2 Login Redirect",
         "description": "Redirect to auth server for OAuth2 login",
         "operationId": "oauth2_login_redirect_api_auth_auth__provider__get",
@@ -137,9 +131,7 @@
     },
     "/api/auth/auth/callback": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Oauth2 Callback",
         "description": "Handle OAuth2 callback from auth server",
         "operationId": "oauth2_callback_api_auth_auth_callback_get",
@@ -187,9 +179,7 @@
     },
     "/api/auth/logout": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Logout Get",
         "description": "Handle logout via GET request (for URL navigation)",
         "operationId": "logout_get_api_auth_logout_get",
@@ -233,9 +223,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Logout Post",
         "description": "Handle logout via POST request (for forms)",
         "operationId": "logout_post_api_auth_logout_post",
@@ -281,9 +269,7 @@
     },
     "/api/auth/providers": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Get Providers Api",
         "description": "API endpoint to get available OAuth2 providers for React frontend",
         "operationId": "get_providers_api_api_auth_providers_get",
@@ -301,9 +287,7 @@
     },
     "/api/auth/config": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Get Auth Config",
         "description": "API endpoint to get auth configuration for React frontend",
         "operationId": "get_auth_config_api_auth_config_get",
@@ -321,9 +305,7 @@
     },
     "/api/": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Read Root",
         "description": "Main dashboard page showing services based on user permissions.",
         "operationId": "read_root_api__get",
@@ -392,9 +374,7 @@
     },
     "/api/servers": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Servers Json",
         "description": "Get servers data as JSON for React frontend and external API (supports both session cookies and Bearer tokens).",
         "operationId": "get_servers_json_api_servers_get",
@@ -445,9 +425,7 @@
     },
     "/api/toggle/{service_path}": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Toggle Service Route",
         "description": "Toggle a service on/off (requires toggle_service UI permission).",
         "operationId": "toggle_service_route_api_toggle__service_path__post",
@@ -516,9 +494,7 @@
     },
     "/api/register": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Register Service",
         "description": "Register a new service (requires register_service UI permission).",
         "operationId": "register_service_api_register_post",
@@ -579,9 +555,7 @@
     },
     "/api/internal/register": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Register Service",
         "description": "Internal service registration endpoint for mcpgw-server (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_register_service_api_internal_register_post",
@@ -624,9 +598,7 @@
     },
     "/api/internal/remove": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Remove Service",
         "description": "Internal service removal endpoint for mcpgw-server (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_remove_service_api_internal_remove_post",
@@ -669,9 +641,7 @@
     },
     "/api/internal/toggle": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Toggle Service",
         "description": "Internal service toggle endpoint for mcpgw-server (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_toggle_service_api_internal_toggle_post",
@@ -714,9 +684,7 @@
     },
     "/api/internal/healthcheck": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Healthcheck",
         "description": "Internal health check endpoint for mcpgw-server (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_healthcheck_api_internal_healthcheck_post",
@@ -739,9 +707,7 @@
     },
     "/api/edit/{service_path}": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Edit Server Form",
         "description": "Show edit form for a service (requires modify_service UI permission).",
         "operationId": "edit_server_form_api_edit__service_path__get",
@@ -801,9 +767,7 @@
         ]
       },
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Edit Server Submit",
         "description": "Handle server edit form submission (requires modify_service UI permission).",
         "operationId": "edit_server_submit_api_edit__service_path__post",
@@ -873,9 +837,7 @@
     },
     "/api/tokens": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Token Generation Page",
         "description": "Show token generation page for authenticated users.",
         "operationId": "token_generation_page_api_tokens_get",
@@ -928,9 +890,7 @@
     },
     "/api/server_details/{service_path}": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Server Details",
         "description": "Get server details by path, or all servers if path is 'all' (filtered by permissions).",
         "operationId": "get_server_details_api_server_details__service_path__get",
@@ -990,9 +950,7 @@
     },
     "/api/tools/{service_path}": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Service Tools",
         "description": "Get tool list for a service (filtered by permissions).",
         "operationId": "get_service_tools_api_tools__service_path__get",
@@ -1052,9 +1010,7 @@
     },
     "/api/refresh/{service_path}": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Refresh Service",
         "description": "Refresh service health and tool information (requires health_check_service permission).",
         "operationId": "refresh_service_api_refresh__service_path__post",
@@ -1114,9 +1070,7 @@
     },
     "/api/internal/add-to-groups": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Add Server To Groups",
         "description": "Internal endpoint to add a server to specific scopes groups (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_add_server_to_groups_api_internal_add_to_groups_post",
@@ -1159,9 +1113,7 @@
     },
     "/api/internal/remove-from-groups": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Remove Server From Groups",
         "description": "Internal endpoint to remove a server from specific scopes groups (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_remove_server_from_groups_api_internal_remove_from_groups_post",
@@ -1204,9 +1156,7 @@
     },
     "/api/internal/list": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal List Services",
         "description": "Internal service listing endpoint for mcpgw-server (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_list_services_api_internal_list_get",
@@ -1229,9 +1179,7 @@
     },
     "/api/internal/create-group": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Create Group",
         "description": "Internal endpoint to create a new group in both IdP and scopes.yml (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_create_group_api_internal_create_group_post",
@@ -1274,9 +1222,7 @@
     },
     "/api/internal/delete-group": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal Delete Group",
         "description": "Internal endpoint to delete a group from both Keycloak and scopes (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_delete_group_api_internal_delete_group_post",
@@ -1319,9 +1265,7 @@
     },
     "/api/internal/list-groups": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Internal List Groups",
         "description": "Internal endpoint to list groups from Keycloak and/or scopes (requires HTTP Basic Authentication with admin credentials).",
         "operationId": "internal_list_groups_api_internal_list_groups_get",
@@ -1376,9 +1320,7 @@
     },
     "/api/tokens/generate": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Generate User Token",
         "description": "Generate a JWT token for the authenticated user.\n\nRequest body should contain:\n{\n    \"requested_scopes\": [\"scope1\", \"scope2\"],  // Optional, defaults to user's current scopes\n    \"expires_in_hours\": 8,                     // Optional, defaults to 8 hours\n    \"description\": \"Token for automation\"      // Optional description\n}\n\nReturns:\n    Generated JWT token with expiration info\n\nRaises:\n    HTTPException: If request fails or user lacks permissions",
         "operationId": "generate_user_token_api_tokens_generate_post",
@@ -1429,9 +1371,7 @@
     },
     "/api/admin/tokens": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Admin Tokens",
         "description": "Admin-only endpoint to retrieve JWT tokens from Keycloak.\n\nReturns both access token and refresh token for admin users.\n\nReturns:\n    JSON object containing access_token, refresh_token, expires_in, etc.\n\nRaises:\n    HTTPException: If user is not admin or token retrieval fails",
         "operationId": "get_admin_tokens_api_admin_tokens_get",
@@ -1482,9 +1422,7 @@
     },
     "/api/servers/register": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Register Service Api",
         "description": "Register a service via JWT Bearer Token authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/register\nbut uses modern JWT Bearer token authentication via nginx headers, making it\nsuitable for external service-to-service communication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `name` (required): Service name\n- `description` (required): Service description\n- `path` (required): Service path (e.g., /myservice)\n- `proxy_pass_url` (required): Proxy URL (e.g., http://localhost:8000)\n- `tags` (optional): Comma-separated tags\n- `num_tools` (optional): Number of tools\n- `num_stars` (optional): Star rating\n- `is_python` (optional): Is Python server (boolean)\n- `license` (optional): License name\n- `overwrite` (optional): Overwrite if exists (boolean, default true)\n- `auth_provider` (optional): Auth provider name\n- `auth_type` (optional): Auth type (e.g., oauth, basic)\n- `supported_transports` (optional): JSON array of transports\n- `headers` (optional): JSON object of headers\n- `tool_list_json` (optional): JSON array of tool definitions\n\n**Response:**\n- `201 Created`: Service registered successfully\n- `400 Bad Request`: Invalid input data\n- `401 Unauthorized`: Missing or invalid JWT token\n- `409 Conflict`: Service already exists (unless overwrite=true)\n- `500 Internal Server Error`: Server error\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/register \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"name=My Service\" \\\n  -F \"description=My MCP Service\" \\\n  -F \"path=/myservice\" \\\n  -F \"proxy_pass_url=http://localhost:8000\"\n```",
         "operationId": "register_service_api_api_servers_register_post",
@@ -1527,9 +1465,7 @@
     },
     "/api/servers/toggle": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Toggle Service Api",
         "description": "Toggle a service's enabled/disabled state via JWT authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/toggle\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `path` (required): Service path\n- `new_state` (required): New state (true=enabled, false=disabled)\n\n**Response:**\nReturns the updated service status.\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/toggle \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"path=/myservice\" \\\n  -F \"new_state=true\"\n```",
         "operationId": "toggle_service_api_api_servers_toggle_post",
@@ -1572,9 +1508,7 @@
     },
     "/api/servers/remove": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Remove Service Api",
         "description": "Remove a service via JWT Bearer Token authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/remove\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `path` (required): Service path to remove\n\n**Response:**\nReturns confirmation of removal.\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/remove \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"path=/myservice\"\n```",
         "operationId": "remove_service_api_api_servers_remove_post",
@@ -1617,9 +1551,7 @@
     },
     "/api/servers/health": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Healthcheck Api",
         "description": "Get health status for all registered services via JWT authentication (External API).\n\nThis endpoint provides the same functionality as GET /api/internal/healthcheck\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Response:**\nReturns health status for all services.\n\n**Example:**\n```bash\ncurl -X GET https://registry.example.com/api/servers/health \\\n  -H \"Authorization: Bearer $JWT_TOKEN\"\n```",
         "operationId": "healthcheck_api_api_servers_health_get",
@@ -1652,9 +1584,7 @@
     },
     "/api/servers/groups/add": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Add Server To Groups Api",
         "description": "Add a service to scope groups via JWT authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/add-to-groups\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `server_name` (required): Service name\n- `group_names` (required): Comma-separated list of group names\n\n**Response:**\nReturns confirmation of group assignment.\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/groups/add \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"server_name=myservice\" \\\n  -F \"group_names=admin,developers\"\n```",
         "operationId": "add_server_to_groups_api_api_servers_groups_add_post",
@@ -1697,9 +1627,7 @@
     },
     "/api/servers/groups/remove": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Remove Server From Groups Api",
         "description": "Remove a service from scope groups via JWT authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/remove-from-groups\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `server_name` (required): Service name\n- `group_names` (required): Comma-separated list of group names to remove\n\n**Response:**\nReturns confirmation of removal from groups.\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/groups/remove \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"server_name=myservice\" \\\n  -F \"group_names=developers\"\n```",
         "operationId": "remove_server_from_groups_api_api_servers_groups_remove_post",
@@ -1742,9 +1670,7 @@
     },
     "/api/servers/groups/create": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Create Group Api",
         "description": "Create a new scope group via JWT authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/create-group\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `group_name` (required): Name of the new group\n- `description` (optional): Group description\n- `create_in_idp` (optional): Whether to create in IdP (default: true)\n\n**Response:**\nReturns confirmation of group creation.\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/groups/create \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"group_name=new-team\" \\\n  -F \"description=Team for new project\" \\\n  -F \"create_in_idp=true\"\n```",
         "operationId": "create_group_api_api_servers_groups_create_post",
@@ -1787,9 +1713,7 @@
     },
     "/api/servers/groups/delete": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Delete Group Api",
         "description": "Delete a scope group via JWT authentication (External API).\n\nThis endpoint provides the same functionality as POST /api/internal/delete-group\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request body (form data):**\n- `group_name` (required): Name of the group to delete\n- `delete_from_keycloak` (optional): Whether to delete from Keycloak (default: true)\n- `force` (optional): Force deletion of system groups (default: false)\n\n**Response:**\nReturns confirmation of group deletion.\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/groups/delete \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -F \"group_name=old-team\" \\\n  -F \"delete_from_keycloak=true\" \\\n  -F \"force=false\"\n```",
         "operationId": "delete_group_api_api_servers_groups_delete_post",
@@ -1832,9 +1756,7 @@
     },
     "/api/servers/groups": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "List Groups Api",
         "description": "List all scope groups via JWT Bearer Token authentication (External API).\n\nThis endpoint provides the same functionality as GET /api/internal/list-groups\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Response:**\nReturns a list of all groups and their synchronization status.\n\n**Example:**\n```bash\ncurl -X GET https://registry.example.com/api/servers/groups \\\n  -H \"Authorization: Bearer $JWT_TOKEN\"\n```",
         "operationId": "list_groups_api_api_servers_groups_get",
@@ -1889,9 +1811,7 @@
     },
     "/api/servers/groups/{group_name}": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Group Api",
         "description": "Get full details of a specific group via JWT Bearer Token authentication (External API).\n\nThis endpoint retrieves complete information about a group including server_access,\ngroup_mappings, and ui_permissions from the scopes storage backend.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Response:**\nReturns complete group definition including:\n- scope_name: Name of the scope/group\n- scope_type: Type of scope (e.g., \"server_scope\")\n- description: Description of the group\n- server_access: List of server access definitions\n- group_mappings: List of group mappings\n- ui_permissions: UI permissions configuration\n- created_at: Creation timestamp\n- updated_at: Last update timestamp\n\n**Example:**\n```bash\ncurl -X GET https://registry.example.com/api/servers/groups/currenttime-users \\\n  -H \"Authorization: Bearer $JWT_TOKEN\"\n```",
         "operationId": "get_group_api_api_servers_groups__group_name__get",
@@ -1935,9 +1855,7 @@
     },
     "/api/servers/groups/import": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Import Group Definition",
         "description": "Import a complete group definition via JSON (External API).\n\nThis endpoint accepts a complete group definition including all three document types\n(server_scope, group_mapping, ui_scope) and creates/updates them in the storage backend.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Request Body:**\n```json\n{\n  \"scope_name\": \"group-name\",\n  \"scope_type\": \"server_scope\",\n  \"description\": \"Group description\",\n  \"server_access\": [\n    {\n      \"server\": \"currenttime\",\n      \"methods\": [\"initialize\", \"tools/list\", \"tools/call\"],\n      \"tools\": [\"current_time_by_timezone\"]\n    }\n  ],\n  \"group_mappings\": [\"group-name\", \"other-group\"],\n  \"ui_permissions\": {\n    \"list_service\": [\"currenttime\", \"mcpgw\"],\n    \"list_agents\": [\"/code-reviewer\"],\n    \"health_check_service\": [\"currenttime\"]\n  },\n  \"create_in_idp\": true\n}\n```\n\n**Required Fields:**\n- `scope_name`: Name of the scope/group\n\n**Optional Fields:**\n- `scope_type`: Type of scope (default: \"server_scope\")\n- `description`: Description of the group\n- `server_access`: List of server access definitions\n- `group_mappings`: List of group names this group maps to\n- `ui_permissions`: Dictionary of UI permissions\n- `create_in_idp`: Whether to create the group in IdP (default: true)\n\n**Example:**\n```bash\ncurl -X POST https://registry.example.com/api/servers/groups/import \\\n  -H \"Authorization: Bearer $JWT_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d @group-definition.json\n```",
         "operationId": "import_group_definition_api_servers_groups_import_post",
@@ -1970,9 +1888,7 @@
     },
     "/api/servers/{path}/rate": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Rate Server",
         "description": "Save integer ratings to server.",
         "operationId": "rate_server_api_servers__path__rate_post",
@@ -2026,9 +1942,7 @@
     },
     "/api/servers/{path}/rating": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Server Rating",
         "description": "Get server rating information.",
         "operationId": "get_server_rating_api_servers__path__rating_get",
@@ -2072,9 +1986,7 @@
     },
     "/api/servers/{path}/security-scan": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Server Security Scan",
         "description": "Get security scan results for a server.\n\nReturns the latest security scan results for the specified server,\nincluding threat analysis, severity levels, and detailed findings.\n\n**Authentication:** JWT Bearer token or session cookie\n**Authorization:** Requires admin privileges or access to the server\n\n**Path Parameters:**\n- `path` (required): Server path (e.g., /cloudflare-docs)\n\n**Response:**\nReturns security scan results with analysis_results and tool_results.\n\n**Example:**\n```bash\ncurl -X GET http://localhost/api/servers/cloudflare-docs/security-scan \\\n  --cookie-jar .cookies --cookie .cookies\n```",
         "operationId": "get_server_security_scan_api_servers__path__security_scan_get",
@@ -2118,9 +2030,7 @@
     },
     "/api/servers/{path}/rescan": {
       "post": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Rescan Server",
         "description": "Trigger a manual security scan for a server.\n\nInitiates a new security scan for the specified server and returns\nthe results. This endpoint is useful for re-scanning servers after\nupdates or for on-demand security assessments.\n\n**Authentication:** JWT Bearer token or session cookie\n**Authorization:** Requires admin privileges\n\n**Path Parameters:**\n- `path` (required): Server path (e.g., /cloudflare-docs)\n\n**Response:**\nReturns the newly generated security scan results.\n\n**Example:**\n```bash\ncurl -X POST http://localhost/api/servers/cloudflare-docs/rescan \\\n  --cookie-jar .cookies --cookie .cookies\n```",
         "operationId": "rescan_server_api_servers__path__rescan_post",
@@ -2164,9 +2074,7 @@
     },
     "/api/servers/tools/{service_path}": {
       "get": {
-        "tags": [
-          "Server Management"
-        ],
+        "tags": ["Server Management"],
         "summary": "Get Service Tools Api",
         "description": "Get tool list for a service via JWT Bearer Token authentication (External API).\n\nThis endpoint provides the same functionality as GET /tools/{service_path}\nbut uses modern JWT Bearer token authentication.\n\n**Authentication:** JWT Bearer token (via nginx X-User header)\n**Authorization:** Requires valid JWT token from auth system\n\n**Path Parameters:**\n- `service_path` (required): Service path (e.g., /myservice or /all for all services)\n\n**Response:**\nReturns the list of tools available on the service, filtered by user permissions.\n\n**Example:**\n```bash\ncurl -X GET https://registry.example.com/api/servers/tools/myservice \\\n  -H \"Authorization: Bearer $JWT_TOKEN\"\n\n# Get tools from all accessible services\ncurl -X GET https://registry.example.com/api/servers/tools/all \\\n  -H \"Authorization: Bearer $JWT_TOKEN\"\n```",
         "operationId": "get_service_tools_api_api_servers_tools__service_path__get",
@@ -2210,9 +2118,7 @@
     },
     "/api/agents/register": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Register Agent",
         "description": "Register a new A2A agent in the registry.\n\nRequires publish_agent scope/permission.\n\nArgs:\n    request: Agent registration request data\n    user_context: Authenticated user context\n\nReturns:\n    201 with agent card and registration metadata\n\nRaises:\n    HTTPException: 409 if path exists, 422 if validation fails, 403 if unauthorized",
         "operationId": "register_agent_api_agents_register_post",
@@ -2255,9 +2161,7 @@
     },
     "/api/agents": {
       "get": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "List Agents",
         "description": "List all agents filtered by user permissions.\n\nArgs:\n    query: Optional search query\n    enabled_only: Only return enabled agents\n    visibility: Filter by visibility level\n    user_context: Authenticated user context\n\nReturns:\n    List of agent info objects",
         "operationId": "list_agents_api_agents_get",
@@ -2340,9 +2244,7 @@
     },
     "/api/agents/{path}/health": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Check Agent Health",
         "description": "Perform a live /ping health check against an agent endpoint.",
         "operationId": "check_agent_health_api_agents__path__health_post",
@@ -2386,9 +2288,7 @@
     },
     "/api/agents/{path}/rate": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Rate Agent",
         "description": "Save integer ratings to agent card.",
         "operationId": "rate_agent_api_agents__path__rate_post",
@@ -2442,9 +2342,7 @@
     },
     "/api/agents/{path}/rating": {
       "get": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Get Agent Rating",
         "description": "Get agent rating information.",
         "operationId": "get_agent_rating_api_agents__path__rating_get",
@@ -2488,9 +2386,7 @@
     },
     "/api/agents/{path}/toggle": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Toggle Agent",
         "description": "Enable or disable an agent.\n\nRequires toggle_service permission for the agent.\n\nArgs:\n    path: Agent path\n    enabled: New enabled state\n    user_context: Authenticated user context\n\nReturns:\n    Updated agent status\n\nRaises:\n    HTTPException: 404 if not found, 403 if unauthorized",
         "operationId": "toggle_agent_api_agents__path__toggle_post",
@@ -2543,9 +2439,7 @@
     },
     "/api/agents/{path}": {
       "get": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Get Agent",
         "description": "Get a single agent by path.\n\nPublic agents are visible without special permissions.\nPrivate and group-restricted agents require authorization.\n\nArgs:\n    path: Agent path\n    user_context: Authenticated user context\n\nReturns:\n    Complete agent card\n\nRaises:\n    HTTPException: 404 if not found, 403 if not authorized",
         "operationId": "get_agent_api_agents__path__get",
@@ -2587,9 +2481,7 @@
         ]
       },
       "put": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Update Agent",
         "description": "Update an existing agent card.\n\nRequires modify_service permission for the agent.\nUser must be agent owner or admin.\n\nArgs:\n    path: Agent path\n    request: Updated agent data\n    user_context: Authenticated user context\n\nReturns:\n    Updated agent card\n\nRaises:\n    HTTPException: 404 if not found, 403 if unauthorized",
         "operationId": "update_agent_api_agents__path__put",
@@ -2641,9 +2533,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Delete Agent",
         "description": "Delete an agent from the registry.\n\nRequires admin permission or agent ownership.\n\nArgs:\n    path: Agent path\n    user_context: Authenticated user context\n\nReturns:\n    204 No Content\n\nRaises:\n    HTTPException: 404 if not found, 403 if unauthorized",
         "operationId": "delete_agent_api_agents__path__delete",
@@ -2687,9 +2577,7 @@
     },
     "/api/agents/discover": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Discover Agents By Skills",
         "description": "Discover agents by required skills.\n\nReturns agents that have the specified skills, ranked by relevance.\n\nArgs:\n    skills: Required skill names or IDs\n    tags: Optional tag filters\n    max_results: Maximum number of results\n    user_context: Authenticated user context\n\nReturns:\n    List of matching agents with relevance scores\n\nRaises:\n    HTTPException: 400 if no skills provided",
         "operationId": "discover_agents_by_skills_api_agents_discover_post",
@@ -2746,9 +2634,7 @@
     },
     "/api/agents/discover/semantic": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Discover Agents Semantic",
         "description": "Discover agents using natural language semantic search.\n\nUses search repository (FAISS or DocumentDB) to find agents matching the query intent.\n\nArgs:\n    query: Natural language query describing needed capabilities\n    max_results: Maximum number of results\n    user_context: Authenticated user context\n    search_repo: Search repository dependency\n\nReturns:\n    List of matching agents with relevance scores\n\nRaises:\n    HTTPException: 400 if query is empty",
         "operationId": "discover_agents_semantic_api_agents_discover_semantic_post",
@@ -2804,9 +2690,7 @@
     },
     "/api/agents/{path}/security-scan": {
       "get": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Get Agent Security Scan",
         "description": "Get security scan results for an A2A agent.\n\nReturns the latest security scan results for the specified agent,\nincluding threat analysis, severity levels, and detailed findings\nfrom YARA, specification validation, and heuristic analyzers.\n\n**Authentication:** JWT Bearer token or session cookie\n**Authorization:** Requires admin privileges or access to the agent\n\n**Path Parameters:**\n- `path` (required): Agent path (e.g., /code-reviewer)\n\n**Response:**\nReturns security scan results with analysis_results and findings.\n\n**Example:**\n```bash\ncurl -X GET http://localhost/api/agents/code-reviewer/security-scan \\\n  --cookie-jar .cookies --cookie .cookies\n```",
         "operationId": "get_agent_security_scan_api_agents__path__security_scan_get",
@@ -2850,9 +2734,7 @@
     },
     "/api/agents/{path}/rescan": {
       "post": {
-        "tags": [
-          "Agent Management"
-        ],
+        "tags": ["Agent Management"],
         "summary": "Rescan Agent",
         "description": "Trigger a manual security scan for an A2A agent.\n\nInitiates a new security scan for the specified agent and returns\nthe results. This endpoint is useful for re-scanning agents after\nupdates or for on-demand security assessments.\n\n**Authentication:** JWT Bearer token or session cookie\n**Authorization:** Requires admin privileges\n\n**Path Parameters:**\n- `path` (required): Agent path (e.g., /code-reviewer)\n\n**Response:**\nReturns the newly generated security scan results.\n\n**Example:**\n```bash\ncurl -X POST http://localhost/api/agents/code-reviewer/rescan \\\n  --cookie-jar .cookies --cookie .cookies\n```",
         "operationId": "rescan_agent_api_agents__path__rescan_post",
@@ -2896,9 +2778,7 @@
     },
     "/api/management/iam/users": {
       "get": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management List Users",
         "description": "List users from the configured identity provider (admin only).",
         "operationId": "management_list_users_api_management_iam_users_get",
@@ -2961,9 +2841,7 @@
     },
     "/api/management/iam/users/m2m": {
       "post": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management Create M2M User",
         "description": "Create a service account client and return its credentials (admin only).",
         "operationId": "management_create_m2m_user_api_management_iam_users_m2m_post",
@@ -3006,9 +2884,7 @@
     },
     "/api/management/iam/users/human": {
       "post": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management Create Human User",
         "description": "Create a human user and assign groups (admin only).",
         "operationId": "management_create_human_user_api_management_iam_users_human_post",
@@ -3051,9 +2927,7 @@
     },
     "/api/management/iam/users/{username}": {
       "delete": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management Delete User",
         "description": "Delete a user by username (admin only).",
         "operationId": "management_delete_user_api_management_iam_users__username__delete",
@@ -3099,9 +2973,7 @@
     },
     "/api/management/iam/groups": {
       "get": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management List Groups",
         "description": "List IAM groups from the configured identity provider (admin only).",
         "operationId": "management_list_groups_api_management_iam_groups_get",
@@ -3134,9 +3006,7 @@
         ]
       },
       "post": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management Create Group",
         "description": "Create a new group in the identity provider and MongoDB (admin only).\n\nThis creates the group in both:\n1. The configured identity provider (Keycloak or Entra ID)\n2. MongoDB scopes collection for authorization",
         "operationId": "management_create_group_api_management_iam_groups_post",
@@ -3181,9 +3051,7 @@
     },
     "/api/management/iam/groups/{group_name}": {
       "delete": {
-        "tags": [
-          "Management API"
-        ],
+        "tags": ["Management API"],
         "summary": "Management Delete Group",
         "description": "Delete a group from the identity provider and MongoDB (admin only).\n\nThis deletes the group from both:\n1. The configured identity provider (Keycloak or Entra ID)\n2. MongoDB scopes collection",
         "operationId": "management_delete_group_api_management_iam_groups__group_name__delete",
@@ -3229,9 +3097,7 @@
     },
     "/api/search/semantic": {
       "post": {
-        "tags": [
-          "Semantic Search"
-        ],
+        "tags": ["Semantic Search"],
         "summary": "Unified semantic search for MCP servers and tools",
         "description": "Run a semantic search against MCP servers (and their tools) using FAISS embeddings.",
         "operationId": "semantic_search_api_search_semantic_post",
@@ -3276,10 +3142,7 @@
     },
     "/api/federation/config": {
       "get": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Get federation configuration",
         "description": "Get federation configuration by ID.\n\nArgs:\n    config_id: Configuration ID (default: \"default\")\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Federation configuration\n\nRaises:\n    404: Configuration not found",
         "operationId": "get_federation_config_api_federation_config_get",
@@ -3326,10 +3189,7 @@
         ]
       },
       "post": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Create or update federation configuration",
         "description": "Create or update federation configuration.\n\nArgs:\n    config: Federation configuration to save\n    config_id: Configuration ID (default: \"default\")\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Saved configuration\n\nExample:\n    ```json\n    {\n      \"anthropic\": {\n        \"enabled\": true,\n        \"endpoint\": \"https://registry.modelcontextprotocol.io\",\n        \"sync_on_startup\": false,\n        \"servers\": [\n          {\"name\": \"io.github.jgador/websharp\"},\n          {\"name\": \"modelcontextprotocol/filesystem\"}\n        ]\n      },\n      \"asor\": {\n        \"enabled\": false,\n        \"endpoint\": \"\",\n        \"auth_env_var\": \"ASOR_ACCESS_TOKEN\",\n        \"sync_on_startup\": false,\n        \"agents\": []\n      }\n    }\n    ```",
         "operationId": "save_federation_config_api_federation_config_post",
@@ -3388,10 +3248,7 @@
     },
     "/api/federation/config/{config_id}": {
       "put": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Update specific federation configuration",
         "description": "Update a specific federation configuration.\n\nArgs:\n    config_id: Configuration ID to update\n    config: Updated federation configuration\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Updated configuration",
         "operationId": "update_federation_config_api_federation_config__config_id__put",
@@ -3447,10 +3304,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Delete federation configuration",
         "description": "Delete a federation configuration.\n\nArgs:\n    config_id: Configuration ID to delete\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Deletion confirmation\n\nRaises:\n    404: Configuration not found",
         "operationId": "delete_federation_config_api_federation_config__config_id__delete",
@@ -3500,10 +3354,7 @@
     },
     "/api/federation/configs": {
       "get": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "List all federation configurations",
         "description": "List all federation configurations.\n\nArgs:\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    List of configuration summaries with id, created_at, updated_at",
         "operationId": "list_federation_configs_api_federation_configs_get",
@@ -3540,10 +3391,7 @@
     },
     "/api/federation/config/{config_id}/anthropic/servers": {
       "post": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Add Anthropic server to config",
         "description": "Add a server to Anthropic federation configuration.\n\nArgs:\n    config_id: Configuration ID\n    server_name: Server name to add (e.g., \"io.github.jgador/websharp\")\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Updated configuration",
         "operationId": "add_anthropic_server_api_federation_config__config_id__anthropic_servers_post",
@@ -3600,10 +3448,7 @@
     },
     "/api/federation/config/{config_id}/anthropic/servers/{server_name}": {
       "delete": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Remove Anthropic server from config",
         "description": "Remove a server from Anthropic federation configuration.\n\nArgs:\n    config_id: Configuration ID\n    server_name: Server name to remove\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Updated configuration",
         "operationId": "remove_anthropic_server_api_federation_config__config_id__anthropic_servers__server_name__delete",
@@ -3660,10 +3505,7 @@
     },
     "/api/federation/config/{config_id}/asor/agents": {
       "post": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Add ASOR agent to config",
         "description": "Add an agent to ASOR federation configuration.\n\nArgs:\n    config_id: Configuration ID\n    agent_id: Agent ID to add (e.g., \"aws_assistant\")\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Updated configuration",
         "operationId": "add_asor_agent_api_federation_config__config_id__asor_agents_post",
@@ -3720,10 +3562,7 @@
     },
     "/api/federation/config/{config_id}/asor/agents/{agent_id}": {
       "delete": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Remove ASOR agent from config",
         "description": "Remove an agent from ASOR federation configuration.\n\nArgs:\n    config_id: Configuration ID\n    agent_id: Agent ID to remove\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Updated configuration",
         "operationId": "remove_asor_agent_api_federation_config__config_id__asor_agents__agent_id__delete",
@@ -3780,10 +3619,7 @@
     },
     "/api/federation/sync": {
       "post": {
-        "tags": [
-          "federation",
-          "federation"
-        ],
+        "tags": ["federation", "federation"],
         "summary": "Trigger manual federation sync",
         "description": "Manually trigger federation sync to import servers/agents from configured sources.\n\nArgs:\n    config_id: Configuration ID to use for sync (default: \"default\")\n    source: Optional source filter (\"anthropic\" or \"asor\"). If None, syncs all enabled sources.\n    user_context: Authenticated user context\n    repo: Federation config repository\n\nReturns:\n    Sync results with counts of synced items\n\nExample:\n    Sync all enabled federations:\n    ```bash\n    POST /api/federation/sync\n    ```\n\n    Sync only Anthropic:\n    ```bash\n    POST /api/federation/sync?source=anthropic\n    ```",
         "operationId": "sync_federation_api_federation_sync_post",
@@ -3848,9 +3684,7 @@
     },
     "/api/health/ws/health_status": {
       "get": {
-        "tags": [
-          "Health Monitoring"
-        ],
+        "tags": ["Health Monitoring"],
         "summary": "Health Status Http",
         "description": "HTTP endpoint that returns the same health status data as the WebSocket endpoint.\n\nThis handles cases where health checks are done via HTTP GET instead of WebSocket.",
         "operationId": "health_status_http_api_health_ws_health_status_get",
@@ -3873,9 +3707,7 @@
     },
     "/api/health/ws/stats": {
       "get": {
-        "tags": [
-          "Health Monitoring"
-        ],
+        "tags": ["Health Monitoring"],
         "summary": "Websocket Stats",
         "description": "Get WebSocket performance statistics for monitoring.",
         "operationId": "websocket_stats_api_health_ws_stats_get",
@@ -3898,10 +3730,7 @@
     },
     "/v0.1/servers": {
       "get": {
-        "tags": [
-          "Anthropic Registry API",
-          "Anthropic Registry API"
-        ],
+        "tags": ["Anthropic Registry API", "Anthropic Registry API"],
         "summary": "List MCP servers",
         "description": "Returns a paginated list of all registered MCP servers that the authenticated user can access.",
         "operationId": "list_servers_v0_1_servers_get",
@@ -3976,10 +3805,7 @@
     },
     "/v0.1/servers/{serverName}/versions": {
       "get": {
-        "tags": [
-          "Anthropic Registry API",
-          "Anthropic Registry API"
-        ],
+        "tags": ["Anthropic Registry API", "Anthropic Registry API"],
         "summary": "List server versions",
         "description": "Returns all available versions for a specific MCP server.",
         "operationId": "list_server_versions_v0_1_servers__serverName__versions_get",
@@ -4035,10 +3861,7 @@
     },
     "/v0.1/servers/{serverName}/versions/{version}": {
       "get": {
-        "tags": [
-          "Anthropic Registry API",
-          "Anthropic Registry API"
-        ],
+        "tags": ["Anthropic Registry API", "Anthropic Registry API"],
         "summary": "Get server version details",
         "description": "Returns detailed information about a specific version of an MCP server. Use 'latest' to get the most recent version.",
         "operationId": "get_server_version_v0_1_servers__serverName__versions__version__get",
@@ -4103,9 +3926,7 @@
     },
     "/.well-known/mcp-servers": {
       "get": {
-        "tags": [
-          "Discovery"
-        ],
+        "tags": ["Discovery"],
         "summary": "Get Wellknown Mcp Servers",
         "description": "Main endpoint handler for /.well-known/mcp-servers\nReturns JSON with all discoverable MCP servers",
         "operationId": "get_wellknown_mcp_servers__well_known_mcp_servers_get",
@@ -4412,10 +4233,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "url"
-        ],
+        "required": ["name", "url"],
         "title": "AgentRegistrationRequest",
         "description": "API request model for agent registration.\n\nThis model is used for the agent registration API endpoint and converts\nform-style inputs (e.g., comma-separated tags) into the proper types.\nAccepts both snake_case (Python) and camelCase (A2A spec JSON) field names."
       },
@@ -4500,11 +4318,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "path",
-          "agent_name",
-          "relevance_score"
-        ],
+        "required": ["path", "agent_name", "relevance_score"],
         "title": "AgentSearchResult"
       },
       "AnthropicFederationConfig": {
@@ -4544,9 +4358,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "title": "AnthropicServerConfig",
         "description": "Anthropic server configuration."
       },
@@ -4558,9 +4370,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "title": "AsorAgentConfig",
         "description": "ASOR agent configuration."
       },
@@ -4616,10 +4426,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "server_name",
-          "group_names"
-        ],
+        "required": ["server_name", "group_names"],
         "title": "Body_add_server_to_groups_api_api_servers_groups_add_post"
       },
       "Body_create_group_api_api_servers_groups_create_post": {
@@ -4640,9 +4447,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "group_name"
-        ],
+        "required": ["group_name"],
         "title": "Body_create_group_api_api_servers_groups_create_post"
       },
       "Body_delete_group_api_api_servers_groups_delete_post": {
@@ -4663,9 +4468,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "group_name"
-        ],
+        "required": ["group_name"],
         "title": "Body_delete_group_api_api_servers_groups_delete_post"
       },
       "Body_discover_agents_by_skills_api_agents_discover_post": {
@@ -4693,9 +4496,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "skills"
-        ],
+        "required": ["skills"],
         "title": "Body_discover_agents_by_skills_api_agents_discover_post"
       },
       "Body_edit_server_submit_api_edit__service_path__post": {
@@ -4747,10 +4548,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "proxy_pass_url"
-        ],
+        "required": ["name", "proxy_pass_url"],
         "title": "Body_edit_server_submit_api_edit__service_path__post"
       },
       "Body_internal_add_server_to_groups_api_internal_add_to_groups_post": {
@@ -4765,10 +4563,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "server_name",
-          "group_names"
-        ],
+        "required": ["server_name", "group_names"],
         "title": "Body_internal_add_server_to_groups_api_internal_add_to_groups_post"
       },
       "Body_internal_create_group_api_internal_create_group_post": {
@@ -4789,9 +4584,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "group_name"
-        ],
+        "required": ["group_name"],
         "title": "Body_internal_create_group_api_internal_create_group_post"
       },
       "Body_internal_delete_group_api_internal_delete_group_post": {
@@ -4812,9 +4605,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "group_name"
-        ],
+        "required": ["group_name"],
         "title": "Body_internal_delete_group_api_internal_delete_group_post"
       },
       "Body_internal_register_service_api_internal_register_post": {
@@ -4922,12 +4713,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "description",
-          "path",
-          "proxy_pass_url"
-        ],
+        "required": ["name", "description", "path", "proxy_pass_url"],
         "title": "Body_internal_register_service_api_internal_register_post"
       },
       "Body_internal_remove_server_from_groups_api_internal_remove_from_groups_post": {
@@ -4942,10 +4728,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "server_name",
-          "group_names"
-        ],
+        "required": ["server_name", "group_names"],
         "title": "Body_internal_remove_server_from_groups_api_internal_remove_from_groups_post"
       },
       "Body_internal_remove_service_api_internal_remove_post": {
@@ -4956,9 +4739,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "service_path"
-        ],
+        "required": ["service_path"],
         "title": "Body_internal_remove_service_api_internal_remove_post"
       },
       "Body_internal_toggle_service_api_internal_toggle_post": {
@@ -4969,9 +4750,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "service_path"
-        ],
+        "required": ["service_path"],
         "title": "Body_internal_toggle_service_api_internal_toggle_post"
       },
       "Body_login_submit_api_auth_login_post": {
@@ -4986,10 +4765,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "username",
-          "password"
-        ],
+        "required": ["username", "password"],
         "title": "Body_login_submit_api_auth_login_post"
       },
       "Body_register_service_api_api_servers_register_post": {
@@ -5097,12 +4873,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "description",
-          "path",
-          "proxy_pass_url"
-        ],
+        "required": ["name", "description", "path", "proxy_pass_url"],
         "title": "Body_register_service_api_api_servers_register_post"
       },
       "Body_register_service_api_register_post": {
@@ -5150,12 +4921,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "description",
-          "path",
-          "proxy_pass_url"
-        ],
+        "required": ["name", "description", "path", "proxy_pass_url"],
         "title": "Body_register_service_api_register_post"
       },
       "Body_remove_server_from_groups_api_api_servers_groups_remove_post": {
@@ -5170,10 +4936,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "server_name",
-          "group_names"
-        ],
+        "required": ["server_name", "group_names"],
         "title": "Body_remove_server_from_groups_api_api_servers_groups_remove_post"
       },
       "Body_remove_service_api_api_servers_remove_post": {
@@ -5184,9 +4947,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "path"
-        ],
+        "required": ["path"],
         "title": "Body_remove_service_api_api_servers_remove_post"
       },
       "Body_toggle_service_api_api_servers_toggle_post": {
@@ -5201,10 +4962,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "path",
-          "new_state"
-        ],
+        "required": ["path", "new_state"],
         "title": "Body_toggle_service_api_api_servers_toggle_post"
       },
       "Body_toggle_service_route_api_toggle__service_path__post": {
@@ -5233,9 +4991,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "title": "ErrorResponse",
         "description": "Standard error response."
       },
@@ -5272,9 +5028,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "title": "GroupCreateRequest",
         "description": "Payload for creating a Keycloak group."
       },
@@ -5291,9 +5045,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "title": "GroupDeleteResponse",
         "description": "Response when a Keycloak group is deleted."
       },
@@ -5312,9 +5064,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "total"
-        ],
+        "required": ["total"],
         "title": "GroupListResponse",
         "description": "Response for listing groups."
       },
@@ -5346,11 +5096,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "path"
-        ],
+        "required": ["id", "name", "path"],
         "title": "GroupSummary",
         "description": "Group information."
       },
@@ -5411,13 +5157,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "username",
-          "email",
-          "firstname",
-          "lastname",
-          "groups"
-        ],
+        "required": ["username", "email", "firstname", "lastname", "groups"],
         "title": "HumanUserRequest",
         "description": "Payload for creating a Keycloak human user."
       },
@@ -5449,10 +5189,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "groups"
-        ],
+        "required": ["name", "groups"],
         "title": "M2MAccountRequest",
         "description": "Payload for creating a Keycloak service account client."
       },
@@ -5493,9 +5230,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "tool_name"
-        ],
+        "required": ["tool_name"],
         "title": "MatchingToolResult",
         "description": "Tool matching result - basic info for display.\n\nNote: inputSchema is NOT included here to avoid duplication.\nFull tool details including inputSchema are in the tools[] array."
       },
@@ -5548,12 +5283,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "registryType",
-          "identifier",
-          "version",
-          "transport"
-        ],
+        "required": ["registryType", "identifier", "version", "transport"],
         "title": "Package",
         "description": "Package information for MCP server distribution."
       },
@@ -5596,9 +5326,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "rating"
-        ],
+        "required": ["rating"],
         "title": "RatingRequest"
       },
       "Repository": {
@@ -5639,10 +5367,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "url",
-          "source"
-        ],
+        "required": ["url", "source"],
         "title": "Repository",
         "description": "Repository metadata for MCP server source code."
       },
@@ -5660,11 +5385,7 @@
               {
                 "items": {
                   "type": "string",
-                  "enum": [
-                    "mcp_server",
-                    "tool",
-                    "a2a_agent"
-                  ]
+                  "enum": ["mcp_server", "tool", "a2a_agent"]
                 },
                 "type": "array"
               },
@@ -5685,9 +5406,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query"
-        ],
+        "required": ["query"],
         "title": "SemanticSearchRequest"
       },
       "SemanticSearchResponse": {
@@ -5734,9 +5453,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "query"
-        ],
+        "required": ["query"],
         "title": "SemanticSearchResponse"
       },
       "ServerDetail": {
@@ -5821,11 +5538,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "description",
-          "version"
-        ],
+        "required": ["name", "description", "version"],
         "title": "ServerDetail",
         "description": "Detailed MCP server information."
       },
@@ -5852,9 +5565,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "servers"
-        ],
+        "required": ["servers"],
         "title": "ServerList",
         "description": "Response for server list queries."
       },
@@ -5879,9 +5590,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "server"
-        ],
+        "required": ["server"],
         "title": "ServerResponse",
         "description": "Response for single server query."
       },
@@ -5949,11 +5658,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "path",
-          "server_name",
-          "relevance_score"
-        ],
+        "required": ["path", "server_name", "relevance_score"],
         "title": "ServerSearchResult"
       },
       "ToolSearchResult": {
@@ -6034,9 +5739,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "username"
-        ],
+        "required": ["username"],
         "title": "UserDeleteResponse",
         "description": "Standard response returned when a Keycloak user is deleted."
       },
@@ -6055,9 +5758,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "total"
-        ],
+        "required": ["total"],
         "title": "UserListResponse",
         "description": "Wrapper for list users endpoint."
       },
@@ -6118,10 +5819,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id",
-          "username"
-        ],
+        "required": ["id", "username"],
         "title": "UserSummary",
         "description": "Subset of user information exposed through the API."
       },
@@ -6151,11 +5849,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     },

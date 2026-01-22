@@ -137,7 +137,7 @@ data:
       mcp-registry-developer:
         - registry-admins  # Map developers to admin scope
       mcp-registry-operator:
-        - registry-admins  # Map operators to admin scope  
+        - registry-admins  # Map operators to admin scope
       mcp-registry-user:
         - registry-users-lob1  # Map users to LOB1 scope
       mcp-servers-restricted:

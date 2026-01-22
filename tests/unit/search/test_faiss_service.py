@@ -64,31 +64,22 @@ def sample_server_info() -> dict[str, Any]:
             {
                 "name": "get_data",
                 "description": "Retrieve data from source",
-                "parsed_description": {
-                    "main": "Retrieve data from source",
-                    "args": "id: string"
-                },
-                "schema": {
-                    "type": "object",
-                    "properties": {"id": {"type": "string"}}
-                }
+                "parsed_description": {"main": "Retrieve data from source", "args": "id: string"},
+                "schema": {"type": "object", "properties": {"id": {"type": "string"}}},
             },
             {
                 "name": "set_data",
                 "description": "Update data in source",
                 "parsed_description": {
                     "main": "Update data in source",
-                    "args": "id: string, value: any"
+                    "args": "id: string, value: any",
                 },
                 "schema": {
                     "type": "object",
-                    "properties": {
-                        "id": {"type": "string"},
-                        "value": {"type": "string"}
-                    }
-                }
-            }
-        ]
+                    "properties": {"id": {"type": "string"}, "value": {"type": "string"}},
+                },
+            },
+        ],
     }
 
 
@@ -189,10 +180,10 @@ class TestFaissServiceInitialization:
                     "id": 0,
                     "text_for_embedding": "test text",
                     "full_server_info": {"server_name": "test-server"},
-                    "entity_type": "mcp_server"
+                    "entity_type": "mcp_server",
                 }
             },
-            "next_id": 1
+            "next_id": 1,
         }
 
         mock_settings.faiss_metadata_path.parent.mkdir(parents=True, exist_ok=True)
@@ -231,9 +222,7 @@ class TestTextPreparation:
 
     def test_get_text_for_embedding_handles_missing_fields(self, faiss_service):
         """Test _get_text_for_embedding handles missing fields gracefully."""
-        server_info = {
-            "server_name": "minimal-server"
-        }
+        server_info = {"server_name": "minimal-server"}
 
         text = faiss_service._get_text_for_embedding(server_info)
 
@@ -322,11 +311,7 @@ class TestAddUpdateService:
         """Test adding a new service to the index."""
         service_path = "/servers/test-server"
 
-        await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_service(service_path, sample_server_info, is_enabled=True)
 
         # Check metadata store
         assert service_path in faiss_service.metadata_store
@@ -346,9 +331,7 @@ class TestAddUpdateService:
 
         # Add service first
         await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=False
+            service_path, sample_server_info, is_enabled=False
         )
 
         initial_total = faiss_service.faiss_index.ntotal
@@ -356,11 +339,7 @@ class TestAddUpdateService:
 
         # Update with same info but different enabled state
         sample_server_info["extra_field"] = "new value"
-        await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_service(service_path, sample_server_info, is_enabled=True)
 
         # Should not create new embedding
         assert faiss_service.faiss_index.ntotal == initial_total
@@ -377,20 +356,14 @@ class TestAddUpdateService:
 
         # Add service first
         await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=False
+            service_path, sample_server_info, is_enabled=False
         )
 
         initial_id = faiss_service.metadata_store[service_path]["id"]
 
         # Update with different description (changes embedding text)
         sample_server_info["description"] = "Completely different description"
-        await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_service(service_path, sample_server_info, is_enabled=True)
 
         # Should use same ID
         metadata = faiss_service.metadata_store[service_path]
@@ -407,9 +380,7 @@ class TestAddUpdateService:
         # Don't set embedding_model
 
         await service.add_or_update_service(
-            "/servers/test",
-            {"server_name": "test"},
-            is_enabled=False
+            "/servers/test", {"server_name": "test"}, is_enabled=False
         )
 
         # Should not add to index
@@ -427,11 +398,7 @@ class TestAddUpdateAgent:
         """Test adding a new agent to the index."""
         agent_path = "/agents/test-agent"
 
-        await faiss_service.add_or_update_agent(
-            agent_path,
-            sample_agent_card,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_agent(agent_path, sample_agent_card, is_enabled=True)
 
         # Check metadata store
         assert agent_path in faiss_service.metadata_store
@@ -450,21 +417,13 @@ class TestAddUpdateAgent:
         agent_path = "/agents/test-agent"
 
         # Add agent first
-        await faiss_service.add_or_update_agent(
-            agent_path,
-            sample_agent_card,
-            is_enabled=False
-        )
+        await faiss_service.add_or_update_agent(agent_path, sample_agent_card, is_enabled=False)
 
         initial_total = faiss_service.faiss_index.ntotal
         initial_counter = faiss_service.next_id_counter
 
         # Update with same card
-        await faiss_service.add_or_update_agent(
-            agent_path,
-            sample_agent_card,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_agent(agent_path, sample_agent_card, is_enabled=True)
 
         # Should not create new embedding
         assert faiss_service.faiss_index.ntotal == initial_total
@@ -524,11 +483,7 @@ class TestRemoveEntities:
         service_path = "/servers/test-server"
 
         # Add service first
-        await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_service(service_path, sample_server_info, is_enabled=True)
 
         assert service_path in faiss_service.metadata_store
 
@@ -550,11 +505,7 @@ class TestRemoveEntities:
         agent_path = "/agents/test-agent"
 
         # Add agent first
-        await faiss_service.add_or_update_agent(
-            agent_path,
-            sample_agent_card,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_agent(agent_path, sample_agent_card, is_enabled=True)
 
         assert agent_path in faiss_service.metadata_store
 
@@ -622,9 +573,7 @@ class TestSearch:
         """Test search_mixed finds matching servers."""
         # Add a server
         await faiss_service.add_or_update_service(
-            "/servers/test-server",
-            sample_server_info,
-            is_enabled=True
+            "/servers/test-server", sample_server_info, is_enabled=True
         )
 
         # Search for it
@@ -643,9 +592,7 @@ class TestSearch:
         """Test search_mixed finds matching agents."""
         # Add an agent
         await faiss_service.add_or_update_agent(
-            "/agents/test-agent",
-            sample_agent_card,
-            is_enabled=True
+            "/agents/test-agent", sample_agent_card, is_enabled=True
         )
 
         # Search for it
@@ -660,25 +607,20 @@ class TestSearch:
         assert 0 <= agent["relevance_score"] <= 1
 
     @pytest.mark.asyncio
-    async def test_search_mixed_with_entity_type_filter(self, faiss_service, sample_server_info, sample_agent_card):
+    async def test_search_mixed_with_entity_type_filter(
+        self, faiss_service, sample_server_info, sample_agent_card
+    ):
         """Test search_mixed filters by entity_type."""
         # Add both server and agent
         await faiss_service.add_or_update_service(
-            "/servers/test-server",
-            sample_server_info,
-            is_enabled=True
+            "/servers/test-server", sample_server_info, is_enabled=True
         )
         await faiss_service.add_or_update_agent(
-            "/agents/test-agent",
-            sample_agent_card,
-            is_enabled=True
+            "/agents/test-agent", sample_agent_card, is_enabled=True
         )
 
         # Search for servers only
-        results = await faiss_service.search_mixed(
-            "test",
-            entity_types=["mcp_server"]
-        )
+        results = await faiss_service.search_mixed("test", entity_types=["mcp_server"])
 
         assert len(results["servers"]) >= 0  # May or may not find server depending on mock
         assert len(results["agents"]) == 0  # Should not return agents
@@ -688,16 +630,11 @@ class TestSearch:
         """Test search_mixed extracts matching tools."""
         # Add server with tools
         await faiss_service.add_or_update_service(
-            "/servers/test-server",
-            sample_server_info,
-            is_enabled=True
+            "/servers/test-server", sample_server_info, is_enabled=True
         )
 
         # Search for specific tool
-        results = await faiss_service.search_mixed(
-            "get data",
-            entity_types=["tool"]
-        )
+        results = await faiss_service.search_mixed("get data", entity_types=["tool"])
 
         # Should extract tools even if server doesn't match well
         assert "tools" in results
@@ -711,12 +648,10 @@ class TestSearch:
                 "server_name": f"server-{i}",
                 "description": f"Test server {i}",
                 "tags": ["test"],
-                "entity_type": "mcp_server"
+                "entity_type": "mcp_server",
             }
             await faiss_service.add_or_update_service(
-                f"/servers/server-{i}",
-                server_info,
-                is_enabled=True
+                f"/servers/server-{i}", server_info, is_enabled=True
             )
 
         # Search with limit
@@ -728,9 +663,7 @@ class TestSearch:
     async def test_search_entities_wrapper(self, faiss_service, sample_server_info):
         """Test search_entities wrapper method."""
         await faiss_service.add_or_update_service(
-            "/servers/test-server",
-            sample_server_info,
-            is_enabled=True
+            "/servers/test-server", sample_server_info, is_enabled=True
         )
 
         # Use wrapper method
@@ -743,9 +676,7 @@ class TestSearch:
     async def test_search_agents_wrapper(self, faiss_service, sample_agent_card):
         """Test search_agents wrapper method."""
         await faiss_service.add_or_update_agent(
-            "/agents/test-agent",
-            sample_agent_card,
-            is_enabled=True
+            "/agents/test-agent", sample_agent_card, is_enabled=True
         )
 
         # Use wrapper method
@@ -767,49 +698,34 @@ class TestKeywordBoost:
 
     def test_calculate_keyword_boost_no_match(self, faiss_service, sample_server_info):
         """Test keyword boost returns 1.0 when no keywords match."""
-        boost = faiss_service._calculate_keyword_boost(
-            "unrelated query xyz",
-            sample_server_info
-        )
+        boost = faiss_service._calculate_keyword_boost("unrelated query xyz", sample_server_info)
 
         assert boost == 1.0
 
     def test_calculate_keyword_boost_name_match(self, faiss_service, sample_server_info):
         """Test keyword boost increases for name match."""
-        boost = faiss_service._calculate_keyword_boost(
-            "test server",
-            sample_server_info
-        )
+        boost = faiss_service._calculate_keyword_boost("test server", sample_server_info)
 
         # Should have boost from name match
         assert boost > 1.0
 
     def test_calculate_keyword_boost_tool_match(self, faiss_service, sample_server_info):
         """Test keyword boost increases for tool name match."""
-        boost = faiss_service._calculate_keyword_boost(
-            "get data",
-            sample_server_info
-        )
+        boost = faiss_service._calculate_keyword_boost("get data", sample_server_info)
 
         # Should have boost from tool match
         assert boost > 1.0
 
     def test_calculate_keyword_boost_tag_match(self, faiss_service, sample_server_info):
         """Test keyword boost increases for tag match."""
-        boost = faiss_service._calculate_keyword_boost(
-            "search",
-            sample_server_info
-        )
+        boost = faiss_service._calculate_keyword_boost("search", sample_server_info)
 
         # Should have boost from tag match
         assert boost > 1.0
 
     def test_calculate_keyword_boost_filters_stopwords(self, faiss_service, sample_server_info):
         """Test keyword boost filters out stopwords."""
-        boost = faiss_service._calculate_keyword_boost(
-            "the is are",
-            sample_server_info
-        )
+        boost = faiss_service._calculate_keyword_boost("the is are", sample_server_info)
 
         # Stopwords should not contribute to boost
         assert boost == 1.0
@@ -821,17 +737,10 @@ class TestKeywordBoost:
             "server_name": "test search demo server",
             "description": "test search demo testing searching",
             "tags": ["test", "search", "demo", "testing"],
-            "tool_list": [
-                {"name": "test_tool"},
-                {"name": "search_tool"},
-                {"name": "demo_tool"}
-            ]
+            "tool_list": [{"name": "test_tool"}, {"name": "search_tool"}, {"name": "demo_tool"}],
         }
 
-        boost = faiss_service._calculate_keyword_boost(
-            "test search demo",
-            server_info
-        )
+        boost = faiss_service._calculate_keyword_boost("test search demo", server_info)
 
         # Should be capped at 2.0
         assert boost <= 2.0
@@ -849,10 +758,7 @@ class TestToolExtraction:
 
     def test_extract_matching_tools_no_tools(self, faiss_service):
         """Test _extract_matching_tools returns empty list when no tools."""
-        server_info = {
-            "server_name": "test-server",
-            "tool_list": None
-        }
+        server_info = {"server_name": "test-server", "tool_list": None}
 
         tools = faiss_service._extract_matching_tools("query", server_info)
 
@@ -860,10 +766,7 @@ class TestToolExtraction:
 
     def test_extract_matching_tools_name_match(self, faiss_service, sample_server_info):
         """Test _extract_matching_tools finds tools by name."""
-        tools = faiss_service._extract_matching_tools(
-            "get data",
-            sample_server_info
-        )
+        tools = faiss_service._extract_matching_tools("get data", sample_server_info)
 
         # Should find get_data tool
         assert len(tools) > 0
@@ -871,20 +774,14 @@ class TestToolExtraction:
 
     def test_extract_matching_tools_description_match(self, faiss_service, sample_server_info):
         """Test _extract_matching_tools finds tools by description."""
-        tools = faiss_service._extract_matching_tools(
-            "retrieve source",
-            sample_server_info
-        )
+        tools = faiss_service._extract_matching_tools("retrieve source", sample_server_info)
 
         # Should find tools matching description
         assert len(tools) >= 0
 
     def test_extract_matching_tools_filters_stopwords(self, faiss_service, sample_server_info):
         """Test _extract_matching_tools filters stopwords."""
-        tools = faiss_service._extract_matching_tools(
-            "the is are",
-            sample_server_info
-        )
+        tools = faiss_service._extract_matching_tools("the is are", sample_server_info)
 
         # Stopwords alone should not match
         assert tools == []
@@ -896,13 +793,13 @@ class TestToolExtraction:
                 {
                     "name": "search_tool",
                     "description": "Does something else",
-                    "parsed_description": {"main": "Does something else"}
+                    "parsed_description": {"main": "Does something else"},
                 },
                 {
                     "name": "other_tool",
                     "description": "search search search",
-                    "parsed_description": {"main": "search search search"}
-                }
+                    "parsed_description": {"main": "search search search"},
+                },
             ]
         }
 
@@ -928,14 +825,13 @@ class TestToolExtraction:
                 {
                     "name": "query-docs",
                     "schema": {"type": "object"},
-                }
-            ]
+                },
+            ],
         }
 
         # Query contains "context7" but no tool-specific keywords
         tools = faiss_service._extract_matching_tools(
-            "MongoDB vector index support context7",
-            server_info
+            "MongoDB vector index support context7", server_info
         )
 
         # Should return both tools since server name matches
@@ -1006,9 +902,7 @@ class TestPersistence:
         """Test save_data creates index and metadata files."""
         # Add some data
         await faiss_service.add_or_update_service(
-            "/servers/test-server",
-            sample_server_info,
-            is_enabled=True
+            "/servers/test-server", sample_server_info, is_enabled=True
         )
 
         # Save data
@@ -1096,11 +990,7 @@ class TestFaissServiceIntegration:
         service_path = "/servers/workflow-test"
 
         # Step 1: Add server
-        await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_service(service_path, sample_server_info, is_enabled=True)
 
         # Step 2: Search for it
         results1 = await faiss_service.search_mixed("test server")
@@ -1108,11 +998,7 @@ class TestFaissServiceIntegration:
 
         # Step 3: Update server
         sample_server_info["description"] = "Updated description"
-        await faiss_service.add_or_update_service(
-            service_path,
-            sample_server_info,
-            is_enabled=True
-        )
+        await faiss_service.add_or_update_service(service_path, sample_server_info, is_enabled=True)
 
         # Step 4: Search again
         await faiss_service.search_mixed("updated")
@@ -1142,18 +1028,16 @@ class TestFaissServiceIntegration:
         assert agent_path not in faiss_service.metadata_store
 
     @pytest.mark.asyncio
-    async def test_mixed_entities_workflow(self, faiss_service, sample_server_info, sample_agent_card):
+    async def test_mixed_entities_workflow(
+        self, faiss_service, sample_server_info, sample_agent_card
+    ):
         """Test workflow with both servers and agents."""
         # Add both types
         await faiss_service.add_or_update_service(
-            "/servers/mixed-server",
-            sample_server_info,
-            is_enabled=True
+            "/servers/mixed-server", sample_server_info, is_enabled=True
         )
         await faiss_service.add_or_update_agent(
-            "/agents/mixed-agent",
-            sample_agent_card,
-            is_enabled=True
+            "/agents/mixed-agent", sample_agent_card, is_enabled=True
         )
 
         # Search for all entities

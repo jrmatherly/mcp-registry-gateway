@@ -127,7 +127,7 @@ _setup_auto_mocking()
 
 
 # Now we can safely import registry modules
-from registry.core.config import Settings  # noqa: E402
+from registry.core.config import Settings
 
 # =============================================================================
 # SESSION-SCOPED FIXTURES
@@ -255,8 +255,8 @@ def mock_settings(test_settings: Settings, monkeypatch):
     """
     Mock the global settings instance with test settings.
 
-    This fixture patches registry.core.config.settings to use test settings
-    for the duration of the test.
+    This fixture patches registry.core.config.settings and all modules that
+    import settings directly at module load time.
 
     Args:
         test_settings: Test settings instance
@@ -265,8 +265,39 @@ def mock_settings(test_settings: Settings, monkeypatch):
     Returns:
         Test settings instance
     """
+    # Patch the canonical settings location
     monkeypatch.setattr("registry.core.config.settings", test_settings)
-    logger.debug("Patched global settings with test settings")
+
+    # Patch modules that import settings at module load time
+    # These modules capture a reference to settings when imported,
+    # so patching registry.core.config.settings alone doesn't work
+    modules_with_direct_import = [
+        "registry.search.service",
+        "registry.health.service",
+        "registry.health.routes",
+        "registry.auth.dependencies",
+        "registry.auth.routes",
+        "registry.api.wellknown_routes",
+        "registry.api.server_routes",
+        "registry.api.agent_routes",
+        "registry.repositories.factory",
+        "registry.repositories.file.server_repository",
+        "registry.repositories.file.agent_repository",
+        "registry.repositories.documentdb.client",
+        "registry.core.nginx_service",
+        "registry.services.agent_scanner",
+        "registry.services.security_scanner",
+        "registry.main",
+    ]
+
+    for module in modules_with_direct_import:
+        try:
+            monkeypatch.setattr(f"{module}.settings", test_settings)
+        except AttributeError:
+            # Module may not be imported yet, skip
+            pass
+
+    logger.debug("Patched global settings with test settings across all modules")
     return test_settings
 
 

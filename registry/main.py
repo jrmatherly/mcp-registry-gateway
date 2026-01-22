@@ -3,31 +3,28 @@
 MCP Gateway Registry - Modern FastAPI Application
 
 A clean, domain-driven FastAPI app for managing MCP (Model Context Protocol) servers.
-This main.py file serves as the application coordinator, importing and registering 
+This main.py file serves as the application coordinator, importing and registering
 domain routers while handling core app configuration.
 """
 
 import logging
 from contextlib import asynccontextmanager
-from typing import Annotated, Dict, Any
 from pathlib import Path
+from typing import Any
 
-from fastapi import FastAPI, Cookie, HTTPException, Depends
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
-# Import domain routers
-from registry.auth.routes import router as auth_router
-from registry.api.server_routes import router as servers_router
-from registry.api.search_routes import router as search_router
-from registry.api.wellknown_routes import router as wellknown_router
-from registry.api.registry_routes import router as registry_router
 from registry.api.agent_routes import router as agent_router
-from registry.api.management_routes import router as management_router
 from registry.api.federation_routes import router as federation_router
-from registry.health.routes import router as health_router
+from registry.api.management_routes import router as management_router
+from registry.api.registry_routes import router as registry_router
+from registry.api.search_routes import router as search_router
+from registry.api.server_routes import router as servers_router
+from registry.api.wellknown_routes import router as wellknown_router
 
 # Import auth dependencies
 from registry.auth.dependencies import (
@@ -35,19 +32,23 @@ from registry.auth.dependencies import (
     get_ui_permissions_for_user,
 )
 
-# Import services for initialization
-from registry.services.server_service import server_service
-from registry.services.agent_service import agent_service
-from registry.repositories.factory import get_search_repository
-from registry.health.service import health_service
-from registry.core.nginx_service import nginx_service
-from registry.services.federation_service import get_federation_service
+# Import domain routers
+from registry.auth.routes import router as auth_router
 
 # Import core configuration
 from registry.core.config import settings
+from registry.core.nginx_service import nginx_service
+from registry.health.routes import router as health_router
+from registry.health.service import health_service
+from registry.repositories.factory import get_search_repository
+from registry.services.agent_service import agent_service
+
+# Import services for initialization
+from registry.services.server_service import server_service
 
 # Import version
 from registry.version import __version__
+
 
 # Configure logging with file and console handlers
 def setup_logging():
@@ -55,42 +56,43 @@ def setup_logging():
     # Ensure log directory exists
     log_dir = settings.log_dir
     log_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Define log file path
     log_file = log_dir / "registry.log"
-    
+
     # Create formatters
     file_formatter = logging.Formatter(
-        '%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s'
+        "%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s"
     )
-    
+
     console_formatter = logging.Formatter(
-        '%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s'
+        "%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s"
     )
-    
+
     # Get root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
-    
+
     # Remove any existing handlers
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
-    
+
     # File handler
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(file_formatter)
-    
+
     # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(console_formatter)
-    
+
     # Add handlers to root logger
     root_logger.addHandler(file_handler)
     root_logger.addHandler(console_handler)
-    
+
     return log_file
+
 
 # Setup logging
 log_file_path = setup_logging()
@@ -107,6 +109,7 @@ async def lifespan(app: FastAPI):
         # Load scopes configuration from repository
         logger.info("🔐 Loading scopes configuration from repository...")
         from registry.auth.dependencies import reload_scopes_from_repository
+
         await reload_scopes_from_repository()
 
         # Initialize services in order
@@ -128,7 +131,10 @@ async def lifespan(app: FastAPI):
                 await search_repo.index_server(service_path, server_info, is_enabled)
                 logger.debug(f"Updated {backend_name} index for service: {service_path}")
             except Exception as e:
-                logger.error(f"Failed to update {backend_name} index for service {service_path}: {e}", exc_info=True)
+                logger.error(
+                    f"Failed to update {backend_name} index for service {service_path}: {e}",
+                    exc_info=True,
+                )
 
         logger.info(f"✅ {backend_name} index updated with {len(all_servers)} services")
 
@@ -143,7 +149,10 @@ async def lifespan(app: FastAPI):
                 await search_repo.index_agent(agent_card.path, agent_card, is_enabled)
                 logger.debug(f"Updated {backend_name} index for agent: {agent_card.path}")
             except Exception as e:
-                logger.error(f"Failed to update {backend_name} index for agent {agent_card.path}: {e}", exc_info=True)
+                logger.error(
+                    f"Failed to update {backend_name} index for agent {agent_card.path}: {e}",
+                    exc_info=True,
+                )
 
         logger.info(f"✅ {backend_name} index updated with {len(all_agents)} agents")
 
@@ -159,21 +168,28 @@ async def lifespan(app: FastAPI):
             federation_config = await federation_repo.get_config("default")
 
             if federation_config and federation_config.is_any_federation_enabled():
-                logger.info(f"Federation enabled for: {', '.join(federation_config.get_enabled_federations())}")
+                logger.info(
+                    f"Federation enabled for: {', '.join(federation_config.get_enabled_federations())}"
+                )
 
                 # Sync on startup if configured
                 sync_on_startup = (
-                    (federation_config.anthropic.enabled and federation_config.anthropic.sync_on_startup) or
-                    (federation_config.asor.enabled and federation_config.asor.sync_on_startup)
-                )
+                    federation_config.anthropic.enabled
+                    and federation_config.anthropic.sync_on_startup
+                ) or (federation_config.asor.enabled and federation_config.asor.sync_on_startup)
 
                 if sync_on_startup:
                     logger.info("🔄 Syncing servers from federated registries on startup...")
                     try:
-                        from registry.services.federation.anthropic_client import AnthropicFederationClient
+                        from registry.services.federation.anthropic_client import (
+                            AnthropicFederationClient,
+                        )
 
                         # Sync Anthropic servers if enabled and sync_on_startup is true
-                        if federation_config.anthropic.enabled and federation_config.anthropic.sync_on_startup:
+                        if (
+                            federation_config.anthropic.enabled
+                            and federation_config.anthropic.sync_on_startup
+                        ):
                             logger.info("Syncing from Anthropic MCP Registry...")
                             anthropic_client = AnthropicFederationClient(
                                 endpoint=federation_config.anthropic.endpoint
@@ -193,22 +209,31 @@ async def lifespan(app: FastAPI):
                                     # Register or update server
                                     success = await server_service.register_server(server_data)
                                     if not success:
-                                        success = await server_service.update_server(server_path, server_data)
+                                        success = await server_service.update_server(
+                                            server_path, server_data
+                                        )
 
                                     if success:
                                         # Enable the server
                                         await server_service.toggle_service(server_path, True)
                                         synced_count += 1
-                                        logger.info(f"Synced: {server_data.get('server_name', server_path)}")
+                                        logger.info(
+                                            f"Synced: {server_data.get('server_name', server_path)}"
+                                        )
                                 except Exception as e:
-                                    logger.error(f"Failed to sync server {server_data.get('server_name', 'unknown')}: {e}")
+                                    logger.error(
+                                        f"Failed to sync server {server_data.get('server_name', 'unknown')}: {e}"
+                                    )
 
                             logger.info(f"✅ Synced {synced_count} servers from Anthropic")
 
                         # ASOR sync would go here if needed
 
                     except Exception as e:
-                        logger.error(f"⚠️ Federation sync failed (continuing with startup): {e}", exc_info=True)
+                        logger.error(
+                            f"⚠️ Federation sync failed (continuing with startup): {e}",
+                            exc_info=True,
+                        )
             else:
                 logger.info("Federation is disabled or not configured")
         except Exception as e:
@@ -225,14 +250,14 @@ async def lifespan(app: FastAPI):
         await nginx_service.generate_config_async(enabled_servers)
 
         logger.info("✅ All services initialized successfully!")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to initialize services: {e}", exc_info=True)
         raise
-    
+
     # Application is ready
     yield
-    
+
     # Shutdown tasks
     logger.info("🔄 Shutting down MCP Gateway Registry...")
     try:
@@ -255,37 +280,34 @@ app = FastAPI(
     openapi_tags=[
         {
             "name": "Authentication",
-            "description": "OAuth2 and session-based authentication endpoints"
+            "description": "OAuth2 and session-based authentication endpoints",
         },
         {
             "name": "Server Management",
-            "description": "MCP server registration and management. Requires JWT Bearer token authentication."
+            "description": "MCP server registration and management. Requires JWT Bearer token authentication.",
         },
         {
             "name": "Agent Management",
-            "description": "A2A agent registration and management. Requires JWT Bearer token authentication."
+            "description": "A2A agent registration and management. Requires JWT Bearer token authentication.",
         },
         {
             "name": "Management API",
-            "description": "IAM and user management operations. Requires JWT Bearer token with admin permissions."
+            "description": "IAM and user management operations. Requires JWT Bearer token with admin permissions.",
         },
         {
             "name": "Semantic Search",
-            "description": "Vector-based semantic search for agents. Requires JWT Bearer token authentication."
+            "description": "Vector-based semantic search for agents. Requires JWT Bearer token authentication.",
         },
-        {
-            "name": "Health Monitoring",
-            "description": "Service health check endpoints"
-        },
+        {"name": "Health Monitoring", "description": "Service health check endpoints"},
         {
             "name": "Anthropic Registry API",
-            "description": "Anthropic-compatible registry API (v0.1) for MCP server discovery"
+            "description": "Anthropic-compatible registry API (v0.1) for MCP server discovery",
         },
         {
             "name": "federation",
-            "description": "Federation configuration management API for Anthropic and ASOR integrations"
-        }
-    ]
+            "description": "Federation configuration management API for Anthropic and ASOR integrations",
+        },
+    ],
 )
 
 # Add CORS middleware for React development and Docker deployment
@@ -332,7 +354,7 @@ def custom_openapi():
             "scheme": "bearer",
             "bearerFormat": "JWT",
             "description": "JWT Bearer token obtained from Keycloak OAuth2 authentication. "
-                          "Include in Authorization header as: `Authorization: Bearer <token>`"
+            "Include in Authorization header as: `Authorization: Bearer <token>`",
         }
     }
 
@@ -357,7 +379,7 @@ app.openapi = custom_openapi
 
 # Add user info endpoint for React auth context
 @app.get("/api/auth/me")
-async def get_current_user(user_context: Dict[str, Any] = Depends(enhanced_auth)):
+async def get_current_user(user_context: dict[str, Any] = Depends(enhanced_auth)):
     """Get current user information for React auth context"""
     # Get user's scopes
     user_scopes = user_context.get("scopes", [])
@@ -377,8 +399,9 @@ async def get_current_user(user_context: Dict[str, Any] = Depends(enhanced_auth)
         "ui_permissions": ui_permissions,
         "accessible_servers": user_context.get("accessible_servers", []),
         "accessible_services": user_context.get("accessible_services", []),
-        "accessible_agents": user_context.get("accessible_agents", [])
+        "accessible_agents": user_context.get("accessible_agents", []),
     }
+
 
 # Basic health check endpoint
 @app.get("/health")
@@ -400,7 +423,7 @@ FRONTEND_BUILD_PATH = Path(__file__).parent.parent / "frontend" / "build"
 if FRONTEND_BUILD_PATH.exists():
     # Serve static assets
     app.mount("/static", StaticFiles(directory=FRONTEND_BUILD_PATH / "static"), name="static")
-    
+
     # Serve React app for all other routes (SPA)
     @app.get("/{full_path:path}")
     async def serve_react_app(full_path: str):
@@ -410,25 +433,28 @@ if FRONTEND_BUILD_PATH.exists():
 
         # Don't serve React for API routes, Anthropic registry API, health checks, and well-known discovery endpoints
         anthropic_api_prefix = f"{REGISTRY_CONSTANTS.ANTHROPIC_API_VERSION}/"
-        if full_path.startswith("api/") or full_path.startswith(anthropic_api_prefix) or full_path.startswith("health") or full_path.startswith(".well-known/"):
+        if (
+            full_path.startswith("api/")
+            or full_path.startswith(anthropic_api_prefix)
+            or full_path.startswith("health")
+            or full_path.startswith(".well-known/")
+        ):
             raise HTTPException(status_code=404)
 
         return FileResponse(FRONTEND_BUILD_PATH / "index.html")
 else:
-    logger.warning("React build directory not found. Serve React app separately during development.")
-    
+    logger.warning(
+        "React build directory not found. Serve React app separately during development."
+    )
+
     # Serve legacy templates and static files during development
     from fastapi.templating import Jinja2Templates
+
     app.mount("/static", StaticFiles(directory=settings.static_dir), name="static")
     templates = Jinja2Templates(directory=settings.templates_dir)
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        "registry.main:app", 
-        host="0.0.0.0", 
-        port=7860, 
-        reload=True,
-        log_level="info"
-    ) 
+
+    uvicorn.run("registry.main:app", host="0.0.0.0", port=7860, reload=True, log_level="info")

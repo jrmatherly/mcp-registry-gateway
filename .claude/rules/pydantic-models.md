@@ -19,7 +19,7 @@ from datetime import datetime
 
 class ServerBase(BaseModel):
     """Base schema for MCP Server."""
-    
+
     model_config = ConfigDict(
         from_attributes=True,
         populate_by_name=True,
@@ -30,7 +30,7 @@ class ServerBase(BaseModel):
             }
         },
     )
-    
+
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -51,7 +51,7 @@ class ServerCreate(ServerBase):
         if not v.replace("-", "").replace("_", "").isalnum():
             raise ValueError("Name must be alphanumeric with hyphens/underscores")
         return v.lower()
-    
+
     @model_validator(mode="after")
     def validate_model(self) -> "ServerCreate":
         # Cross-field validation

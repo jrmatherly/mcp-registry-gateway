@@ -61,43 +61,43 @@ export const useServerStats = (): UseServerStatsReturn => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch both servers and agents in parallel
       const [serversResponse, agentsResponse] = await Promise.all([
         axios.get('/api/servers'),
         axios.get('/api/agents').catch(() => ({ data: { agents: [] } })) // Graceful fallback
       ]);
-      
-      // The API returns {"servers": [...]} 
+
+      // The API returns {"servers": [...]}
       const responseData = serversResponse.data || {};
       const serversList = responseData.servers || [];
-      
+
       // The agents API returns {"agents": [...]}
       const agentsData = agentsResponse.data || {};
       const agentsList = agentsData.agents || [];
-      
+
       // Debug logging to see what servers are returned
       console.log('🔍 Server filtering debug info:');
       console.log(`📊 Total servers returned from API: ${serversList.length}`);
-      console.log('📋 Server list:', serversList.map((s: any) => ({ 
-        name: s.display_name, 
-        path: s.path, 
-        enabled: s.is_enabled 
+      console.log('📋 Server list:', serversList.map((s: any) => ({
+        name: s.display_name,
+        path: s.path,
+        enabled: s.is_enabled
       })));
-      
+
       // Debug logging for agents
       console.log(`📊 Total agents returned from API: ${agentsList.length}`);
-      console.log('📋 Agent list:', agentsList.map((a: any) => ({ 
-        name: a.name, 
-        path: a.path, 
-        enabled: a.is_enabled 
+      console.log('📋 Agent list:', agentsList.map((a: any) => ({
+        name: a.name,
+        path: a.path,
+        enabled: a.is_enabled
       })));
-      
+
       // Transform server data from backend format to frontend format
       const transformedServers: Server[] = serversList.map((serverInfo: any) => {
         // Debug log to see what last_checked_iso data we're getting
         console.log(`🕐 Server ${serverInfo.display_name}: last_checked_iso =`, serverInfo.last_checked_iso);
-        
+
         const transformed = {
           name: serverInfo.display_name || 'Unknown Server',
           path: serverInfo.path,
@@ -112,17 +112,17 @@ export const useServerStats = (): UseServerStatsReturn => {
           num_tools: serverInfo.num_tools || 0,
           type: 'server' as const,
         };
-        
+
         // Debug log the transformed server
         console.log(`🔄 Transformed server ${transformed.name}:`, {
           last_checked_time: transformed.last_checked_time,
           status: transformed.status,
           enabled: transformed.enabled
         });
-        
+
         return transformed;
       });
-      
+
       // Transform agent data from backend format to frontend format
       const transformedAgents: Server[] = agentsList.map((agentInfo: any) => {
         const transformed = {
@@ -139,15 +139,15 @@ export const useServerStats = (): UseServerStatsReturn => {
           num_tools: agentInfo.num_skills || 0, // Use num_skills for agents
           type: 'agent' as const,
         };
-        
+
         console.log(`🔄 Transformed agent ${transformed.name}:`, {
           enabled: transformed.enabled,
           num_skills: transformed.num_tools
         });
-        
+
         return transformed;
       });
-      
+
       // Store servers and agents separately
       setServers(transformedServers);
       setAgents(transformedAgents);
@@ -160,7 +160,7 @@ export const useServerStats = (): UseServerStatsReturn => {
       let enabled = 0;
       let disabled = 0;
       let withIssues = 0;
-      
+
       allServices.forEach((service) => {
         total++;
         if (service.enabled) {
@@ -168,20 +168,20 @@ export const useServerStats = (): UseServerStatsReturn => {
         } else {
           disabled++;
         }
-        
+
         // Check if service has issues (unhealthy status)
         if (service.status === 'unhealthy') {
           withIssues++;
         }
       });
-      
+
       const newStats = {
         total,
         enabled,
         disabled,
         withIssues,
       };
-      
+
       console.log('📈 Calculated stats (servers + agents):', newStats);
       setStats(newStats);
     } catch (err: any) {

@@ -9,20 +9,20 @@ def calculate_metrics(
     threshold: float = 0.5
 ) -> Dict[str, float]:
     """Calculate statistical metrics for the given data.
-    
+
     Args:
         data: List of numerical values to analyze
         threshold: Minimum value to include in calculations
-        
+
     Returns:
         Dictionary containing calculated metrics:
         - mean: Average value
         - std: Standard deviation
         - count: Number of values above threshold
-        
+
     Raises:
         ValueError: If data is empty or contains non-numeric values
-        
+
     Example:
         >>> metrics = calculate_metrics([1.0, 2.0, 3.0])
         >>> print(metrics['mean'])
@@ -49,7 +49,7 @@ FastAPI auto-generates OpenAPI docs. Enhance with:
     summary="Create a new MCP server",
     description="""
     Register a new MCP server in the registry.
-    
+
     The server will be validated and indexed for semantic search.
     """,
     responses={

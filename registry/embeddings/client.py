@@ -5,6 +5,8 @@ This module provides a unified interface for generating embeddings from multiple
 providers including local sentence-transformers models and cloud-based APIs via LiteLLM.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from abc import (
@@ -12,13 +14,12 @@ from abc import (
     abstractmethod,
 )
 from pathlib import Path
-from typing import (
-    List,
-    Optional,
-)
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class EmbeddingsClient(ABC):
     @abstractmethod
     def encode(
         self,
-        texts: List[str],
+        texts: list[str],
     ) -> np.ndarray:
         """
         Generate embeddings for a list of texts.
@@ -62,8 +63,8 @@ class SentenceTransformersClient(EmbeddingsClient):
     def __init__(
         self,
         model_name: str,
-        model_dir: Optional[Path] = None,
-        cache_dir: Optional[Path] = None,
+        model_dir: Path | None = None,
+        cache_dir: Path | None = None,
     ):
         """
         Initialize the SentenceTransformers client.
@@ -76,8 +77,8 @@ class SentenceTransformersClient(EmbeddingsClient):
         self.model_name = model_name
         self.model_dir = model_dir
         self.cache_dir = cache_dir
-        self._model: Optional["SentenceTransformer"] = None
-        self._dimension: Optional[int] = None
+        self._model: SentenceTransformer | None = None
+        self._dimension: int | None = None
 
     def _load_model(self) -> None:
         """Load the sentence-transformers model."""
@@ -101,9 +102,7 @@ class SentenceTransformersClient(EmbeddingsClient):
             )
 
             if model_exists:
-                logger.info(
-                    f"Loading SentenceTransformer model from local path: {self.model_dir}"
-                )
+                logger.info(f"Loading SentenceTransformer model from local path: {self.model_dir}")
                 self._model = SentenceTransformer(str(self.model_dir))
             else:
                 logger.info(
@@ -125,14 +124,12 @@ class SentenceTransformersClient(EmbeddingsClient):
             )
 
         except Exception as e:
-            logger.error(
-                f"Failed to load SentenceTransformer model: {e}", exc_info=True
-            )
+            logger.error(f"Failed to load SentenceTransformer model: {e}", exc_info=True)
             raise RuntimeError(f"Failed to load SentenceTransformer model: {e}") from e
 
     def encode(
         self,
-        texts: List[str],
+        texts: list[str],
     ) -> np.ndarray:
         """
         Generate embeddings using sentence-transformers.
@@ -177,10 +174,10 @@ class LiteLLMClient(EmbeddingsClient):
     def __init__(
         self,
         model_name: str,
-        api_key: Optional[str] = None,
-        api_base: Optional[str] = None,
-        aws_region: Optional[str] = None,
-        embedding_dimension: Optional[int] = None,
+        api_key: str | None = None,
+        api_base: str | None = None,
+        aws_region: str | None = None,
+        embedding_dimension: int | None = None,
     ):
         """
         Initialize the LiteLLM client.
@@ -203,7 +200,7 @@ class LiteLLMClient(EmbeddingsClient):
         self.api_base = api_base
         self.aws_region = aws_region
         self._embedding_dimension = embedding_dimension
-        self._validated_dimension: Optional[int] = None
+        self._validated_dimension: int | None = None
 
         # Set environment variables for LiteLLM
         if self.api_key:
@@ -218,9 +215,7 @@ class LiteLLMClient(EmbeddingsClient):
         # AWS Bedrock uses standard AWS credential chain (IAM roles, env vars, ~/.aws/credentials)
         # No need to set API key environment variable for Bedrock
         if provider == "bedrock":
-            logger.info(
-                "Using standard AWS credential chain for Bedrock authentication"
-            )
+            logger.info("Using standard AWS credential chain for Bedrock authentication")
             return
 
         # Handle other providers with API keys
@@ -238,7 +233,7 @@ class LiteLLMClient(EmbeddingsClient):
 
     def encode(
         self,
-        texts: List[str],
+        texts: list[str],
     ) -> np.ndarray:
         """
         Generate embeddings using LiteLLM.
@@ -256,9 +251,7 @@ class LiteLLMClient(EmbeddingsClient):
             from litellm import embedding
         except ImportError as e:
             logger.error("LiteLLM is not installed. Install it with: uv add litellm")
-            raise RuntimeError(
-                "LiteLLM is not installed. Install it with: uv add litellm"
-            ) from e
+            raise RuntimeError("LiteLLM is not installed. Install it with: uv add litellm") from e
 
         try:
             # LiteLLM expects 'input' parameter
@@ -267,9 +260,7 @@ class LiteLLMClient(EmbeddingsClient):
             if self.api_base:
                 kwargs["api_base"] = self.api_base
 
-            logger.debug(
-                f"Calling LiteLLM embedding API with model: {self.model_name}"
-            )
+            logger.debug(f"Calling LiteLLM embedding API with model: {self.model_name}")
             response = embedding(**kwargs)
 
             # Extract embeddings from response
@@ -316,16 +307,12 @@ class LiteLLMClient(EmbeddingsClient):
             return self._embedding_dimension
 
         # As a last resort, make a test call with a simple string
-        logger.info(
-            "Embedding dimension not known, making test call to determine dimension"
-        )
+        logger.info("Embedding dimension not known, making test call to determine dimension")
         try:
             test_embedding = self.encode(["test"])
             return test_embedding.shape[1]
         except Exception as e:
-            logger.error(
-                f"Failed to determine embedding dimension: {e}", exc_info=True
-            )
+            logger.error(f"Failed to determine embedding dimension: {e}", exc_info=True)
             raise RuntimeError(
                 f"Failed to determine embedding dimension: {e}. "
                 "Consider setting EMBEDDINGS_DIMENSION in configuration."
@@ -335,12 +322,12 @@ class LiteLLMClient(EmbeddingsClient):
 def create_embeddings_client(
     provider: str,
     model_name: str,
-    model_dir: Optional[Path] = None,
-    cache_dir: Optional[Path] = None,
-    api_key: Optional[str] = None,
-    api_base: Optional[str] = None,
-    aws_region: Optional[str] = None,
-    embedding_dimension: Optional[int] = None,
+    model_dir: Path | None = None,
+    cache_dir: Path | None = None,
+    api_key: str | None = None,
+    api_base: str | None = None,
+    aws_region: str | None = None,
+    embedding_dimension: int | None = None,
 ) -> EmbeddingsClient:
     """
     Factory function to create an embeddings client based on provider.
@@ -368,9 +355,7 @@ def create_embeddings_client(
     provider_lower = provider.lower()
 
     if provider_lower == "sentence-transformers":
-        logger.info(
-            f"Creating SentenceTransformersClient with model: {model_name}"
-        )
+        logger.info(f"Creating SentenceTransformersClient with model: {model_name}")
         return SentenceTransformersClient(
             model_name=model_name,
             model_dir=model_dir,

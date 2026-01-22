@@ -1,4 +1,4 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev lint format check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents
 
 # Default target
 help:
@@ -11,7 +11,7 @@ help:
 	@echo "Testing:"
 	@echo "  test            Run full test suite with coverage"
 	@echo "  test-unit       Run unit tests only"
-	@echo "  test-integration Run integration tests only" 
+	@echo "  test-integration Run integration tests only"
 	@echo "  test-e2e        Run end-to-end tests only"
 	@echo "  test-fast       Run fast tests (exclude slow tests)"
 	@echo "  test-coverage   Generate coverage reports"
@@ -23,9 +23,12 @@ help:
 	@echo "  test-health     Run health monitoring domain tests"
 	@echo "  test-core       Run core infrastructure tests"
 	@echo ""
-	@echo "Code Quality:"
-	@echo "  lint            Run linting checks"
-	@echo "  format          Format code"
+	@echo "Code Quality (ruff):"
+	@echo "  lint            Run ruff linting checks"
+	@echo "  lint-fix        Run ruff with auto-fix"
+	@echo "  format          Format code with ruff"
+	@echo "  format-check    Check formatting without changes"
+	@echo "  security        Run bandit security scan"
 	@echo "  clean           Clean up test artifacts"
 	@echo ""
 	@echo "Keycloak Build & Deploy:"
@@ -113,16 +116,30 @@ test-health:
 test-core:
 	@python scripts/test.py core
 
-# Code quality
+# Code quality (using ruff - configured in pyproject.toml)
 lint:
-	@echo "🔍 Running linting checks..."
-	@python -m bandit -r registry/ -f json || true
-	@echo "✅ Linting complete"
+	@echo "Running ruff linting checks..."
+	@uv run ruff check registry/ agents/ auth_server/ api/ tests/
+	@echo "Linting complete"
+
+lint-fix:
+	@echo "Running ruff with auto-fix..."
+	@uv run ruff check --fix registry/ agents/ auth_server/ api/ tests/
+	@echo "Lint fixes applied"
 
 format:
-	@echo "🎨 Formatting code..."
-	@python -m black registry/ tests/ --diff --color
-	@echo "✅ Code formatting complete"
+	@echo "Formatting code with ruff..."
+	@uv run ruff format registry/ agents/ auth_server/ api/ tests/
+	@echo "Formatting complete"
+
+format-check:
+	@echo "Checking code formatting..."
+	@uv run ruff format --check registry/ agents/ auth_server/ api/ tests/
+
+security:
+	@echo "Running bandit security scan..."
+	@uv run bandit -r registry/ -c pyproject.toml || true
+	@echo "Security scan complete"
 
 # Cleanup
 clean:

@@ -26,24 +26,24 @@ cd ../..
 
 for IMAGE_INFO in "${IMAGES[@]}"; do
   IFS=':' read -r REPO_NAME DOCKERFILE CONTEXT <<< "$IMAGE_INFO"
-  
+
   echo ""
   echo "========================================="
   echo "Building: $REPO_NAME"
   echo "========================================="
-  
+
   # Create ECR repository if it doesn't exist
   aws ecr create-repository --repository-name ${REPO_NAME} --region ${REGION} 2>/dev/null || echo "Repository exists"
-  
+
   # Build image
   docker build --platform linux/amd64 -f ${DOCKERFILE} -t ${REPO_NAME}:latest ${CONTEXT}
-  
+
   # Tag for ECR
   docker tag ${REPO_NAME}:latest ${ECR_REGISTRY}/${REPO_NAME}:latest
-  
+
   # Push to ECR
   docker push ${ECR_REGISTRY}/${REPO_NAME}:latest
-  
+
   echo "✅ Done: ${REPO_NAME}"
 done
 

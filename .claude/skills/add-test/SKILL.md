@@ -33,17 +33,17 @@ from registry.schemas.your_resource import YourResourceCreate
 
 class TestYourService:
     """Tests for YourService."""
-    
+
     @pytest.fixture
     def mock_repository(self) -> AsyncMock:
         """Create a mock repository."""
         return AsyncMock()
-    
+
     @pytest.fixture
     def service(self, mock_repository: AsyncMock) -> YourService:
         """Create service with mock repository."""
         return YourService(repository=mock_repository)
-    
+
     @pytest.mark.asyncio
     async def test_get_returns_resource_when_exists(
         self,
@@ -53,14 +53,14 @@ class TestYourService:
         # Arrange
         expected = {"id": "123", "name": "test"}
         mock_repository.get.return_value = expected
-        
+
         # Act
         result = await service.get("123")
-        
+
         # Assert
         assert result == expected
         mock_repository.get.assert_awaited_once_with("123")
-    
+
     @pytest.mark.asyncio
     async def test_get_returns_none_when_not_exists(
         self,
@@ -69,13 +69,13 @@ class TestYourService:
     ) -> None:
         # Arrange
         mock_repository.get.return_value = None
-        
+
         # Act
         result = await service.get("nonexistent")
-        
+
         # Assert
         assert result is None
-    
+
     @pytest.mark.asyncio
     async def test_create_returns_created_resource(
         self,
@@ -86,10 +86,10 @@ class TestYourService:
         data = YourResourceCreate(name="test")
         expected = {"id": "123", "name": "test"}
         mock_repository.create.return_value = expected
-        
+
         # Act
         result = await service.create(data)
-        
+
         # Assert
         assert result == expected
         mock_repository.create.assert_awaited_once()
@@ -107,7 +107,7 @@ from registry.main import app
 
 class TestYourResourceAPI:
     """Integration tests for your resource API."""
-    
+
     @pytest.fixture
     def test_resource(self) -> dict:
         """Create test resource data."""
@@ -115,7 +115,7 @@ class TestYourResourceAPI:
             "name": "test-resource",
             "description": "Test description",
         }
-    
+
     @pytest.mark.asyncio
     async def test_create_resource(
         self,
@@ -126,12 +126,12 @@ class TestYourResourceAPI:
             "/api/v1/your-resources/",
             json=test_resource,
         )
-        
+
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == test_resource["name"]
         assert "id" in data
-    
+
     @pytest.mark.asyncio
     async def test_get_resource_not_found(
         self,
@@ -140,7 +140,7 @@ class TestYourResourceAPI:
         response = await async_client.get(
             "/api/v1/your-resources/nonexistent"
         )
-        
+
         assert response.status_code == 404
 ```
 

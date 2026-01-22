@@ -151,8 +151,8 @@ async def _create_vector_index(
         # Debug logging
         logger.info("DEBUG: Caught exception in vector index creation")
         logger.info(f"DEBUG: Exception type: {type(e).__name__}")
-        logger.info(f"DEBUG: Exception str: {str(e)}")
-        logger.info(f"DEBUG: Exception repr: {repr(e)}")
+        logger.info(f"DEBUG: Exception str: {e!s}")
+        logger.info(f"DEBUG: Exception repr: {e!r}")
 
         # Check if index already exists with different options (error code 85)
         if (

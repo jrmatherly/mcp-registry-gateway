@@ -154,4 +154,3 @@ resource "aws_cloudwatch_metric_alarm" "alb_response_time" {
     LoadBalancer = module.alb.arn_suffix
   }
 }
-

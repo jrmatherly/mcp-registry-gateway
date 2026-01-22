@@ -5,13 +5,11 @@ This module provides functions to manage groups in Keycloak via the Admin REST A
 It handles authentication, group CRUD operations, and integrates with the registry.
 """
 
-import os
 import logging
-import base64
-from typing import Dict, Any, List, Optional
+import os
+from typing import Any
 
 import httpx
-
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +17,7 @@ logger = logging.getLogger(__name__)
 KEYCLOAK_ADMIN_URL: str = os.environ.get("KEYCLOAK_URL", "http://keycloak:8080")
 KEYCLOAK_REALM: str = os.environ.get("KEYCLOAK_REALM", "mcp-gateway")
 KEYCLOAK_ADMIN: str = os.environ.get("KEYCLOAK_ADMIN", "admin")
-KEYCLOAK_ADMIN_PASSWORD: Optional[str] = os.environ.get("KEYCLOAK_ADMIN_PASSWORD")
+KEYCLOAK_ADMIN_PASSWORD: str | None = os.environ.get("KEYCLOAK_ADMIN_PASSWORD")
 
 
 class KeycloakAdminError(RuntimeError):
@@ -45,12 +43,10 @@ async def _get_keycloak_admin_token() -> str:
         "username": KEYCLOAK_ADMIN,
         "password": KEYCLOAK_ADMIN_PASSWORD,
         "grant_type": "password",
-        "client_id": "admin-cli"
+        "client_id": "admin-cli",
     }
 
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -74,7 +70,7 @@ async def _get_keycloak_admin_token() -> str:
         raise Exception(f"Failed to authenticate with Keycloak: {e}") from e
 
 
-def _auth_headers(token: str, content_type: Optional[str] = "application/json") -> Dict[str, str]:
+def _auth_headers(token: str, content_type: str | None = "application/json") -> dict[str, str]:
     """Build auth headers for Keycloak admin API."""
     headers = {"Authorization": f"Bearer {token}"}
     if content_type:
@@ -85,7 +81,7 @@ def _auth_headers(token: str, content_type: Optional[str] = "application/json") 
 async def _get_group_name_map(
     client: httpx.AsyncClient,
     token: str,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Return mapping of Keycloak group name to ID."""
     groups_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/groups"
     response = await client.get(groups_url, headers=_auth_headers(token, None))
@@ -98,7 +94,7 @@ async def _find_client_uuid(
     client: httpx.AsyncClient,
     token: str,
     client_id: str,
-) -> Optional[str]:
+) -> str | None:
     """Look up a client UUID by clientId."""
     clients_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/clients"
     response = await client.get(
@@ -113,17 +109,14 @@ async def _find_client_uuid(
     return None
 
 
-def _extract_resource_id(location_header: Optional[str]) -> Optional[str]:
+def _extract_resource_id(location_header: str | None) -> str | None:
     """Extract trailing resource ID from a Location header."""
     if not location_header:
         return None
     return location_header.rstrip("/").split("/")[-1]
 
 
-async def create_keycloak_group(
-    group_name: str,
-    description: str = ""
-) -> Dict[str, Any]:
+async def create_keycloak_group(group_name: str, description: str = "") -> dict[str, Any]:
     """
     Create a group in Keycloak.
 
@@ -146,17 +139,12 @@ async def create_keycloak_group(
         # Prepare group data
         group_data = {
             "name": group_name,
-            "attributes": {
-                "description": [description] if description else []
-            }
+            "attributes": {"description": [description] if description else []},
         }
 
         # Create group via Admin API
         groups_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/groups"
-        headers = {
-            "Authorization": f"Bearer {admin_token}",
-            "Content-Type": "application/json"
-        }
+        headers = {"Authorization": f"Bearer {admin_token}", "Content-Type": "application/json"}
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(groups_url, json=group_data, headers=headers)
@@ -173,7 +161,9 @@ async def create_keycloak_group(
                 raise Exception(f"Group '{group_name}' already exists in Keycloak")
 
             else:
-                logger.error(f"Failed to create group: HTTP {response.status_code} - {response.text}")
+                logger.error(
+                    f"Failed to create group: HTTP {response.status_code} - {response.text}"
+                )
                 raise Exception(f"Failed to create group in Keycloak: HTTP {response.status_code}")
 
     except Exception as e:
@@ -181,9 +171,7 @@ async def create_keycloak_group(
         raise
 
 
-async def delete_keycloak_group(
-    group_name: str
-) -> bool:
+async def delete_keycloak_group(group_name: str) -> bool:
     """
     Delete a group from Keycloak.
 
@@ -211,9 +199,7 @@ async def delete_keycloak_group(
 
         # Delete group via Admin API
         delete_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/groups/{group_id}"
-        headers = {
-            "Authorization": f"Bearer {admin_token}"
-        }
+        headers = {"Authorization": f"Bearer {admin_token}"}
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.delete(delete_url, headers=headers)
@@ -227,17 +213,19 @@ async def delete_keycloak_group(
                 raise Exception(f"Group '{group_name}' not found in Keycloak")
 
             else:
-                logger.error(f"Failed to delete group: HTTP {response.status_code} - {response.text}")
-                raise Exception(f"Failed to delete group from Keycloak: HTTP {response.status_code}")
+                logger.error(
+                    f"Failed to delete group: HTTP {response.status_code} - {response.text}"
+                )
+                raise Exception(
+                    f"Failed to delete group from Keycloak: HTTP {response.status_code}"
+                )
 
     except Exception as e:
         logger.error(f"Error deleting Keycloak group '{group_name}': {e}")
         raise
 
 
-async def get_keycloak_group(
-    group_name: str
-) -> Dict[str, Any]:
+async def get_keycloak_group(group_name: str) -> dict[str, Any]:
     """
     Get a group's details from Keycloak by name.
 
@@ -258,9 +246,7 @@ async def get_keycloak_group(
 
         # List all groups and find the one with matching name
         groups_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/groups"
-        headers = {
-            "Authorization": f"Bearer {admin_token}"
-        }
+        headers = {"Authorization": f"Bearer {admin_token}"}
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(groups_url, headers=headers)
@@ -285,7 +271,7 @@ async def get_keycloak_group(
         raise
 
 
-async def list_keycloak_groups() -> List[Dict[str, Any]]:
+async def list_keycloak_groups() -> list[dict[str, Any]]:
     """
     List all groups in Keycloak realm.
 
@@ -303,9 +289,7 @@ async def list_keycloak_groups() -> List[Dict[str, Any]]:
 
         # List all groups
         groups_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/groups"
-        headers = {
-            "Authorization": f"Bearer {admin_token}"
-        }
+        headers = {"Authorization": f"Bearer {admin_token}"}
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(groups_url, headers=headers)
@@ -318,15 +302,15 @@ async def list_keycloak_groups() -> List[Dict[str, Any]]:
 
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error listing groups: {e.response.status_code}")
-        raise Exception(f"Failed to list groups from Keycloak: HTTP {e.response.status_code}") from e
+        raise Exception(
+            f"Failed to list groups from Keycloak: HTTP {e.response.status_code}"
+        ) from e
     except Exception as e:
         logger.error(f"Error listing Keycloak groups: {e}")
         raise
 
 
-async def group_exists_in_keycloak(
-    group_name: str
-) -> bool:
+async def group_exists_in_keycloak(group_name: str) -> bool:
     """
     Check if a group exists in Keycloak.
 
@@ -343,7 +327,7 @@ async def group_exists_in_keycloak(
         return False
 
 
-def _normalize_group_list(groups: List[str]) -> List[str]:
+def _normalize_group_list(groups: list[str]) -> list[str]:
     """Clean and validate incoming group list."""
     normalized = [group.strip() for group in groups if group and group.strip()]
     if not normalized:
@@ -355,7 +339,7 @@ async def _assign_user_to_groups_by_name(
     client: httpx.AsyncClient,
     token: str,
     user_id: str,
-    groups: List[str],
+    groups: list[str],
 ) -> None:
     """Assign a Keycloak user/service account to a set of groups."""
     if not groups:
@@ -367,10 +351,14 @@ async def _assign_user_to_groups_by_name(
         if not group_id:
             raise KeycloakAdminError(f"Group '{group_name}' not found in Keycloak")
 
-        assign_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users/{user_id}/groups/{group_id}"
+        assign_url = (
+            f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users/{user_id}/groups/{group_id}"
+        )
         response = await client.put(assign_url, headers=_auth_headers(token, None))
         if response.status_code not in (204, 409):
-            logger.error("Failed assigning user %s to group %s: %s", user_id, group_name, response.text)
+            logger.error(
+                "Failed assigning user %s to group %s: %s", user_id, group_name, response.text
+            )
             raise KeycloakAdminError(
                 f"Failed to assign group '{group_name}' (HTTP {response.status_code})"
             )
@@ -380,7 +368,7 @@ async def _get_user_groups(
     client: httpx.AsyncClient,
     token: str,
     user_id: str,
-) -> List[str]:
+) -> list[str]:
     """Fetch group names for a given Keycloak user."""
     groups_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users/{user_id}/groups"
     response = await client.get(groups_url, headers=_auth_headers(token, None))
@@ -393,7 +381,7 @@ async def _get_user_by_username(
     client: httpx.AsyncClient,
     token: str,
     username: str,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Look up a user in Keycloak by username."""
     users_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users"
     response = await client.get(
@@ -413,7 +401,7 @@ async def _get_user_by_id(
     client: httpx.AsyncClient,
     token: str,
     user_id: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Fetch a user document by ID."""
     user_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users/{user_id}"
     response = await client.get(user_url, headers=_auth_headers(token, None))
@@ -425,7 +413,7 @@ async def _ensure_client(
     client: httpx.AsyncClient,
     token: str,
     client_id: str,
-    description: Optional[str],
+    description: str | None,
 ) -> str:
     """Create the client if it does not yet exist and return UUID."""
     existing_uuid = await _find_client_uuid(client, token, client_id)
@@ -528,7 +516,9 @@ async def _get_client_secret_value(
     client_uuid: str,
 ) -> str:
     """Fetch the client secret value for the specified client."""
-    secret_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/clients/{client_uuid}/client-secret"
+    secret_url = (
+        f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/clients/{client_uuid}/client-secret"
+    )
     response = await client.get(secret_url, headers=_auth_headers(token, None))
     response.raise_for_status()
     data = response.json()
@@ -546,7 +536,9 @@ async def _set_initial_password(
     temporary: bool = False,
 ) -> None:
     """Set the initial password for a created user."""
-    password_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users/{user_id}/reset-password"
+    password_url = (
+        f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users/{user_id}/reset-password"
+    )
     payload = {
         "type": "password",
         "value": password,
@@ -555,16 +547,14 @@ async def _set_initial_password(
     response = await client.put(password_url, headers=_auth_headers(token), json=payload)
     if response.status_code != 204:
         logger.error("Failed to set initial password for user %s: %s", user_id, response.text)
-        raise KeycloakAdminError(
-            f"Failed to set password (HTTP {response.status_code})"
-        )
+        raise KeycloakAdminError(f"Failed to set password (HTTP {response.status_code})")
 
 
 async def create_service_account_client(
     client_id: str,
-    group_names: List[str],
-    description: Optional[str] = None,
-) -> Dict[str, Any]:
+    group_names: list[str],
+    description: str | None = None,
+) -> dict[str, Any]:
     """
     Create or update a service account client with group assignments.
 
@@ -577,11 +567,17 @@ async def create_service_account_client(
     async with httpx.AsyncClient(timeout=10.0) as client:
         client_uuid = await _ensure_client(client, admin_token, client_id, description)
         await _ensure_groups_mapper(client, admin_token, client_uuid)
-        service_account_user_id = await _get_service_account_user_id(client, admin_token, client_uuid)
-        await _assign_user_to_groups_by_name(client, admin_token, service_account_user_id, normalized_groups)
+        service_account_user_id = await _get_service_account_user_id(
+            client, admin_token, client_uuid
+        )
+        await _assign_user_to_groups_by_name(
+            client, admin_token, service_account_user_id, normalized_groups
+        )
         client_secret = await _get_client_secret_value(client, admin_token, client_uuid)
 
-    logger.info("Configured service account client '%s' with groups: %s", client_id, normalized_groups)
+    logger.info(
+        "Configured service account client '%s' with groups: %s", client_id, normalized_groups
+    )
     return {
         "client_id": client_id,
         "client_uuid": client_uuid,
@@ -596,9 +592,9 @@ async def create_human_user_account(
     email: str,
     first_name: str,
     last_name: str,
-    groups: List[str],
-    password: Optional[str] = None,
-) -> Dict[str, Any]:
+    groups: list[str],
+    password: str | None = None,
+) -> dict[str, Any]:
     """
     Create a human Keycloak user and assign groups.
     """
@@ -620,10 +616,14 @@ async def create_human_user_account(
         }
 
         users_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users"
-        response = await client.post(users_url, headers=_auth_headers(admin_token), json=user_payload)
+        response = await client.post(
+            users_url, headers=_auth_headers(admin_token), json=user_payload
+        )
         if response.status_code not in (201, 204):
             logger.error("Failed to create user %s: %s", username, response.text)
-            raise KeycloakAdminError(f"Failed to create user '{username}' (HTTP {response.status_code})")
+            raise KeycloakAdminError(
+                f"Failed to create user '{username}' (HTTP {response.status_code})"
+            )
 
         created_id = _extract_resource_id(response.headers.get("Location"))
         if not created_id:
@@ -663,7 +663,9 @@ async def delete_keycloak_user(username: str) -> bool:
             response = await client.delete(delete_url, headers=_auth_headers(admin_token, None))
             if response.status_code != 204:
                 logger.error("Failed to delete user %s: %s", username, response.text)
-                raise KeycloakAdminError(f"Failed to delete user '{username}' (HTTP {response.status_code})")
+                raise KeycloakAdminError(
+                    f"Failed to delete user '{username}' (HTTP {response.status_code})"
+                )
             logger.info("Deleted Keycloak user '%s'", username)
             return True
 
@@ -675,7 +677,9 @@ async def delete_keycloak_user(username: str) -> bool:
             response = await client.delete(delete_url, headers=_auth_headers(admin_token, None))
             if response.status_code != 204:
                 logger.error("Failed to delete M2M client %s: %s", username, response.text)
-                raise KeycloakAdminError(f"Failed to delete M2M client '{username}' (HTTP {response.status_code})")
+                raise KeycloakAdminError(
+                    f"Failed to delete M2M client '{username}' (HTTP {response.status_code})"
+                )
             logger.info("Deleted Keycloak M2M service account (client) '%s'", username)
             return True
 
@@ -684,10 +688,10 @@ async def delete_keycloak_user(username: str) -> bool:
 
 
 async def list_keycloak_users(
-    search: Optional[str] = None,
+    search: str | None = None,
     max_results: int = 500,
     include_groups: bool = True,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     List users in the Keycloak realm.
 
@@ -702,11 +706,13 @@ async def list_keycloak_users(
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         # Fetch human users
-        params: Dict[str, Any] = {"max": max_results}
+        params: dict[str, Any] = {"max": max_results}
         if search:
             params["search"] = search
         users_url = f"{KEYCLOAK_ADMIN_URL}/admin/realms/{KEYCLOAK_REALM}/users"
-        response = await client.get(users_url, headers=_auth_headers(admin_token, None), params=params)
+        response = await client.get(
+            users_url, headers=_auth_headers(admin_token, None), params=params
+        )
         response.raise_for_status()
         users = response.json()
 
@@ -738,7 +744,9 @@ async def list_keycloak_users(
                         sa_user = sa_response.json()
                         service_account_user_id = sa_user.get("id")
                         if service_account_user_id:
-                            groups = await _get_user_groups(client, admin_token, service_account_user_id)
+                            groups = await _get_user_groups(
+                                client, admin_token, service_account_user_id
+                            )
                 except Exception as e:
                     logger.warning("Failed to get groups for M2M account %s: %s", client_id, e)
 

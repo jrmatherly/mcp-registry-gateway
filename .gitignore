@@ -346,3 +346,6 @@ agent_security_scans/
 # Claude Code
 # Keep .claude/ configuration but ignore local settings
 .claude/settings.local.json
+
+# Archive directory
+.archive/

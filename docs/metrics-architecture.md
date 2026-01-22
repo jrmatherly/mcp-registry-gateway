@@ -235,7 +235,7 @@ exporters:
   datadog:
     api:
       key: ${DD_API_KEY}
-  
+
   otlp/newrelic:
     endpoint: otlp.nr-data.net:4317
     headers:

@@ -111,14 +111,14 @@ def calculate_metrics(
     threshold: float = 0.5
 ) -> Dict[str, float]:
     """Calculate statistical metrics for the given data.
-    
+
     Args:
         data: List of numerical values to analyze
         threshold: Minimum value to include in calculations
-        
+
     Returns:
         Dictionary containing calculated metrics
-        
+
     Raises:
         ValueError: If data is empty
     """

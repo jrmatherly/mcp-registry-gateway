@@ -214,7 +214,6 @@ class TestLoadServersAndState:
 # The service layer should only test orchestration, not file I/O details.
 
 
-
 # =============================================================================
 # TEST: Registering Servers
 # =============================================================================
@@ -245,9 +244,7 @@ class TestRegisterServer:
         assert result is True
         mock_server_repository.create.assert_called_once_with(sample_server_dict)
         mock_search_repository.index_server.assert_called_once_with(
-            sample_server_dict["path"],
-            sample_server_dict,
-            False
+            sample_server_dict["path"], sample_server_dict, False
         )
 
     @pytest.mark.asyncio
@@ -309,9 +306,7 @@ class TestRegisterServer:
 
         # Assert - verify search indexing
         mock_search_repository.index_server.assert_called_once_with(
-            sample_server_dict["path"],
-            sample_server_dict,
-            False
+            sample_server_dict["path"], sample_server_dict, False
         )
 
     @pytest.mark.asyncio
@@ -368,8 +363,7 @@ class TestUpdateServer:
         # Assert
         assert result is True
         mock_server_repository.update.assert_called_once_with(
-            sample_server_dict["path"],
-            updated_server
+            sample_server_dict["path"], updated_server
         )
         mock_search_repository.index_server.assert_called_once()
 
@@ -413,8 +407,7 @@ class TestUpdateServer:
 
         # Assert - verify orchestration
         mock_server_repository.update.assert_called_once_with(
-            sample_server_dict["path"],
-            updated_server
+            sample_server_dict["path"], updated_server
         )
 
     @pytest.mark.asyncio
@@ -438,10 +431,9 @@ class TestUpdateServer:
 
         # Assert - verify search indexing
         mock_search_repository.index_server.assert_called_once_with(
-            sample_server_dict["path"],
-            updated_server,
-            False
+            sample_server_dict["path"], updated_server, False
         )
+
 
 # NOTE: test_update_enabled_server_regenerates_nginx removed
 # This is more of an integration test and involves complex nginx mocking.
@@ -579,6 +571,7 @@ class TestGetAllServers:
 
         # Mock federation service
         from unittest.mock import AsyncMock
+
         mock_federation_service = MagicMock()
         federated_server = {
             "path": "/federated-server",
@@ -588,7 +581,10 @@ class TestGetAllServers:
         mock_federation_service.get_federated_servers = AsyncMock(return_value=[federated_server])
 
         # Patch at the point of use
-        with patch("registry.services.federation_service.get_federation_service", return_value=mock_federation_service):
+        with patch(
+            "registry.services.federation_service.get_federation_service",
+            return_value=mock_federation_service,
+        ):
             # Act
             result = await server_service.get_all_servers(include_federated=True)
 
@@ -612,6 +608,7 @@ class TestGetAllServers:
 
         # Mock federation service with duplicate path
         from unittest.mock import AsyncMock
+
         mock_federation_service = MagicMock()
         federated_server = {
             "path": sample_server_dict["path"],  # Same path as local
@@ -620,14 +617,19 @@ class TestGetAllServers:
         mock_federation_service.get_federated_servers = AsyncMock(return_value=[federated_server])
 
         # Patch at the point of use
-        with patch("registry.services.federation_service.get_federation_service", return_value=mock_federation_service):
+        with patch(
+            "registry.services.federation_service.get_federation_service",
+            return_value=mock_federation_service,
+        ):
             # Act
             result = await server_service.get_all_servers(include_federated=True)
 
         # Assert
         assert len(result) == 1
         # Local server should be preserved
-        assert result[sample_server_dict["path"]]["server_name"] == sample_server_dict["server_name"]
+        assert (
+            result[sample_server_dict["path"]]["server_name"] == sample_server_dict["server_name"]
+        )
 
 
 # =============================================================================
@@ -691,9 +693,7 @@ class TestGetFilteredServers:
             "server_name": "Test Server Display Name",
             "description": "Test",
         }
-        mock_server_repository.list_all.return_value = {
-            server["path"]: server
-        }
+        mock_server_repository.list_all.return_value = {server["path"]: server}
 
         # Act - use technical name (path without slashes)
         result = await server_service.get_filtered_servers(["test-server"])
@@ -739,9 +739,7 @@ class TestGetFilteredServers:
             "server_name": "test",
             "description": "Test",
         }
-        mock_server_repository.list_all.return_value = {
-            server["path"]: server
-        }
+        mock_server_repository.list_all.return_value = {server["path"]: server}
 
         # Act
         result = await server_service.get_filtered_servers(["test-server"])
@@ -787,8 +785,7 @@ class TestGetFilteredServers:
 
         # Act
         result = await server_service.user_can_access_server_path(
-            sample_server_dict["path"],
-            ["test-server"]
+            sample_server_dict["path"], ["test-server"]
         )
 
         # Assert
@@ -808,8 +805,7 @@ class TestGetFilteredServers:
 
         # Act
         result = await server_service.user_can_access_server_path(
-            sample_server_dict["path"],
-            ["different-server"]
+            sample_server_dict["path"], ["different-server"]
         )
 
         # Assert
@@ -826,10 +822,7 @@ class TestGetFilteredServers:
         mock_server_repository.get.return_value = None
 
         # Act
-        result = await server_service.user_can_access_server_path(
-            "/nonexistent",
-            ["test-server"]
-        )
+        result = await server_service.user_can_access_server_path("/nonexistent", ["test-server"])
 
         # Assert
         assert result is False
@@ -863,8 +856,7 @@ class TestGetAllServersWithPermissions:
 
         # Act
         result = await server_service.get_all_servers_with_permissions(
-            accessible_servers=None,
-            include_federated=False
+            accessible_servers=None, include_federated=False
         )
 
         # Assert
@@ -889,8 +881,7 @@ class TestGetAllServersWithPermissions:
 
         # Act
         result = await server_service.get_all_servers_with_permissions(
-            accessible_servers=["test-server"],
-            include_federated=False
+            accessible_servers=["test-server"], include_federated=False
         )
 
         # Assert
@@ -907,6 +898,7 @@ class TestGetAllServersWithPermissions:
         """Test that federated servers are included when requested."""
         # Arrange
         from unittest.mock import AsyncMock
+
         mock_server_repository.list_all.return_value = {
             sample_server_dict["path"]: sample_server_dict
         }
@@ -919,11 +911,13 @@ class TestGetAllServersWithPermissions:
         mock_federation_service.get_federated_servers = AsyncMock(return_value=[federated_server])
 
         # Patch at the point of use
-        with patch("registry.services.federation_service.get_federation_service", return_value=mock_federation_service):
+        with patch(
+            "registry.services.federation_service.get_federation_service",
+            return_value=mock_federation_service,
+        ):
             # Act
             result = await server_service.get_all_servers_with_permissions(
-                accessible_servers=["test-server", "federated-server"],
-                include_federated=True
+                accessible_servers=["test-server", "federated-server"], include_federated=True
             )
 
         # Assert
@@ -1333,7 +1327,6 @@ class TestRemoveServer:
         mock_search_repository.remove_entity.assert_not_called()
 
 
-
 # =============================================================================
 # TEST: Helper Methods
 # =============================================================================
@@ -1475,4 +1468,3 @@ class TestEdgeCasesAndErrorHandling:
 # - test_load_servers_with_subdirectories (tested file system traversal)
 #
 # The service layer should only test orchestration, not file I/O details.
-

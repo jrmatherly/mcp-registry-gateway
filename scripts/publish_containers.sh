@@ -23,8 +23,59 @@ fi
 
 # Configuration
 DOCKERHUB_ORG="${DOCKERHUB_ORG:-}"
-GITHUB_ORG="${GITHUB_ORG:-}"
 GITHUB_REGISTRY="ghcr.io"
+
+# Determine GitHub owner from git remote or environment variable
+get_github_owner() {
+    if [[ -n "${GITHUB_ORG:-}" ]]; then
+        echo "$GITHUB_ORG"
+        return
+    fi
+
+    # Try to extract from git remote
+    if command -v git &> /dev/null && [ -d "$PROJECT_ROOT/.git" ]; then
+        local remote_url
+        remote_url=$(git -C "$PROJECT_ROOT" remote get-url origin 2>/dev/null || echo "")
+
+        if [[ -n "$remote_url" ]]; then
+            # Handle both HTTPS and SSH URLs
+            # https://github.com/owner/repo.git -> owner
+            # git@github.com:owner/repo.git -> owner
+            local owner
+            owner=$(echo "$remote_url" | sed -E 's|.*github\.com[:/]([^/]+)/.*|\1|')
+            if [[ -n "$owner" && "$owner" != "$remote_url" ]]; then
+                echo "$owner"
+                return
+            fi
+        fi
+    fi
+
+    echo ""
+}
+
+# Get GitHub owner (auto-detect or from environment)
+GITHUB_OWNER=$(get_github_owner)
+
+# Get repository name from git remote
+get_repo_name() {
+    if command -v git &> /dev/null && [ -d "$PROJECT_ROOT/.git" ]; then
+        local remote_url
+        remote_url=$(git -C "$PROJECT_ROOT" remote get-url origin 2>/dev/null || echo "")
+
+        if [[ -n "$remote_url" ]]; then
+            # Handle both HTTPS and SSH URLs
+            local repo
+            repo=$(echo "$remote_url" | sed -E 's|.*github\.com[:/][^/]+/([^/]+)(\.git)?$|\1|')
+            if [[ -n "$repo" && "$repo" != "$remote_url" ]]; then
+                echo "$repo"
+                return
+            fi
+        fi
+    fi
+    echo "mcp-registry-gateway"
+}
+
+REPO_NAME=$(get_repo_name)
 
 # Version management
 VERSION="${VERSION:-latest}"
@@ -120,10 +171,15 @@ login_ghcr() {
         print_color "$YELLOW" "⚠️  GITHUB_TOKEN not found in environment variables."
         print_color "$YELLOW" "   Skipping GitHub Container Registry push."
         return 1
-    else
-        print_color "$GREEN" "✅ Logging in to GitHub Container Registry..."
-        echo "$GITHUB_TOKEN" | docker login "$GITHUB_REGISTRY" -u "$GITHUB_USERNAME" --password-stdin
     fi
+
+    if [ -z "$GITHUB_OWNER" ]; then
+        print_color "$RED" "❌ Could not determine GitHub owner. Set GITHUB_ORG environment variable."
+        return 1
+    fi
+
+    print_color "$GREEN" "✅ Logging in to GitHub Container Registry as $GITHUB_OWNER..."
+    echo "$GITHUB_TOKEN" | docker login "$GITHUB_REGISTRY" -u "$GITHUB_OWNER" --password-stdin
 }
 
 # Function to generate tags for an image
@@ -196,12 +252,7 @@ build_and_push_component() {
     fi
 
     if [ "$push_ghcr" = true ]; then
-        # Use organization if set, otherwise use username for personal account
-        if [ -n "$GITHUB_ORG" ]; then
-            ghcr_base="$GITHUB_ORG/mcp-$name"
-        else
-            ghcr_base="$GITHUB_USERNAME/mcp-$name"
-        fi
+        ghcr_base="$GITHUB_OWNER/mcp-$name"
         ghcr_tags=$(generate_tags "$ghcr_base" "$GITHUB_REGISTRY")
         all_tags="$all_tags $ghcr_tags"
     fi
@@ -232,12 +283,12 @@ build_and_push_component() {
         --file "$dockerfile" \
         $build_args \
         --label "org.opencontainers.image.created=$BUILD_DATE" \
-        --label "org.opencontainers.image.source=https://github.com/agentic-community/mcp-gateway-registry" \
+        --label "org.opencontainers.image.source=https://github.com/${GITHUB_OWNER}/${REPO_NAME}" \
         --label "org.opencontainers.image.version=$VERSION" \
         --label "org.opencontainers.image.revision=$COMMIT_SHA" \
         --label "org.opencontainers.image.title=MCP Gateway $name" \
         --label "org.opencontainers.image.description=MCP Gateway Registry - $name component" \
-        --label "org.opencontainers.image.vendor=Agentic Community" \
+        --label "org.opencontainers.image.vendor=${GITHUB_OWNER}" \
         --tag "local/$name:$VERSION" \
         "$context"
 
@@ -328,11 +379,7 @@ mirror_external_image() {
     fi
 
     if [ "$push_ghcr" = true ]; then
-        if [ -n "$GITHUB_ORG" ]; then
-            ghcr_target="$GITHUB_REGISTRY/$GITHUB_ORG/mcp-$name:latest"
-        else
-            ghcr_target="$GITHUB_REGISTRY/$GITHUB_USERNAME/mcp-$name:latest"
-        fi
+        ghcr_target="$GITHUB_REGISTRY/$GITHUB_OWNER/mcp-$name:latest"
 
         print_color "$YELLOW" "  Tagging: $ghcr_target"
         docker tag "$source_image" "$ghcr_target"
@@ -345,11 +392,7 @@ mirror_external_image() {
 
         # Also tag with version if not latest
         if [ "$VERSION" != "latest" ]; then
-            if [ -n "$GITHUB_ORG" ]; then
-                ghcr_version_target="$GITHUB_REGISTRY/$GITHUB_ORG/mcp-$name:$VERSION"
-            else
-                ghcr_version_target="$GITHUB_REGISTRY/$GITHUB_USERNAME/mcp-$name:$VERSION"
-            fi
+            ghcr_version_target="$GITHUB_REGISTRY/$GITHUB_OWNER/mcp-$name:$VERSION"
             docker tag "$source_image" "$ghcr_version_target"
             docker push "$ghcr_version_target"
         fi
@@ -379,10 +422,9 @@ OPTIONS:
 ENVIRONMENT VARIABLES:
     DOCKERHUB_USERNAME  Docker Hub username
     DOCKERHUB_TOKEN     Docker Hub access token
-    GITHUB_USERNAME     GitHub username (defaults to current git user)
     GITHUB_TOKEN        GitHub personal access token with write:packages permission
-    DOCKERHUB_ORG       Docker Hub organization (default: mcpgateway)
-    GITHUB_ORG          GitHub organization (default: agentic-community)
+    DOCKERHUB_ORG       Docker Hub organization
+    GITHUB_ORG          GitHub org/user for ghcr.io (auto-detected from git remote if not set)
     VERSION             Version tag (default: latest)
     PLATFORMS           Build platforms (note: only current platform supported without buildx)
 
@@ -466,7 +508,8 @@ print_color "$YELLOW" "  Branch:         $BRANCH_NAME"
 print_color "$YELLOW" "  Commit:         $COMMIT_SHA"
 print_color "$YELLOW" "  Platforms:      $PLATFORMS"
 print_color "$YELLOW" "  Docker Hub Org: $DOCKERHUB_ORG"
-print_color "$YELLOW" "  GitHub Org:     $GITHUB_ORG"
+print_color "$YELLOW" "  GitHub Owner:   $GITHUB_OWNER"
+print_color "$YELLOW" "  Repository:     $REPO_NAME"
 echo ""
 
 # Check if any action is specified
@@ -493,13 +536,9 @@ fi
 if [ "$PUSH_GHCR" = true ]; then
     print_header "GitHub Container Registry Authentication"
 
-    # Get GitHub username if not set
-    if [ -z "$GITHUB_USERNAME" ]; then
-        GITHUB_USERNAME=$(git config --get user.name 2>/dev/null || echo "")
-        if [ -z "$GITHUB_USERNAME" ]; then
-            print_color "$RED" "❌ GITHUB_USERNAME not set and couldn't determine from git config"
-            exit 1
-        fi
+    if [ -z "$GITHUB_OWNER" ]; then
+        print_color "$RED" "❌ Could not determine GitHub owner. Set GITHUB_ORG environment variable."
+        exit 1
     fi
 
     if ! login_ghcr; then
@@ -613,11 +652,7 @@ if [ "$PUSH_GHCR" = true ]; then
         if [ -n "$SPECIFIC_COMPONENT" ] && [ "$component_name" != "$SPECIFIC_COMPONENT" ]; then
             continue
         fi
-        if [ -n "$GITHUB_ORG" ]; then
-            print_color "$YELLOW" "  docker pull $GITHUB_REGISTRY/$GITHUB_ORG/mcp-$component_name:$VERSION"
-        else
-            print_color "$YELLOW" "  docker pull $GITHUB_REGISTRY/$GITHUB_USERNAME/mcp-$component_name:$VERSION"
-        fi
+        print_color "$YELLOW" "  docker pull $GITHUB_REGISTRY/$GITHUB_OWNER/mcp-$component_name:$VERSION"
     done
 
     # Show mirrored external images
@@ -626,11 +661,7 @@ if [ "$PUSH_GHCR" = true ]; then
         print_color "$BLUE" "Mirrored External Images:"
         for image_info in "${EXTERNAL_IMAGES[@]}"; do
             image_name=$(echo "$image_info" | cut -d':' -f1)
-            if [ -n "$GITHUB_ORG" ]; then
-                print_color "$YELLOW" "  docker pull $GITHUB_REGISTRY/$GITHUB_ORG/mcp-$image_name:latest"
-            else
-                print_color "$YELLOW" "  docker pull $GITHUB_REGISTRY/$GITHUB_USERNAME/mcp-$image_name:latest"
-            fi
+            print_color "$YELLOW" "  docker pull $GITHUB_REGISTRY/$GITHUB_OWNER/mcp-$image_name:latest"
         done
     fi
 fi

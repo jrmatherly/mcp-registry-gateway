@@ -2,16 +2,9 @@
 
 import json
 import logging
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-)
-
-from strands import tool
 
 from dependencies import get_db_manager
+from strands import tool
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -41,14 +34,14 @@ def check_availability(
 
     except Exception as e:
         logger.error(f"Database error in check_availability: {e}")
-        return json.dumps({"error": f"Database error: {str(e)}"})
+        return json.dumps({"error": f"Database error: {e!s}"})
 
 
 @tool
 def reserve_flight(
     flight_id: int,
-    passengers: List[Dict[str, str]],
-    requested_seats: Optional[List[str]] = None,
+    passengers: list[dict[str, str]],
+    requested_seats: list[str] | None = None,
 ) -> str:
     """Reserve seats on a flight for passengers."""
     logger.info(f"Tool called: reserve_flight(flight_id={flight_id}, passengers={len(passengers)})")
@@ -63,7 +56,7 @@ def reserve_flight(
         return json.dumps({"error": str(e)})
     except Exception as e:
         logger.error(f"Database error in reserve_flight: {e}")
-        return json.dumps({"error": f"Database error: {str(e)}"})
+        return json.dumps({"error": f"Database error: {e!s}"})
 
 
 @tool
@@ -82,17 +75,19 @@ def confirm_booking(
         return json.dumps({"error": str(e)})
     except Exception as e:
         logger.error(f"Database error in confirm_booking: {e}")
-        return json.dumps({"error": f"Database error: {str(e)}"})
+        return json.dumps({"error": f"Database error: {e!s}"})
 
 
 @tool
 def process_payment(
     booking_number: str,
     payment_method: str,
-    amount: Optional[float] = None,
+    amount: float | None = None,
 ) -> str:
     """Process payment for a booking (simulated)."""
-    logger.info(f"Tool called: process_payment(booking_number={booking_number}, payment_method={payment_method})")
+    logger.info(
+        f"Tool called: process_payment(booking_number={booking_number}, payment_method={payment_method})"
+    )
     logger.debug(f"Payment amount: {amount}")
     try:
         payment_result = get_db_manager().process_payment(booking_number, payment_method, amount)
@@ -104,17 +99,19 @@ def process_payment(
         return json.dumps({"error": str(e)})
     except Exception as e:
         logger.error(f"Database error in process_payment: {e}")
-        return json.dumps({"error": f"Database error: {str(e)}"})
+        return json.dumps({"error": f"Database error: {e!s}"})
 
 
 @tool
 def manage_reservation(
     booking_number: str,
     action: str,
-    reason: Optional[str] = None,
+    reason: str | None = None,
 ) -> str:
     """Update, view, or cancel existing reservations."""
-    logger.info(f"Tool called: manage_reservation(booking_number={booking_number}, action={action})")
+    logger.info(
+        f"Tool called: manage_reservation(booking_number={booking_number}, action={action})"
+    )
     logger.debug(f"Reason: {reason}")
     try:
         db_manager = get_db_manager()
@@ -143,7 +140,7 @@ def manage_reservation(
         return json.dumps({"error": str(e)})
     except Exception as e:
         logger.error(f"Database error in manage_reservation: {e}")
-        return json.dumps({"error": f"Database error: {str(e)}"})
+        return json.dumps({"error": f"Database error: {e!s}"})
 
 
 # TODO: Create tool that's able to dynamically search agents from MCP Registry
@@ -151,4 +148,10 @@ def manage_reservation(
 # @tool
 # def delegate_to_agent(agent_capability: str, action: str, params: Dict) -> str:
 
-FLIGHT_BOOKING_TOOLS = [check_availability, reserve_flight, confirm_booking, process_payment, manage_reservation]
+FLIGHT_BOOKING_TOOLS = [
+    check_availability,
+    reserve_flight,
+    confirm_booking,
+    process_payment,
+    manage_reservation,
+]

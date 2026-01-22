@@ -31,10 +31,10 @@ async def test_get_server_returns_server_when_exists(
     # Arrange
     expected = ServerFactory.build()
     mock_repository.get.return_value = expected
-    
+
     # Act
     result = await service.get_server(expected.id)
-    
+
     # Assert
     assert result == expected
     mock_repository.get.assert_called_once_with(expected.id)

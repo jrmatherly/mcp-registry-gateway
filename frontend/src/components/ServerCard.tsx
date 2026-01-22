@@ -57,23 +57,23 @@ const formatTimeSince = (timestamp: string | null | undefined): string | null =>
   if (!timestamp) {
     return null;
   }
-  
+
   try {
     const now = new Date();
     const lastChecked = new Date(timestamp);
-    
+
     // Check if the date is valid
     if (isNaN(lastChecked.getTime())) {
       return null;
     }
-    
+
     const diffMs = now.getTime() - lastChecked.getTime();
-    
+
     const diffSeconds = Math.floor(diffMs / 1000);
     const diffMinutes = Math.floor(diffSeconds / 60);
     const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffHours / 24);
-    
+
     let result;
     if (diffDays > 0) {
       result = `${diffDays}d ago`;
@@ -84,7 +84,7 @@ const formatTimeSince = (timestamp: string | null | undefined): string | null =>
     } else {
       result = `${diffSeconds}s ago`;
     }
-    
+
     return result;
   } catch (error) {
     console.error('formatTimeSince error:', error, 'for timestamp:', timestamp);
@@ -147,7 +147,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
 
   const handleViewTools = useCallback(async () => {
     if (loadingTools) return;
-    
+
     setLoadingTools(true);
     try {
       const response = await axios.get(`/api/tools${server.path}`);
@@ -165,30 +165,30 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
 
   const handleRefreshHealth = useCallback(async () => {
     if (loadingRefresh) return;
-    
+
     setLoadingRefresh(true);
     try {
       // Extract service name from path (remove leading slash)
       const serviceName = server.path.replace(/^\//, '');
-      
+
       const response = await axios.post(`/api/refresh/${serviceName}`);
-      
+
       // Update just this server instead of triggering global refresh
       if (onServerUpdate && response.data) {
         const updates: Partial<Server> = {
-          status: response.data.status === 'healthy' ? 'healthy' : 
+          status: response.data.status === 'healthy' ? 'healthy' :
                   response.data.status === 'healthy-auth-expired' ? 'healthy-auth-expired' :
                   response.data.status === 'unhealthy' ? 'unhealthy' : 'unknown',
           last_checked_time: response.data.last_checked_iso,
           num_tools: response.data.num_tools
         };
-        
+
         onServerUpdate(server.path, updates);
       } else if (onRefreshSuccess) {
         // Fallback to global refresh if onServerUpdate is not provided
         onRefreshSuccess();
       }
-      
+
       if (onShowToast) {
         onShowToast('Health status refreshed successfully', 'success');
       }
@@ -267,7 +267,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
   return (
     <>
       <div className={`group rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col ${
-        isAnthropicServer 
+        isAnthropicServer
           ? 'bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600'
           : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600'
       }`}>
@@ -301,7 +301,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                   </span>
                 )}
               </div>
-              
+
               <code className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded font-mono">
                 {server.path}
               </code>
@@ -419,20 +419,20 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
               {/* Status Indicators */}
               <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${
-                  server.enabled 
-                    ? 'bg-green-400 shadow-lg shadow-green-400/30' 
+                  server.enabled
+                    ? 'bg-green-400 shadow-lg shadow-green-400/30'
                     : 'bg-gray-300 dark:bg-gray-600'
                 }`} />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {server.enabled ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
-              
+
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-600" />
-              
+
               <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${
-                  server.status === 'healthy' 
+                  server.status === 'healthy'
                     ? 'bg-emerald-400 shadow-lg shadow-emerald-400/30'
                     : server.status === 'healthy-auth-expired'
                     ? 'bg-orange-400 shadow-lg shadow-orange-400/30'
@@ -441,7 +441,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                     : 'bg-amber-400 shadow-lg shadow-amber-400/30'
                 }`} />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {server.status === 'healthy' ? 'Healthy' : 
+                  {server.status === 'healthy' ? 'Healthy' :
                    server.status === 'healthy-auth-expired' ? 'Healthy (Auth Expired)' :
                    server.status === 'unhealthy' ? 'Unhealthy' : 'Unknown'}
                 </span>
@@ -515,7 +515,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
                 ✕
               </button>
             </div>
-            
+
             <div className="space-y-4">
               {tools.length > 0 ? (
                 tools.map((tool, index) => (

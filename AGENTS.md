@@ -91,7 +91,7 @@ async def get_server(
 ```python
 class ServerCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
 ```
@@ -102,7 +102,7 @@ class ServerCreate(BaseModel):
 class ServerService:
     def __init__(self, repository: ServerRepository) -> None:
         self._repository = repository
-    
+
     async def get_server(self, server_id: str) -> Optional[Server]:
         return await self._repository.get(server_id)
 ```
@@ -118,10 +118,10 @@ async def test_get_server_returns_server(
     # Arrange
     expected = ServerFactory.build()
     mock_repository.get.return_value = expected
-    
+
     # Act
     result = await service.get_server(expected.id)
-    
+
     # Assert
     assert result == expected
 ```

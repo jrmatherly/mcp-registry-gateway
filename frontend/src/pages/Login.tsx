@@ -81,19 +81,19 @@ const Login: React.FC = () => {
 
   const validateField = (field: string, value: string) => {
     const errors: {username?: string, password?: string} = {};
-    
+
     if (field === 'username' && value.trim().length === 0) {
       errors.username = 'Username is required';
     } else if (field === 'username' && value.length < 2) {
       errors.username = 'Username must be at least 2 characters';
     }
-    
+
     if (field === 'password' && value.length === 0) {
       errors.password = 'Password is required';
     } else if (field === 'password' && value.length < 3) {
       errors.password = 'Password must be at least 3 characters';
     }
-    
+
     setFieldErrors(prev => ({ ...prev, ...errors }));
     return Object.keys(errors).length === 0;
   };
@@ -119,19 +119,19 @@ const Login: React.FC = () => {
     setLoading(true);
     setError('');
     setFieldErrors({});
-    
+
     // Validate all fields
     const usernameValid = validateField('username', credentials.username);
     const passwordValid = validateField('password', credentials.password);
-    
+
     if (!usernameValid || !passwordValid) {
       setLoading(false);
       return;
     }
-    
+
     try {
       await login(credentials.username, credentials.password);
-      
+
       // Handle remember me
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
@@ -140,11 +140,11 @@ const Login: React.FC = () => {
         localStorage.removeItem('rememberMe');
         localStorage.removeItem('savedUsername');
       }
-      
+
       navigate('/');
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || 'Login failed';
-      
+
       // Provide more specific error messages
       if (errorMessage.toLowerCase().includes('credential') || errorMessage.toLowerCase().includes('password')) {
         setError('Invalid username or password. Please check your credentials and try again.');
@@ -320,4 +320,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;

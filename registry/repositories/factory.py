@@ -3,27 +3,26 @@ Repository factory - creates concrete implementations based on configuration.
 """
 
 import logging
-from typing import Optional
 
 from ..core.config import settings
 from .interfaces import (
-    ServerRepositoryBase,
     AgentRepositoryBase,
-    ScopeRepositoryBase,
-    SecurityScanRepositoryBase,
-    SearchRepositoryBase,
     FederationConfigRepositoryBase,
+    ScopeRepositoryBase,
+    SearchRepositoryBase,
+    SecurityScanRepositoryBase,
+    ServerRepositoryBase,
 )
 
 logger = logging.getLogger(__name__)
 
 # Singleton instances
-_server_repo: Optional[ServerRepositoryBase] = None
-_agent_repo: Optional[AgentRepositoryBase] = None
-_scope_repo: Optional[ScopeRepositoryBase] = None
-_security_scan_repo: Optional[SecurityScanRepositoryBase] = None
-_search_repo: Optional[SearchRepositoryBase] = None
-_federation_config_repo: Optional[FederationConfigRepositoryBase] = None
+_server_repo: ServerRepositoryBase | None = None
+_agent_repo: AgentRepositoryBase | None = None
+_scope_repo: ScopeRepositoryBase | None = None
+_security_scan_repo: SecurityScanRepositoryBase | None = None
+_search_repo: SearchRepositoryBase | None = None
+_federation_config_repo: FederationConfigRepositoryBase | None = None
 
 
 def get_server_repository() -> ServerRepositoryBase:
@@ -38,9 +37,11 @@ def get_server_repository() -> ServerRepositoryBase:
 
     if backend in ("documentdb", "mongodb-ce"):
         from .documentdb.server_repository import DocumentDBServerRepository
+
         _server_repo = DocumentDBServerRepository()
     else:
         from .file.server_repository import FileServerRepository
+
         _server_repo = FileServerRepository()
 
     return _server_repo
@@ -58,9 +59,11 @@ def get_agent_repository() -> AgentRepositoryBase:
 
     if backend in ("documentdb", "mongodb-ce"):
         from .documentdb.agent_repository import DocumentDBAgentRepository
+
         _agent_repo = DocumentDBAgentRepository()
     else:
         from .file.agent_repository import FileAgentRepository
+
         _agent_repo = FileAgentRepository()
 
     return _agent_repo
@@ -78,9 +81,11 @@ def get_scope_repository() -> ScopeRepositoryBase:
 
     if backend in ("documentdb", "mongodb-ce"):
         from .documentdb.scope_repository import DocumentDBScopeRepository
+
         _scope_repo = DocumentDBScopeRepository()
     else:
         from .file.scope_repository import FileScopeRepository
+
         _scope_repo = FileScopeRepository()
 
     return _scope_repo
@@ -98,9 +103,11 @@ def get_security_scan_repository() -> SecurityScanRepositoryBase:
 
     if backend in ("documentdb", "mongodb-ce"):
         from .documentdb.security_scan_repository import DocumentDBSecurityScanRepository
+
         _security_scan_repo = DocumentDBSecurityScanRepository()
     else:
         from .file.security_scan_repository import FileSecurityScanRepository
+
         _security_scan_repo = FileSecurityScanRepository()
 
     return _security_scan_repo
@@ -118,9 +125,11 @@ def get_search_repository() -> SearchRepositoryBase:
 
     if backend in ("documentdb", "mongodb-ce"):
         from .documentdb.search_repository import DocumentDBSearchRepository
+
         _search_repo = DocumentDBSearchRepository()
     else:
         from .file.search_repository import FaissSearchRepository
+
         _search_repo = FaissSearchRepository()
 
     return _search_repo
@@ -138,9 +147,11 @@ def get_federation_config_repository() -> FederationConfigRepositoryBase:
 
     if backend in ("documentdb", "mongodb-ce"):
         from .documentdb.federation_config_repository import DocumentDBFederationConfigRepository
+
         _federation_config_repo = DocumentDBFederationConfigRepository()
     else:
         from .file.federation_config_repository import FileFederationConfigRepository
+
         _federation_config_repo = FileFederationConfigRepository()
 
     return _federation_config_repo
@@ -148,7 +159,13 @@ def get_federation_config_repository() -> FederationConfigRepositoryBase:
 
 def reset_repositories() -> None:
     """Reset all repository singletons. USE ONLY IN TESTS."""
-    global _server_repo, _agent_repo, _scope_repo, _security_scan_repo, _search_repo, _federation_config_repo
+    global \
+        _server_repo, \
+        _agent_repo, \
+        _scope_repo, \
+        _security_scan_repo, \
+        _search_repo, \
+        _federation_config_repo
     _server_repo = None
     _agent_repo = None
     _scope_repo = None

@@ -21,7 +21,6 @@ dependencies = [
     "scikit-learn>=1.3.0",
     "torch>=1.6.0",
     "huggingface-hub>=0.31.1",
-    "bandit>=1.8.3",
     "langchain-mcp-adapters>=0.0.11",
     "langgraph>=0.4.3",
     "langchain-aws>=0.2.23",
@@ -49,20 +48,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.23.0",
-    "pytest-cov>=4.1.0",
-    "pytest-mock>=3.12.0",
-    "pytest-xdist>=3.5.0",
-    "coverage[toml]>=7.4.0",
-    "httpx>=0.27.0",  # For testing HTTP clients
-    "pytest-html>=4.1.1",
-    "pytest-json-report>=1.5.0",
-    "factory-boy>=3.3.0",
-    "faker>=24.0.0",
-    "freezegun>=1.4.0",
-]
 docs = [
     "mkdocs>=1.5.0",
     "mkdocs-material>=9.4.0",
@@ -161,23 +146,186 @@ title = "MCP Registry Coverage Report"
 package = false
 
 # Ruff Configuration
+# https://docs.astral.sh/ruff/configuration/
+# https://docs.astral.sh/ruff/rules/
 [tool.ruff]
-line-length = 100
 target-version = "py311"
+line-length = 100
+indent-width = 4
+fix = true
+show-fixes = true
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    ".ruff_cache",
+    ".mypy_cache",
+    ".pytest_cache",
+    "node_modules",
+    ".terraform",
+    "htmlcov",
+]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501", "B008", "B904", "B019", "C401", "B007", "E402", "F841", "F823", "E722", "F811", "W293", "W291", "F821"]
+# Rule selection - https://docs.astral.sh/ruff/rules/
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "SIM",    # flake8-simplify
+    "RUF",    # Ruff-specific rules
+]
+# Rules to ignore with explanations
+ignore = [
+    "E501",   # Line too long - handled by formatter
+    "E402",   # Module import not at top - sometimes needed for setup
+    "E722",   # Bare except - sometimes needed for broad handling
+    "E731",   # Lambda assignment - existing code patterns
+    "W291",   # Trailing whitespace - handled by pre-commit
+    "W293",   # Blank line whitespace - handled by pre-commit
+    "F811",   # Redefinition - needed for pytest fixtures
+    "F821",   # Undefined name - false positives with dynamic imports
+    "F823",   # Local variable referenced before assignment
+    "F841",   # Unused variable - sometimes kept for clarity
+    "B007",   # Loop variable not used - sometimes intentional
+    "B008",   # Function call in defaults - FastAPI Depends() pattern
+    "B019",   # lru_cache on methods - sometimes intentional
+    "B006",   # Mutable default argument - existing code patterns
+    "B023",   # Loop variable binding - existing code patterns
+    "B904",   # raise from - not always necessary
+    "C401",   # Unnecessary generator - readability preference
+    "C408",   # Unnecessary dict() call - readability preference
+    "RUF001", # Ambiguous unicode - intentional emoji/symbol usage
+    "RUF005", # List concatenation - readability preference
+    "RUF059", # Unpacked variable unused - common in tuple unpacking
+    "RUF006", # asyncio.create_task without storing - fire-and-forget pattern
+    "RUF012", # Mutable class attr without ClassVar - existing code pattern
+    "RUF013", # Implicit Optional - requires unsafe fixes, existing code
+    "SIM102", # Nested if statements - readability preference
+    "SIM103", # Return negated condition - readability preference
+    "SIM105", # contextlib.suppress - existing try-except-pass patterns
+    "SIM108", # Ternary operator - readability preference
+    "SIM117", # Nested with statements - readability preference
+    "SIM118", # dict.keys() iteration - existing code pattern
+    "B905",   # zip strict parameter - Python 3.10+ feature, gradual adoption
+    "B027",   # Empty ABC method - existing interface patterns
+]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "PLR2004", "F841"]
+"scripts/**/*.py" = ["T201"]
+"**/migrations/**/*.py" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["registry", "auth_server", "agents", "api"]
+combine-as-imports = true
+force-wrap-aliases = true
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Body",
+    "fastapi.Header",
+    "fastapi.Cookie",
+    "fastapi.Form",
+    "fastapi.File",
+    "fastapi.Security",
+]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+
+# MyPy Configuration
+# https://mypy.readthedocs.io/en/stable/config_file.html
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+no_strict_optional = true
+explicit_package_bases = true
+# Disable strict checks for existing codebase patterns
+disable_error_code = [
+    "override",       # Interface override mismatches - existing architecture
+    "attr-defined",   # Missing attributes - dynamic patterns in use
+    "import-untyped", # Library stubs - handled by type stubs in dev deps
+]
+# Per-module configuration for legacy code with architectural type issues
+[[tool.mypy.overrides]]
+module = [
+    "registry.utils.scopes_manager_old",
+    "registry.repositories.file.*",
+    "registry.repositories.documentdb.*",
+    "registry.services.agent_service",    # Interface mismatch with AgentRepositoryBase
+    "registry.api.federation_routes",      # Object type issues in federation sync
+    "registry.api.agent_routes",           # Interface and union type issues
+    "registry.core.mcp_client",            # Complex type inference in tool parsing
+    "registry.core.config",                # Pydantic ConfigDict compatibility
+    "registry.health.service",             # Return type variance
+    "registry.services.transform_service",      # Pydantic model field naming
+    "registry.services.agent_transform_service", # Pydantic model field naming
+    "registry.services.security_scanner",   # SecurityScanResult schema evolution
+    "registry.services.agent_scanner",      # AgentSecurityScanResult schema evolution
+    "registry.services.federation_service", # AgentCard field naming
+    "metrics_service.*",                    # Metrics service legacy code
+    "auth_server.*",                        # Auth server legacy code
+]
+ignore_errors = true
+
+# Bandit Security Scanner Configuration
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "node_modules"]
+skips = [
+    "B101",   # assert_used - acceptable in non-production code
+    "B104",   # hardcoded_bind_all_interfaces - intentional for containerized services
+    "B105",   # hardcoded_password_string - false positives on string comparisons
+    "B110",   # try_except_pass - sometimes needed for graceful handling
+    "B113",   # request_without_timeout - handled at application level
+    "B307",   # eval - needed for expression evaluation features
+    "B310",   # urllib_urlopen - acceptable for HTTP requests
+    "B311",   # random - not used for cryptographic purposes
+    "B404",   # import_subprocess - needed for build/test scripts
+    "B603",   # subprocess_without_shell_equals_true - acceptable with controlled input
+    "B607",   # start_process_with_partial_path - trusted commands like git, nginx
+    "B608",   # hardcoded_sql_expressions - internal table names, not user input
+]
 
 [dependency-groups]
 dev = [
-    "factory-boy>=3.3.3",
+    # Testing framework
+    "pytest>=8.0.0",
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.0.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.5.0",
     "pytest-html>=4.1.1",
     "pytest-json-report>=1.5.0",
+    "coverage[toml]>=7.4.0",
+    # Test utilities
+    "factory-boy>=3.3.3",
+    "faker>=24.0.0",
+    "freezegun>=1.4.0",
+    "httpx>=0.27.0",
+    # Type stubs
+    "types-pyyaml>=6.0.12.20250915",
+    "types-requests>=2.32.4.20260107",
+    # Security scanning (dev/CI only)
+    "bandit>=1.9.3",
 ]

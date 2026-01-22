@@ -82,9 +82,11 @@ def fix_test_file():
             in_test_method = False
 
         # Check if this is a comment we added
-        if "# Arrange - override auth" in line or "# Arrange - auth already set" in line:
-            skip_dedent = True
-        elif line.strip().startswith("# Act"):
+        if (
+            "# Arrange - override auth" in line
+            or "# Arrange - auth already set" in line
+            or line.strip().startswith("# Act")
+        ):
             skip_dedent = True
         elif line.strip() == "" or line.strip().startswith("#"):
             pass  # Keep as is

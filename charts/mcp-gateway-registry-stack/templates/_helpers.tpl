@@ -47,4 +47,3 @@ Selector labels
 app.kubernetes.io/name: {{ include "mcp-gateway-registry-stack.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
-

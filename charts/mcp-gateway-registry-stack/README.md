@@ -61,7 +61,7 @@ installed):
 
 ```bash
 helm dependency build && helm dependency update
-helm install mcp-registry-gateway -n MYNAMESPACE --create-namespace . 
+helm install mcp-registry-gateway -n MYNAMESPACE --create-namespace .
 ```
 
 This will deploy the necessary resources for a Kubernetes deployment of the MCP Gateway Registry
@@ -82,7 +82,7 @@ Navigate to https://mcpregistry.DOMAIN to log in. The username/password are disp
 `keycloak-configure job`
 
 ```bash
-kubectl get pods -l job-name=setup-keycloak -n MYNAMESPACE     
+kubectl get pods -l job-name=setup-keycloak -n MYNAMESPACE
 ```
 
 The output will look similar to:

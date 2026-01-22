@@ -12,7 +12,7 @@ import re
 class ServerCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     url: str = Field(..., pattern=r"^https?://")
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -28,7 +28,7 @@ from typing import Optional
 
 def get_secret(key: str, default: Optional[str] = None) -> str:
     """Retrieve secret from environment variable.
-    
+
     Never hardcode secrets in source code.
     """
     value = os.environ.get(key, default)
@@ -100,7 +100,7 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         # Validate scopes

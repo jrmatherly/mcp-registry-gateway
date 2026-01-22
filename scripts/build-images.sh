@@ -1,15 +1,17 @@
 #!/bin/bash
-# Build and push Docker images from build-config.yaml to AWS ECR
+# Build and push Docker images from build-config.yaml to GitHub Container Registry (ghcr.io)
 # Usage: ./scripts/build-images.sh [build|push|build-push] [IMAGE=name] [NO_CACHE=true]
 # Example: ./scripts/build-images.sh build IMAGE=registry
 # Example: ./scripts/build-images.sh build-push
 # Example: NO_CACHE=true ./scripts/build-images.sh build IMAGE=registry
 # Example: NO_CACHE=true make build-push IMAGE=registry
+#
+# Environment variables:
+#   GITHUB_OWNER  - GitHub org/user for ghcr.io (auto-detected from git remote if not set)
+#   GITHUB_TOKEN  - GitHub token for authentication (required for push)
+#   NO_CACHE      - Set to "true" to build without cache
 
 set -e
-
-# Disable AWS CLI pager to prevent interactive prompts
-export AWS_PAGER=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -23,45 +25,11 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# CRITICAL: Check if AWS_REGION is set
-if [[ -z "${AWS_REGION:-}" ]]; then
-    echo -e "${RED}${BOLD}============================================${NC}"
-    echo -e "${RED}${BOLD}ERROR: AWS_REGION environment variable is not set!${NC}"
-    echo -e "${RED}${BOLD}============================================${NC}"
-    echo ""
-    echo "Please set AWS_REGION before running build/push commands:"
-    echo "  export AWS_REGION=us-east-1"
-    echo ""
-    echo "This prevents accidentally pushing to the wrong region."
-    echo ""
-    exit 1
-fi
-
-# CRITICAL: Check if running in a Python virtual environment
-if [[ -z "${VIRTUAL_ENV:-}" ]]; then
-    echo -e "${RED}${BOLD}============================================${NC}"
-    echo -e "${RED}${BOLD}ERROR: Not running in a Python virtual environment!${NC}"
-    echo -e "${RED}${BOLD}============================================${NC}"
-    echo ""
-    echo "Please activate a virtual environment before running build commands:"
-    echo "  source .venv/bin/activate"
-    echo ""
-    echo "This ensures consistent Python dependencies for the build process."
-    echo ""
-    exit 1
-fi
-
-# Display region in BIG BOLD LETTERS
-echo ""
-echo -e "${GREEN}${BOLD}============================================${NC}"
-echo -e "${GREEN}${BOLD}AWS REGION: ${AWS_REGION}${NC}"
-echo -e "${GREEN}${BOLD}============================================${NC}"
-echo ""
-
 # Configuration
 CONFIG_FILE="${REPO_ROOT}/build-config.yaml"
 ACTION="${1:-build-push}"
 TARGET_IMAGE="${IMAGE:-}"
+REGISTRY="ghcr.io"
 
 # Logging functions
 log_info() {
@@ -80,24 +48,53 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Determine GitHub owner from git remote or environment variable
+get_github_owner() {
+    if [[ -n "${GITHUB_OWNER:-}" ]]; then
+        echo "$GITHUB_OWNER"
+        return
+    fi
+
+    # Try to extract from git remote
+    if command -v git &> /dev/null && [ -d "${REPO_ROOT}/.git" ]; then
+        local remote_url
+        remote_url=$(git -C "$REPO_ROOT" remote get-url origin 2>/dev/null || echo "")
+
+        if [[ -n "$remote_url" ]]; then
+            # Handle both HTTPS and SSH URLs
+            # https://github.com/owner/repo.git -> owner
+            # git@github.com:owner/repo.git -> owner
+            local owner
+            owner=$(echo "$remote_url" | sed -E 's|.*github\.com[:/]([^/]+)/.*|\1|')
+            if [[ -n "$owner" && "$owner" != "$remote_url" ]]; then
+                echo "$owner"
+                return
+            fi
+        fi
+    fi
+
+    log_error "Could not determine GitHub owner. Set GITHUB_OWNER environment variable."
+    exit 1
+}
+
+GITHUB_OWNER=$(get_github_owner)
+REGISTRY_URL="${REGISTRY}/${GITHUB_OWNER}"
+
+# Display registry info
+echo ""
+echo -e "${GREEN}${BOLD}============================================${NC}"
+echo -e "${GREEN}${BOLD}GitHub Container Registry: ${REGISTRY_URL}${NC}"
+echo -e "${GREEN}${BOLD}============================================${NC}"
+echo ""
+
 # Validate configuration file exists
 if [ ! -f "$CONFIG_FILE" ]; then
     log_error "Configuration file not found: $CONFIG_FILE"
     exit 1
 fi
 
-# Parse AWS account ID and construct ECR registry dynamically based on AWS_REGION
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
-if [ -z "$AWS_ACCOUNT_ID" ]; then
-    log_error "Could not determine AWS Account ID"
-    exit 1
-fi
-
-log_info "AWS Account: $AWS_ACCOUNT_ID"
-log_info "ECR Registry: $ECR_REGISTRY"
-log_info "AWS Region: $AWS_REGION"
+log_info "GitHub Owner: $GITHUB_OWNER"
+log_info "Registry: $REGISTRY_URL"
 log_info "Build Action: $ACTION"
 
 # Determine BUILD_VERSION from git
@@ -309,49 +306,44 @@ build_image() {
     return 0
 }
 
-# Function to push image to ECR
+# Function to push image to GitHub Container Registry
 push_image() {
     local image_name="$1"
     local repo_name="$2"
 
-    local ecr_uri_latest="${ECR_REGISTRY}/${repo_name}:latest"
+    local ghcr_uri_latest="${REGISTRY_URL}/${repo_name}:latest"
 
-    log_info "Pushing $image_name to ECR..."
+    log_info "Pushing $image_name to ghcr.io..."
 
-    # Create ECR repository if it doesn't exist
-    log_info "Checking ECR repository: $repo_name"
-    aws ecr describe-repositories \
-        --repository-names "$repo_name" \
-        --region "$AWS_REGION" 2>/dev/null || {
-        log_info "Repository doesn't exist, creating: $repo_name"
-        aws ecr create-repository \
-            --repository-name "$repo_name" \
-            --region "$AWS_REGION"
-        log_success "Created ECR repository: $repo_name"
-    }
+    # Check for GITHUB_TOKEN
+    if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+        log_error "GITHUB_TOKEN environment variable is required for pushing to ghcr.io"
+        log_info "Set it with: export GITHUB_TOKEN=your_token"
+        log_info "Or use: echo \$GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin"
+        return 1
+    fi
 
-    # Login to ECR
-    log_info "Authenticating with ECR..."
-    aws ecr get-login-password --region "$AWS_REGION" | \
-        docker login --username AWS --password-stdin "$ECR_REGISTRY" || {
-        log_error "Failed to authenticate with ECR"
+    # Login to ghcr.io
+    log_info "Authenticating with ghcr.io..."
+    echo "$GITHUB_TOKEN" | docker login "$REGISTRY" -u "$GITHUB_OWNER" --password-stdin || {
+        log_error "Failed to authenticate with ghcr.io"
         return 1
     }
 
-    # Tag image for ECR (:latest only)
-    docker tag "$repo_name:latest" "$ecr_uri_latest" || {
-        log_error "Failed to tag image for ECR"
+    # Tag image for ghcr.io
+    docker tag "$repo_name:latest" "$ghcr_uri_latest" || {
+        log_error "Failed to tag image for ghcr.io"
         return 1
     }
 
-    # Push to ECR
-    log_info "Pushing $ecr_uri_latest..."
-    docker push "$ecr_uri_latest" || {
-        log_error "Failed to push image to ECR"
+    # Push to ghcr.io
+    log_info "Pushing $ghcr_uri_latest..."
+    docker push "$ghcr_uri_latest" || {
+        log_error "Failed to push image to ghcr.io"
         return 1
     }
 
-    log_success "Pushed $ecr_uri_latest"
+    log_success "Pushed $ghcr_uri_latest"
 }
 
 # Process images

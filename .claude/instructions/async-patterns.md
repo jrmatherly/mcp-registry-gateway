@@ -57,7 +57,7 @@ async def get_multiple_items(ids: List[str]) -> List[dict]:
     """Fetch multiple items concurrently"""
     tasks = [repository.get(id) for id in ids]
     results = await asyncio.gather(*tasks, return_exceptions=True)
-    
+
     # Filter out exceptions and None values
     return [r for r in results if r is not None and not isinstance(r, Exception)]
 ```
@@ -110,12 +110,12 @@ async def create_item(
 ) -> ItemResponse:
     """Create item with background processing"""
     created = await service.create(item)
-    
+
     # Schedule background task
     background_tasks.add_task(
         send_notification,
         item_id=created.id,
     )
-    
+
     return ItemResponse.model_validate(created)
 ```

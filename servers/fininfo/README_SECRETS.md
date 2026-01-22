@@ -261,7 +261,7 @@ import boto3
 class AWSSecretsManager(SecretsManager):
     def __init__(self):
         self.client = boto3.client('secretsmanager')
-    
+
     def get_api_key(self, client_id: str) -> str:
         response = self.client.get_secret_value(
             SecretId=f'fininfo/clients/{client_id}/api-key'
@@ -277,7 +277,7 @@ import hvac
 class VaultSecretsManager(SecretsManager):
     def __init__(self):
         self.client = hvac.Client(url='https://vault.example.com')
-    
+
     def get_api_key(self, client_id: str) -> str:
         response = self.client.secrets.kv.v2.read_secret_version(
             path=f'fininfo/clients/{client_id}'

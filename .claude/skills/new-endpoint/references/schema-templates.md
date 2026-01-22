@@ -11,7 +11,7 @@ from datetime import datetime
 
 class YourResourceBase(BaseModel):
     """Base schema with shared fields."""
-    
+
     model_config = ConfigDict(
         from_attributes=True,
         populate_by_name=True,
@@ -22,7 +22,7 @@ class YourResourceBase(BaseModel):
             }
         },
     )
-    
+
     name: str = Field(
         ...,
         min_length=1,
@@ -43,16 +43,16 @@ class YourResourceCreate(YourResourceBase):
 
 class YourResourceUpdate(BaseModel):
     """Schema for updating a resource (all fields optional)."""
-    
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
 
 
 class YourResourceResponse(YourResourceBase):
     """Schema for API responses."""
-    
+
     id: str = Field(..., description="Resource ID")
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
@@ -73,7 +73,7 @@ import re
 class ServerCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     url: str = Field(..., description="Server URL")
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -81,7 +81,7 @@ class ServerCreate(BaseModel):
         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
             raise ValueError("Name must be alphanumeric with hyphens/underscores")
         return v.lower()
-    
+
     @field_validator("url")
     @classmethod
     def validate_url(cls, v: str) -> str:
@@ -89,7 +89,7 @@ class ServerCreate(BaseModel):
         if not v.startswith(("http://", "https://")):
             raise ValueError("URL must start with http:// or https://")
         return v
-    
+
     @model_validator(mode="after")
     def validate_model(self) -> "ServerCreate":
         """Cross-field validation."""

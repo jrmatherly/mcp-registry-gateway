@@ -2,14 +2,14 @@
 
 from .client import (
     EmbeddingsClient,
-    SentenceTransformersClient,
     LiteLLMClient,
+    SentenceTransformersClient,
     create_embeddings_client,
 )
 
 __all__ = [
     "EmbeddingsClient",
-    "SentenceTransformersClient",
     "LiteLLMClient",
+    "SentenceTransformersClient",
     "create_embeddings_client",
 ]

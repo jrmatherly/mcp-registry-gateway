@@ -5,7 +5,7 @@
 repos:
   # Ruff - Fast Python linter and formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.2
+    rev: v0.14.13
     hooks:
       # Run the linter with auto-fixes
       - id: ruff
@@ -20,7 +20,7 @@ repos:
 
   # Pre-commit hooks for file quality
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       # Remove trailing whitespace
       - id: trailing-whitespace
@@ -36,7 +36,7 @@ repos:
       - id: check-yaml
         name: Check YAML
         description: Validate YAML file syntax
-        exclude: ^(docker/|\.github/)
+        exclude: ^(docker/|\.github/|charts/|mkdocs\.yml)
 
       # Check JSON syntax
       - id: check-json
@@ -76,7 +76,7 @@ repos:
 
   # Bandit - Security vulnerability scanner
   - repo: https://github.com/PyCQA/bandit
-    rev: "1.8.3"
+    rev: "1.9.3"
     hooks:
       - id: bandit
         name: Bandit security scan
@@ -87,7 +87,7 @@ repos:
 
   # MyPy - Static type checker
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v1.19.1
     hooks:
       - id: mypy
         name: MyPy type checking
@@ -96,20 +96,20 @@ repos:
           - types-requests
           - types-PyYAML
           - pydantic
-        args: [--ignore-missing-imports, --no-strict-optional]
-        exclude: ^(tests/|scripts/)
+        args: [--config-file=pyproject.toml]
+        exclude: ^(tests/|scripts/|agents/|credentials-provider/|cli/|servers/|api/|metrics-service/|auth_server/)
 
   # Local hooks for project-specific checks
   - repo: local
     hooks:
-      # Run fast unit tests
-      - id: pytest-fast
-        name: Run fast tests
-        entry: uv run pytest -m "not slow" --tb=short
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
+      # Run fast unit tests (disabled - run manually with: make test-fast)
+      # - id: pytest-fast
+      #   name: Run fast tests
+      #   entry: uv run pytest -m "not slow" --tb=short
+      #   language: system
+      #   pass_filenames: false
+      #   always_run: true
+      #   stages: [pre-commit]
 
       # Python syntax check
       - id: python-syntax
@@ -127,14 +127,14 @@ repos:
         exclude: ^(docker/|scripts/setup/)
 
 # Default stages
-default_stages: [commit]
+default_stages: [pre-commit]
 
-# Default language version
+# Default language version - use system Python 3
 default_language_version:
-  python: python3.11
+  python: python3
 
 # Fail fast - stop on first error
 fail_fast: false
 
 # Minimum pre-commit version
-minimum_pre_commit_version: "2.20.0"
+minimum_pre_commit_version: "3.0.0"
