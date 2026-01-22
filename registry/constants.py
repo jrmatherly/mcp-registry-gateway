@@ -5,7 +5,7 @@ Constants and enums for the MCP Gateway Registry.
 import os
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class HealthStatus(str, Enum):
@@ -41,10 +41,7 @@ class TransportType(str, Enum):
 class RegistryConstants(BaseModel):
     """Registry configuration constants."""
 
-    class Config:
-        """Pydantic config."""
-
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
     # Health check settings
     DEFAULT_HEALTH_CHECK_TIMEOUT: int = 30
