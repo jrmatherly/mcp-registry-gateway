@@ -121,6 +121,11 @@ Reports saved to: `security_scans/` directory
 - `pip-audit-report.json` - Dependency vulnerabilities
 - `bandit_report.json` - Code security issues
 
+## References
+
+- [Vulnerability Patterns](references/vulnerability-patterns.md) - Common CVE patterns and code vulnerabilities
+- [Remediation Guide](references/remediation-guide.md) - How to fix security issues
+
 ## Boundaries
 
 **Will:**
