@@ -189,7 +189,7 @@ import argparse
 import json
 import logging
 import os
-import subprocess
+import subprocess  # nosec B404 - required for JWT token retrieval script
 import sys
 from pathlib import Path
 from typing import Any
@@ -206,6 +206,8 @@ from registry_client import (
     RatingInfoResponse,
     RatingResponse,
     RegistryClient,
+    RescanResponse,
+    SecurityScanResult,
     Skill,
 )
 
@@ -300,7 +302,8 @@ def _get_jwt_token(aws_region: str | None = None, keycloak_url: str | None = Non
             cmd.extend(["--keycloak-url", keycloak_url])
         cmd.append(client_name)
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        # Command constructed from trusted config paths, not user input
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)  # nosec B603
 
         token = result.stdout.strip()
 

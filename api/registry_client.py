@@ -930,14 +930,14 @@ class RegistryClient:
 
         try:
             response.raise_for_status()
-        except requests.HTTPError as e:
+        except requests.HTTPError:
             # For 422 errors, try to extract validation details
             if response.status_code == 422:
                 try:
                     error_detail = response.json()
                     logger.error(f"Validation error details: {json.dumps(error_detail, indent=2)}")
-                except Exception:
-                    pass
+                except (json.JSONDecodeError, ValueError):
+                    logger.debug("Could not parse validation error response as JSON")
             raise
         return response
 
@@ -1126,7 +1126,7 @@ class RegistryClient:
         """
         logger.info(f"Creating group: {group_name}")
 
-        data = {"group_name": group_name}
+        data: dict[str, Any] = {"group_name": group_name}
         if description:
             data["description"] = description
         if create_in_idp:
@@ -1158,7 +1158,7 @@ class RegistryClient:
         """
         logger.info(f"Deleting group: {group_name}")
 
-        data = {"group_name": group_name}
+        data: dict[str, Any] = {"group_name": group_name}
         if delete_from_idp:
             data["delete_from_idp"] = True
         if force:
@@ -1741,7 +1741,7 @@ class RegistryClient:
         """
         logger.info("Listing servers via Anthropic Registry API (v0.1)")
 
-        params = {}
+        params: dict[str, Any] = {}
         if cursor:
             params["cursor"] = cursor
         if limit:
@@ -1834,7 +1834,7 @@ class RegistryClient:
         """
         logger.info("Listing Keycloak users")
 
-        params = {}
+        params: dict[str, Any] = {}
         if search:
             params["search"] = search
         if limit != 500:

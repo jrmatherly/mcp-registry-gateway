@@ -194,7 +194,7 @@ class KeycloakProvider(AuthProvider):
 
             # Check token_use claim
             token_use = claims.get("token_use")
-            if token_use != "access":
+            if token_use != "access":  # nosec B105 - token type identifier
                 raise ValueError(f"Invalid token_use: {token_use}")
 
             # Extract scopes from claims
@@ -226,7 +226,7 @@ class KeycloakProvider(AuthProvider):
                 "expires_at": claims.get("exp"),
                 "scopes": scopes,
                 "groups": groups,
-                "token_type": "user_generated",
+                "token_type": "user_generated",  # nosec B105 - token source identifier
             }
 
         except jwt.ExpiredSignatureError:

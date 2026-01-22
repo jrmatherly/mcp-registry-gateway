@@ -204,7 +204,7 @@ async def map_groups_to_scopes(groups: list[str]) -> list[str]:
     return unique_scopes
 
 
-async def validate_session_cookie(cookie_value: str) -> dict[str, any]:
+async def validate_session_cookie(cookie_value: str) -> dict[str, Any]:
     """
     Validate session cookie using itsdangerous serializer.
 
@@ -512,7 +512,7 @@ def check_rate_limit(username: str) -> bool:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     """Lifespan context manager for FastAPI application."""
     # Startup: Load scopes configuration
     global SCOPES_CONFIG
@@ -542,7 +542,7 @@ app = FastAPI(
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Load scopes configuration on startup."""
     global SCOPES_CONFIG
     try:
@@ -715,7 +715,7 @@ class SimplifiedCognitoValidator:
 
             # Additional validations
             token_use = claims.get("token_use")
-            if token_use not in ["access", "id"]:  # Allow both access and id tokens
+            if token_use not in ["access", "id"]:  # nosec B105 - token type identifier, not password
                 raise ValueError(f"Invalid token_use: {token_use}")
 
             # For M2M tokens, check client_id
@@ -772,7 +772,7 @@ class SimplifiedCognitoValidator:
                 "username": response.get("Username"),
                 "user_attributes": user_attributes,
                 "user_status": response.get("UserStatus"),
-                "token_use": "access",  # boto3 method implies access token
+                "token_use": "access",  # nosec B105 - token type identifier, not password
                 "auth_method": "boto3",
             }
 
@@ -833,7 +833,7 @@ class SimplifiedCognitoValidator:
 
             # Validate token_use
             token_use = claims.get("token_use")
-            if token_use != "access":
+            if token_use != "access":  # nosec B105 - token type identifier
                 raise ValueError(f"Invalid token_use: {token_use}")
 
             # Extract scopes from space-separated string
@@ -859,7 +859,7 @@ class SimplifiedCognitoValidator:
                 "expires_at": claims.get("exp"),
                 "scopes": scopes,
                 "groups": groups,
-                "token_type": "user_generated",
+                "token_type": "user_generated",  # nosec B105 - token source identifier
             }
 
         except jwt.ExpiredSignatureError:
@@ -955,13 +955,13 @@ validator = SimplifiedCognitoValidator()
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     """Health check endpoint"""
     return {"status": "healthy", "service": "simplified-auth-server"}
 
 
 @app.get("/validate")
-async def validate_request(request: Request):
+async def validate_request(request: Request) -> JSONResponse:
     """
     Validate a request by extracting configuration from headers and validating the bearer token.
 
@@ -1298,7 +1298,7 @@ async def validate_request(request: Request):
 
 
 @app.get("/config")
-async def get_auth_config():
+async def get_auth_config() -> dict[str, Any]:
     """Return the authentication configuration info"""
     try:
         auth_provider = get_auth_provider()
@@ -1334,7 +1334,7 @@ async def get_auth_config():
 
 
 @app.post("/internal/tokens", response_model=GenerateTokenResponse)
-async def generate_user_token(request: GenerateTokenRequest):
+async def generate_user_token(request: GenerateTokenRequest) -> GenerateTokenResponse:
     """
     Generate or refresh a JWT token for a user.
 
@@ -1419,7 +1419,7 @@ async def generate_user_token(request: GenerateTokenRequest):
                 "email": user_email,
                 "groups": user_groups,
                 "scope": " ".join(requested_scopes) if requested_scopes else "",
-                "token_use": "access",
+                "token_use": "access",  # nosec B105 - token type identifier
                 "auth_method": "oauth2",
                 "provider": provider,
                 "iat": current_time,
@@ -1514,7 +1514,9 @@ async def generate_user_token(request: GenerateTokenRequest):
 
 
 @app.post("/internal/reload-scopes")
-async def reload_scopes(request: Request, authorization: str | None = Header(None)):
+async def reload_scopes(
+    request: Request, authorization: str | None = Header(None)
+) -> dict[str, Any]:
     """
     Reload the scopes.yml configuration file.
     Requires admin authentication via Basic Auth with ADMIN_USER/ADMIN_PASSWORD.
@@ -1576,7 +1578,7 @@ async def reload_scopes(request: Request, authorization: str | None = Header(Non
         raise HTTPException(status_code=500, detail=f"Failed to reload scopes: {e!s}")
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Simplified Auth Server")
 
@@ -1604,7 +1606,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """Run the server"""
     args = parse_arguments()
 
@@ -1623,7 +1625,7 @@ if __name__ == "__main__":
 
 
 # Load OAuth2 providers configuration
-def load_oauth2_config():
+def load_oauth2_config() -> dict[str, Any]:
     """Load the OAuth2 providers configuration from oauth2_providers.yml"""
     try:
         oauth2_file = Path(__file__).parent / "oauth2_providers.yml"
@@ -1653,7 +1655,7 @@ def auto_derive_cognito_domain(user_pool_id: str) -> str:
     return domain
 
 
-def substitute_env_vars(config):
+def substitute_env_vars(config: Any) -> Any:
     """Recursively substitute environment variables in configuration"""
     if isinstance(config, dict):
         return {k: substitute_env_vars(v) for k, v in config.items()}
@@ -1706,7 +1708,7 @@ if not SECRET_KEY:
 signer = URLSafeTimedSerializer(SECRET_KEY)
 
 
-def get_enabled_providers():
+def get_enabled_providers() -> list[str]:
     """Get list of enabled OAuth2 providers, filtered by AUTH_PROVIDER env var if set"""
     enabled = []
 
@@ -1774,7 +1776,7 @@ def get_enabled_providers():
 
 
 @app.get("/oauth2/providers")
-async def get_oauth2_providers():
+async def get_oauth2_providers() -> dict[str, Any]:
     """Get list of enabled OAuth2 providers for the login page"""
     try:
         # Debug: log environment variable for troubleshooting
@@ -1789,7 +1791,9 @@ async def get_oauth2_providers():
 
 
 @app.get("/oauth2/login/{provider}")
-async def oauth2_login(provider: str, request: Request, redirect_uri: str = None):
+async def oauth2_login(
+    provider: str, request: Request, redirect_uri: str | None = None
+) -> RedirectResponse:
     """Initiate OAuth2 login flow"""
     try:
         if provider not in OAUTH2_CONFIG.get("providers", {}):
@@ -1877,11 +1881,11 @@ async def oauth2_login(provider: str, request: Request, redirect_uri: str = None
 async def oauth2_callback(
     provider: str,
     request: Request,
-    code: str = None,
-    state: str = None,
-    error: str = None,
-    oauth2_temp_session: str = Cookie(None),
-):
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    oauth2_temp_session: str | None = Cookie(None),
+) -> RedirectResponse:
     """Handle OAuth2 callback and create user session"""
     try:
         if error:
@@ -2218,7 +2222,9 @@ def map_user_info(user_info: dict, provider_config: dict) -> dict:
 
 
 @app.get("/oauth2/logout/{provider}")
-async def oauth2_logout(provider: str, request: Request, redirect_uri: str = None):
+async def oauth2_logout(
+    provider: str, request: Request, redirect_uri: str | None = None
+) -> RedirectResponse:
     """Initiate OAuth2 logout flow to clear provider session"""
     try:
         if provider not in OAUTH2_CONFIG.get("providers", {}):
