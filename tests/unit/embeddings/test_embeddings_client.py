@@ -660,6 +660,48 @@ class TestLiteLLMClient:
                 api_base="https://custom.api.com",
             )
 
+    def test_encode_with_api_key(self, mock_litellm_response):
+        """Test encoding with API key passed directly for proxy authentication."""
+        # Arrange
+        with patch("litellm.embedding") as mock_embedding:
+            mock_embedding.return_value = mock_litellm_response
+            client = LiteLLMClient(
+                model_name="openai/text-embedding-3-small",
+                api_key="test-api-key",
+            )
+
+            # Act
+            client.encode(["test"])
+
+            # Assert
+            mock_embedding.assert_called_once_with(
+                model="openai/text-embedding-3-small",
+                input=["test"],
+                api_key="test-api-key",
+            )
+
+    def test_encode_with_api_base_and_api_key(self, mock_litellm_response):
+        """Test encoding with both API base and API key (LiteLLM proxy scenario)."""
+        # Arrange
+        with patch("litellm.embedding") as mock_embedding:
+            mock_embedding.return_value = mock_litellm_response
+            client = LiteLLMClient(
+                model_name="openai/text-embedding-3-small",
+                api_base="https://litellm-proxy.example.com",
+                api_key="proxy-auth-token",
+            )
+
+            # Act
+            client.encode(["test"])
+
+            # Assert
+            mock_embedding.assert_called_once_with(
+                model="openai/text-embedding-3-small",
+                input=["test"],
+                api_base="https://litellm-proxy.example.com",
+                api_key="proxy-auth-token",
+            )
+
     def test_encode_validates_dimension(self, mock_litellm_response):
         """Test that encode validates embedding dimension on first call."""
         # Arrange

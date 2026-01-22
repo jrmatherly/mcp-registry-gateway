@@ -153,7 +153,8 @@ class SecurityScannerService:
             block_unsafe_servers=settings.security_block_unsafe_servers,
             analyzers=settings.security_analyzers,
             scan_timeout_seconds=settings.security_scan_timeout,
-            llm_api_key=settings.mcp_scanner_llm_api_key or os.getenv("MCP_SCANNER_LLM_API_KEY"),
+            llm_api_key=settings.effective_mcp_scanner_api_key
+            or os.getenv("MCP_SCANNER_LLM_API_KEY"),
             add_security_pending_tag=settings.security_add_pending_tag,
         )
 
@@ -359,10 +360,14 @@ class SecurityScannerService:
             if bearer_token:
                 cmd.extend(["--bearer-token", bearer_token])
 
-        # Set environment variable for API key if provided
+        # Set environment variables for API key and base URL if provided
         env = os.environ.copy()
         if api_key:
             env["MCP_SCANNER_LLM_API_KEY"] = api_key
+        if settings.effective_mcp_scanner_api_base:
+            env["MCP_SCANNER_LLM_API_BASE"] = settings.effective_mcp_scanner_api_base
+            # Also set provider-specific vars for compatibility
+            env["OPENAI_API_BASE"] = settings.effective_mcp_scanner_api_base
 
         # Run scanner with timeout
         try:

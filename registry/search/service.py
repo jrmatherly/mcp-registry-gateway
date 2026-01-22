@@ -70,10 +70,10 @@ class FaissService:
                 cache_dir=model_cache_path
                 if settings.embeddings_provider == "sentence-transformers"
                 else None,
-                api_key=settings.embeddings_api_key
+                api_key=settings.effective_embeddings_api_key
                 if settings.embeddings_provider == "litellm"
                 else None,
-                api_base=settings.embeddings_api_base
+                api_base=settings.effective_embeddings_api_base
                 if settings.embeddings_provider == "litellm"
                 else None,
                 aws_region=settings.embeddings_aws_region

@@ -680,6 +680,175 @@ class TestSettingsEmbeddingsProviders:
 
 
 # =============================================================================
+# TEST CLASS: Effective LLM Settings with Fallback Logic
+# =============================================================================
+
+
+@pytest.mark.unit
+@pytest.mark.core
+class TestSettingsEffectiveLLMSettings:
+    """Test effective LLM settings with fallback logic."""
+
+    def test_global_llm_settings_defaults(self, monkeypatch, tmp_path) -> None:
+        """Test global LLM settings have correct defaults."""
+        # Arrange - disable .env file loading
+        monkeypatch.chdir(tmp_path)
+
+        # Act
+        settings = Settings(_env_file=None)
+
+        # Assert
+        assert settings.llm_provider == "litellm"
+        assert settings.llm_model == "openai/gpt-4o-mini"
+        assert settings.llm_api_key is None
+        assert settings.llm_api_base is None
+
+    def test_effective_embeddings_api_key_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_embeddings_api_key uses specific key when set."""
+        # Arrange
+        monkeypatch.setenv("EMBEDDINGS_API_KEY", "embeddings-specific-key")
+        monkeypatch.setenv("LLM_API_KEY", "global-key")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_embeddings_api_key == "embeddings-specific-key"
+
+    def test_effective_embeddings_api_key_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_embeddings_api_key falls back to llm_api_key."""
+        # Arrange
+        monkeypatch.delenv("EMBEDDINGS_API_KEY", raising=False)
+        monkeypatch.setenv("LLM_API_KEY", "global-key")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_embeddings_api_key == "global-key"
+
+    def test_effective_embeddings_api_base_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_embeddings_api_base uses specific base when set."""
+        # Arrange
+        monkeypatch.setenv("EMBEDDINGS_API_BASE", "https://embeddings.example.com")
+        monkeypatch.setenv("LLM_API_BASE", "https://global.example.com")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_embeddings_api_base == "https://embeddings.example.com"
+
+    def test_effective_embeddings_api_base_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_embeddings_api_base falls back to llm_api_base."""
+        # Arrange
+        monkeypatch.delenv("EMBEDDINGS_API_BASE", raising=False)
+        monkeypatch.setenv("LLM_API_BASE", "https://global.example.com")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_embeddings_api_base == "https://global.example.com"
+
+    def test_effective_mcp_scanner_api_key_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_mcp_scanner_api_key uses specific key when set."""
+        # Arrange
+        monkeypatch.setenv("MCP_SCANNER_LLM_API_KEY", "scanner-specific-key")
+        monkeypatch.setenv("LLM_API_KEY", "global-key")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_mcp_scanner_api_key == "scanner-specific-key"
+
+    def test_effective_mcp_scanner_api_key_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_mcp_scanner_api_key falls back to llm_api_key."""
+        # Arrange
+        monkeypatch.setenv("MCP_SCANNER_LLM_API_KEY", "")  # Empty string
+        monkeypatch.setenv("LLM_API_KEY", "global-key")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_mcp_scanner_api_key == "global-key"
+
+    def test_effective_mcp_scanner_api_base_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_mcp_scanner_api_base uses specific base when set."""
+        # Arrange
+        monkeypatch.setenv("MCP_SCANNER_LLM_API_BASE", "https://scanner.example.com")
+        monkeypatch.setenv("LLM_API_BASE", "https://global.example.com")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_mcp_scanner_api_base == "https://scanner.example.com"
+
+    def test_effective_mcp_scanner_api_base_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_mcp_scanner_api_base falls back to llm_api_base."""
+        # Arrange
+        monkeypatch.delenv("MCP_SCANNER_LLM_API_BASE", raising=False)
+        monkeypatch.setenv("LLM_API_BASE", "https://global.example.com")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_mcp_scanner_api_base == "https://global.example.com"
+
+    def test_effective_a2a_scanner_api_key_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_a2a_scanner_api_key uses specific key when set."""
+        # Arrange
+        monkeypatch.setenv("A2A_SCANNER_LLM_API_KEY", "a2a-specific-key")
+        monkeypatch.setenv("LLM_API_KEY", "global-key")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_a2a_scanner_api_key == "a2a-specific-key"
+
+    def test_effective_a2a_scanner_api_key_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_a2a_scanner_api_key falls back to llm_api_key."""
+        # Arrange
+        monkeypatch.setenv("A2A_SCANNER_LLM_API_KEY", "")  # Empty string
+        monkeypatch.setenv("LLM_API_KEY", "global-key")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_a2a_scanner_api_key == "global-key"
+
+    def test_effective_a2a_scanner_api_base_uses_specific_when_set(self, monkeypatch) -> None:
+        """Test that effective_a2a_scanner_api_base uses specific base when set."""
+        # Arrange
+        monkeypatch.setenv("A2A_SCANNER_LLM_API_BASE", "https://a2a.example.com")
+        monkeypatch.setenv("LLM_API_BASE", "https://global.example.com")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_a2a_scanner_api_base == "https://a2a.example.com"
+
+    def test_effective_a2a_scanner_api_base_falls_back_to_global(self, monkeypatch) -> None:
+        """Test that effective_a2a_scanner_api_base falls back to llm_api_base."""
+        # Arrange
+        monkeypatch.delenv("A2A_SCANNER_LLM_API_BASE", raising=False)
+        monkeypatch.setenv("LLM_API_BASE", "https://global.example.com")
+
+        # Act
+        settings = Settings()
+
+        # Assert
+        assert settings.effective_a2a_scanner_api_base == "https://global.example.com"
+
+
+# =============================================================================
 # TEST CLASS: Settings Model Configuration
 # =============================================================================
 

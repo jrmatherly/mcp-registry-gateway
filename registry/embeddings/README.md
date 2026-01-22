@@ -129,6 +129,46 @@ embeddings = client.encode(["Hello world", "This is a test"])
 print(embeddings.shape)  # (2, 1536)
 ```
 
+### Using LiteLLM Proxy
+
+For centralized LLM access through a LiteLLM proxy server, you can configure both `EMBEDDINGS_API_BASE` and `EMBEDDINGS_API_KEY`:
+
+```bash
+# In .env
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+EMBEDDINGS_API_BASE=https://your-litellm-proxy.example.com
+EMBEDDINGS_API_KEY=your-proxy-auth-token
+```
+
+The API key is passed directly to the LiteLLM proxy for authentication. This works with any OpenAI-compatible API endpoint.
+
+**Global LLM Configuration (Fallback Values):**
+
+You can also configure global LLM settings that apply to all LLM operations (embeddings, security scanners, etc.):
+
+```bash
+# Global settings (used as fallbacks)
+LLM_API_KEY=your-proxy-auth-token
+LLM_API_BASE=https://your-litellm-proxy.example.com
+
+# Embeddings will use these if EMBEDDINGS_API_KEY/EMBEDDINGS_API_BASE are not set
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+```
+
+**Configuration Hierarchy:**
+
+```
+LLM_API_KEY (global default)
+└── EMBEDDINGS_API_KEY (embeddings-specific override)
+
+LLM_API_BASE (global default)
+└── EMBEDDINGS_API_BASE (embeddings-specific override)
+```
+
 ## Configuration
 
 ### Environment Variables

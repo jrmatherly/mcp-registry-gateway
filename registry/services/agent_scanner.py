@@ -48,7 +48,8 @@ class AgentScannerService:
             block_unsafe_agents=settings.agent_security_block_unsafe_agents,
             analyzers=settings.agent_security_analyzers,
             scan_timeout_seconds=settings.agent_security_scan_timeout,
-            llm_api_key=settings.a2a_scanner_llm_api_key or os.getenv("A2A_SCANNER_LLM_API_KEY"),
+            llm_api_key=settings.effective_a2a_scanner_api_key
+            or os.getenv("A2A_SCANNER_LLM_API_KEY"),
             add_security_pending_tag=settings.agent_security_add_pending_tag,
         )
 
@@ -196,10 +197,15 @@ class AgentScannerService:
                 "json",
             ]
 
-            # Set environment variable for API key if provided
+            # Set environment variables for API key and base URL if provided
             env = os.environ.copy()
             if api_key:
                 env["AZURE_OPENAI_API_KEY"] = api_key
+            if settings.effective_a2a_scanner_api_base:
+                env["A2A_SCANNER_LLM_API_BASE"] = settings.effective_a2a_scanner_api_base
+                # Also set provider-specific vars for compatibility
+                env["OPENAI_API_BASE"] = settings.effective_a2a_scanner_api_base
+                env["AZURE_OPENAI_ENDPOINT"] = settings.effective_a2a_scanner_api_base
 
             # Run scanner with timeout
             try:

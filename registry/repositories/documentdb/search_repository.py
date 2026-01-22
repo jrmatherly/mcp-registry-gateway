@@ -129,8 +129,8 @@ class DocumentDBSearchRepository(SearchRepositoryBase):
                 provider=settings.embeddings_provider,
                 model_name=settings.embeddings_model_name,
                 model_dir=settings.embeddings_model_dir,
-                api_key=settings.embeddings_api_key,
-                api_base=settings.embeddings_api_base,
+                api_key=settings.effective_embeddings_api_key,
+                api_base=settings.effective_embeddings_api_base,
                 aws_region=settings.embeddings_aws_region,
                 embedding_dimension=settings.embeddings_model_dimensions,
             )
