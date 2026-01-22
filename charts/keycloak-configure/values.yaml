@@ -1,3 +1,7 @@
+# Global configuration (can be overridden by parent chart)
+global:
+  domain: localhost
+
 # Keycloak configuration
 keycloak:
   adminUser: user

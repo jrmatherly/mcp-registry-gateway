@@ -206,7 +206,7 @@ fi
 
 # Stop and remove existing services if they exist
 log "Stopping existing services (if any)..."
-$COMPOSE_CMD $COMPOSE_FILES down --remove-orphans || log "No existing services to stop"
+$COMPOSE_CMD "$COMPOSE_FILES" down --remove-orphans || log "No existing services to stop"
 log "Existing services stopped"
 
 # Clean up FAISS index files to force registry to recreate them
@@ -444,7 +444,7 @@ fi
 # Build or pull container images
 if [ "$USE_PREBUILT" = true ]; then
     log "Pulling pre-built container images..."
-    $COMPOSE_CMD $COMPOSE_FILES pull || handle_error "Compose pull failed"
+    $COMPOSE_CMD "$COMPOSE_FILES" pull || handle_error "Compose pull failed"
     log "Pre-built container images pulled successfully"
 else
     log "Building container images with optimization..."
@@ -455,13 +455,13 @@ else
     fi
 
     # Build with parallel jobs and build cache
-    $COMPOSE_CMD $COMPOSE_FILES build --parallel --progress=auto || handle_error "Compose build failed"
+    $COMPOSE_CMD "$COMPOSE_FILES" build --parallel --progress=auto || handle_error "Compose build failed"
     log "Container images built successfully with optimization"
 fi
 
 # Start metrics service first to generate API keys
 log "Starting metrics service first..."
-$COMPOSE_CMD $COMPOSE_FILES up -d metrics-service || handle_error "Failed to start metrics service"
+$COMPOSE_CMD "$COMPOSE_FILES" up -d metrics-service || handle_error "Failed to start metrics service"
 
 # Wait for metrics service to be ready
 log "Waiting for metrics service to be ready..."
@@ -485,12 +485,12 @@ fi
 log "Setting up dynamic pre-shared tokens for services..."
 
 # Get all services from compose file that might need metrics (exclude monitoring services)
-METRICS_SERVICES=$($COMPOSE_CMD $COMPOSE_FILES config --services 2>/dev/null | grep -v -E "(prometheus|grafana|metrics-db)" | sort | uniq)
+METRICS_SERVICES=$($COMPOSE_CMD "$COMPOSE_FILES" config --services 2>/dev/null | grep -v -E "(prometheus|grafana|metrics-db)" | sort | uniq)
 
 if [ -z "$METRICS_SERVICES" ]; then
     log "WARNING: No services found for metrics configuration"
 else
-    log "Found services for metrics: $(echo $METRICS_SERVICES | tr '\n' ' ')"
+    log "Found services for metrics: $(echo "$METRICS_SERVICES" | tr '\n' ' ')"
 fi
 
 # Check if tokens already exist in .env
@@ -530,7 +530,7 @@ log "Dynamic metrics API tokens configured successfully"
 
 # Now start all other services with the API keys in environment
 log "Starting remaining services..."
-$COMPOSE_CMD $COMPOSE_FILES up -d || handle_error "Failed to start remaining services"
+$COMPOSE_CMD "$COMPOSE_FILES" up -d || handle_error "Failed to start remaining services"
 
 # Wait a moment for services to initialize
 log "Waiting for services to initialize..."
@@ -538,7 +538,7 @@ sleep 10
 
 # Check service status
 log "Checking service status..."
-$COMPOSE_CMD $COMPOSE_FILES ps
+$COMPOSE_CMD "$COMPOSE_FILES" ps
 
 # Verify key services are running
 log "Verifying services are healthy..."
@@ -589,8 +589,8 @@ fi
 
 # List all available server JSON files
 log "Available server configurations in $MCPGATEWAY_SERVERS_DIR:"
-if ls "$MCPGATEWAY_SERVERS_DIR"/*.json 2>/dev/null | head -n 10; then
-    TOTAL_SERVERS=$(ls "$MCPGATEWAY_SERVERS_DIR"/*.json 2>/dev/null | wc -l)
+if find "$MCPGATEWAY_SERVERS_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | head -n 10; then
+    TOTAL_SERVERS=$(find "$MCPGATEWAY_SERVERS_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | wc -l)
     log "Total server configurations: $TOTAL_SERVERS"
 else
     log "WARNING: No server configurations found in $MCPGATEWAY_SERVERS_DIR"
@@ -623,9 +623,9 @@ else
     log "  - Atlassian MCP: http://localhost:8005"
 fi
 log ""
-log "To view logs for all services: $COMPOSE_CMD $COMPOSE_FILES logs -f"
-log "To view logs for a specific service: $COMPOSE_CMD $COMPOSE_FILES logs -f <service-name>"
-log "To stop services: $COMPOSE_CMD $COMPOSE_FILES down"
+log "To view logs for all services: $COMPOSE_CMD \"$COMPOSE_FILES\" logs -f"
+log "To view logs for a specific service: $COMPOSE_CMD \"$COMPOSE_FILES\" logs -f <service-name>"
+log "To stop services: $COMPOSE_CMD \"$COMPOSE_FILES\" down"
 log ""
 
 # Ask if user wants to follow logs
@@ -634,7 +634,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log "Following container logs (press Ctrl+C to stop following logs without stopping the services):"
     echo "---------- CONTAINER LOGS ----------"
-    $COMPOSE_CMD $COMPOSE_FILES logs -f
+    $COMPOSE_CMD "$COMPOSE_FILES" logs -f
 else
     log "Services are running in the background. Use '$COMPOSE_CMD $COMPOSE_FILES logs -f' to view logs."
 fi

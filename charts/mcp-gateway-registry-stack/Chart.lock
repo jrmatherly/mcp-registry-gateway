@@ -1,0 +1,21 @@
+dependencies:
+- name: keycloak
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 25.2.0
+- name: mongodb-kubernetes
+  repository: https://mongodb.github.io/helm-charts
+  version: 1.6.1
+- name: auth-server
+  repository: file://../auth-server
+  version: 0.1.0
+- name: registry
+  repository: file://../registry
+  version: 0.1.0
+- name: keycloak-configure
+  repository: file://../keycloak-configure
+  version: 0.1.0
+- name: mongodb-configure
+  repository: file://../mongodb-configure
+  version: 0.1.0
+digest: sha256:e6ab128bc9780058033eed0fe13c29157f26694b14d41d1b18033fcc31dfc547
+generated: "2026-01-21T23:08:52.873115-05:00"

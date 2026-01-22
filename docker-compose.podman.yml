@@ -83,6 +83,10 @@ services:
       # Podman/local: allow the dashboard to call /api/* using the session cookie
       # (disables nginx auth_request for /api/*; FastAPI still enforces auth)
       - NGINX_DISABLE_API_AUTH_REQUEST=${NGINX_DISABLE_API_AUTH_REQUEST:-true}
+    # Podman rootless port mapping (non-privileged ports):
+    # - 8080:80   = HTTP (vs 80:80 in docker-compose.yml)
+    # - 8443:443  = HTTPS (vs 443:443 in docker-compose.yml)
+    # - 7860:7860 = Registry API (same in both)
     ports:
       - "8080:80"
       - "8443:443"
