@@ -99,14 +99,26 @@ jobs:
           working_directory: terraform/aws-ecs
           soft_fail: true
           format: sarif
-          additional_args: --out tfsec-results.sarif
+          additional_args: --out ${{ github.workspace }}/tfsec-results.sarif
         continue-on-error: true
 
+      - name: Fix SARIF URI scheme
+        if: always()
+        run: |
+          if [ -f "${{ github.workspace }}/tfsec-results.sarif" ]; then
+            # Fix git:// URI scheme to file:// for GitHub Code Scanning compatibility
+            sed -i 's|"uri": "git://|"uri": "file://|g' "${{ github.workspace }}/tfsec-results.sarif"
+            echo "Fixed SARIF URI scheme"
+          else
+            echo "No SARIF file found, creating empty one"
+            echo '{"version":"2.1.0","runs":[]}' > "${{ github.workspace }}/tfsec-results.sarif"
+          fi
+
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: tfsec-results.sarif
+          sarif_file: ${{ github.workspace }}/tfsec-results.sarif
         continue-on-error: true
 
   checkov:
@@ -128,7 +140,7 @@ jobs:
           download_external_modules: true
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: checkov-results.sarif
