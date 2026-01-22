@@ -7,7 +7,7 @@ Based on: https://raw.githubusercontent.com/modelcontextprotocol/registry/refs/h
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logging.basicConfig(
     level=logging.INFO,
@@ -104,6 +104,38 @@ class ServerList(BaseModel):
 
 
 class ErrorResponse(BaseModel):
-    """Standard error response."""
+    """Standardized API error response.
 
-    error: str = Field(..., description="Error message")
+    This model provides a consistent error response format across all API endpoints,
+    including optional fields for detailed error context and user guidance.
+
+    Attributes:
+        error: Primary error message (required).
+        detail: Detailed explanation of what went wrong.
+        code: Machine-readable error code for programmatic handling.
+        suggestion: User-friendly suggestion for resolving the error.
+
+    Example:
+        >>> error = ErrorResponse(
+        ...     error="Conflict",
+        ...     detail="Server at path '/mcp/weather' already exists",
+        ...     code="SERVER_EXISTS",
+        ...     suggestion="Use overwrite=true to replace existing server",
+        ... )
+    """
+
+    error: str = Field(..., description="Primary error message")
+    detail: str | None = Field(None, description="Detailed error explanation")
+    code: str | None = Field(None, description="Machine-readable error code")
+    suggestion: str | None = Field(None, description="Suggestion for resolving the error")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "error": "Conflict",
+                "detail": "Server at path '/mcp/weather' already exists",
+                "code": "SERVER_EXISTS",
+                "suggestion": "Use overwrite=true to replace existing server",
+            }
+        }
+    )

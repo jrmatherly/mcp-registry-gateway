@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 from ..repositories.factory import get_server_repository
-from ..repositories.interfaces import ServerRepositoryBase
+from ..repositories.interfaces import SearchRepositoryBase, ServerRepositoryBase
 
 logger = logging.getLogger(__name__)
 
@@ -10,11 +10,32 @@ logger = logging.getLogger(__name__)
 class ServerService:
     """Service for managing server registration and state."""
 
-    def __init__(self):
-        self._repo: ServerRepositoryBase = get_server_repository()
-        from ..repositories.factory import get_search_repository
+    def __init__(
+        self,
+        server_repo: ServerRepositoryBase | None = None,
+        search_repo: "SearchRepositoryBase | None" = None,
+    ) -> None:
+        """Initialize server service with optional dependency injection.
 
-        self._search_repo = get_search_repository()
+        Args:
+            server_repo: Server repository instance. If None, uses factory default.
+            search_repo: Search repository instance. If None, uses factory default.
+
+        Example:
+            # Production usage (uses factory defaults)
+            service = ServerService()
+
+            # Test usage (inject mocks)
+            service = ServerService(
+                server_repo=mock_server_repo,
+                search_repo=mock_search_repo,
+            )
+        """
+        from ..repositories.factory import get_search_repository
+        from ..repositories.interfaces import SearchRepositoryBase
+
+        self._repo: ServerRepositoryBase = server_repo or get_server_repository()
+        self._search_repo: SearchRepositoryBase = search_repo or get_search_repository()
 
     async def load_servers_and_state(self):
         """Load server definitions and persisted state from repository."""

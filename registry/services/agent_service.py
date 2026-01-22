@@ -21,10 +21,29 @@ logger = logging.getLogger(__name__)
 class AgentService:
     """Service for managing A2A agent registration and state."""
 
-    def __init__(self):
-        """Initialize agent service with repository."""
-        self._repo: AgentRepositoryBase = get_agent_repository()
-        self._search_repo: SearchRepositoryBase = get_search_repository()
+    def __init__(
+        self,
+        agent_repo: AgentRepositoryBase | None = None,
+        search_repo: SearchRepositoryBase | None = None,
+    ) -> None:
+        """Initialize agent service with optional dependency injection.
+
+        Args:
+            agent_repo: Agent repository instance. If None, uses factory default.
+            search_repo: Search repository instance. If None, uses factory default.
+
+        Example:
+            # Production usage (uses factory defaults)
+            service = AgentService()
+
+            # Test usage (inject mocks)
+            service = AgentService(
+                agent_repo=mock_agent_repo,
+                search_repo=mock_search_repo,
+            )
+        """
+        self._repo: AgentRepositoryBase = agent_repo or get_agent_repository()
+        self._search_repo: SearchRepositoryBase = search_repo or get_search_repository()
         self.registered_agents: dict[str, AgentCard] = {}
         self.agent_state: dict[str, list[str]] = {"enabled": [], "disabled": []}
 
