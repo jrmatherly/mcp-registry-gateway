@@ -1015,7 +1015,7 @@ async def discover_agents_by_skills(
             num_skills=len(agent.skills),
             num_stars=agent.num_stars,
             is_enabled=True,
-            provider=agent.provider,
+            provider=agent.provider.organization if agent.provider else None,
             streaming=agent.capabilities.get("streaming", False) if agent.capabilities else False,
             trust_level=agent.trust_level,
         )
