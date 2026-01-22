@@ -1,5 +1,8 @@
 # Claude Coding Rules
 
+<!-- This is a condensed version of CLAUDE.md optimized for token efficiency -->
+<!-- For comprehensive guidelines, refer to the full CLAUDE.md file -->
+
 ## Overview
 
 This document contains coding standards for the MCP Gateway & Registry project. Detailed guidance is available in `.claude/instructions/` - load on-demand based on your task.
@@ -195,5 +198,5 @@ Progressive disclosure skills in `.claude/skills/`:
 - Never hardcode secrets or credentials
 - Never use `pip` directly (use `uv`)
 - Never bind servers to `0.0.0.0` unless required
-- Never add emojis to code, docs, or commit messages
+- Use emojis sparingly - OK for README.md and status output, avoid in code/commits
 - Never skip tests before submitting PRs

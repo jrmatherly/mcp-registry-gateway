@@ -1,4 +1,4 @@
-# Getting Started
+# Developer Instructions
 
 ## Prerequisite Reading
 
@@ -12,18 +12,18 @@ Before you start contributing, please review the project's contribution guidelin
 
 We recommend the fastest option to get started:
 
-#### Option A: macOS Setup (Fastest ⚡)
+#### Option A: macOS Setup (Fastest)
 
 Complete this setup guide first:
 
-- [macOS Setup Guide](macos-setup-guide.md)
+- [macOS Setup Guide](docs/macos-setup-guide.md)
 - Time to first run: ~30 minutes
 
-#### Option B: EC2 Complete Configuration (Preferred for Server Setup)
+#### Option B: EC2 Complete Setup (Preferred for Server Setup)
 
 If working on EC2 or a Linux server, complete this guide first:
 
-- [Complete Configuration Guide](complete-configuration-guide.md)
+- [Complete Setup Guide](docs/complete-setup-guide.md)
 - Time to first run: ~60 minutes
 
 ## Before You Start Coding
@@ -51,54 +51,58 @@ Before submitting a pull request, you must run and pass the test suite:
 ### Quick Start Testing
 
 ```bash
-# Generate fresh credentials (tokens expire in 5 minutes)
-./credentials-provider/generate_creds.sh
+# Run all tests in parallel (standard approach)
+uv run pytest tests/ -n 8
 
-# Run tests locally (skip production for fast iteration)
-./tests/run_all_tests.sh --skip-production
+# Run only unit tests (fast iteration)
+uv run pytest tests/unit/ -n 8
+
+# Run with verbose output
+uv run pytest tests/ -n 8 -v
 ```
 
 ### For PR Merge (REQUIRED)
 
 ```bash
-# Full test suite including production tests
-./tests/run_all_tests.sh
+# Full validation: lint, format, type check, and test
+uv run ruff check --fix . && uv run ruff format . && uv run mypy registry/ && uv run pytest tests/ -n 8
 
-# All tests must pass (0 failures) before merging
+# All tests must pass before merging
+# Expected: 701+ passed, ~57 skipped, ~30 seconds runtime
 ```
 
 ### Understanding the Tests
 
 See the comprehensive testing documentation:
 
-- **[tests/README.md](tests/README.md)** - Start here! Navigation guide with access control overview
-- **[tests/TEST_QUICK_REFERENCE.md](tests/TEST_QUICK_REFERENCE.md)** - Quick reference for how-to guides
-- **[tests/lob-bot-access-control-testing.md](tests/lob-bot-access-control-testing.md)** - Access control test details
+- **[tests/README.md](tests/README.md)** - Test suite overview and structure
 - **[auth_server/scopes.yml](auth_server/scopes.yml)** - Permission definitions (admin, LOB1, LOB2)
 
 ### Common Testing Workflows
 
-**Agent CRUD Testing:**
+**Run specific test file:**
+
+```bash
+uv run pytest tests/unit/test_server_service.py -v
+```
+
+**Run with coverage:**
+
+```bash
+uv run pytest tests/ -n 8 --cov=registry --cov-report=term-missing
+```
+
+**Run integration tests only:**
+
+```bash
+uv run pytest tests/integration/ -n 8
+```
+
+**Generate tokens for manual testing:**
 
 ```bash
 ./credentials-provider/generate_creds.sh
-bash tests/agent_crud_test.sh
-```
-
-**Access Control Testing (LOB Bots):**
-
-```bash
 ./keycloak/setup/generate-agent-token.sh admin-bot
-./keycloak/setup/generate-agent-token.sh lob1-bot
-./keycloak/setup/generate-agent-token.sh lob2-bot
-bash tests/run-lob-bot-tests.sh
-```
-
-**Check Test Logs:**
-
-```bash
-ls -lh /tmp/*_*.log
-grep -i "error\|fail" /tmp/*.log
 ```
 
 ## Fork and Contribute
@@ -147,9 +151,9 @@ Before submitting a pull request:
 - [ ] Read docs/llms.txt
 - [ ] Read CLAUDE.md (coding standards)
 - [ ] Code follows project conventions (use ruff, mypy, pytest)
-- [ ] Generated fresh credentials: `./credentials-provider/generate_creds.sh`
-- [ ] Local tests pass: `./tests/run_all_tests.sh --skip-production`
-- [ ] PR merge tests pass: `./tests/run_all_tests.sh` (all tests must pass)
+- [ ] Lint passes: `uv run ruff check --fix . && uv run ruff format .`
+- [ ] Type check passes: `uv run mypy registry/`
+- [ ] Tests pass: `uv run pytest tests/ -n 8`
 - [ ] Reviewed test documentation: [tests/README.md](tests/README.md)
 - [ ] Changes are pushed to a fork, not directly to this repo
 - [ ] Pull request is created with clear description
@@ -159,5 +163,3 @@ Before submitting a pull request:
 - Check the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details
 - Review existing PRs to see contribution patterns
 - Ask your coding assistant to review the documentation with you
-
-Happy coding! 🚀

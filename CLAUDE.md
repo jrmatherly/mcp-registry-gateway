@@ -1052,18 +1052,39 @@ class UserRequest(BaseModel):
 
 ## Documentation Guidelines
 
-- Never add emojis to README.md files in repositories
-- Keep README files professional and emoji-free
-
 ### Emoji Usage Guidelines
 
-- **Code**: Absolutely no emojis in source code, comments, or docstrings
-- **Documentation**: Avoid emojis in all documentation files (.md, .rst, etc.)
-- **Log Messages**: Use plain text only for log messages - no emojis
-- **Shell Scripts**: Avoid emojis in shell scripts - prefer plain text status messages
-- **Comments**: Use clear, descriptive text instead of emojis in code comments
+Use emojis **sparingly** and purposefully. Preferred usage is for quick visual status indicators.
 
-**Rationale**: Emojis can cause encoding issues, reduce accessibility, appear unprofessional in enterprise environments, and may not render consistently across different systems and terminals.
+**Acceptable Uses:**
+
+- **README.md**: Emojis are permitted for visual emphasis and marketing appeal
+- **Status Output**: Use for quick visual indicators in logs, CLI output, and build scripts:
+  - Success: `[OK]`, `[PASS]`, or green indicators
+  - Warning: `[WARN]`, `[SKIP]`, or yellow indicators
+  - Error: `[FAIL]`, `[ERROR]`, or red indicators
+- **Progress Indicators**: Brief status markers in shell script output
+
+**Avoid Emojis In:**
+
+- **Source Code**: No emojis in Python code, comments, or docstrings
+- **Technical Documentation**: Avoid in API docs, architecture docs, and technical guides
+- **Commit Messages**: Keep commit messages professional and emoji-free
+- **Log Messages**: Prefer structured text for parsing and searchability
+
+**Examples:**
+
+```bash
+# Good - clear status indicators in script output
+echo "[OK] Build completed successfully"
+echo "[WARN] Skipping optional dependency"
+echo "[FAIL] Test suite failed"
+
+# Avoid - emojis in technical logs
+echo "Build completed"  # Not: "Build completed"
+```
+
+**Rationale**: Emojis should enhance readability, not replace clear communication. They work well for quick visual scanning but can cause encoding issues and reduce accessibility when overused.
 
 ### README Best Practices
 
@@ -1226,7 +1247,7 @@ echo "$ECR_REPO_URI:latest" > "$SCRIPT_DIR/.container_uri"
 - Use environment variables for configuration with sensible defaults
 - Login to ECR before pushing
 - Create ECR repository if it doesn't exist
-- Use clear echo statements to show progress (avoid emojis for compatibility)
+- Use clear echo statements to show progress (emojis acceptable for status indicators)
 - Save container URI to a file for reference by other scripts
 
 ### ARM64 Support

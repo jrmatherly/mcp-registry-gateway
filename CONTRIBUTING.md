@@ -6,6 +6,37 @@ documentation, we greatly value feedback and contributions from our community.
 Please read through this document before submitting any issues or pull requests to ensure we have all the necessary
 information to effectively respond to your bug report or contribution.
 
+## Prerequisites
+
+Before contributing, ensure you have the following installed:
+
+- Python 3.11+
+- [uv](https://github.com/astral-sh/uv) package manager
+- Docker or Podman
+- Git
+
+## Development Setup
+
+```bash
+# Clone your fork
+git clone https://github.com/YOUR-USERNAME/mcp-registry-gateway.git
+cd mcp-registry-gateway
+
+# Install dependencies
+uv sync
+
+# Start MongoDB
+docker compose up -d mongodb
+
+# Run tests to verify setup
+uv run pytest tests/ -n 8
+
+# Format and lint code
+uv run ruff check --fix . && uv run ruff format .
+```
+
+For detailed setup instructions, see [DEV_INSTRUCTIONS.md](DEV_INSTRUCTIONS.md).
+
 ## Reporting Bugs/Feature Requests
 
 We welcome you to use the GitHub issue tracker to report bugs or suggest features.
@@ -54,4 +85,6 @@ If you discover a potential security issue in this project we ask that you notif
 
 ## Licensing
 
-See the [LICENSE](LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+
+By submitting a contribution, you agree that your contributions will be licensed under the same Apache License 2.0.

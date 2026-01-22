@@ -137,8 +137,7 @@ def calculate_metrics(
 - Test both happy paths and error cases
 
 ## Additional Guidelines
-- Never use emojis in code, comments, docstrings, or documentation
+- Use emojis sparingly - OK in README.md and status output, avoid in code/commits
 - Never add auto-generated messages or attribution in commits/PRs
 - Use `@lru_cache` for expensive computations where appropriate
 - Avoid deep nesting (2-3 levels max), use early returns
-- Keep README files professional and emoji-free

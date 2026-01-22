@@ -146,7 +146,7 @@ async def test_get_server_returns_server(
 - Bind servers to `0.0.0.0` unnecessarily
 - Use Pydantic v1 syntax
 - Skip tests before PRs
-- Add emojis to code or docs
+- Overuse emojis (OK sparingly in README.md and status output)
 - Include Claude attribution in commits
 
 ## Architecture Layers
@@ -166,7 +166,7 @@ Database (MongoDB/DocumentDB)
 | Purpose | Location |
 |---------|----------|
 | Application entry | `registry/main.py` |
-| Configuration | `registry/config/settings.py` |
+| Configuration | `registry/core/config.py` |
 | API routes | `registry/api/` |
 | Business logic | `registry/services/` |
 | Data access | `registry/repositories/` |

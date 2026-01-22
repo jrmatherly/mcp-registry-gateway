@@ -34,9 +34,19 @@ When reporting a vulnerability, please include:
 
 ### Response Timeline
 
-- **Initial Response**: Within 48 hours
-- **Status Update**: Within 7 days
-- **Resolution Target**: Based on severity
+| Severity | Initial Response | Status Update | Resolution Target |
+|----------|------------------|---------------|-------------------|
+| Critical | 24 hours | 3 days | 7 days |
+| High | 48 hours | 7 days | 30 days |
+| Medium | 72 hours | 14 days | 60 days |
+| Low | 7 days | 30 days | 90 days |
+
+### Severity Definitions
+
+- **Critical**: Remote code execution, authentication bypass, data breach potential
+- **High**: Privilege escalation, significant data exposure, denial of service
+- **Medium**: Limited data exposure, configuration vulnerabilities
+- **Low**: Information disclosure, minor security issues
 
 ### Security Updates
 
