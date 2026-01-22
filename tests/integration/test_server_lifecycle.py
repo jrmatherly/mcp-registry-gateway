@@ -842,7 +842,7 @@ class TestServerErrorHandling:
         )
 
         # Assert
-        assert response.status_code == http_status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == http_status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_update_preserves_path(self, test_client: TestClient, test_server_data: dict[str, Any]):
         """Test that update operation preserves the original path."""

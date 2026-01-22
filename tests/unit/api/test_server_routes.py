@@ -344,31 +344,14 @@ class TestRootDashboard:
         assert response.status_code == 302
         assert response.headers["location"] == "/login"
 
-    @pytest.mark.skip(
-        reason="Root dashboard uses Cookie() parameter which requires complex session mocking. "
-        "Business logic is tested via TestGetServersJSON.test_admin_gets_all_servers"
-    )
-    def test_admin_sees_all_servers(self, test_client_admin, mock_server_service):
-        """Test that admin user sees all servers."""
-        pass
-
-    @pytest.mark.skip(
-        reason="Root dashboard uses Cookie() parameter which requires complex session mocking. "
-        "Business logic is tested via TestGetServersJSON.test_non_admin_gets_filtered_servers"
-    )
-    def test_non_admin_sees_filtered_servers(
-        self, test_client_regular, mock_server_service, regular_user_context
-    ):
-        """Test that non-admin user sees only accessible servers."""
-        pass
-
-    @pytest.mark.skip(
-        reason="Root dashboard uses Cookie() parameter which requires complex session mocking. "
-        "Business logic is tested via TestGetServersJSON.test_search_query_filters_results"
-    )
-    def test_search_query_filters_services(self, test_client_admin, mock_server_service):
-        """Test that search query filters services by name, description, and tags."""
-        pass
+    # NOTE: The following HTML dashboard tests are intentionally skipped because they require
+    # complex FastAPI session/cookie mocking. The underlying business logic is thoroughly tested
+    # via the JSON API tests in TestGetServersJSON. These placeholder tests document the intended
+    # behavior for future implementation if session mocking infrastructure is added.
+    #
+    # See: TestGetServersJSON.test_admin_gets_all_servers (equivalent functionality)
+    # See: TestGetServersJSON.test_non_admin_gets_filtered_servers (equivalent functionality)
+    # See: TestGetServersJSON.test_search_query_filters_results (equivalent functionality)
 
 
 # =============================================================================
@@ -584,9 +567,6 @@ class TestToggleService:
         assert response.status_code == 404
         assert "not registered" in response.json()["detail"]
 
-    @pytest.mark.skip(
-        reason="Bug in server_routes.py: local variable 'status' shadows imported 'status' module"
-    )
     def test_toggle_service_no_permission(
         self, test_client_regular, mock_server_service, sample_server_info
     ):
@@ -604,9 +584,6 @@ class TestToggleService:
             assert response.status_code == 403
             assert "permission" in response.json()["detail"].lower()
 
-    @pytest.mark.skip(
-        reason="Bug in server_routes.py: local variable 'status' shadows imported 'status' module"
-    )
     def test_toggle_service_no_server_access(
         self, test_client_regular, mock_server_service, sample_server_info
     ):

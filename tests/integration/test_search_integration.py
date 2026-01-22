@@ -947,7 +947,7 @@ class TestSearchErrorHandling:
         response = test_client.post("/api/search/semantic", json={"query": "", "max_results": 10})
 
         # Assert
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_search_missing_query(self, test_client):
         """Test that missing query field is rejected."""
@@ -955,7 +955,7 @@ class TestSearchErrorHandling:
         response = test_client.post("/api/search/semantic", json={"max_results": 10})
 
         # Assert
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_search_service_unavailable(self, test_client):
         """Test handling of FAISS service errors."""
@@ -996,7 +996,7 @@ class TestSearchErrorHandling:
             assert response.status_code in [
                 status.HTTP_200_OK,
                 status.HTTP_400_BAD_REQUEST,
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
             ]
 
     def test_search_empty_results(self, test_client, mock_faiss_search_results):

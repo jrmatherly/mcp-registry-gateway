@@ -348,7 +348,7 @@ async def register_agent(
         if not validation_result.is_valid:
             logger.error(f"Agent validation failed: {validation_result.errors}")
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail={
                     "message": "Agent card validation failed",
                     "errors": validation_result.errors,
@@ -359,7 +359,7 @@ async def register_agent(
     except ValueError as e:
         logger.error(f"Invalid agent card data: {e}")
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid agent card: {e!s}",
         )
 
@@ -843,7 +843,7 @@ async def update_agent(
 
         if not validation_result.is_valid:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail={
                     "message": "Agent card validation failed",
                     "errors": validation_result.errors,
@@ -852,7 +852,7 @@ async def update_agent(
 
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid agent card: {e!s}",
         )
 
@@ -1016,7 +1016,7 @@ async def discover_agents_by_skills(
             num_stars=agent.num_stars,
             is_enabled=True,
             provider=agent.provider,
-            streaming=agent.streaming,
+            streaming=agent.capabilities.get("streaming", False) if agent.capabilities else False,
             trust_level=agent.trust_level,
         )
 

@@ -2202,23 +2202,23 @@ async def toggle_service_api(
     )
 
     # If enabling, perform immediate health check
-    status = "disabled"
+    health_status = "disabled"
     last_checked_iso = None
     if new_state:
         logger.info(f"Performing immediate health check for {path} upon toggle ON...")
         try:
             (
-                status,
+                health_status,
                 last_checked_dt,
             ) = await health_service.perform_immediate_health_check(path)
             last_checked_iso = last_checked_dt.isoformat() if last_checked_dt else None
-            logger.info(f"Immediate health check for {path} completed. Status: {status}")
+            logger.info(f"Immediate health check for {path} completed. Status: {health_status}")
         except Exception as e:
             logger.error(f"ERROR during immediate health check for {path}: {e}")
-            status = f"error: immediate check failed ({type(e).__name__})"
+            health_status = f"error: immediate check failed ({type(e).__name__})"
     else:
         # When disabling, set status to disabled
-        status = "disabled"
+        health_status = "disabled"
         logger.info(f"Service {path} toggled OFF. Status set to disabled.")
 
     # Update FAISS metadata with new enabled state
@@ -2243,7 +2243,7 @@ async def toggle_service_api(
             "message": f"Toggle request for {path} processed.",
             "service_path": path,
             "new_enabled_state": new_state,
-            "status": status,
+            "status": health_status,
             "last_checked_iso": last_checked_iso,
             "num_tools": server_info.get("num_tools", 0),
         },

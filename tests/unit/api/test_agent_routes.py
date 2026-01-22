@@ -548,7 +548,7 @@ class TestRegisterAgent:
             response = test_app.post("/agents/register", json=request_data)
 
             # Assert
-            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
             assert "validation failed" in response.json()["detail"]["message"].lower()
 
     @pytest.mark.asyncio
@@ -1104,7 +1104,7 @@ class TestUpdateAgent:
             response = test_app.put("/agents/test-agent", json=update_data)
 
             # Assert
-            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 @pytest.mark.unit
@@ -1171,11 +1171,6 @@ class TestDiscoverAgentsBySkills:
     """Tests for POST /agents/discover endpoint."""
 
     @pytest.mark.asyncio
-    @pytest.mark.skip(
-        reason="Source code bug: agent_routes.py line 930 accesses agent.streaming but AgentCard "
-        "has no 'streaming' attribute. Should use agent.capabilities.get('streaming', False). "
-        "See .scratchpad/fixes/registry/fix-agent-streaming-attribute.md"
-    )
     async def test_discover_agents_by_skills_success(self, test_app, mock_user_context):
         """Test successful agent discovery by skills."""
         # Arrange
@@ -1225,11 +1220,6 @@ class TestDiscoverAgentsBySkills:
             assert "skill" in response.json()["detail"].lower()
 
     @pytest.mark.asyncio
-    @pytest.mark.skip(
-        reason="Source code bug: agent_routes.py line 930 accesses agent.streaming but AgentCard "
-        "has no 'streaming' attribute. Should use agent.capabilities.get('streaming', False). "
-        "See .scratchpad/fixes/registry/fix-agent-streaming-attribute.md"
-    )
     async def test_discover_agents_by_skills_with_tag_filtering(self, test_app, mock_user_context):
         """Test discovery with tag filtering."""
         # Arrange
@@ -1317,7 +1307,7 @@ class TestDiscoverAgentsSemantic:
             else:
                 # If content-type mismatch, this test documents the behavior
                 assert response.status_code in [
-                    status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status.HTTP_422_UNPROCESSABLE_CONTENT,
                     status.HTTP_400_BAD_REQUEST,
                 ]
 
@@ -1337,7 +1327,7 @@ class TestDiscoverAgentsSemantic:
         # Assert - empty query should fail with 400 or 422
         assert response.status_code in [
             status.HTTP_400_BAD_REQUEST,
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
         ]
 
 
