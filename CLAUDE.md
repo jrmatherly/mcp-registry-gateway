@@ -760,6 +760,7 @@ def get_secret(key: str, default: Optional[str] = None) -> str:
 
 - **Ruff**: For linting and formatting (replaces multiple tools like isort and many flake8 plugins)
 - **Bandit**: For security vulnerability scanning
+- **pip-audit**: For dependency vulnerability scanning
 - **MyPy**: For type checking
 - **Pytest**: For testing
 
@@ -772,23 +773,20 @@ Before committing code, run these checks in order:
 uv run ruff check --fix . && uv run ruff format .
 
 # 2. Security scanning
-uv run bandit -r src/
+uv run bandit -r registry/
 
 # 3. Type checking
-uv run mypy src/
+uv run mypy registry/
 
 # 4. Run tests
-uv run pytest
-
-# Or run all checks in one command:
-uv run ruff check --fix . && uv run ruff format . && uv run bandit -r src/ && uv run mypy src/ && uv run pytest
+uv run pytest tests/ -n 8
 ```
 
 ### Adding Development Dependencies
 
 ```bash
 # Add development dependencies
-uv add --dev ruff mypy bandit pytest pytest-cov
+uv add --dev ruff mypy bandit pytest pytest-cov pip-audit
 ```
 
 ## Dependency Management

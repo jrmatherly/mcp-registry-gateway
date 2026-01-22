@@ -124,6 +124,16 @@ make build-push IMAGE=registry
 make publish-dockerhub
 ```
 
+## Security Scanning
+
+**Quick vulnerability check:**
+```bash
+uv run pip-audit        # Dependencies
+uv run bandit -r registry/  # Code
+```
+
+For comprehensive security audits, use `/security-audit` skill.
+
 ## Key Configuration Files
 
 | File | Purpose |

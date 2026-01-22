@@ -28,7 +28,7 @@ import logging
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -159,7 +159,7 @@ def _save_token(token_data: dict, output_path: str) -> None:
         output_path: Path to save token file
     """
     # Add metadata
-    token_data["obtained_at"] = datetime.utcnow().isoformat()
+    token_data["obtained_at"] = datetime.now(UTC).isoformat()
 
     with open(output_path, "w") as f:
         json.dump(token_data, f, indent=2)

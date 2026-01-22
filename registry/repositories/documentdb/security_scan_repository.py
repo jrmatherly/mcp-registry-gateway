@@ -1,7 +1,7 @@
 """DocumentDB-based repository for security scan results storage."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from pymongo.asynchronous.collection import AsyncCollection
@@ -76,7 +76,7 @@ class DocumentDBSecurityScanRepository(SecurityScanRepositoryBase):
                 scan_result["server_path"] = scan_result["agent_path"]
 
             if "scan_timestamp" not in scan_result:
-                scan_result["scan_timestamp"] = datetime.utcnow().isoformat()
+                scan_result["scan_timestamp"] = datetime.now(UTC).isoformat()
 
             if "vulnerabilities" in scan_result and isinstance(
                 scan_result["vulnerabilities"], list

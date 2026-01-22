@@ -14,17 +14,10 @@ from fastapi import status
 
 from registry.search.service import FaissService
 from registry.services.agent_service import agent_service
-from registry.services.server_service import server_service
 from tests.fixtures.factories import AgentCardFactory
 from tests.fixtures.mocks.mock_embeddings import MockEmbeddingsClient
 
 logger = logging.getLogger(__name__)
-
-
-# Skip all tests in this file due to MongoDB connection timeouts
-pytestmark = pytest.mark.skip(
-    reason="MongoDB connection timeout during search repository initialization"
-)
 
 
 # =============================================================================
@@ -33,13 +26,28 @@ pytestmark = pytest.mark.skip(
 
 
 @pytest.fixture
-def mock_auth_dependencies():
+def mock_search_repo():
+    """
+    Create a mock search repository that can be configured per-test.
+
+    Returns:
+        Mock search repository with configurable search results
+    """
+    mock_repo = AsyncMock()
+    # Default empty results - tests can override via mock_repo.search.return_value
+    mock_repo.search = AsyncMock(return_value={"servers": [], "tools": [], "agents": []})
+    return mock_repo
+
+
+@pytest.fixture
+def mock_auth_dependencies(mock_search_repo):
     """
     Mock authentication dependencies using dependency_overrides.
 
     Returns:
         Dict with admin and regular user contexts
     """
+    from registry.api.search_routes import get_search_repo
     from registry.auth.dependencies import enhanced_auth, nginx_proxied_auth
     from registry.main import app
 
@@ -66,11 +74,15 @@ def mock_auth_dependencies():
     def mock_nginx_proxied_auth_override():
         return admin_user_context
 
+    def mock_search_repo_override():
+        return mock_search_repo
+
     # Override dependencies at the app level
     app.dependency_overrides[enhanced_auth] = mock_enhanced_auth_override
     app.dependency_overrides[nginx_proxied_auth] = mock_nginx_proxied_auth_override
+    app.dependency_overrides[get_search_repo] = mock_search_repo_override
 
-    yield {"admin": admin_user_context}
+    yield {"admin": admin_user_context, "mock_search_repo": mock_search_repo}
 
     # Cleanup
     app.dependency_overrides.clear()
@@ -114,25 +126,30 @@ def setup_search_environment(
     mock_nginx_service,
     mock_health_service,
     mock_federation_service,
+    stateful_server_repository,
+    stateful_agent_repository,
+    request,
 ):
     """
     Auto-use fixture to set up test environment with all mocks.
 
     This fixture runs automatically for all tests in this module.
+    Uses stateful repositories to maintain data across operations.
     """
-    # Initialize services with clean state
-    server_service.registered_servers = {}
-    server_service.service_state = {}
-    agent_service.registered_agents = {}
-    agent_service.agent_enabled_state = {}
-
-    yield
-
-    # Cleanup
-    server_service.registered_servers.clear()
-    server_service.service_state.clear()
+    # Reset agent_service cache (repositories are handled by stateful fixtures)
     agent_service.registered_agents.clear()
-    agent_service.agent_enabled_state.clear()
+    agent_service.agent_state = {"enabled": [], "disabled": []}
+
+    # Expose mock_search_repo through the test's class or module
+    # Tests can access it via self.mock_search_repo in test classes
+    if request.instance is not None:
+        request.instance.mock_search_repo = mock_auth_dependencies["mock_search_repo"]
+
+    yield mock_auth_dependencies["mock_search_repo"]
+
+    # Cleanup (repositories are cleaned up by stateful fixtures)
+    agent_service.registered_agents.clear()
+    agent_service.agent_state = {"enabled": [], "disabled": []}
 
 
 # =============================================================================
@@ -505,7 +522,12 @@ def mock_faiss_search_results():
 
 @pytest.fixture
 async def setup_search_data(
-    mock_settings, search_test_servers, search_test_agents, mock_embeddings_client
+    mock_settings,
+    search_test_servers,
+    search_test_agents,
+    mock_embeddings_client,
+    stateful_server_repository,
+    stateful_agent_repository,
 ):
     """
     Set up test data in FAISS service for search testing.
@@ -515,6 +537,8 @@ async def setup_search_data(
         search_test_servers: Test servers fixture
         search_test_agents: Test agents fixture
         mock_embeddings_client: Mock embeddings client
+        stateful_server_repository: Stateful mock server repository
+        stateful_agent_repository: Stateful mock agent repository
 
     Yields:
         Initialized FAISS service with test data
@@ -539,23 +563,22 @@ async def setup_search_data(
             agent_path=agent_card.path, agent_card=agent_card, is_enabled=True
         )
 
-    # Register servers with server service
+    # Register servers via stateful repository
     for server in search_test_servers:
-        server_service.registered_servers[server["path"]] = server
-        server_service.service_state[server["path"]] = True
+        await stateful_server_repository.create(server)
+        await stateful_server_repository.set_state(server["path"], True)
 
-    # Register agents with agent service
-    from registry.schemas.agent_models import AgentCard
-
+    # Register agents via stateful repository and cache
     for agent_data in search_test_agents:
         agent_card = AgentCard(**agent_data)
+        await stateful_agent_repository.create(agent_card)
+        await stateful_agent_repository.set_state(agent_card.path, True)
+        # Also update agent_service cache for visibility checks
         agent_service.registered_agents[agent_card.path] = agent_card
 
     yield faiss_service
 
-    # Cleanup
-    server_service.registered_servers.clear()
-    server_service.service_state.clear()
+    # Cleanup is handled by stateful fixtures
     agent_service.registered_agents.clear()
 
 
@@ -569,98 +592,88 @@ async def setup_search_data(
 class TestSemanticSearchIntegration:
     """Tests for semantic search integration."""
 
-    def test_search_servers_basic(self, test_client, mock_faiss_search_results):
+    def test_search_servers_basic(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test basic semantic search for servers."""
         # Arrange
         search_query = "database"
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["database"]
 
-        # Mock FAISS search to return predictable results
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["database"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": search_query, "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": search_query, "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["query"] == search_query
-            assert "servers" in data
-            assert "tools" in data
-            assert "agents" in data
-            assert data["total_servers"] >= 0
-            assert data["total_tools"] >= 0
-            assert data["total_agents"] >= 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["query"] == search_query
+        assert "servers" in data
+        assert "tools" in data
+        assert "agents" in data
+        assert data["total_servers"] >= 0
+        assert data["total_tools"] >= 0
+        assert data["total_agents"] >= 0
 
-    def test_search_agents_basic(self, test_client, mock_faiss_search_results):
+    def test_search_agents_basic(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test basic semantic search for agents."""
         # Arrange
         search_query = "weather"
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["weather"]
 
-        # Mock FAISS search
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["weather"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": search_query, "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": search_query, "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["query"] == search_query
-            assert len(data["agents"]) >= 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["query"] == search_query
+        assert len(data["agents"]) >= 0
 
-    def test_search_mixed_results(self, test_client, mock_faiss_search_results):
+    def test_search_mixed_results(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test semantic search returning both servers and agents."""
         # Arrange
         search_query = "database"
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["database"]
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["database"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": search_query, "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": search_query, "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_servers"] + data["total_agents"] >= 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_servers"] + data["total_agents"] >= 0
 
-    def test_search_with_tools(self, test_client, mock_faiss_search_results):
+    def test_search_with_tools(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test semantic search including tool matches."""
         # Arrange
         search_query = "file operations"
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["file operations"]
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["file operations"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": search_query, "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": search_query, "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
 
-            # Check tools in response
-            if data["total_tools"] > 0:
-                assert "tools" in data
-                assert len(data["tools"]) > 0
+        # Check tools in response
+        if data["total_tools"] > 0:
+            assert "tools" in data
+            assert len(data["tools"]) > 0
 
 
 # =============================================================================
@@ -673,7 +686,9 @@ class TestSemanticSearchIntegration:
 class TestSearchFilters:
     """Tests for search filtering functionality."""
 
-    def test_search_filter_mcp_server_only(self, test_client, mock_faiss_search_results):
+    def test_search_filter_mcp_server_only(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test search with mcp_server entity type filter."""
         # Arrange
         search_query = "database"
@@ -682,24 +697,22 @@ class TestSearchFilters:
             "tools": [],
             "agents": [],
         }
+        self.mock_search_repo.search.return_value = mock_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic",
-                json={"query": search_query, "entity_types": ["mcp_server"], "max_results": 10},
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic",
+            json={"query": search_query, "entity_types": ["mcp_server"], "max_results": 10},
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_agents"] == 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_agents"] == 0
 
-    def test_search_filter_agent_only(self, test_client, mock_faiss_search_results):
+    def test_search_filter_agent_only(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test search with a2a_agent entity type filter."""
         # Arrange
         search_query = "weather"
@@ -708,25 +721,23 @@ class TestSearchFilters:
             "tools": [],
             "agents": mock_faiss_search_results["weather"]["agents"],
         }
+        self.mock_search_repo.search.return_value = mock_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic",
-                json={"query": search_query, "entity_types": ["a2a_agent"], "max_results": 10},
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic",
+            json={"query": search_query, "entity_types": ["a2a_agent"], "max_results": 10},
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_servers"] == 0
-            assert data["total_tools"] == 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_servers"] == 0
+        assert data["total_tools"] == 0
 
-    def test_search_filter_tool_only(self, test_client, mock_faiss_search_results):
+    def test_search_filter_tool_only(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test search with tool entity type filter."""
         # Arrange
         search_query = "file operations"
@@ -735,46 +746,40 @@ class TestSearchFilters:
             "tools": mock_faiss_search_results["file operations"]["tools"],
             "agents": [],
         }
+        self.mock_search_repo.search.return_value = mock_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic",
-                json={"query": search_query, "entity_types": ["tool"], "max_results": 10},
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic",
+            json={"query": search_query, "entity_types": ["tool"], "max_results": 10},
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_servers"] == 0
-            assert data["total_agents"] == 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_servers"] == 0
+        assert data["total_agents"] == 0
 
-    def test_search_max_results_limit(self, test_client, mock_faiss_search_results):
+    def test_search_max_results_limit(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test search respects max_results parameter."""
         # Arrange
         search_query = "database"
         max_results = 2
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["database"]
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["database"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": search_query, "max_results": max_results}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": search_query, "max_results": max_results}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_servers"] <= max_results
-            assert data["total_tools"] <= max_results
-            assert data["total_agents"] <= max_results
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_servers"] <= max_results
+        assert data["total_tools"] <= max_results
+        assert data["total_agents"] <= max_results
 
 
 # =============================================================================
@@ -787,7 +792,9 @@ class TestSearchFilters:
 class TestSearchVisibilityFiltering:
     """Tests for search visibility filtering."""
 
-    def test_search_public_agents_admin(self, test_client, mock_faiss_search_results):
+    def test_search_public_agents_admin(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test that admin users can see all agents."""
         # Arrange - Auth is mocked to admin via autouse fixture
         all_agents_result = {
@@ -804,24 +811,20 @@ class TestSearchVisibilityFiltering:
                 }
             ],
         }
+        self.mock_search_repo.search.return_value = all_agents_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=all_agents_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "agent", "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "agent", "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert "agents" in data
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "agents" in data
 
     def test_search_returns_agents_with_visibility_info(
-        self, test_client, mock_faiss_search_results
+        self, test_client, mock_faiss_search_results, setup_search_environment
     ):
         """Test that search results include agent visibility information."""
         # Arrange
@@ -839,23 +842,21 @@ class TestSearchVisibilityFiltering:
                 }
             ],
         }
+        self.mock_search_repo.search.return_value = agent_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=agent_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "private", "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "private", "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_agents"] >= 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_agents"] >= 0
 
-    def test_search_group_restricted_agents(self, test_client, mock_faiss_search_results):
+    def test_search_group_restricted_agents(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test search with group-restricted agents."""
         # Arrange
         group_agent_result = {
@@ -872,23 +873,21 @@ class TestSearchVisibilityFiltering:
                 }
             ],
         }
+        self.mock_search_repo.search.return_value = group_agent_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=group_agent_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "group", "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "group", "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_agents"] >= 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_agents"] >= 0
 
-    def test_search_admin_sees_all_agents(self, test_client, mock_faiss_search_results):
+    def test_search_admin_sees_all_agents(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test that admin users can see all agents regardless of visibility."""
         # Arrange
         all_agents_result = {
@@ -913,22 +912,18 @@ class TestSearchVisibilityFiltering:
                 },
             ],
         }
+        self.mock_search_repo.search.return_value = all_agents_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=all_agents_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "agent", "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "agent", "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            # Admin should see all agents
-            assert data["total_agents"] >= 0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        # Admin should see all agents
+        assert data["total_agents"] >= 0
 
 
 # =============================================================================
@@ -941,7 +936,7 @@ class TestSearchVisibilityFiltering:
 class TestSearchErrorHandling:
     """Tests for search error handling."""
 
-    def test_search_empty_query_validation(self, test_client):
+    def test_search_empty_query_validation(self, test_client, setup_search_environment):
         """Test that empty query is rejected."""
         # Act
         response = test_client.post("/api/search/semantic", json={"query": "", "max_results": 10})
@@ -949,7 +944,7 @@ class TestSearchErrorHandling:
         # Assert
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
-    def test_search_missing_query(self, test_client):
+    def test_search_missing_query(self, test_client, setup_search_environment):
         """Test that missing query field is rejected."""
         # Act
         response = test_client.post("/api/search/semantic", json={"max_results": 10})
@@ -957,70 +952,65 @@ class TestSearchErrorHandling:
         # Assert
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
-    def test_search_service_unavailable(self, test_client):
+    def test_search_service_unavailable(self, test_client, setup_search_environment):
         """Test handling of FAISS service errors."""
-        # Arrange
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            side_effect=RuntimeError("FAISS service unavailable"),
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "test", "max_results": 10}
-            )
+        # Arrange - Configure mock to raise RuntimeError
+        self.mock_search_repo.search.side_effect = RuntimeError("FAISS service unavailable")
 
-            # Assert - should handle error gracefully
-            assert response.status_code in [
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
-                status.HTTP_503_SERVICE_UNAVAILABLE,
-            ]
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "test", "max_results": 10}
+        )
 
-    def test_search_invalid_entity_type(self, test_client):
+        # Assert - should handle error gracefully
+        assert response.status_code in [
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+        ]
+
+        # Reset side_effect for other tests
+        self.mock_search_repo.search.side_effect = None
+
+    def test_search_invalid_entity_type(self, test_client, setup_search_environment):
         """Test handling of invalid entity type filter."""
         # Arrange
         mock_result = {"servers": [], "tools": [], "agents": []}
+        self.mock_search_repo.search.return_value = mock_result
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_result,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic",
-                json={"query": "test", "entity_types": ["invalid_type"], "max_results": 10},
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic",
+            json={"query": "test", "entity_types": ["invalid_type"], "max_results": 10},
+        )
 
-            # Assert - should handle gracefully or return validation error
-            assert response.status_code in [
-                status.HTTP_200_OK,
-                status.HTTP_400_BAD_REQUEST,
-                status.HTTP_422_UNPROCESSABLE_CONTENT,
-            ]
+        # Assert - should handle gracefully or return validation error
+        assert response.status_code in [
+            status.HTTP_200_OK,
+            status.HTTP_400_BAD_REQUEST,
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+        ]
 
-    def test_search_empty_results(self, test_client, mock_faiss_search_results):
+    def test_search_empty_results(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test search with no matching results."""
         # Arrange
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["empty query"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "nonexistent query", "max_results": 10}
-            )
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["empty query"]
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
-            assert data["total_servers"] == 0
-            assert data["total_tools"] == 0
-            assert data["total_agents"] == 0
-            assert len(data["servers"]) == 0
-            assert len(data["tools"]) == 0
-            assert len(data["agents"]) == 0
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "nonexistent query", "max_results": 10}
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["total_servers"] == 0
+        assert data["total_tools"] == 0
+        assert data["total_agents"] == 0
+        assert len(data["servers"]) == 0
+        assert len(data["tools"]) == 0
+        assert len(data["agents"]) == 0
 
 
 # =============================================================================
@@ -1033,7 +1023,7 @@ class TestSearchErrorHandling:
 class TestSearchRanking:
     """Tests for search result ranking and scoring."""
 
-    def test_search_results_sorted_by_relevance(self, test_client):
+    def test_search_results_sorted_by_relevance(self, test_client, setup_search_environment):
         """Test that search results are sorted by relevance score."""
         # Arrange
         ranked_results = {
@@ -1078,52 +1068,47 @@ class TestSearchRanking:
             "tools": [],
             "agents": [],
         }
+        self.mock_search_repo.search.return_value = ranked_results
 
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=ranked_results,
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "test", "max_results": 10}
-            )
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "test", "max_results": 10}
+        )
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
 
-            # Check scores are in descending order
-            if len(data["servers"]) > 1:
-                for i in range(len(data["servers"]) - 1):
-                    assert (
-                        data["servers"][i]["relevance_score"]
-                        >= data["servers"][i + 1]["relevance_score"]
-                    )
+        # Check scores are in descending order
+        if len(data["servers"]) > 1:
+            for i in range(len(data["servers"]) - 1):
+                assert (
+                    data["servers"][i]["relevance_score"]
+                    >= data["servers"][i + 1]["relevance_score"]
+                )
 
-    def test_search_relevance_scores_range(self, test_client, mock_faiss_search_results):
+    def test_search_relevance_scores_range(
+        self, test_client, mock_faiss_search_results, setup_search_environment
+    ):
         """Test that relevance scores are in valid range (0-1)."""
         # Arrange
-        with patch(
-            "registry.api.search_routes.faiss_service.search_mixed",
-            new_callable=AsyncMock,
-            return_value=mock_faiss_search_results["database"],
-        ):
-            # Act
-            response = test_client.post(
-                "/api/search/semantic", json={"query": "database", "max_results": 10}
-            )
+        self.mock_search_repo.search.return_value = mock_faiss_search_results["database"]
 
-            # Assert
-            assert response.status_code == status.HTTP_200_OK
-            data = response.json()
+        # Act
+        response = test_client.post(
+            "/api/search/semantic", json={"query": "database", "max_results": 10}
+        )
 
-            # Check all scores are in valid range
-            for server in data["servers"]:
-                assert 0.0 <= server["relevance_score"] <= 1.0
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
 
-            for tool in data["tools"]:
-                assert 0.0 <= tool["relevance_score"] <= 1.0
+        # Check all scores are in valid range
+        for server in data["servers"]:
+            assert 0.0 <= server["relevance_score"] <= 1.0
 
-            for agent in data["agents"]:
-                assert 0.0 <= agent["relevance_score"] <= 1.0
+        for tool in data["tools"]:
+            assert 0.0 <= tool["relevance_score"] <= 1.0
+
+        for agent in data["agents"]:
+            assert 0.0 <= agent["relevance_score"] <= 1.0

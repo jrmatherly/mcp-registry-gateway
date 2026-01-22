@@ -9,7 +9,7 @@ import logging
 import os
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 # Import HTTP client for metrics
@@ -57,7 +57,7 @@ class MetricsClient:
                 "metrics": [
                     {
                         "type": metric_type,
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "value": value,
                         "duration_ms": duration_ms,
                         "dimensions": dimensions or {},

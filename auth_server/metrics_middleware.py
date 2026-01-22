@@ -16,7 +16,7 @@ import os
 import time
 import uuid
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 # Import metrics client - use HTTP API instead of local import
@@ -302,7 +302,7 @@ class AuthMetricsMiddleware(BaseHTTPMiddleware):
                 "metrics": [
                     {
                         "type": "auth_request",
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "value": 1.0,
                         "duration_ms": duration_ms,
                         "dimensions": {
@@ -360,7 +360,7 @@ class AuthMetricsMiddleware(BaseHTTPMiddleware):
             # Create tool execution metric payload
             metric_data = {
                 "type": "tool_execution",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "value": 1.0,
                 "duration_ms": duration_ms,
                 "dimensions": {
@@ -424,7 +424,7 @@ class AuthMetricsMiddleware(BaseHTTPMiddleware):
                     latency_metrics.append(
                         {
                             "type": "protocol_latency",
-                            "timestamp": datetime.utcnow().isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                             "value": init_to_list_latency,
                             "dimensions": {
                                 "flow_step": "initialize_to_tools_list",
@@ -450,7 +450,7 @@ class AuthMetricsMiddleware(BaseHTTPMiddleware):
                     latency_metrics.append(
                         {
                             "type": "protocol_latency",
-                            "timestamp": datetime.utcnow().isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                             "value": list_to_call_latency,
                             "dimensions": {
                                 "flow_step": "tools_list_to_tools_call",
@@ -474,7 +474,7 @@ class AuthMetricsMiddleware(BaseHTTPMiddleware):
                     latency_metrics.append(
                         {
                             "type": "protocol_latency",
-                            "timestamp": datetime.utcnow().isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                             "value": total_flow_latency,
                             "dimensions": {
                                 "flow_step": "full_protocol_flow",

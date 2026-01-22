@@ -8,7 +8,7 @@ to the centralized metrics collection service.
 import asyncio
 import logging
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -73,7 +73,7 @@ class MetricsClient:
                 "metrics": [
                     {
                         "type": metric_type,
-                        "timestamp": (timestamp or datetime.utcnow()).isoformat(),
+                        "timestamp": (timestamp or datetime.now(UTC)).isoformat(),
                         "value": value,
                         "duration_ms": duration_ms,
                         "dimensions": dimensions or {},
@@ -303,7 +303,7 @@ class MetricsClient:
             for metric in metrics:
                 formatted_metric = {
                     "type": metric.get("type", "custom"),
-                    "timestamp": (metric.get("timestamp") or datetime.utcnow()).isoformat(),
+                    "timestamp": (metric.get("timestamp") or datetime.now(UTC)).isoformat(),
                     "value": metric.get("value", 1.0),
                     "duration_ms": metric.get("duration_ms"),
                     "dimensions": metric.get("dimensions", {}),

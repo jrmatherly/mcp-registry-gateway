@@ -1,7 +1,7 @@
 """DocumentDB-based repository for authorization scopes storage."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from pymongo.asynchronous.collection import AsyncCollection
@@ -178,7 +178,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                             "$each": [{"scope_name": scope_name, "access_rules": [server_entry]}]
                         }
                     },
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -209,7 +209,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                             "access_rules.server": server_name,
                         }
                     },
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -240,8 +240,8 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 "server_access": [],
                 "group_mappings": [],
                 "ui_permissions": {},
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
+                "created_at": datetime.now(UTC),
+                "updated_at": datetime.now(UTC),
             }
 
             await collection.insert_one(doc)
@@ -344,7 +344,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 {"_id": group_name},
                 {
                     "$addToSet": {"ui_permissions.list_service": server_name},
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -371,7 +371,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 {"_id": group_name},
                 {
                     "$pull": {"ui_permissions.list_service": server_name},
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -400,7 +400,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 {"_id": group_name},
                 {
                     "$addToSet": {"group_mappings": scope_name},
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -427,7 +427,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 {"_id": group_name},
                 {
                     "$pull": {"group_mappings": scope_name},
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -487,7 +487,7 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 {},
                 {
                     "$pull": {"server_access": {"access_rules.server": server_name}},
-                    "$set": {"updated_at": datetime.utcnow()},
+                    "$set": {"updated_at": datetime.now(UTC)},
                 },
             )
 
@@ -545,8 +545,8 @@ class DocumentDBScopeRepository(ScopeRepositoryBase):
                 "server_access": server_access,
                 "group_mappings": group_mappings,
                 "ui_permissions": ui_permissions,
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
+                "created_at": datetime.now(UTC),
+                "updated_at": datetime.now(UTC),
             }
 
             # Use replace_one with upsert=True to create or replace the entire document

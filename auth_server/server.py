@@ -15,7 +15,7 @@ import sys
 import time
 import urllib.parse
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from string import Template
 from typing import Any
@@ -541,22 +541,8 @@ app = FastAPI(
 )
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Load scopes configuration on startup."""
-    global SCOPES_CONFIG
-    try:
-        SCOPES_CONFIG = await reload_scopes_config()
-        logger.info(
-            f"Loaded scopes configuration on startup with {len(SCOPES_CONFIG.get('group_mappings', {}))} group mappings"
-        )
-    except Exception as e:
-        logger.error(f"Failed to load scopes configuration on startup: {e}", exc_info=True)
-        # Fall back to empty config
-        SCOPES_CONFIG = {"group_mappings": {}}
-
-
 # Add metrics collection middleware
+# Note: Startup logic is handled by the lifespan context manager above
 add_auth_metrics_middleware(app)
 
 
@@ -1569,7 +1555,7 @@ async def reload_scopes(
             status_code=200,
             content={
                 "message": "Scopes configuration reloaded successfully",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "group_mappings_count": len(SCOPES_CONFIG.get("group_mappings", {})),
             },
         )

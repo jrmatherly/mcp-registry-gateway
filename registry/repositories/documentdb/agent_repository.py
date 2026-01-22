@@ -1,7 +1,7 @@
 """DocumentDB-based repository for A2A agent storage."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from pymongo.asynchronous.collection import AsyncCollection
@@ -86,9 +86,9 @@ class DocumentDBAgentRepository(AgentRepositoryBase):
         collection = await self._get_collection()
 
         if not agent.registered_at:
-            agent.registered_at = datetime.utcnow()
+            agent.registered_at = datetime.now(UTC)
         if not agent.updated_at:
-            agent.updated_at = datetime.utcnow()
+            agent.updated_at = datetime.now(UTC)
 
         agent_dict = agent.model_dump(mode="json")
         agent_dict["is_enabled"] = False
@@ -123,7 +123,7 @@ class DocumentDBAgentRepository(AgentRepositoryBase):
 
         agent_dict = existing_agent.model_dump()
         agent_dict.update(updates)
-        agent_dict["updated_at"] = datetime.utcnow()
+        agent_dict["updated_at"] = datetime.now(UTC)
 
         try:
             updated_agent = AgentCard(**agent_dict)
@@ -219,7 +219,7 @@ class DocumentDBAgentRepository(AgentRepositoryBase):
 
             result = await collection.update_one(
                 {"_id": path},
-                {"$set": {"is_enabled": enabled, "updated_at": datetime.utcnow().isoformat()}},
+                {"$set": {"is_enabled": enabled, "updated_at": datetime.now(UTC).isoformat()}},
             )
 
             if result.matched_count == 0:

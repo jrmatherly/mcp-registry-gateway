@@ -24,10 +24,9 @@ from fastapi.testclient import TestClient
 
 logger = logging.getLogger(__name__)
 
-# Skip all tests in this file due to data persistence issue
-pytestmark = pytest.mark.skip(
-    reason="Data persistence issue - servers register but don't appear in listings"
-)
+# Note: Tests in this file use the stateful_server_repository fixture from
+# integration/conftest.py to maintain server state across operations.
+# The autouse mock_all_repositories from root conftest is overridden here.
 
 
 # =============================================================================
@@ -240,23 +239,17 @@ def setup_test_environment(
     mock_agent_service,
     mock_federation_service,
     mock_auth_dependencies,
+    stateful_server_repository,
 ):
     """
     Auto-use fixture to set up test environment with all mocks.
 
     This fixture runs automatically for all tests in this module.
+    Uses stateful_server_repository to maintain server state across operations.
     """
-    # Initialize server service with clean state
-    from registry.services.server_service import server_service
-
-    server_service.registered_servers = {}
-    server_service.service_state = {}
-
+    # The stateful_server_repository fixture patches the factory function
+    # to return a mock that maintains state across operations
     yield
-
-    # Cleanup after test
-    server_service.registered_servers = {}
-    server_service.service_state = {}
 
 
 # =============================================================================

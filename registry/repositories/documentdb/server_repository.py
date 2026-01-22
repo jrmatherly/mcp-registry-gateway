@@ -1,7 +1,7 @@
 """DocumentDB-based repository for MCP server storage."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from pymongo.asynchronous.collection import AsyncCollection
@@ -95,8 +95,8 @@ class DocumentDBServerRepository(ServerRepositoryBase):
         )
         collection = await self._get_collection()
 
-        server_info["registered_at"] = datetime.utcnow().isoformat()
-        server_info["updated_at"] = datetime.utcnow().isoformat()
+        server_info["registered_at"] = datetime.now(UTC).isoformat()
+        server_info["updated_at"] = datetime.now(UTC).isoformat()
         server_info.setdefault("is_enabled", False)
 
         try:
@@ -127,7 +127,7 @@ class DocumentDBServerRepository(ServerRepositoryBase):
         )
         collection = await self._get_collection()
 
-        server_info["updated_at"] = datetime.utcnow().isoformat()
+        server_info["updated_at"] = datetime.now(UTC).isoformat()
 
         try:
             doc = {**server_info}
@@ -205,7 +205,7 @@ class DocumentDBServerRepository(ServerRepositoryBase):
 
             result = await collection.update_one(
                 {"_id": path},
-                {"$set": {"is_enabled": enabled, "updated_at": datetime.utcnow().isoformat()}},
+                {"$set": {"is_enabled": enabled, "updated_at": datetime.now(UTC).isoformat()}},
             )
 
             if result.matched_count == 0:
