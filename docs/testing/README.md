@@ -5,6 +5,8 @@ Comprehensive testing documentation for the MCP Gateway Registry project.
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Backend Tests (Python)](#backend-tests-python)
+- [Frontend Tests (TypeScript/React)](#frontend-tests-typescriptreact)
 - [Test Structure](#test-structure)
 - [Running Tests](#running-tests)
 - [Test Categories](#test-categories)
@@ -14,7 +16,41 @@ Comprehensive testing documentation for the MCP Gateway Registry project.
 
 ## Quick Start
 
-Run all tests:
+### Backend (Python)
+
+```bash
+# Run all backend tests
+make test
+
+# Unit tests only (fast)
+make test-unit
+
+# With coverage
+make test-coverage
+```
+
+### Frontend (TypeScript/React)
+
+```bash
+cd frontend
+
+# Run all frontend tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# With coverage
+npm run test:coverage
+```
+
+---
+
+## Backend Tests (Python)
+
+The backend uses **pytest** for testing. See below for detailed commands.
+
+### Run Backend Tests
 
 ```bash
 make test
@@ -58,9 +94,79 @@ uv run pytest -v
 uv run pytest --cov=registry --cov-report=html
 ```
 
-## Test Structure
+---
 
-The test suite is organized into three main categories:
+## Frontend Tests (TypeScript/React)
+
+The frontend uses **Vitest** with React Testing Library. For complete documentation, see [Frontend Testing Guide](./frontend-testing.md).
+
+### Quick Commands
+
+```bash
+cd frontend
+
+# Run all tests
+npm test
+
+# Watch mode (recommended for development)
+npm run test:watch
+
+# With Vitest UI
+npm run test:ui
+
+# With coverage report
+npm run test:coverage
+
+# Run specific test file
+npm test -- tests/components/Toast.test.tsx
+
+# CI mode
+npm run test:ci
+```
+
+### Frontend Test Structure
+
+```
+frontend/
+├── tests/
+│   ├── components/     # Component tests
+│   ├── hooks/          # Custom hook tests
+│   └── unit/           # Utility function tests
+│       ├── constants/
+│       └── utils/
+├── src/test/
+│   ├── test-utils.tsx  # Custom render with providers
+│   └── mocks/          # Mock utilities
+├── vitest.config.ts    # Vitest configuration
+└── vitest.setup.ts     # Test setup
+```
+
+### Frontend Test Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total Tests | 103 |
+| Test Files | 6 |
+| Duration | ~1.2s |
+
+### Frontend Coverage
+
+Coverage reports are generated at `frontend/tests/reports/coverage/`.
+
+For detailed frontend testing documentation including:
+
+- Writing component tests
+- Testing hooks with fake timers
+- Mocking axios requests
+- Troubleshooting common issues
+
+See the [Frontend Testing Guide](./frontend-testing.md).
+
+---
+
+## Test Structure (Backend)
+
+The backend test suite is organized into three main categories:
 
 ```
 tests/
@@ -415,10 +521,19 @@ uv run pytest --log-file=tests/reports/test.log
 
 ## Additional Resources
 
+### Backend (Python)
+
 - [Writing Tests Guide](./WRITING_TESTS.md) - How to write effective tests
 - [Test Maintenance Guide](./MAINTENANCE.md) - Maintaining test suite health
 - [Pytest Documentation](https://docs.pytest.org/) - Official pytest docs
 - [Coverage.py Documentation](https://coverage.readthedocs.io/) - Coverage tool docs
+
+### Frontend (TypeScript/React)
+
+- [Frontend Testing Guide](./frontend-testing.md) - Complete Vitest testing documentation
+- [Frontend README](../../frontend/README.md#testing) - Quick reference
+- [Vitest Documentation](https://vitest.dev/) - Official Vitest docs
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) - RTL docs
 
 ## Getting Help
 
@@ -433,6 +548,8 @@ If you encounter issues:
 
 Key commands to remember:
 
+### Backend (Python)
+
 ```bash
 # Development workflow
 make test-unit                    # Quick unit tests
@@ -446,4 +563,21 @@ pre-commit run --all-files       # Run all checks
 # Debugging
 uv run pytest -v -s              # Verbose with prints
 uv run pytest --pdb              # Debug on failure
+```
+
+### Frontend (TypeScript/React)
+
+```bash
+# Development workflow
+cd frontend
+npm run test:watch               # Watch mode (recommended)
+npm run test:coverage            # With coverage report
+
+# Before committing
+npm test                         # Run all tests
+npx tsc --noEmit                # Type check
+
+# Debugging
+npm run test:ui                  # Vitest UI
+npm test -- --reporter=verbose  # Verbose output
 ```
