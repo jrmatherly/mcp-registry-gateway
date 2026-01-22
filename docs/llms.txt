@@ -54,17 +54,17 @@ Key features include: centralized server management, OAuth 2.0/3.0 authenticatio
 
 | Subdirectory | Purpose | Key Files |
 |--------------|---------|-----------|
-| `api/` | **API Routes** - FastAPI endpoint definitions | `server_routes.py`, `agent_routes.py`, `search_routes.py`, `auth_routes.py` |
-| `services/` | **Business Logic** - Service layer between routes and repositories | `server_service.py`, `agent_service.py`, `search_service.py`, `rating_service.py` |
+| `api/` | **API Routes** - FastAPI endpoint definitions | `server_routes.py`, `agent_routes.py`, `search_routes.py`, `federation_routes.py`, `management_routes.py`, `registry_routes.py`, `wellknown_routes.py` |
+| `services/` | **Business Logic** - Service layer between routes and repositories | `server_service.py`, `agent_service.py`, `rating_service.py`, `security_scanner.py`, `agent_scanner.py`, `federation_service.py`, `transform_service.py`, `scope_service.py` |
 | `repositories/` | **Data Access Layer** - Abstract repositories with multiple backends | `interfaces.py` (abstract base classes), `factory.py`, `documentdb/`, `file/` |
-| `repositories/documentdb/` | **DocumentDB Implementation** - Production storage backend | `server_repository.py`, `agent_repository.py`, `scope_repository.py`, `search_repository.py`, `client.py` |
-| `repositories/file/` | **File Implementation** - Legacy storage backend (DEPRECATED) | `server_repository.py`, `agent_repository.py` |
+| `repositories/documentdb/` | **DocumentDB/MongoDB Implementation** - Production and development storage backend | `server_repository.py`, `agent_repository.py`, `scope_repository.py`, `search_repository.py`, `security_scan_repository.py`, `federation_config_repository.py`, `client.py` |
+| `repositories/file/` | **File Implementation** - Legacy storage backend (DEPRECATED) | `server_repository.py`, `agent_repository.py`, `scope_repository.py`, `search_repository.py`, `security_scan_repository.py`, `federation_config_repository.py` |
 | `schemas/` | **Pydantic Models** - Request/response validation | `server.py`, `agent.py`, `auth.py`, `search.py`, `security.py`, `rating.py` |
 | `auth/` | **Authentication Logic** - JWT validation, session management | `dependencies.py` (FastAPI auth dependencies), `session.py` |
-| `core/` | **Core Infrastructure** - Configuration, startup logic | `config.py` (Settings class), `logging.py` |
-| `embeddings/` | **Embedding Providers** - Multiple embedding model support | `factory.py`, `sentence_transformers.py`, `litellm_embeddings.py` |
-| `search/` | **Search Implementation** - Hybrid search (BM25 + vector) | `faiss_service.py` (legacy), `hybrid_search.py` |
-| `health/` | **Health Monitoring** - Server health checks, status tracking | `health_service.py`, `health_routes.py` |
+| `core/` | **Core Infrastructure** - Configuration, startup logic, MCP client | `config.py` (Settings class), `dependencies.py`, `mcp_client.py`, `nginx_service.py`, `task_manager.py`, `schemas.py` |
+| `embeddings/` | **Embedding Providers** - Unified embeddings client abstraction | `client.py` (EmbeddingsClient ABC, SentenceTransformersClient, LiteLLMClient), `README.md` |
+| `search/` | **Search Implementation** - Hybrid search (BM25 + vector) | `service.py` (hybrid search implementation) |
+| `health/` | **Health Monitoring** - Server health checks, status tracking | `service.py`, `routes.py` |
 | `utils/` | **Utilities** - Helper functions, logging, validation | `scopes_manager.py` (scope CRUD), `nginx_service.py` |
 | `services/federation/` | **Federation** - External registry synchronization | `anthropic.py`, `asor.py` (Workday ASOR) |
 | `static/` | **Static Assets** - CSS, JavaScript, images for web UI | - |
@@ -267,7 +267,7 @@ Routes → Services → Repositories → Storage Backends
    - Vector Search: Application-level k-NN with BM25 hybrid search
    - Configuration: `STORAGE_BACKEND=mongodb-ce`
    - Connection: `DOCUMENTDB_HOST=localhost:27017`
-   - Location: `registry/repositories/mongodb/`
+   - Location: `registry/repositories/documentdb/` (shared with DocumentDB)
 
 3. **Amazon DocumentDB (Production - RECOMMENDED)**
    - Status: Production-ready, enterprise-grade
@@ -277,6 +277,12 @@ Routes → Services → Repositories → Storage Backends
    - Features: Multi-AZ replication, automatic failover, point-in-time recovery
    - Namespace Support: Multi-tenancy via `DOCUMENTDB_NAMESPACE`
    - Location: `registry/repositories/documentdb/`
+
+**IMPORTANT - Driver Migration (January 2026):**
+- **Motor is deprecated** as of May 2026 and has been removed from this project
+- **PyMongo 4.15+** now includes built-in `AsyncMongoClient` for async operations
+- No separate `motor` package is required - async support is native to `pymongo>=4.15.0`
+- All repository implementations use `AsyncMongoClient` directly from pymongo
 
 **Repository Interfaces (Abstract Base Classes):**
 - `ServerRepository`: Server registration, listing, metadata management
@@ -1780,11 +1786,10 @@ cd credentials-provider
 # Run all tests with parallel execution (8 workers)
 uv run pytest tests/ -n 8
 
-# Expected results (as of 2026-01-06):
-# - 701 passed
-# - 57 skipped
-# - Coverage: ~39.50%
-# - Execution time: ~30 seconds
+# Expected results (as of 2026-01-22):
+# - ~867 tests collected
+# - Coverage: >=35% (enforced minimum)
+# - Execution time: ~30-60 seconds with -n 8
 
 # Run tests serially (slower, less memory)
 uv run pytest tests/
@@ -1958,6 +1963,56 @@ GET /api/v2/agents/{agent_path}/security-scan
 # Get server scan results
 GET /api/v2/servers/{server_path}/security-scan
 ```
+
+#### Global LLM Configuration with Fallback Hierarchy
+
+**NEW (January 2026):** The MCP Gateway now supports a global LLM configuration with fallback hierarchy for embeddings and security scanners.
+
+**Configuration Hierarchy:**
+1. **Component-specific settings** (highest priority) - e.g., `MCP_SCANNER_LLM_API_KEY`
+2. **Global LLM settings** (fallback) - e.g., `LLM_API_KEY`
+3. **Default values** (lowest priority)
+
+**Global LLM Settings:**
+```bash
+# Global LLM configuration (used as defaults for all LLM operations)
+LLM_PROVIDER=litellm                    # Default: litellm
+LLM_MODEL=openai/gpt-4o-mini           # Default LLM model
+LLM_API_KEY=your-api-key               # Global API key (fallback for scanners)
+LLM_API_BASE=https://your-proxy.com    # Optional: Custom API base (e.g., LiteLLM proxy)
+```
+
+**Scanner-Specific Overrides:**
+```bash
+# MCP Server Scanner (overrides global settings if set)
+MCP_SCANNER_LLM_API_KEY=specific-key   # Falls back to LLM_API_KEY if empty
+MCP_SCANNER_LLM_MODEL=openai/gpt-4o    # Falls back to LLM_MODEL if empty
+MCP_SCANNER_LLM_API_BASE=              # Falls back to LLM_API_BASE if empty
+
+# A2A Agent Scanner (overrides global settings if set)
+A2A_SCANNER_LLM_API_KEY=specific-key   # Falls back to LLM_API_KEY if empty
+A2A_SCANNER_LLM_MODEL=openai/gpt-4o    # Falls back to LLM_MODEL if empty
+A2A_SCANNER_LLM_API_BASE=              # Falls back to LLM_API_BASE if empty
+```
+
+**Embeddings Configuration:**
+```bash
+# Embeddings provider settings
+EMBEDDINGS_PROVIDER=sentence-transformers  # 'sentence-transformers' or 'litellm'
+EMBEDDINGS_MODEL_NAME=all-MiniLM-L6-v2     # Model name
+EMBEDDINGS_MODEL_DIMENSIONS=384             # Embedding dimensions (384 for default, 1024 for Bedrock Titan v2)
+
+# LiteLLM-specific embeddings settings (only when provider='litellm')
+EMBEDDINGS_API_KEY=                         # Optional: API key for LiteLLM
+EMBEDDINGS_API_BASE=                        # Optional: Custom API base
+EMBEDDINGS_AWS_REGION=us-east-1             # AWS region for Bedrock
+```
+
+**Benefits:**
+- **Simplified Configuration**: Set API keys once globally, reuse across components
+- **Flexible Overrides**: Component-specific settings override global defaults
+- **LiteLLM Proxy Support**: Route all LLM calls through a central LiteLLM proxy
+- **Cost Control**: Use different models for different components based on requirements
 
 ### 11.2. Security Best Practices
 
@@ -2289,8 +2344,7 @@ API Routes → Services → Repositories → Storage Backends
 4. **Storage Backends** (`registry/repositories/{backend}/`):
    - Implement repository interfaces for specific storage
    - File backend: `registry/repositories/file/` (DEPRECATED)
-   - MongoDB CE: `registry/repositories/mongodb/`
-   - DocumentDB: `registry/repositories/documentdb/`
+   - MongoDB CE / DocumentDB: `registry/repositories/documentdb/` (unified implementation)
 
 ### 14.2. Factory Pattern (REQUIRED)
 

@@ -1,7 +1,35 @@
 #!/bin/bash
+# shellcheck shell=bash
+#
+# MCP Gateway Registry - Build and Deploy Script
+#
+# This script builds and deploys the MCP Gateway Registry stack using
+# either Docker or Podman, with support for pre-built images.
+#
+# Usage: ./build_and_run.sh [--prebuilt] [--podman] [--help]
+#
+# Environment Variables:
+#   MCP_GATEWAY_BASE_DIR - Base directory for MCP Gateway data (default: ~/mcp-gateway)
+#
 
-# Enable error handling
-set -e
+# Enable strict error handling
+set -euo pipefail
+
+# =============================================================================
+# CONFIGURATION CONSTANTS
+# =============================================================================
+
+readonly MCP_GATEWAY_BASE_DIR="${MCP_GATEWAY_BASE_DIR:-${HOME}/mcp-gateway}"
+readonly MCPGATEWAY_SERVERS_DIR="$MCP_GATEWAY_BASE_DIR/servers"
+readonly AGENTS_DIR="$MCP_GATEWAY_BASE_DIR/agents"
+readonly AUTH_SERVER_DIR="$MCP_GATEWAY_BASE_DIR/auth_server"
+readonly SECURITY_SCANS_DIR="$MCP_GATEWAY_BASE_DIR/security_scans"
+readonly SSL_DIR="$MCP_GATEWAY_BASE_DIR/ssl"
+readonly FEDERATION_JSON_FILE="$MCP_GATEWAY_BASE_DIR/federation.json"
+
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
 
 # Function for logging with timestamp
 log() {
@@ -13,6 +41,138 @@ handle_error() {
     log "ERROR: $1"
     exit 1
 }
+
+# Wait for a service to become healthy
+# Usage: wait_for_service "Service Name" "http://url/health" [max_retries] [sleep_interval]
+wait_for_service() {
+    local service_name="$1"
+    local url="$2"
+    local max_retries="${3:-30}"
+    local sleep_interval="${4:-2}"
+    local retry_count=0
+
+    log "Waiting for $service_name to be ready..."
+    while [ "$retry_count" -lt "$max_retries" ]; do
+        if curl -sf --connect-timeout 5 --max-time 10 "$url" &>/dev/null; then
+            log "$service_name is ready"
+            return 0
+        fi
+        sleep "$sleep_interval"
+        retry_count=$((retry_count + 1))
+        log "Waiting for $service_name... ($retry_count/$max_retries)"
+    done
+
+    return 1
+}
+
+# Display an information box with title and messages
+# Usage: show_info_box "TITLE" "message1" "message2" ...
+show_info_box() {
+    local title="$1"
+    shift
+    local messages=("$@")
+
+    echo ""
+    echo "╔════════════════════════════════════════════════════════════════════════════╗"
+    printf "║ %-74s ║\n" "$title"
+    echo "╠════════════════════════════════════════════════════════════════════════════╣"
+    echo "║                                                                            ║"
+    for msg in "${messages[@]}"; do
+        printf "║  %-72s  ║\n" "$msg"
+    done
+    echo "║                                                                            ║"
+    echo "╚════════════════════════════════════════════════════════════════════════════╝"
+    echo ""
+}
+
+# Copy JSON files from source to destination directory
+# Usage: copy_json_files "src_dir" "dest_dir" "pattern" "description" [use_envsubst]
+copy_json_files() {
+    local src_dir="$1"
+    local dest_dir="$2"
+    local pattern="$3"
+    local description="$4"
+    local use_envsubst="${5:-false}"
+
+    log "Copying $description from $src_dir to $dest_dir..."
+
+    if [ ! -d "$src_dir" ]; then
+        log "WARNING: $src_dir directory not found"
+        return 1
+    fi
+
+    mkdir -p "$dest_dir"
+
+    # shellcheck disable=SC2086
+    if ! ls $src_dir/$pattern 1> /dev/null 2>&1; then
+        log "No files matching $pattern found in $src_dir"
+        return 0
+    fi
+
+    # shellcheck disable=SC2086
+    for json_file in $src_dir/$pattern; do
+        local filename
+        filename=$(basename "$json_file")
+        log "Processing $filename..."
+
+        if [ "$use_envsubst" = true ]; then
+            envsubst < "$json_file" > "$dest_dir/$filename"
+        else
+            cp "$json_file" "$dest_dir/$filename"
+        fi
+    done
+
+    log "$description copied successfully"
+    return 0
+}
+
+# Display service URLs based on container engine
+# Usage: display_service_urls "http://main" "https://main"
+display_service_urls() {
+    local main_http="$1"
+    local main_https="$2"
+
+    log "Services are available at:"
+    log "  - Main interface: $main_http or $main_https"
+    log "  - Registry API: http://localhost:7860"
+    log "  - Auth service: http://localhost:8888"
+    log "  - Current Time MCP: http://localhost:8000"
+    log "  - Financial Info MCP: http://localhost:8001"
+    log "  - Real Server Fake Tools MCP: http://localhost:8002"
+    log "  - MCP Gateway MCP: http://localhost:8003"
+    log "  - Atlassian MCP: http://localhost:8005"
+}
+
+# Portable cleanup of environment variable lines (works on both macOS and Linux)
+# Usage: cleanup_env_var "VAR_NAME"
+cleanup_env_var() {
+    local var_name="$1"
+    local tmp_file
+    tmp_file=$(mktemp)
+
+    # Remove lines matching VAR_NAME= or VAR_NAME=""
+    grep -v "^${var_name}=\$\|^${var_name}=\"\"\$" .env > "$tmp_file" 2>/dev/null || true
+    mv "$tmp_file" .env
+}
+
+# Check service health (non-blocking, returns status)
+# Usage: check_service_health "Service Name" "http://url/health"
+check_service_health() {
+    local service_name="$1"
+    local url="$2"
+
+    if curl -sf --connect-timeout 5 --max-time 10 "$url" &>/dev/null; then
+        log "$service_name is healthy"
+        return 0
+    else
+        log "WARNING: $service_name may still be starting up..."
+        return 1
+    fi
+}
+
+# =============================================================================
+# MAIN SCRIPT
+# =============================================================================
 
 # Parse command line arguments
 USE_PREBUILT=false
@@ -194,17 +354,19 @@ fi
 
 log "Found .env file"
 
-# Load environment variables from .env file early so we can check STORAGE_BACKEND
+# Load environment variables from .env file early
+# Note: .env is sourced multiple times in this script because it may be modified
+# (SECRET_KEY generation, metrics tokens). Each source reloads after modifications.
 source .env
 
 # Stop and remove existing services if they exist
 log "Stopping existing services (if any)..."
+# shellcheck disable=SC2086
 $COMPOSE_CMD $COMPOSE_FILES down --remove-orphans || log "No existing services to stop"
 log "Existing services stopped"
 
 # Clean up FAISS index files to force registry to recreate them
 log "Checking FAISS index files..."
-MCPGATEWAY_SERVERS_DIR="${HOME}/mcp-gateway/servers"
 FAISS_FILES=("service_index.faiss" "service_index_metadata.json")
 
 # Check if FAISS index files exist
@@ -218,24 +380,17 @@ for file in "${FAISS_FILES[@]}"; do
 done
 
 if [ "$FAISS_EXISTS" = true ]; then
-    echo ""
-    echo "╔════════════════════════════════════════════════════════════════════════════╗"
-    echo "║                         FAISS INDEX FILES EXIST                            ║"
-    echo "╠════════════════════════════════════════════════════════════════════════════╣"
-    echo "║                                                                            ║"
-    echo "║  Existing FAISS index files were found in:                                ║"
-    echo "║  $MCPGATEWAY_SERVERS_DIR/"
-    echo "║                                                                            ║"
-    echo "║  These files contain your server registry and search index.               ║"
-    echo "║  To preserve your registered servers, these files will NOT be deleted.    ║"
-    echo "║                                                                            ║"
-    echo "║  If you need to regenerate the FAISS index (e.g., after corruption):      ║"
-    echo "║  1. Delete the existing files:                                            ║"
-    echo "║     rm $MCPGATEWAY_SERVERS_DIR/service_index*"
-    echo "║  2. The registry will automatically rebuild the index on startup          ║"
-    echo "║                                                                            ║"
-    echo "╚════════════════════════════════════════════════════════════════════════════╝"
-    echo ""
+    show_info_box "FAISS INDEX FILES EXIST" \
+        "Existing FAISS index files were found in:" \
+        "$MCPGATEWAY_SERVERS_DIR/" \
+        "" \
+        "These files contain your server registry and search index." \
+        "To preserve your registered servers, these files will NOT be deleted." \
+        "" \
+        "If you need to regenerate the FAISS index (e.g., after corruption):" \
+        "1. Delete the existing files:" \
+        "   rm $MCPGATEWAY_SERVERS_DIR/service_index*" \
+        "2. The registry will automatically rebuild the index on startup"
     log "Keeping existing FAISS index files - NOT deleting"
 else
     log "No existing FAISS index files found - will be created on first startup"
@@ -256,67 +411,25 @@ for dir in "$MCPGATEWAY_SERVERS_DIR" "${HOME}/mcp-gateway/agents" "${HOME}/mcp-g
     fi
 done
 
-# Copy JSON files from registry/servers to ${HOME}/mcp-gateway/servers with environment variable substitution
-log "Copying JSON files from registry/servers to $MCPGATEWAY_SERVERS_DIR..."
-if [ -d "registry/servers" ]; then
-    # Create the target directory if it doesn't exist
-    mkdir -p "$MCPGATEWAY_SERVERS_DIR"
+# Copy JSON files from registry/servers with environment variable substitution
+# Export all environment variables from .env file for envsubst
+set -a  # Automatically export all variables
+source .env  # Reload to export variables for envsubst
+set +a  # Turn off automatic export
 
-    # Copy all JSON files with environment variable substitution
-    if ls registry/servers/*.json 1> /dev/null 2>&1; then
-        # Export all environment variables from .env file for envsubst
-        set -a  # Automatically export all variables
-        source .env
-        set +a  # Turn off automatic export
+copy_json_files "registry/servers" "$MCPGATEWAY_SERVERS_DIR" "*.json" "server configs" true
 
-        for json_file in registry/servers/*.json; do
-            filename=$(basename "$json_file")
-            log "Processing $filename with environment variable substitution..."
-
-            # Use envsubst to substitute environment variables, then copy to target
-            envsubst < "$json_file" > "$MCPGATEWAY_SERVERS_DIR/$filename"
-        done
-        log "JSON files copied successfully with environment variable substitution"
-
-        # Verify atlassian.json was copied
-        if [ -f "$MCPGATEWAY_SERVERS_DIR/atlassian.json" ]; then
-            log "atlassian.json copied successfully"
-        else
-            log "WARNING: atlassian.json not found in copied files"
-        fi
-    else
-        log "No JSON files found in registry/servers"
-    fi
+# Verify atlassian.json was copied
+if [ -f "$MCPGATEWAY_SERVERS_DIR/atlassian.json" ]; then
+    log "atlassian.json copied successfully"
 else
-    log "WARNING: registry/servers directory not found"
+    log "WARNING: atlassian.json not found in copied files"
 fi
 
-# Copy seed agent JSON files from cli/examples to ${HOME}/mcp-gateway/agents
-AGENTS_DIR="${HOME}/mcp-gateway/agents"
-log "Copying seed agent files from cli/examples to $AGENTS_DIR..."
-if [ -d "cli/examples" ]; then
-    # Create the target directory if it doesn't exist
-    mkdir -p "$AGENTS_DIR"
+# Copy seed agent JSON files from cli/examples
+copy_json_files "cli/examples" "$AGENTS_DIR" "*agent*.json" "seed agents" false
 
-    # Copy all agent JSON files from cli/examples
-    if ls cli/examples/*agent*.json 1> /dev/null 2>&1; then
-        for json_file in cli/examples/*agent*.json; do
-            filename=$(basename "$json_file")
-            log "Copying seed agent $filename..."
-
-            # Copy agent file to target directory
-            cp "$json_file" "$AGENTS_DIR/$filename"
-        done
-        log "Seed agent files copied successfully"
-    else
-        log "No seed agent files found in cli/examples"
-    fi
-else
-    log "WARNING: cli/examples directory not found - seed agents will not be copied"
-fi
-
-# Copy scopes.yml to ${HOME}/mcp-gateway/auth_server
-AUTH_SERVER_DIR="${HOME}/mcp-gateway/auth_server"
+# Copy scopes.yml to auth_server directory
 TARGET_SCOPES_FILE="$AUTH_SERVER_DIR/scopes.yml"
 
 log "Checking scopes.yml configuration..."
@@ -326,24 +439,17 @@ if [ -f "auth_server/scopes.yml" ]; then
 
     # Check if scopes.yml already exists in the target directory
     if [ -f "$TARGET_SCOPES_FILE" ]; then
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════════════════════╗"
-        echo "║                            SCOPES.YML EXISTS                               ║"
-        echo "╠════════════════════════════════════════════════════════════════════════════╣"
-        echo "║                                                                            ║"
-        echo "║  An existing scopes.yml file was found at:                                ║"
-        echo "║  $TARGET_SCOPES_FILE"
-        echo "║                                                                            ║"
-        echo "║  This file contains your custom groups and server configurations.         ║"
-        echo "║  To preserve your settings, this file will NOT be overwritten.            ║"
-        echo "║                                                                            ║"
-        echo "║  If you need to restore the default scopes.yml from the codebase:         ║"
-        echo "║  1. Delete the existing file:                                             ║"
-        echo "║     rm $TARGET_SCOPES_FILE"
-        echo "║  2. Re-run this script                                                    ║"
-        echo "║                                                                            ║"
-        echo "╚════════════════════════════════════════════════════════════════════════════╝"
-        echo ""
+        show_info_box "SCOPES.YML EXISTS" \
+            "An existing scopes.yml file was found at:" \
+            "$TARGET_SCOPES_FILE" \
+            "" \
+            "This file contains your custom groups and server configurations." \
+            "To preserve your settings, this file will NOT be overwritten." \
+            "" \
+            "If you need to restore the default scopes.yml from the codebase:" \
+            "1. Delete the existing file:" \
+            "   rm $TARGET_SCOPES_FILE" \
+            "2. Re-run this script"
         log "Keeping existing scopes.yml - NOT overwriting"
     else
         # Copy scopes.yml for first-time setup
@@ -355,17 +461,14 @@ else
 fi
 
 # Create empty security_scans directory for Docker mount
-SECURITY_SCANS_DIR="${HOME}/mcp-gateway/security_scans"
 log "Creating empty security_scans directory for Docker mount"
 mkdir -p "$SECURITY_SCANS_DIR"
 
 # Create empty federation.json file for Docker mount
-FEDERATION_JSON_FILE="${HOME}/mcp-gateway/federation.json"
 log "Creating empty federation.json for Docker mount"
 touch "$FEDERATION_JSON_FILE"
 
 # Setup SSL certificate directory structure
-SSL_DIR="${HOME}/mcp-gateway/ssl"
 log "Setting up SSL certificate directory structure..."
 mkdir -p "$SSL_DIR/certs"
 mkdir -p "$SSL_DIR/private"
@@ -387,9 +490,8 @@ if ! grep -q "SECRET_KEY=" .env || grep -q "SECRET_KEY=$" .env || grep -q "SECRE
     log "Generating SECRET_KEY..."
     SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))') || handle_error "Failed to generate SECRET_KEY"
 
-    # Remove any existing empty SECRET_KEY line
-    sed -i '/^SECRET_KEY=$/d' .env 2>/dev/null || true
-    sed -i '/^SECRET_KEY=""$/d' .env 2>/dev/null || true
+    # Remove any existing empty SECRET_KEY line (portable across macOS and Linux)
+    cleanup_env_var "SECRET_KEY"
 
     # Add new SECRET_KEY
     echo "SECRET_KEY=$SECRET_KEY" >> .env
@@ -400,7 +502,7 @@ fi
 
 # Validate required environment variables
 log "Validating required environment variables..."
-source .env
+source .env  # Reload after potential SECRET_KEY addition
 
 if [ -z "$ADMIN_PASSWORD" ] || [ "$ADMIN_PASSWORD" = "your_secure_password" ]; then
     log "ERROR: ADMIN_PASSWORD must be set to a secure value in .env file"
@@ -441,6 +543,7 @@ fi
 # Build or pull container images
 if [ "$USE_PREBUILT" = true ]; then
     log "Pulling pre-built container images..."
+    # shellcheck disable=SC2086
     $COMPOSE_CMD $COMPOSE_FILES pull || handle_error "Compose pull failed"
     log "Pre-built container images pulled successfully"
 else
@@ -452,36 +555,25 @@ else
     fi
 
     # Build with parallel jobs and build cache
+    # shellcheck disable=SC2086
     $COMPOSE_CMD $COMPOSE_FILES build --parallel --progress=auto || handle_error "Compose build failed"
     log "Container images built successfully with optimization"
 fi
 
 # Start metrics service first to generate API keys
 log "Starting metrics service first..."
+# shellcheck disable=SC2086
 $COMPOSE_CMD $COMPOSE_FILES up -d metrics-service || handle_error "Failed to start metrics service"
 
 # Wait for metrics service to be ready
-log "Waiting for metrics service to be ready..."
-max_retries=30
-retry_count=0
-while [ $retry_count -lt $max_retries ]; do
-    if curl -f http://localhost:8890/health &>/dev/null; then
-        log "Metrics service is ready"
-        break
-    fi
-    sleep 2
-    retry_count=$((retry_count + 1))
-    log "Waiting for metrics service... ($retry_count/$max_retries)"
-done
-
-if [ $retry_count -eq $max_retries ]; then
+wait_for_service "Metrics service" "http://localhost:8890/health" 30 2 || \
     handle_error "Metrics service did not become ready within expected time"
-fi
 
 # Generate dynamic pre-shared tokens for metrics authentication
 log "Setting up dynamic pre-shared tokens for services..."
 
 # Get all services from compose file that might need metrics (exclude monitoring services)
+# shellcheck disable=SC2086
 METRICS_SERVICES=$($COMPOSE_CMD $COMPOSE_FILES config --services 2>/dev/null | grep -v -E "(prometheus|grafana|metrics-db)" | sort | uniq)
 
 if [ -z "$METRICS_SERVICES" ]; then
@@ -491,7 +583,7 @@ else
 fi
 
 # Check if tokens already exist in .env
-source .env 2>/dev/null || true
+source .env 2>/dev/null || true  # Reload to check for existing tokens
 
 # Generate tokens for each service dynamically
 for service in $METRICS_SERVICES; do
@@ -512,8 +604,10 @@ for service in $METRICS_SERVICES; do
     if [ -z "$CURRENT_VALUE" ] || [ "$CURRENT_VALUE" = "" ]; then
         NEW_TOKEN="mcp_metrics_$(openssl rand -hex 16)"
 
-        # Remove any existing line for this variable
-        sed -i "/^$ENV_VAR_NAME=/d" .env 2>/dev/null || true
+        # Remove any existing line for this variable (portable across macOS and Linux)
+        TMP_FILE=$(mktemp)
+        grep -v "^${ENV_VAR_NAME}=" .env > "$TMP_FILE" 2>/dev/null || true
+        mv "$TMP_FILE" .env
 
         # Add new token
         echo "$ENV_VAR_NAME=$NEW_TOKEN" >> .env
@@ -527,6 +621,7 @@ log "Dynamic metrics API tokens configured successfully"
 
 # Now start all other services with the API keys in environment
 log "Starting remaining services..."
+# shellcheck disable=SC2086
 $COMPOSE_CMD $COMPOSE_FILES up -d || handle_error "Failed to start remaining services"
 
 # Wait a moment for services to initialize
@@ -535,27 +630,21 @@ sleep 10
 
 # Check service status
 log "Checking service status..."
+# shellcheck disable=SC2086
 $COMPOSE_CMD $COMPOSE_FILES ps
 
 # Verify key services are running
 log "Verifying services are healthy..."
 
 # Check registry service
-if curl -f http://localhost:7860/health &>/dev/null; then
-    log "Registry service is healthy"
-else
-    log "WARNING: Registry service may still be starting up..."
-fi
+check_service_health "Registry service" "http://localhost:7860/health" || true
 
 # Check auth service
-if curl -f http://localhost:8888/health &>/dev/null; then
-    log "Auth service is healthy"
-else
-    log "WARNING: Auth service may still be starting up..."
-fi
+check_service_health "Auth service" "http://localhost:8888/health" || true
 
 # Check nginx is responding
-if curl -f http://localhost:80 &>/dev/null || curl -k -f https://localhost:443 &>/dev/null; then
+if curl -sf --connect-timeout 5 --max-time 10 http://localhost:80 &>/dev/null || \
+   curl -ksf --connect-timeout 5 --max-time 10 https://localhost:443 &>/dev/null; then
     log "Nginx is responding"
 else
     log "WARNING: Nginx may still be starting up..."
@@ -599,25 +688,9 @@ log ""
 
 # Display correct URLs based on container engine
 if [[ "$COMPOSE_CMD" == "podman compose" ]]; then
-    log "Services are available at:"
-    log "  - Main interface: http://localhost:8080 or https://localhost:8443"
-    log "  - Registry API: http://localhost:7860"
-    log "  - Auth service: http://localhost:8888"
-    log "  - Current Time MCP: http://localhost:8000"
-    log "  - Financial Info MCP: http://localhost:8001"
-    log "  - Real Server Fake Tools MCP: http://localhost:8002"
-    log "  - MCP Gateway MCP: http://localhost:8003"
-    log "  - Atlassian MCP: http://localhost:8005"
+    display_service_urls "http://localhost:8080" "https://localhost:8443"
 else
-    log "Services are available at:"
-    log "  - Main interface: http://localhost or https://localhost"
-    log "  - Registry API: http://localhost:7860"
-    log "  - Auth service: http://localhost:8888"
-    log "  - Current Time MCP: http://localhost:8000"
-    log "  - Financial Info MCP: http://localhost:8001"
-    log "  - Real Server Fake Tools MCP: http://localhost:8002"
-    log "  - MCP Gateway MCP: http://localhost:8003"
-    log "  - Atlassian MCP: http://localhost:8005"
+    display_service_urls "http://localhost" "https://localhost"
 fi
 log ""
 log "To view logs for all services: $COMPOSE_CMD $COMPOSE_FILES logs -f"
@@ -626,11 +699,12 @@ log "To stop services: $COMPOSE_CMD $COMPOSE_FILES down"
 log ""
 
 # Ask if user wants to follow logs
-read -p "Do you want to follow the logs? (y/n): " -n 1 -r
+read -r -p "Do you want to follow the logs? (y/n): " -n 1 REPLY
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log "Following container logs (press Ctrl+C to stop following logs without stopping the services):"
     echo "---------- CONTAINER LOGS ----------"
+    # shellcheck disable=SC2086
     $COMPOSE_CMD $COMPOSE_FILES logs -f
 else
     log "Services are running in the background. Use '$COMPOSE_CMD $COMPOSE_FILES logs -f' to view logs."
