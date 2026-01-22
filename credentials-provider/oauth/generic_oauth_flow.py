@@ -59,10 +59,10 @@ from typing import Any
 import requests
 import yaml
 
+from ..constants import LOGGING_FORMAT
+
 # Configure logging first
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format=LOGGING_FORMAT)
 logger = logging.getLogger("generic-oauth")
 
 # Try to load .env file if python-dotenv is available
@@ -179,13 +179,12 @@ def _load_oauth_providers() -> dict[str, Any]:
 # Load OAuth provider configurations
 OAUTH_PROVIDERS = _load_oauth_providers()
 
-# Global variables for callback handling
-authorization_code = None
-received_state = None
-callback_received = False
-callback_error = None
-pkce_verifier = None
-oauth_config_global = None
+# Callback state management (replacing global variables)
+from .callback_state import get_global_callback_state
+
+# For backwards compatibility, create module-level references
+# that delegate to the callback state object
+_callback_state = get_global_callback_state()
 
 
 @dataclass
@@ -633,12 +632,8 @@ class CallbackHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         """Handle GET requests (OAuth callback)."""
-        global \
-            authorization_code, \
-            callback_received, \
-            callback_error, \
-            received_state, \
-            oauth_config_global
+        # Use the module-level callback state
+        state = _callback_state
 
         parsed_path = urllib.parse.urlparse(self.path)
         logger.debug(f"CallbackHandler received GET request for: {self.path}")
@@ -662,31 +657,29 @@ class CallbackHandler(http.server.BaseHTTPRequestHandler):
         params = urllib.parse.parse_qs(query)
 
         if "error" in params:
-            callback_error = params["error"][0]
-            callback_received = True
-            logger.error(f"Authorization error from callback: {callback_error}")
-            self._send_response(f"Authorization failed: {callback_error}", status=400)
+            state.set_error(params["error"][0])
+            logger.error(f"Authorization error from callback: {state.callback_error}")
+            self._send_response(f"Authorization failed: {state.callback_error}", status=400)
             return
 
         if "code" in params:
-            authorization_code = params["code"][0]
-            if "state" in params:
-                received_state = params["state"][0]
-            callback_received = True
+            auth_code = params["code"][0]
+            recv_state = params["state"][0] if "state" in params else None
+            state.set_success(auth_code, recv_state)
             logger.info("Authorization code and state received successfully via callback.")
 
             # Try immediate token exchange if config is available
             message = "Authorization successful! You can close this window now."
-            if oauth_config_global:
+            if state.oauth_config:
                 try:
                     logger.info("Attempting immediate token exchange...")
-                    success = oauth_config_global.exchange_code_for_tokens(
-                        authorization_code, pkce_verifier
+                    success = state.oauth_config.exchange_code_for_tokens(
+                        state.authorization_code, state.pkce_verifier
                     )
 
                     if success:
                         message = "Authorization successful! Tokens have been saved securely. You can close this window now."
-                        logger.info("🎉 Token exchange completed successfully during callback!")
+                        logger.info("Token exchange completed successfully during callback!")
                     else:
                         message = "Authorization received but token exchange failed. Check the logs for details."
                         logger.error("Token exchange failed during callback")
@@ -821,26 +814,26 @@ def start_callback_server(port: int) -> socketserver.TCPServer:
 
 def wait_for_callback(timeout: int = 300) -> bool:
     """Wait for the callback to be received."""
-    global callback_received, callback_error, authorization_code
+    state = _callback_state
 
     start_time = time.time()
-    while not callback_received and (time.time() - start_time) < timeout:
+    while not state.callback_received and (time.time() - start_time) < timeout:
         time.sleep(1)
 
-    if not callback_received:
+    if not state.callback_received:
         logger.error(f"Timed out waiting for authorization callback after {timeout} seconds")
         logger.info("You can still visit the authorization URL and complete the flow manually")
         return False
 
-    if callback_error:
-        logger.error(f"Authorization error: {callback_error}")
+    if state.callback_error:
+        logger.error(f"Authorization error: {state.callback_error}")
         return False
 
-    if not authorization_code:
+    if not state.authorization_code:
         logger.error("No authorization code received")
         return False
 
-    logger.info(f"Received authorization code: {authorization_code[:20]}...")
+    logger.info(f"Received authorization code: {state.authorization_code[:20]}...")
     return True
 
 
@@ -1157,20 +1150,12 @@ def run_oauth_flow(config: OAuthConfig, force_new: bool = False) -> bool:
         logger.info("Provider configured for M2M/Client Credentials flow")
         return run_m2m_flow(config)
 
-    global \
-        pkce_verifier, \
-        authorization_code, \
-        received_state, \
-        callback_received, \
-        callback_error, \
-        oauth_config_global
+    # Use callback state instead of global variables
+    callback_state = _callback_state
 
-    # Reset global variables
-    authorization_code = None
-    received_state = None
-    callback_received = False
-    callback_error = None
-    oauth_config_global = config  # Make config available to callback handler
+    # Reset callback state for new flow
+    callback_state.reset()
+    callback_state.oauth_config = config  # Make config available to callback handler
 
     # Handle force delete of existing tokens
     if force_new:
@@ -1195,12 +1180,12 @@ def run_oauth_flow(config: OAuthConfig, force_new: bool = False) -> bool:
                     return True
 
     # Generate state for CSRF protection
-    state = secrets.token_urlsafe(16)
+    csrf_state = secrets.token_urlsafe(16)
 
     # Generate PKCE pair if required
     pkce_challenge = None
     if config.provider_config.get("requires_pkce", False):
-        pkce_verifier, pkce_challenge = generate_pkce_pair()
+        callback_state.pkce_verifier, pkce_challenge = generate_pkce_pair()
         logger.debug("Generated PKCE challenge for enhanced security")
 
     # Start local callback server if using localhost
@@ -1216,7 +1201,7 @@ def run_oauth_flow(config: OAuthConfig, force_new: bool = False) -> bool:
             return False
 
     # Get the authorization URL
-    auth_url = config.get_authorization_url(state, pkce_challenge)
+    auth_url = config.get_authorization_url(csrf_state, pkce_challenge)
 
     # Open the browser for authorization
     logger.info(f"Opening browser for {config.provider_config['display_name']} authorization")
@@ -1229,8 +1214,8 @@ def run_oauth_flow(config: OAuthConfig, force_new: bool = False) -> bool:
     logger.info("Waiting for authorization callback...")
     callback_success = wait_for_callback()
 
-    # Clean up global config reference
-    oauth_config_global = None
+    # Clean up config reference from callback state
+    callback_state.oauth_config = None
 
     if not callback_success:
         if httpd:
@@ -1238,8 +1223,10 @@ def run_oauth_flow(config: OAuthConfig, force_new: bool = False) -> bool:
         return False
 
     # Verify state to prevent CSRF attacks
-    if received_state != state:
-        logger.warning(f"State mismatch! Expected: {state}, Received: {received_state}")
+    if callback_state.received_state != csrf_state:
+        logger.warning(
+            f"State mismatch! Expected: {csrf_state}, Received: {callback_state.received_state}"
+        )
         logger.warning("This might be from a previous authorization attempt. Continuing anyway...")
         # Don't fail on state mismatch in case of VS Code port forwarding or browser refresh
     else:
@@ -1252,7 +1239,10 @@ def run_oauth_flow(config: OAuthConfig, force_new: bool = False) -> bool:
     else:
         # Exchange the code for tokens if not done already
         logger.info("Exchanging authorization code for tokens...")
-        success = config.exchange_code_for_tokens(authorization_code, pkce_verifier)
+        success = config.exchange_code_for_tokens(
+            callback_state.authorization_code,
+            callback_state.pkce_verifier,
+        )
 
     if httpd:
         httpd.shutdown()

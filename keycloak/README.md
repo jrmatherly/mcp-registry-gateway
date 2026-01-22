@@ -6,6 +6,18 @@
 
 - Docker and Docker Compose installed
 - Port 8080 available (Keycloak) and 5432 (PostgreSQL)
+- `jq` installed (JSON processor for parsing API responses)
+- `curl` installed (HTTP client for API requests)
+
+Install prerequisites on macOS:
+```bash
+brew install jq curl
+```
+
+Install prerequisites on Ubuntu/Debian:
+```bash
+sudo apt-get install jq curl
+```
 
 ### Step 1: Set Required Passwords
 

@@ -10,10 +10,13 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import requests
+
+from ..constants import LOGGING_FORMAT
+from ..utils import redact_sensitive_value
 
 
 class Colors:
@@ -36,7 +39,7 @@ class TokenGenerator:
     def setup_logging(self):
         """Setup logging configuration"""
         level = logging.DEBUG if self.verbose else logging.INFO
-        logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+        logging.basicConfig(level=level, format=LOGGING_FORMAT)
         self.logger = logging.getLogger(__name__)
 
     def log(self, message: str):
@@ -140,11 +143,11 @@ class TokenGenerator:
         os.makedirs(oauth_tokens_dir, exist_ok=True)
 
         # Generate timestamps
-        generated_at = datetime.now(datetime.UTC).isoformat()
+        generated_at = datetime.now(UTC).isoformat()
         expires_at = None
         if expires_in:
-            expiry_timestamp = datetime.now(datetime.UTC).timestamp() + expires_in
-            expires_at = datetime.fromtimestamp(expiry_timestamp, datetime.UTC).isoformat()
+            expiry_timestamp = datetime.now(UTC).timestamp() + expires_in
+            expires_at = datetime.fromtimestamp(expiry_timestamp, UTC).isoformat()
 
         # Save .env file
         env_file = os.path.join(oauth_tokens_dir, f"{agent_name}.env")
@@ -195,24 +198,6 @@ class TokenGenerator:
         self.success(f"Token metadata saved to: {json_file}")
 
         # Display token info (redacted for security)
-        try:
-            from ..utils import redact_sensitive_value
-        except ImportError:
-            # Fallback for when running as standalone script
-            import sys
-            from pathlib import Path
-
-            utils_path = Path(__file__).parent.parent / "utils.py"
-            if utils_path.exists():
-                sys.path.insert(0, str(utils_path.parent))
-                from utils import redact_sensitive_value
-            else:
-                # Simple fallback redaction function
-                def redact_sensitive_value(value: str, show_chars: int = 8) -> str:
-                    if not value or len(value) <= show_chars:
-                        return "*" * len(value) if value else ""
-                    return value[:show_chars] + "*" * (len(value) - show_chars)
-
         redacted_token = redact_sensitive_value(access_token, 8)
         print(f"\nAccess Token: {redacted_token}")
         if expires_in:

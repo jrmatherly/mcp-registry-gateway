@@ -205,6 +205,27 @@
       "attributes": {
         "description": ["Restricted access to specific MCP servers"]
       }
+    },
+    {
+      "name": "a2a-agent-admin",
+      "path": "/a2a-agent-admin",
+      "attributes": {
+        "description": ["Administrative access for A2A agents"]
+      }
+    },
+    {
+      "name": "a2a-agent-publisher",
+      "path": "/a2a-agent-publisher",
+      "attributes": {
+        "description": ["Publisher access for A2A agents"]
+      }
+    },
+    {
+      "name": "a2a-agent-user",
+      "path": "/a2a-agent-user",
+      "attributes": {
+        "description": ["Standard user access for A2A agents"]
+      }
     }
   ],
 

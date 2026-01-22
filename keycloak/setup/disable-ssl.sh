@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Script to disable SSL requirement for Keycloak realms
 # This allows both HTTP and HTTPS connections without requiring HTTPS
 #
@@ -14,54 +13,50 @@
 #   - jq installed for JSON processing
 #   - curl installed for API requests
 #   - Keycloak running and accessible
+#
+# Version: 2.0.0
 
 set -e
+set -o pipefail
 
-# Configure logging with basicConfig
-logging_format="%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s"
+# =============================================================================
+# Load Shared Library
+# =============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Source the common library
+if [[ -f "${SCRIPT_DIR}/lib/keycloak-common.sh" ]]; then
+    # shellcheck source=lib/keycloak-common.sh
+    source "${SCRIPT_DIR}/lib/keycloak-common.sh"
+else
+    echo "Error: Could not find keycloak-common.sh library" >&2
+    echo "Expected at: ${SCRIPT_DIR}/lib/keycloak-common.sh" >&2
+    exit 1
+fi
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+# Load environment variables from .env file
+load_env_file "$SCRIPT_DIR"
+
+# Check dependencies first
+check_dependencies || exit 1
 
 # Default values
-KEYCLOAK_URL="${KEYCLOAK_URL:-http://localhost:8080}"
-KEYCLOAK_ADMIN="${KEYCLOAK_ADMIN:-admin}"
+KEYCLOAK_URL="$(get_keycloak_url)"
+ADMIN_USER="$(get_keycloak_admin)"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 KEYCLOAK_ADMIN_PASSWORD="${1:-}"
-VERBOSE="${VERBOSE:-0}"
 
-log_info() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-log_debug() {
-    if [[ "$VERBOSE" == "1" ]]; then
-        echo -e "${BLUE}[DEBUG]${NC} $1"
-    fi
-}
-
-log_trace() {
-    if [[ "$VERBOSE" == "1" ]]; then
-        echo -e "${BLUE}[TRACE]${NC} $1"
-    fi
-}
+# =============================================================================
+# Functions
+# =============================================================================
 
 _fetch_keycloak_password_from_secrets_manager() {
     local secret_name
     local secret_value
-    local raw_response
 
     log_info "Fetching Keycloak admin password from AWS Secrets Manager..." >&2
     log_debug "AWS Region: $AWS_REGION" >&2
@@ -91,7 +86,7 @@ _fetch_keycloak_password_from_secrets_manager() {
     log_debug "Retrieving secret value from: $secret_name" >&2
 
     # Get the secret value directly using jq query
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         log_trace "Executing: aws secretsmanager get-secret-value --secret-id $secret_name --region $AWS_REGION --query SecretString --output text" >&2
     fi
 
@@ -112,9 +107,8 @@ _fetch_keycloak_password_from_secrets_manager() {
         return 1
     fi
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         echo "[TRACE] Keycloak admin password (first 4 chars): ${secret_value:0:4}***" >&2
-        echo "[TRACE] Keycloak admin password (full): $secret_value" >&2
         echo "[TRACE] Password length verified: ${#secret_value} characters" >&2
     fi
 
@@ -131,7 +125,7 @@ _extract_hostname_from_url() {
     echo "$url"
 }
 
-_get_admin_token() {
+_get_admin_token_for_ssl() {
     local keycloak_url="$1"
     local admin_user="$2"
     local admin_password="$3"
@@ -147,12 +141,12 @@ _get_admin_token() {
     token_url="$keycloak_url/realms/master/protocol/openid-connect/token"
     log_trace "Token URL: $token_url"
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         log_trace "Admin password (first 4 chars): ${admin_password:0:4}***"
     fi
 
     log_trace "Executing token request..."
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         echo "[TRACE] Full curl command:" >&2
         echo "[TRACE] curl -s -w \"\\n%{http_code}\" -X POST \"$token_url\" -H \"Content-Type: application/x-www-form-urlencoded\" -d \"username=$admin_user\" -d \"password=***\" -d \"grant_type=password\" -d \"client_id=admin-cli\"" >&2
     fi
@@ -164,7 +158,7 @@ _get_admin_token() {
         -d "grant_type=password" \
         -d "client_id=admin-cli")
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         echo "[TRACE] Raw curl response length: ${#response}" >&2
         echo "[TRACE] Raw curl response (first 500 chars): ${response:0:500}" >&2
     fi
@@ -172,7 +166,7 @@ _get_admin_token() {
     http_code=$(echo "$response" | tail -1)
     log_debug "HTTP Status Code: $http_code"
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         echo "[TRACE] Response body (without http code):" >&2
         echo "$response" | sed '$d' >&2
     fi
@@ -218,7 +212,7 @@ _configure_hostname() {
     log_debug "HTTP Status Code: $http_code"
 
     if [[ "$http_code" == "204" ]]; then
-        log_info "Successfully configured hostname: $hostname"
+        log_success "Successfully configured hostname: $hostname"
         return 0
     else
         log_error "Failed to configure hostname (HTTP $http_code)"
@@ -244,7 +238,7 @@ _disable_ssl_for_realm() {
     log_trace "Request method: PUT"
     log_trace "Request body: {\"sslRequired\": \"none\"}"
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         log_trace "Admin token (first 50 chars): ${admin_token:0:50}..."
     fi
 
@@ -259,7 +253,7 @@ _disable_ssl_for_realm() {
     log_debug "Response body: $(echo "$response" | sed '$d')"
 
     if [[ "$http_code" == "204" ]]; then
-        log_info "Successfully disabled SSL requirement for realm: $realm_name"
+        log_success "Successfully disabled SSL requirement for realm: $realm_name"
         return 0
     else
         log_error "Failed to disable SSL for realm: $realm_name (HTTP $http_code)"
@@ -296,7 +290,7 @@ _verify_ssl_disabled() {
     log_trace "Full realm config: $(echo "$response" | sed '$d' | jq '.')"
 
     if [[ "$ssl_required" == "none" ]]; then
-        log_info "Verified: SSL requirement is disabled (sslRequired = 'none')"
+        log_success "Verified: SSL requirement is disabled (sslRequired = 'none')"
         return 0
     else
         log_warn "Current sslRequired value: $ssl_required"
@@ -305,13 +299,14 @@ _verify_ssl_disabled() {
     fi
 }
 
+# =============================================================================
+# Main Execution
+# =============================================================================
 main() {
-    echo "=========================================="
-    echo "Keycloak SSL Configuration Script"
-    echo "=========================================="
+    print_header "Keycloak SSL Configuration Script"
     echo ""
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         log_debug "VERBOSE mode enabled"
         log_debug "Passwords will be partially displayed for debugging"
     fi
@@ -328,30 +323,29 @@ main() {
             log_error "Failed to fetch password from AWS Secrets Manager"
             exit 1
         fi
-        log_info "Password fetched successfully from AWS Secrets Manager"
+        log_success "Password fetched successfully from AWS Secrets Manager"
     else
         log_info "Using provided password"
         log_debug "Password provided as argument"
     fi
 
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         echo "[TRACE] Password length: ${#KEYCLOAK_ADMIN_PASSWORD} characters" >&2
         echo "[TRACE] Password first 4 chars: ${KEYCLOAK_ADMIN_PASSWORD:0:4}***" >&2
-        echo "[TRACE] Full password: $KEYCLOAK_ADMIN_PASSWORD" >&2
     fi
 
     # Extract hostname from KEYCLOAK_URL if not explicitly provided
-    local KEYCLOAK_HOSTNAME
-    KEYCLOAK_HOSTNAME=$(_extract_hostname_from_url "$KEYCLOAK_URL")
-    log_debug "Extracted hostname from URL: $KEYCLOAK_HOSTNAME"
+    local keycloak_hostname
+    keycloak_hostname=$(_extract_hostname_from_url "$KEYCLOAK_URL")
+    log_debug "Extracted hostname from URL: $keycloak_hostname"
 
     echo ""
     echo "Configuration:"
     echo "  Keycloak URL: $KEYCLOAK_URL"
-    echo "  Keycloak Hostname: $KEYCLOAK_HOSTNAME"
-    echo "  Admin User: $KEYCLOAK_ADMIN"
+    echo "  Keycloak Hostname: $keycloak_hostname"
+    echo "  Admin User: $ADMIN_USER"
     echo "  AWS Region: $AWS_REGION"
-    if [[ "$VERBOSE" == "1" ]]; then
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
         echo "  Verbose Mode: ENABLED"
     fi
     echo ""
@@ -361,7 +355,7 @@ main() {
 
     # Get admin token
     local admin_token
-    admin_token=$(_get_admin_token "$KEYCLOAK_URL" "$KEYCLOAK_ADMIN" "$KEYCLOAK_ADMIN_PASSWORD")
+    admin_token=$(_get_admin_token_for_ssl "$KEYCLOAK_URL" "$ADMIN_USER" "$KEYCLOAK_ADMIN_PASSWORD")
     if [[ $? -ne 0 ]]; then
         log_error "Failed to obtain admin token. Aborting."
         exit 1
@@ -371,7 +365,7 @@ main() {
     log_trace "Step 2: Configuring hostname"
 
     # Configure hostname for master realm (fixes HTTPS redirect loop)
-    if _configure_hostname "$KEYCLOAK_URL" "$admin_token" "$KEYCLOAK_HOSTNAME"; then
+    if _configure_hostname "$KEYCLOAK_URL" "$admin_token" "$keycloak_hostname"; then
         log_info "Hostname configuration successful"
     else
         log_warn "Failed to configure hostname, continuing..."
@@ -399,16 +393,14 @@ main() {
     fi
 
     echo ""
-    echo "=========================================="
-    log_info "Keycloak SSL and hostname configuration completed"
-    echo "=========================================="
+    log_success "Keycloak SSL and hostname configuration completed"
     echo ""
-    echo "Next steps:"
-    echo "1. Clear your browser cache/cookies for the Keycloak domain"
-    echo "2. Try accessing Keycloak at: $KEYCLOAK_URL"
-    echo "3. If still seeing HTTPS error, restart Keycloak container:"
-    echo "   docker-compose restart keycloak"
-    echo ""
+
+    print_next_steps \
+        "Clear your browser cache/cookies for the Keycloak domain" \
+        "Try accessing Keycloak at: $KEYCLOAK_URL" \
+        "If still seeing HTTPS error, restart Keycloak container: docker-compose restart keycloak"
+
     log_debug "Script exit status: $?"
 }
 

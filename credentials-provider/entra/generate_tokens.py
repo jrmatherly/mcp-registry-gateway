@@ -21,11 +21,11 @@ from typing import (
 
 import requests
 
+from ..constants import LOGGING_FORMAT
+from ..utils import redact_sensitive_value
+
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s,p%(process)s,{%(filename)s:%(lineno)d},%(levelname)s,%(message)s",
-)
+logging.basicConfig(level=logging.INFO, format=LOGGING_FORMAT)
 logger = logging.getLogger(__name__)
 
 # Default Entra ID login base URL
@@ -41,16 +41,6 @@ class Colors:
     YELLOW = "\033[1;33m"
     BLUE = "\033[0;34m"
     NC = "\033[0m"
-
-
-def _redact_sensitive_value(
-    value: str,
-    show_chars: int = 8,
-) -> str:
-    """Redact sensitive value for logging."""
-    if not value or len(value) <= show_chars:
-        return "*" * len(value) if value else ""
-    return value[:show_chars] + "*" * (len(value) - show_chars)
 
 
 def _get_token_from_entra(
@@ -178,7 +168,7 @@ def _save_token_file(
 
     print(f"{Colors.GREEN}[SUCCESS]{Colors.NC} Token saved to: {json_file}")
 
-    redacted_token = _redact_sensitive_value(access_token, 8)
+    redacted_token = redact_sensitive_value(access_token, 8)
     print(f"\nAccess Token: {redacted_token}")
     if expires_in:
         print(f"Expires in: {expires_in} seconds")

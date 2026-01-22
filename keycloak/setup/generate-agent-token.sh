@@ -1,30 +1,53 @@
 #!/bin/bash
-
 # Generate OAuth2 access token for MCP agents
-# Usage: ./generate-agent-token.sh [agent-name] [--client-id ID] [--client-secret SECRET] [--keycloak-url URL] [--realm REALM]
+#
+# Usage:
+#   ./generate-agent-token.sh [agent-name] [options]
+#
+# Version: 2.0.0
 
 set -e
+set -o pipefail
+
+# =============================================================================
+# Load Shared Library
+# =============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source the common library
+if [[ -f "${SCRIPT_DIR}/lib/keycloak-common.sh" ]]; then
+    # shellcheck source=lib/keycloak-common.sh
+    source "${SCRIPT_DIR}/lib/keycloak-common.sh"
+else
+    echo "Error: Could not find keycloak-common.sh library" >&2
+    echo "Expected at: ${SCRIPT_DIR}/lib/keycloak-common.sh" >&2
+    exit 1
+fi
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+# Load environment variables from .env file
+load_env_file "$SCRIPT_DIR"
+
+# Check dependencies first
+check_dependencies || exit 1
 
 # Default values
 AGENT_NAME="mcp-gateway-m2m"
 CLIENT_ID=""
 CLIENT_SECRET=""
 KEYCLOAK_URL=""
-KEYCLOAK_REALM="mcp-gateway"
+KEYCLOAK_REALM="$(get_keycloak_realm)"
 
-# Determine the project root directory (parent of keycloak/setup directory)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+# Project root for oauth tokens
+PROJECT_ROOT="$(get_project_root "$SCRIPT_DIR")"
 OAUTH_TOKENS_DIR="${PROJECT_ROOT}/.oauth-tokens"
-VERBOSE=false
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
+# =============================================================================
+# Usage
+# =============================================================================
 usage() {
     echo "Usage: $0 [agent-name] [options]"
     echo ""
@@ -56,23 +79,9 @@ usage() {
     echo "  $0 test-agent --client-id test-client --client-secret secret123 --keycloak-url http://localhost:8080"
 }
 
-log() {
-    if [ "$VERBOSE" = true ]; then
-        echo -e "${BLUE}[INFO]${NC} $1"
-    fi
-}
-
-error() {
-    echo -e "${RED}[ERROR]${NC} $1" >&2
-}
-
-success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+# =============================================================================
+# Argument Parsing
+# =============================================================================
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -98,7 +107,8 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --verbose|-v)
-            VERBOSE=true
+            VERBOSE=1
+            export VERBOSE
             shift
             ;;
         --help|-h)
@@ -106,16 +116,16 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -*)
-            error "Unknown option: $1"
+            log_error "Unknown option: $1"
             usage
             exit 1
             ;;
         *)
             # First positional argument is agent name
-            if [ -z "$AGENT_NAME" ] || [ "$AGENT_NAME" = "mcp-gateway-m2m" ]; then
+            if [[ -z "$AGENT_NAME" ]] || [[ "$AGENT_NAME" == "mcp-gateway-m2m" ]]; then
                 AGENT_NAME="$1"
             else
-                error "Unexpected argument: $1"
+                log_error "Unexpected argument: $1"
                 usage
                 exit 1
             fi
@@ -124,136 +134,146 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-log "Using agent name: $AGENT_NAME"
-log "OAuth tokens directory: $OAUTH_TOKENS_DIR"
+log_debug "Using agent name: $AGENT_NAME"
+log_debug "OAuth tokens directory: $OAUTH_TOKENS_DIR"
+
+# =============================================================================
+# Functions
+# =============================================================================
 
 # Function to load config from JSON file
 load_config_from_json() {
     local config_file="$OAUTH_TOKENS_DIR/${AGENT_NAME}.json"
 
-    if [ ! -f "$config_file" ]; then
-        error "Config file not found: $config_file"
+    if [[ ! -f "$config_file" ]]; then
+        log_error "Config file not found: $config_file"
         return 1
     fi
 
-    log "Loading config from: $config_file"
-
-    # Check if jq is available
-    if ! command -v jq &> /dev/null; then
-        error "jq is required to parse JSON config files. Please install jq."
-        return 1
-    fi
+    log_debug "Loading config from: $config_file"
 
     # Extract values from JSON if not already provided
-    if [ -z "$CLIENT_ID" ]; then
+    if [[ -z "$CLIENT_ID" ]]; then
         CLIENT_ID=$(jq -r '.client_id // empty' "$config_file")
-        log "Loaded CLIENT_ID from config: $CLIENT_ID"
+        log_debug "Loaded CLIENT_ID from config: $CLIENT_ID"
     fi
 
-    if [ -z "$CLIENT_SECRET" ]; then
+    if [[ -z "$CLIENT_SECRET" ]]; then
         CLIENT_SECRET=$(jq -r '.client_secret // empty' "$config_file")
-        log "Loaded CLIENT_SECRET from config: ${CLIENT_SECRET:0:10}..."
+        log_debug "Loaded CLIENT_SECRET from config: $(mask_string "$CLIENT_SECRET")"
     fi
 
-    if [ -z "$KEYCLOAK_URL" ]; then
+    if [[ -z "$KEYCLOAK_URL" ]]; then
         KEYCLOAK_URL=$(jq -r '.keycloak_url // .gateway_url // empty' "$config_file" | sed 's|/realms/.*||')
-        log "Loaded KEYCLOAK_URL from config: $KEYCLOAK_URL"
+        log_debug "Loaded KEYCLOAK_URL from config: $KEYCLOAK_URL"
     fi
 
     # Also try to get realm from config
-    local config_realm=$(jq -r '.keycloak_realm // .realm // empty' "$config_file")
-    if [ -n "$config_realm" ] && [ "$KEYCLOAK_REALM" = "mcp-gateway" ]; then
+    local config_realm
+    config_realm=$(jq -r '.keycloak_realm // .realm // empty' "$config_file")
+    if [[ -n "$config_realm" ]] && [[ "$KEYCLOAK_REALM" == "mcp-gateway" ]]; then
         KEYCLOAK_REALM="$config_realm"
-        log "Loaded KEYCLOAK_REALM from config: $KEYCLOAK_REALM"
+        log_debug "Loaded KEYCLOAK_REALM from config: $KEYCLOAK_REALM"
     fi
 }
 
-# Load config from JSON if available
-if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ] || [ -z "$KEYCLOAK_URL" ]; then
-    load_config_from_json
-fi
+# =============================================================================
+# Main Execution
+# =============================================================================
+main() {
+    # Load config from JSON if available
+    if [[ -z "$CLIENT_ID" ]] || [[ -z "$CLIENT_SECRET" ]] || [[ -z "$KEYCLOAK_URL" ]]; then
+        load_config_from_json || true
+    fi
 
-# Validate required parameters
-if [ -z "$CLIENT_ID" ]; then
-    error "CLIENT_ID is required. Provide via --client-id or in config file."
-    exit 1
-fi
+    # Validate required parameters
+    if [[ -z "$CLIENT_ID" ]]; then
+        log_error "CLIENT_ID is required. Provide via --client-id or in config file."
+        exit 1
+    fi
 
-if [ -z "$CLIENT_SECRET" ]; then
-    error "CLIENT_SECRET is required. Provide via --client-secret or in config file."
-    exit 1
-fi
+    if [[ -z "$CLIENT_SECRET" ]]; then
+        log_error "CLIENT_SECRET is required. Provide via --client-secret or in config file."
+        exit 1
+    fi
 
-if [ -z "$KEYCLOAK_URL" ]; then
-    error "KEYCLOAK_URL is required. Provide via --keycloak-url or in config file."
-    exit 1
-fi
+    if [[ -z "$KEYCLOAK_URL" ]]; then
+        log_error "KEYCLOAK_URL is required. Provide via --keycloak-url or in config file."
+        exit 1
+    fi
 
-# Construct token URL
-TOKEN_URL="$KEYCLOAK_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token"
+    # Construct token URL
+    local token_url="$KEYCLOAK_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token"
 
-log "Token URL: $TOKEN_URL"
-log "Client ID: $CLIENT_ID"
-log "Realm: $KEYCLOAK_REALM"
+    log_debug "Token URL: $token_url"
+    log_debug "Client ID: $CLIENT_ID"
+    log_debug "Realm: $KEYCLOAK_REALM"
 
-# Make token request
-echo "Requesting access token for agent: $AGENT_NAME"
+    # Make token request
+    log_info "Requesting access token for agent: $AGENT_NAME"
 
-response=$(curl -s -X POST "$TOKEN_URL" \
-    -H "Content-Type: application/x-www-form-urlencoded" \
-    -d "grant_type=client_credentials" \
-    -d "client_id=$CLIENT_ID" \
-    -d "client_secret=$CLIENT_SECRET" \
-    -d "scope=openid email profile")
+    local response
+    response=$(curl -s -X POST "$token_url" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=client_credentials" \
+        -d "client_id=$CLIENT_ID" \
+        -d "client_secret=$CLIENT_SECRET" \
+        -d "scope=openid email profile")
 
-# Check if curl succeeded
-if [ $? -ne 0 ]; then
-    error "Failed to make token request to Keycloak"
-    exit 1
-fi
+    # Check if curl succeeded
+    if [[ $? -ne 0 ]]; then
+        log_error "Failed to make token request to Keycloak"
+        exit 1
+    fi
 
-# Parse response
-if command -v jq &> /dev/null; then
+    # Parse response
     # Check for error in response
+    local error_description
     error_description=$(echo "$response" | jq -r '.error_description // empty')
-    if [ -n "$error_description" ]; then
-        error "Token request failed: $error_description"
+    if [[ -n "$error_description" ]]; then
+        log_error "Token request failed: $error_description"
         exit 1
     fi
 
     # Extract access token
+    local access_token
+    local expires_in
     access_token=$(echo "$response" | jq -r '.access_token // empty')
     expires_in=$(echo "$response" | jq -r '.expires_in // empty')
 
-    if [ -z "$access_token" ]; then
-        error "No access token in response"
+    if [[ -z "$access_token" ]]; then
+        log_error "No access token in response"
         echo "Response: $response"
         exit 1
     fi
 
-    success "Access token generated successfully!"
+    log_success "Access token generated successfully!"
     echo ""
 
     # Mask token for security - show only first and last portions
-    token_preview="${access_token:0:20}....[MASKED FOR SECURITY]....${access_token: -20}"
+    local token_preview
+    token_preview="$(mask_string "$access_token" 20 20)"
     echo "Access Token: $token_preview"
     echo ""
 
-    if [ -n "$expires_in" ]; then
+    if [[ -n "$expires_in" ]]; then
         echo "Expires in: $expires_in seconds"
+        local expiry_time
         expiry_time=$(date -d "+$expires_in seconds" 2>/dev/null || date -r $(($(date +%s) + expires_in)) 2>/dev/null || echo "Unknown")
         echo "Expires at: $expiry_time"
         echo ""
     fi
 
-    # Offer to save as environment file
-    env_file="$OAUTH_TOKENS_DIR/${AGENT_NAME}.env"
+    # Ensure OAuth tokens directory exists
+    local oauth_dir
+    oauth_dir=$(ensure_oauth_tokens_dir "$PROJECT_ROOT")
+
+    # Save to .env file
+    local env_file="$oauth_dir/${AGENT_NAME}.env"
     echo "Environment variables saved to: $env_file"
     echo "(Full token and credentials have been saved securely - not displayed in terminal)"
     echo ""
 
-    # Save to .env file
-    mkdir -p "$OAUTH_TOKENS_DIR"
     cat > "$env_file" << EOF
 # Generated access token for $AGENT_NAME
 # Generated at: $(date)
@@ -266,10 +286,11 @@ export AUTH_PROVIDER="keycloak"
 EOF
 
     # Save to JSON file with metadata
-    json_file="$OAUTH_TOKENS_DIR/${AGENT_NAME}-token.json"
+    local json_file="$oauth_dir/${AGENT_NAME}-token.json"
+    local generated_at
+    local expires_at=""
     generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    expires_at=""
-    if [ -n "$expires_in" ]; then
+    if [[ -n "$expires_in" ]]; then
         expires_at=$(date -u -d "+$expires_in seconds" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -r $(($(date +%s) + expires_in)) +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
     fi
 
@@ -288,15 +309,15 @@ EOF
   "scope": "openid email profile",
   "metadata": {
     "generated_by": "generate-agent-token.sh",
-    "script_version": "1.0",
+    "script_version": "2.0",
     "token_format": "JWT",
     "auth_method": "client_credentials"
   }
 }
 EOF
 
-    success "Token saved to: $env_file"
-    success "Token JSON saved to: $json_file"
+    log_success "Token saved to: $env_file"
+    log_success "Token JSON saved to: $json_file"
     echo ""
     echo "Token has been saved securely to files (not displayed in terminal for security)."
     echo ""
@@ -306,8 +327,7 @@ EOF
     echo ""
     echo "Use with mcp_client.py:"
     echo "  uv run python cli/mcp_client.py --token-file $json_file ..."
+}
 
-else
-    warning "jq not available, showing raw response:"
-    echo "$response"
-fi
+# Run main function
+main
