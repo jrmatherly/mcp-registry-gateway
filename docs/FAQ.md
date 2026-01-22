@@ -333,11 +333,11 @@ The registry will automatically:
 
    ```bash
    # View all service logs
-   docker-compose logs -f
+   docker compose logs -f
 
    # View specific service logs
-   docker-compose logs -f registry
-   docker-compose logs -f auth-server
+   docker compose logs -f registry
+   docker compose logs -f auth-server
    ```
 
 4. **API Endpoint**: Programmatic health checks via `/health` endpoints
@@ -372,7 +372,7 @@ The registry will automatically:
 4. **Review Logs**:
 
    ```bash
-   docker-compose logs -f auth-server | grep -i error
+   docker compose logs -f auth-server | grep -i error
    ```
 
 5. **Common Issues**:
@@ -416,6 +416,10 @@ graph LR
     E --> F[Check Method Access]
     F --> G[Check Tool Access]
     G --> H[Grant/Deny]
+
+    %% Dark mode text visibility
+    classDef flowStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    class A,B,C,D,E,F,G,H flowStyle
 ```
 
 **Extension Points**:
@@ -611,4 +615,4 @@ cd mcp-registry-gateway
 
 ---
 
-*This FAQ is maintained by the MCP Agentic community. Last updated: June 16, 2025*
+*This FAQ is maintained by the MCP Agentic community.*

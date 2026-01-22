@@ -1,27 +1,161 @@
 # Complete Setup Guide: MCP Gateway & Registry from Scratch
 
-This guide provides a comprehensive, step-by-step walkthrough for setting up the MCP Gateway & Registry on a fresh AWS EC2 instance. Perfect for first-time users who want to get the system running from zero.
+This guide provides comprehensive deployment options for the MCP Gateway & Registry. Choose the deployment method that best fits your infrastructure.
 
-## Table of Contents
+## Deployment Options
 
-1. [AWS EC2 Instance Setup](#1-aws-ec2-instance-setup)
+| Method | Best For | Guide |
+|--------|----------|-------|
+| **Kubernetes (Helm)** | Production deployments, on-premise clusters, multi-cloud | [Kubernetes Deployment](#kubernetes-deployment-recommended) |
+| **Docker Compose** | Local development, testing, evaluation | [Quick Start](#quick-start-docker compose) |
+| **AWS ECS (Terraform)** | AWS-native deployments with Fargate | [Terraform ECS Guide](https://github.com/jrmatherly/mcp-registry-gateway/tree/main/terraform/aws-ecs) |
+| **Single VM/EC2** | Simple deployments, proof-of-concept | [VM/EC2 Setup](#vm-deployment-aws-ec2-or-on-premise) |
+
+---
+
+## Kubernetes Deployment (Recommended)
+
+Deploy the MCP Gateway & Registry on any Kubernetes cluster using Helm charts. This is the recommended approach for production deployments.
+
+### Prerequisites
+
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Kubernetes cluster | v1.25+ | EKS, GKE, AKS, on-premise, or self-managed |
+| `helm` CLI | v3.12+ | [Installation guide](https://helm.sh/docs/intro/install/) (v3.14+ recommended) |
+| `kubectl` | v1.25+ | Configured for cluster access |
+| Ingress controller | - | NGINX, Traefik, or cloud-specific (ALB, etc.) |
+
+### Quick Deployment
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
+
+# 2. Update chart dependencies
+helm dependency update charts/mcp-gateway-registry-stack
+
+# 3. Deploy the stack
+helm install mcp-stack ./charts/mcp-gateway-registry-stack \
+  --namespace mcp-gateway --create-namespace \
+  --set global.domain=yourdomain.com \
+  --set global.secretKey=$(openssl rand -base64 32) \
+  --wait --timeout=10m
+
+# 4. Verify deployment
+kubectl get pods -n mcp-gateway
+helm status mcp-stack -n mcp-gateway
+```
+
+### Verify Deployment
+
+```bash
+# Check all pods are running (wait for all to show Running)
+kubectl get pods -n mcp-gateway -w
+
+# Expected output:
+# NAME                                      READY   STATUS    RESTARTS   AGE
+# mcp-stack-auth-server-xxx                 1/1     Running   0          2m
+# mcp-stack-keycloak-xxx                    1/1     Running   0          3m
+# mcp-stack-registry-xxx                    1/1     Running   0          2m
+# mcp-stack-mongodb-xxx                     1/1     Running   0          3m
+
+# Check services have endpoints
+kubectl get svc -n mcp-gateway
+
+# Check ingress is configured
+kubectl get ingress -n mcp-gateway
+
+# View logs if issues occur
+kubectl logs -n mcp-gateway -l app.kubernetes.io/name=registry -f
+```
+
+### DNS Configuration
+
+Configure DNS records pointing to your ingress controller's external IP or hostname:
+
+| DNS Record | Type | Target |
+|------------|------|--------|
+| `mcpregistry.yourdomain.com` | A or CNAME | Ingress external IP/hostname |
+| `keycloak.yourdomain.com` | A or CNAME | Ingress external IP/hostname |
+| `auth-server.yourdomain.com` | A or CNAME | Ingress external IP/hostname |
+
+**Get your ingress external IP:**
+
+```bash
+kubectl get ingress -n mcp-gateway -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}'
+```
+
+**For local testing** (without DNS), add entries to `/etc/hosts`:
+
+```bash
+# Replace <INGRESS_IP> with your ingress IP
+echo "<INGRESS_IP> mcpregistry.yourdomain.com keycloak.yourdomain.com auth-server.yourdomain.com" | sudo tee -a /etc/hosts
+```
+
+### Access the Services
+
+| Service | URL |
+|---------|-----|
+| Registry UI | `https://mcpregistry.yourdomain.com` |
+| Keycloak Admin | `https://keycloak.yourdomain.com` |
+| Auth Server | `https://auth-server.yourdomain.com` |
+
+For detailed Kubernetes deployment options, values configuration, and troubleshooting, see the [Helm Charts README](../charts/README.md).
+
+---
+
+## Quick Start (Docker Compose)
+
+For local development and evaluation, use Docker Compose:
+
+```bash
+# 1. Clone and setup
+git clone https://github.com/jrmatherly/mcp-registry-gateway.git
+cd mcp-registry-gateway
+cp .env.example .env
+
+# 2. Configure environment
+nano .env  # Set required passwords
+
+# 3. Start services with pre-built images from GitHub Container Registry
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
+./build_and_run.sh --prebuilt
+
+# 4. Access the registry
+open http://localhost:7860
+```
+
+For detailed Docker Compose setup, see the [Installation Guide](installation.md).
+
+---
+
+## Table of Contents (VM Deployment)
+
+The following sections provide detailed instructions for deploying on a single VM (AWS EC2, on-premise server, or any Linux host):
+
+1. [VM Deployment: AWS EC2 or On-Premise](#vm-deployment-aws-ec2-or-on-premise)
 2. [Initial System Configuration](#2-initial-system-configuration)
 3. [Installing Prerequisites](#3-installing-prerequisites)
 4. [Cloning and Configuring the Project](#4-cloning-and-configuring-the-project)
 5. [Setting Up Keycloak Identity Provider](#5-setting-up-keycloak-identity-provider)
 6. [Starting the MCP Gateway Services](#6-starting-the-mcp-gateway-services)
-7. [Storage Backend Setup](#7-storage-backend-setup-optional)
+7. [Storage Backend Setup](#7-storage-backend-setup)
    - [MongoDB CE Setup (Recommended)](#mongodb-ce-setup-recommended-for-local-development)
 8. [Verification and Testing](#8-verification-and-testing)
 9. [Configuring AI Agents and Coding Assistants](#9-configuring-ai-agents-and-coding-assistants)
 10. [Troubleshooting](#10-troubleshooting)
-11. [Next Steps](#11-next-steps)
+11. [Custom HTTPS Domain Configuration](#11-custom-https-domain-configuration)
+12. [Next Steps](#12-next-steps)
 
 ---
 
-## 1. AWS EC2 Instance Setup
+## VM Deployment: AWS EC2 or On-Premise
 
-### Launch EC2 Instance
+This section covers deploying on a single VM. The instructions use AWS EC2 as an example, but apply to any Linux server (Ubuntu 22.04/24.04 recommended).
+
+### Option A: AWS EC2 Instance
 
 1. **Log into AWS Console** and navigate to EC2
 2. **Click "Launch Instance"** and configure:
@@ -36,7 +170,7 @@ This guide provides a comprehensive, step-by-step walkthrough for setting up the
    - Subnet: Public subnet with auto-assign public IP
    - **Security Group**: Create new with following rules:
 
-     ```
+     ```text
      Inbound Rules:
      - SSH (22): Your IP address
      - HTTP (80): 0.0.0.0/0 (or restrict as needed)
@@ -58,11 +192,38 @@ ssh -i your-key.pem ubuntu@your-instance-public-ip
 ssh -i ~/.ssh/mcp-gateway-key.pem ubuntu@ec2-54-123-456-789.compute-1.amazonaws.com
 ```
 
+### Option B: On-Premise or Other Cloud VM
+
+For on-premise servers or other cloud providers (Azure VM, GCP Compute Engine, etc.):
+
+**Minimum Requirements:**
+
+- **OS**: Ubuntu 22.04 or 24.04 LTS (recommended)
+- **CPU**: 4+ cores
+- **RAM**: 16GB+ (32GB recommended for production)
+- **Storage**: 50GB+ SSD
+- **Network**: Static IP or DNS hostname, ports 80, 443, 7860, 8000, 8080 accessible
+
+**Firewall Configuration:**
+
+```bash
+# For UFW (Ubuntu)
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 80/tcp    # HTTP
+sudo ufw allow 443/tcp   # HTTPS
+sudo ufw allow 7860/tcp  # Registry UI
+sudo ufw allow 8000/tcp  # Auth Server
+sudo ufw allow 8080/tcp  # Keycloak
+sudo ufw enable
+```
+
+Once your VM is accessible via SSH, proceed to the next section.
+
 ---
 
 ## 2. Initial System Configuration
 
-Once connected to your EC2 instance:
+Once connected to your VM:
 
 ```bash
 # Update system packages
@@ -113,14 +274,14 @@ docker run hello-world
 # Should show "Hello from Docker!" message
 
 # Install Docker Compose V2 Plugin (REQUIRED)
-sudo apt-get install -y docker-compose-plugin
+sudo apt-get install -y docker compose-plugin
 
 # Verify Docker Compose V2 installation
 docker compose version
 # Expected output: Docker Compose version v2.x.x or higher
 
 # Note: The build_and_run.sh script requires Docker Compose V2 (docker compose)
-# Do NOT use the old standalone docker-compose v1
+# Do NOT use the old standalone docker compose v1
 ```
 
 ### Install Node.js and npm
@@ -546,7 +707,7 @@ This will create access token files (both `.json` and `.env` formats) for all Ke
 
 Open a web browser and navigate to:
 
-```
+```text
 http://localhost:8080
 ```
 
@@ -581,10 +742,10 @@ chmod +x build_and_run.sh
 # - Build the React frontend in the frontend/ directory
 # - Create necessary local directories
 # - Build Docker images
-# - Start all services with docker-compose
+# - Start all services with docker compose
 
 # After the script completes, check all services are running
-docker-compose ps
+docker compose ps
 
 # Expected output should show all services as "Up":
 # - keycloak-db
@@ -599,12 +760,12 @@ docker-compose ps
 
 ```bash
 # View all logs
-docker-compose logs -f
+docker compose logs -f
 
 # Or view specific service logs
-docker-compose logs -f auth-server
-docker-compose logs -f registry
-docker-compose logs -f nginx
+docker compose logs -f auth-server
+docker compose logs -f registry
+docker compose logs -f nginx
 
 # Press Ctrl+C to exit log viewing
 ```
@@ -913,7 +1074,7 @@ tail -f token_refresher.log
 
 **Example Token Refresh Output:**
 
-```
+```text
 2025-09-17 03:09:43,391,p455210,{token_refresher.py:370},INFO,Successfully refreshed OAuth token: agent-test-agent-m2m-token.json
 2025-09-17 03:09:43,391,p455210,{token_refresher.py:898},INFO,Token successfully updated at: /home/ubuntu/repos/mcp-registry-gateway/.oauth-tokens/agent-test-agent-m2m-token.json
 2025-09-17 03:09:43,631,p455210,{token_refresher.py:341},INFO,Refreshing OAuth token for provider: keycloak
@@ -1026,10 +1187,10 @@ sudo systemctl stop apache2  # If Apache is running
 
 ```bash
 # Check Keycloak logs
-docker-compose logs keycloak | tail -50
+docker compose logs keycloak | tail -50
 
 # Restart Keycloak
-docker-compose restart keycloak
+docker compose restart keycloak
 
 # Wait 2-3 minutes and retry initialization
 ./keycloak/setup/init-keycloak.sh
@@ -1050,7 +1211,7 @@ docker-compose restart keycloak
 3. Restart Keycloak and try initialization again:
 
    ```bash
-   docker-compose restart keycloak
+   docker compose restart keycloak
    # Wait 2-3 minutes, then:
    ./keycloak/setup/init-keycloak.sh
    ```
@@ -1104,6 +1265,27 @@ docker-compose restart keycloak
 
 **Why this happens**: Cookies with `secure=true` are ONLY sent over HTTPS connections. If you access via HTTP (like `http://localhost:7860`), the browser will reject the cookie and login will fail.
 
+**Alternative Cause: SECRET_KEY Mismatch**
+
+If `SESSION_COOKIE_SECURE` is correct but login still fails, check for SECRET_KEY issues:
+
+```bash
+# Check for SECRET_KEY mismatch between services
+docker compose logs auth-server | grep "SECRET_KEY"
+docker compose logs registry | grep -E "(session|cookie|Invalid)"
+
+# If you see "No SECRET_KEY environment variable found", regenerate and restart:
+SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
+sed -i "s/SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" .env
+
+# Recreate containers to pick up new SECRET_KEY
+docker compose stop auth-server registry
+docker compose rm -f auth-server registry
+docker compose up -d auth-server registry
+
+# Test login again - should work now
+```
+
 #### Authentication Issues
 
 ```bash
@@ -1111,33 +1293,12 @@ docker-compose restart keycloak
 curl http://localhost:8080/realms/mcp-gateway
 
 # Check auth server logs
-docker-compose logs auth-server | tail -50
+docker compose logs auth-server | tail -50
 
 # Regenerate agent credentials
 ./keycloak/setup/setup-agent-service-account.sh \
   --agent-id new-test-agent \
   --group mcp-servers-unrestricted
-```
-
-#### Login Redirects Back to Login Page
-
-This usually indicates a session cookie issue between auth-server and registry:
-
-```bash
-# Check for SECRET_KEY mismatch
-docker-compose logs auth-server | grep "SECRET_KEY"
-docker-compose logs registry | grep -E "(session|cookie|Invalid)"
-
-# If you see "No SECRET_KEY environment variable found", regenerate and restart:
-SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(64))")
-sed -i "s/SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" .env
-
-# Recreate containers to pick up new SECRET_KEY
-docker-compose stop auth-server registry
-docker-compose rm -f auth-server registry
-docker-compose up -d auth-server registry
-
-# Test login again - should work now
 ```
 
 #### Configure Token Lifetime
@@ -1183,55 +1344,55 @@ If you see "oauth2_callback_failed" error:
 
 ```bash
 # Check Keycloak external URL configuration
-docker-compose exec -T auth-server env | grep KEYCLOAK_EXTERNAL_URL
+docker compose exec -T auth-server env | grep KEYCLOAK_EXTERNAL_URL
 # Should show: KEYCLOAK_EXTERNAL_URL=http://localhost:8080
 
 # If missing, add to .env file:
 echo "KEYCLOAK_EXTERNAL_URL=http://localhost:8080" >> .env
-docker-compose restart auth-server
+docker compose restart auth-server
 
 # Check auth-server can reach Keycloak internally
-docker-compose exec auth-server curl -f http://keycloak:8080/health/ready
+docker compose exec auth-server curl -f http://keycloak:8080/health/ready
 ```
 
 #### Registry Not Loading
 
 ```bash
 # Check registry logs
-docker-compose logs registry | tail -50
+docker compose logs registry | tail -50
 
 # Rebuild registry frontend
 cd ~/workspace/mcp-registry-gateway/registry
 npm install
 npm run build
 cd ..
-docker-compose restart registry
+docker compose restart registry
 ```
 
 ### View Real-time Logs
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f <service-name>
+docker compose logs -f <service-name>
 
 # Last 100 lines
-docker-compose logs --tail=100 <service-name>
+docker compose logs --tail=100 <service-name>
 ```
 
 ### Stopping Services
 
 ```bash
 # Graceful shutdown (keeps data)
-docker-compose down
+docker compose down
 
 # Complete cleanup (removes all data)
-docker-compose down -v
+docker compose down -v
 
 # Just stop services (to restart later)
-docker-compose stop
+docker compose stop
 ```
 
 ### Reset Everything
@@ -1240,13 +1401,13 @@ If you need to start over completely:
 
 ```bash
 # Stop all services and remove volumes
-docker-compose down -v
+docker compose down -v
 
 # Remove all Docker images (optional)
 docker system prune -a
 
 # Start fresh
-docker-compose up -d keycloak-db keycloak
+docker compose up -d keycloak-db keycloak
 # Then follow setup steps again from Step 5
 ```
 
@@ -1296,7 +1457,7 @@ After updating your `.env` file with custom domain values:
 
 ```bash
 # Restart services to pick up new configuration
-docker-compose restart auth-server registry
+docker compose restart auth-server registry
 
 # Test the custom domain
 curl -f https://mcpgateway.mycorp.com/health
@@ -1329,7 +1490,7 @@ curl -f https://mcpgateway.mycorp.com/realms/mcp-gateway
 3. Restart services:
 
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 ### Configure Production Settings
@@ -1352,7 +1513,7 @@ curl -f https://mcpgateway.mycorp.com/realms/mcp-gateway
 - [Keycloak Advanced Configuration](keycloak-integration.md) - Enterprise features
 - [API Reference](registry_api.md) - Programmatic registry management
 - [Dynamic Tool Discovery](dynamic-tool-discovery.md) - AI agent capabilities
-- [Production Deployment](production-deployment.md) - Best practices for production
+- [Production Deployment](installation.md#production-deployment) - Best practices for production
 
 ### Getting Help
 
@@ -1451,14 +1612,22 @@ This deployment method:
 
 ## Summary
 
-You now have a fully functional MCP Gateway & Registry running on your AWS EC2 instance! The system is ready to:
+You now have a fully functional MCP Gateway & Registry deployment! The system is ready to:
 
 - Authenticate AI agents and human users through Keycloak
 - Provide centralized access to MCP servers
 - Enable dynamic tool discovery for AI assistants
 - Offer a web-based registry for managing configurations
 
-Remember to:
+**Verify your deployment:**
+
+| Deployment Method | Verification Command |
+|-------------------|---------------------|
+| Kubernetes | `kubectl get pods -n mcp-gateway` |
+| Docker Compose | `docker compose ps` |
+| VM/EC2 | `docker compose logs -f` |
+
+**Remember to:**
 
 - Save all generated credentials securely
 - Monitor service logs regularly

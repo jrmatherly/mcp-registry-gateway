@@ -1503,7 +1503,7 @@ open http://localhost:7860
 # Complete: Create Your First AI Agent Account guide
 
 # Step 8: Restart auth server
-docker-compose down auth-server && docker-compose rm -f auth-server && docker-compose up -d auth-server
+docker compose down auth-server && docker compose rm -f auth-server && docker compose up -d auth-server
 
 # Step 9: Test the setup
 # Complete: Testing with mcp_client.py and agent.py guide
@@ -1683,8 +1683,8 @@ aws ecs update-service --cluster mcp-gateway-ecs-cluster \
 
 ```bash
 # Check service status
-docker-compose ps
-docker-compose logs -f
+docker compose ps
+docker compose logs -f
 
 # Test web interface
 open http://localhost:7860
@@ -2244,7 +2244,7 @@ sudo systemctl status docker
 cat .env | grep -v SECRET
 
 # View detailed logs
-docker-compose logs --tail=50
+docker compose logs --tail=50
 ```
 
 **Authentication failures:**

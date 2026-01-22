@@ -29,6 +29,17 @@ graph TB
     F --> J[Local MCP Servers]
     G --> K[Roocode/Claude Code]
     H --> L[VS Code Extensions]
+
+    %% Dark mode text visibility
+    classDef service fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef component fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef file fill:#fff3e0,stroke:#ffa726,stroke-width:2px,color:#000
+    classDef external fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+
+    class A service
+    class B,C,D component
+    class E,F,G,H file
+    class I,J,K,L external
 ```
 
 The service integrates with:

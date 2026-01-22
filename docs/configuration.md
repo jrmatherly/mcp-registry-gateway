@@ -233,18 +233,18 @@ DOCUMENTDB_USE_TLS=false      # No TLS for local dev
 
 ```bash
 # 1. Start MongoDB container
-docker-compose up -d mongodb
+docker compose up -d mongodb
 sleep 5
 
 # 2. Initialize collections and indexes
-docker-compose up mongodb-init
+docker compose up mongodb-init
 
 # 3. Verify setup
 docker exec mcp-mongodb mongosh --eval "use mcp_registry; show collections"
 
 # 4. Switch backend and restart
 export STORAGE_BACKEND=mongodb-ce
-docker-compose restart registry
+docker compose restart registry
 ```
 
 #### DocumentDB Backend (Production, Recommended)
@@ -301,15 +301,15 @@ You can switch between backends at any time by changing `STORAGE_BACKEND`:
 ```bash
 # Switch to file backend
 export STORAGE_BACKEND=file
-docker-compose restart registry
+docker compose restart registry
 
 # Switch to MongoDB CE backend
 export STORAGE_BACKEND=mongodb-ce
-docker-compose restart registry
+docker compose restart registry
 
 # Switch to DocumentDB backend
 export STORAGE_BACKEND=documentdb
-docker-compose restart registry
+docker compose restart registry
 ```
 
 **For AWS ECS Deployments:** See [terraform/aws-ecs/README.md](../terraform/aws-ecs/README.md) for automated Terraform deployment with DocumentDB.

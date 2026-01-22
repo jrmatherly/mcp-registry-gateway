@@ -45,6 +45,19 @@ flowchart TB
         U3[Users] -->|HTTP| ALB3[ALB DNS]
         ALB3 --> ECS3[ECS Services]
     end
+
+    %% Dark mode text visibility
+    classDef userStyle fill:#e1f5fe,stroke:#29b6f6,stroke-width:2px,color:#000
+    classDef dnsStyle fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px,color:#000
+    classDef certStyle fill:#fff3e0,stroke:#ffa726,stroke-width:2px,color:#000
+    classDef albStyle fill:#f3e5f5,stroke:#ab47bc,stroke-width:2px,color:#000
+    classDef ecsStyle fill:#fce4ec,stroke:#ec407a,stroke-width:2px,color:#000
+
+    class U1,U2,U3 userStyle
+    class R53 dnsStyle
+    class ACM1 certStyle
+    class ALB1,ALB2,ALB3,CF albStyle
+    class ECS1,ECS2,ECS3 ecsStyle
 ```
 
 ## Mode 1: Custom Domain (Route53/ACM)

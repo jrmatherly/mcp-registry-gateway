@@ -1,6 +1,12 @@
 # Dynamic Tool Discovery and Invocation
 
-The MCP Gateway & Registry provides a powerful **Dynamic Tool Discovery and Invocation** feature that enables AI agents to autonomously discover and execute tools beyond their initial capabilities. This feature uses advanced semantic search with FAISS indexing and sentence transformers to intelligently match natural language queries to the most relevant MCP tools across all registered servers.
+The MCP Gateway & Registry provides a powerful **Dynamic Tool Discovery and Invocation** feature that enables AI agents to autonomously discover and execute tools beyond their initial capabilities. This feature uses advanced semantic search with sentence transformers and vector similarity indexing to intelligently match natural language queries to the most relevant MCP tools across all registered servers.
+
+The system supports multiple storage backends:
+
+- **DocumentDB (AWS)**: Uses native HNSW vector indexes for high-performance similarity search
+- **MongoDB CE**: Falls back to client-side cosine similarity calculation
+- **File-based storage**: Uses FAISS (Facebook AI Similarity Search) for local deployments
 
 ## Table of Contents
 
@@ -30,8 +36,8 @@ The dynamic tool discovery process follows these steps:
 
 1. **Natural Language Query**: Agent receives a user request requiring specialized capabilities
 2. **Semantic Search**: The `intelligent_tool_finder` tool processes the query using sentence transformers
-3. **FAISS Index Search**: Searches through embeddings of all registered MCP tools
-4. **Relevance Ranking**: Returns tools ranked by semantic similarity to the query
+3. **Vector Index Search**: Searches through embeddings of all registered MCP tools using the configured backend (DocumentDB HNSW, MongoDB CE cosine similarity, or FAISS)
+4. **Hybrid Ranking**: Returns tools ranked by a combination of semantic similarity and keyword matching
 5. **Tool Invocation**: Agent uses the discovered tool information to invoke the appropriate MCP tool
 
 ![Dynamic Tool Discovery Flow](img/dynamic-tool-discovery-demo.gif)
@@ -50,7 +56,7 @@ graph TB
     subgraph "Discovery Layer"
         B --> C[intelligent_tool_finder]
         C --> D[Sentence Transformer]
-        C --> E[FAISS Index]
+        C --> E[Vector Index]
         E --> F[Tool Metadata]
         F --> G[Server Information]
         G --> K[Tool Discovery Results]
@@ -62,12 +68,33 @@ graph TB
         I --> J[Tool Result]
         J --> A
     end
+
+    subgraph "Storage Backends"
+        E -.-> E1[DocumentDB HNSW]
+        E -.-> E2[MongoDB CE Cosine]
+        E -.-> E3[FAISS Local]
+    end
+
+    %% Dark mode text visibility
+    classDef agent fill:#e1f5fe,stroke:#29b6f6,stroke-width:2px,color:#000
+    classDef discovery fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px,color:#000
+    classDef execution fill:#fff3e0,stroke:#ffa726,stroke-width:2px,color:#000
+    classDef storage fill:#f3e5f5,stroke:#ab47bc,stroke-width:2px,color:#000
+
+    class A,B,H agent
+    class C,D,E,F,G,K discovery
+    class I,J execution
+    class E1,E2,E3 storage
 ```
 
 ### Key Technologies
 
-- **FAISS (Facebook AI Similarity Search)**: High-performance vector similarity search
-- **Sentence Transformers**: Neural network models for semantic text understanding
+- **Sentence Transformers**: Neural network models for semantic text understanding (default: `all-MiniLM-L6-v2`)
+- **Vector Similarity Search**: Multiple backend support:
+    - **DocumentDB HNSW**: Native hierarchical navigable small world indexes for AWS deployments
+    - **MongoDB CE**: Client-side cosine similarity for community edition deployments
+    - **FAISS**: Facebook AI Similarity Search for file-based local deployments
+- **Hybrid Search**: Combines vector similarity with keyword matching for improved relevance
 - **Cosine Similarity**: Mathematical measure of semantic similarity between queries and tools
 - **MCP Protocol**: Standardized communication with tool servers
 
@@ -208,7 +235,7 @@ Finds the most relevant MCP tool(s) across all registered and enabled services b
 | `username` | `str` | No* | Username for mcpgw server authentication |
 | `password` | `str` | No* | Password for mcpgw server authentication |
 | `session_cookie` | `str` | No* | Session cookie for registry authentication |
-| `top_k_services` | `int` | No | Number of top services to consider from initial FAISS search (default: 3) |
+| `top_k_services` | `int` | No | Number of top services to consider from initial vector search (default: 3) |
 | `top_n_tools` | `int` | No | Number of best matching tools to return (default: 1) |
 
 *Either `session_cookie` OR (`username` AND `password`) must be provided for authentication.
@@ -261,51 +288,58 @@ tools = await intelligent_tool_finder(
 
 ## Technical Implementation
 
-### FAISS Index Creation
+### Vector Index Creation
 
-The registry automatically creates and maintains a FAISS index of all registered MCP tools:
+The registry automatically creates and maintains a vector index of all registered MCP tools. The index type depends on the configured storage backend:
+
+| Backend | Index Type | Description |
+|---------|------------|-------------|
+| **DocumentDB** | HNSW | Native hierarchical navigable small world index with cosine similarity |
+| **MongoDB CE** | Client-side | In-memory cosine similarity calculation (fallback for CE) |
+| **File-based** | FAISS | Facebook AI Similarity Search for local deployments |
+
+**Index Creation Process:**
 
 1. **Tool Metadata Collection**: Gathers tool descriptions, schemas, and server information
 2. **Text Embedding**: Uses sentence transformers to create vector embeddings
-3. **Index Building**: Constructs FAISS index for fast similarity search
+3. **Index Building**: Constructs appropriate index based on storage backend
 4. **Automatic Updates**: Refreshes index when servers are added/modified
 
-### Semantic Search Process
+### Hybrid Search Process
+
+The system uses a hybrid search approach combining vector similarity with keyword matching:
 
 ```python
 # 1. Embed the natural language query
-query_embedding = await asyncio.to_thread(_embedding_model_mcpgw.encode, [natural_language_query])
-query_embedding_np = np.array(query_embedding, dtype=np.float32)
+query_embedding = model.encode([query])[0].tolist()
 
-# 2. Search FAISS for top_k_services
-distances, faiss_ids = await asyncio.to_thread(_faiss_index_mcpgw.search, query_embedding_np, top_k_services)
+# 2. Perform vector search (backend-specific)
+# DocumentDB: Native $vectorSearch aggregation
+# MongoDB CE: Client-side cosine similarity
+# FAISS: faiss_index.search()
 
-# 3. Collect tools from top services
-candidate_tools = []
-for service in top_services:
-    for tool in service.tools:
-        tool_text = f"Service: {service.name}. Tool: {tool.name}. Description: {tool.description}"
-        candidate_tools.append({
-            "text_for_embedding": tool_text,
-            "tool_name": tool.name,
-            "service_path": service.path,
-            # ... other metadata
-        })
+# 3. Calculate text-based boost for keyword matches
+text_boost = 0.0
+if query_token in doc["path"]:
+    text_boost += 5.0  # Strong boost for path matches
+if query_token in doc["name"]:
+    text_boost += 3.0  # Moderate boost for name matches
 
-# 4. Embed all candidate tool descriptions
-tool_embeddings = await asyncio.to_thread(_embedding_model_mcpgw.encode, tool_texts)
+# 4. Combine vector similarity with keyword boost
+normalized_vector_score = (vector_score + 1.0) / 2.0  # Normalize to [0, 1]
+relevance_score = normalized_vector_score + (text_boost * 0.1)
 
-# 5. Calculate cosine similarity and rank
-similarities = cosine_similarity(query_embedding_np, tool_embeddings_np)[0]
-ranked_tools = sorted(tools_with_scores, key=lambda x: x["similarity_score"], reverse=True)
+# 5. Return ranked results
+ranked_tools = sorted(tools_with_scores, key=lambda x: x["relevance_score"], reverse=True)
 ```
 
 ### Performance Optimizations
 
-- **Lazy Loading**: FAISS index and models are loaded on-demand
-- **Caching**: Embeddings and metadata are cached and reloaded only when files change
+- **Lazy Loading**: Vector indexes and embedding models are loaded on-demand
+- **Caching**: Embeddings and metadata are cached and reloaded only when data changes
 - **Async Processing**: All embedding operations run in separate threads
 - **Memory Efficiency**: Uses float32 precision for embeddings to reduce memory usage
+- **Hybrid Ranking**: Combines semantic similarity with keyword matching for better relevance
 
 ### Model Configuration
 
@@ -360,7 +394,11 @@ _embedding_model_mcpgw = SentenceTransformer(EMBEDDINGS_MODEL_NAME, cache_folder
 
 ### For System Administrators
 
-1. **Index Maintenance**: Monitor FAISS index updates and performance
+1. **Index Maintenance**: Monitor vector index updates and performance (backend-specific)
 2. **Model Updates**: Consider updating sentence transformer models periodically
 3. **Server Health**: Ensure registered servers are healthy and responsive
 4. **Access Control**: Configure proper authentication and authorization
+5. **Backend Selection**: Choose appropriate storage backend for your deployment:
+    - **DocumentDB**: For AWS production deployments with native vector search
+    - **MongoDB CE**: For self-hosted deployments (uses client-side search)
+    - **File-based**: For local development and testing

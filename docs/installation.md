@@ -570,6 +570,17 @@ graph TB
     NG --> MSN
     AS --> COG
     RP --> CW
+
+    %% Dark mode text visibility
+    classDef ingress fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef app fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef mcp fill:#fff3e0,stroke:#ffa726,stroke-width:2px,color:#000
+    classDef aws fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+
+    class ALB,IC ingress
+    class RP,AS,NG app
+    class MS1,MS2,MSN mcp
+    class COG,CW,ECR aws
 ```
 
 ### Key Benefits of EKS Deployment
@@ -587,8 +598,8 @@ graph TB
 1. **Check Service Status**
 
    ```bash
-   docker-compose ps
-   docker-compose logs -f
+   docker compose ps
+   docker compose logs -f
    ```
 
 2. **Test Web Interface**
@@ -640,7 +651,7 @@ sudo systemctl status docker
 cat .env | grep -v SECRET
 
 # View detailed logs
-docker-compose logs --tail=50
+docker compose logs --tail=50
 ```
 
 **Authentication failures:**
@@ -663,11 +674,11 @@ sudo netstat -tlnp | grep -E ':(80|443|7860|8080)'
 curl -v http://localhost:7860/health
 ```
 
-For more troubleshooting help, see [Troubleshooting Guide](troubleshooting.md).
+For more troubleshooting help, see [Troubleshooting Guide](FAQ.md).
 
 ## Next Steps
 
 - [Authentication Setup](auth.md) - Configure identity providers
 - [AI Assistant Integration](ai-coding-assistants-setup.md) - Setup development tools
-- [Production Deployment](production-deployment.md) - High availability configuration
+- [Production Deployment](installation.md#production-deployment) - High availability configuration
 - [API Reference](registry_api.md) - Programmatic management

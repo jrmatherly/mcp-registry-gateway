@@ -494,7 +494,7 @@ python agent.py --message "test" --mcp-registry-url http://localhost/mcpgw/sse
 
 ```bash
 # View auth server logs for validation details
-docker-compose logs -f auth-server
+docker compose logs -f auth-server
 
 # Look for:
 # - Token validation attempts

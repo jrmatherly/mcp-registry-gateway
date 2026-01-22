@@ -172,7 +172,7 @@ Integration and E2E tests may require:
 2. **Running services**: Ensure Docker containers are running:
 
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 3. **Environment variables**:
@@ -315,7 +315,7 @@ pre-commit run --all-files
 **Solution**: Start Docker containers:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 #### 3. Import Errors

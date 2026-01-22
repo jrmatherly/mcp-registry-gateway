@@ -41,7 +41,7 @@ This script will:
 1. Ensure all containers are running:
 
    ```bash
-   docker-compose ps
+   docker compose ps
    ```
 
 2. Set up authentication (choose one method):
@@ -313,7 +313,7 @@ Use the `service_mgmt.sh` script for comprehensive server lifecycle management:
 
 ```bash
 # Check if services are running
-docker-compose ps
+docker compose ps
 
 # Test direct registry access
 curl http://localhost:7860/health
@@ -397,7 +397,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for services
         run: sleep 10

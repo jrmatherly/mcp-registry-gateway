@@ -62,30 +62,31 @@ A comprehensive solution for managing, securing, and accessing Model Context Pro
 ## Quick Start
 
 !!! tip "Prerequisites"
-    Before proceeding, ensure you have satisfied all [prerequisites](installation.md#prerequisites) including Docker, AWS account setup, and Amazon Cognito configuration.
+    Before proceeding, ensure you have satisfied all [prerequisites](quickstart.md#prerequisites) including Docker, Node.js, Python, and uv package manager.
 
-Get up and running in 5 minutes with Docker Compose:
+Get up and running with Docker Compose (using Keycloak for authentication):
 
 ```bash
 # 1. Clone and setup
 git clone https://github.com/jrmatherly/mcp-registry-gateway.git
 cd mcp-registry-gateway
-
-# 2. Configure environment
 cp .env.example .env
-# Edit .env with your Amazon Cognito credentials
 
-# 3. Generate authentication credentials
-./credentials-provider/generate_creds.sh
+# 2. Configure .env with secure passwords
+# Edit KEYCLOAK_ADMIN_PASSWORD, INITIAL_ADMIN_PASSWORD, etc.
 
-# 4. Deploy with Docker Compose
-docker-compose up -d
+# 3. Deploy with pre-built images
+export IMAGE_REGISTRY=ghcr.io/jrmatherly
+./build_and_run.sh --prebuilt
+
+# 4. Initialize Keycloak (after services start)
+./keycloak/setup/init-keycloak.sh
 
 # 5. Access the registry
 open http://localhost:7860
 ```
 
-The registry will be available at `http://localhost:7860` with example MCP servers pre-configured.
+The registry will be available at `http://localhost:7860`. See the [Quick Start Guide](quickstart.md) for complete setup instructions including user setup and example server registration.
 
 ---
 
@@ -283,7 +284,7 @@ Accelerate development workflows with integrated tooling:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 
