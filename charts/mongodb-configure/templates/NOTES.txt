@@ -1,0 +1,23 @@
+MongoDB Configuration Job has been created!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+The configuration job will:
+- Wait for the MongoDB replica set to be ready
+- Configure the {{ .Values.mongodb.database }} database
+- Set up collections and indexes for the MCP Registry
+
+To check the job status:
+  kubectl get jobs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=mongodb-configure
+
+To view job logs:
+  kubectl logs -n {{ .Release.Namespace }} job/{{ include "mongodb-configure.fullname" . }} -f
+
+MongoDB Connection Details:
+  Host: {{ .Values.mongodb.host }}
+  Port: {{ .Values.mongodb.port }}
+  Database: {{ .Values.mongodb.database }}
+  Replica Set: {{ .Values.mongodb.replica_set }}
+
+The job will automatically clean up after {{ .Values.job.ttlSecondsAfterFinished | default 300 }} seconds.

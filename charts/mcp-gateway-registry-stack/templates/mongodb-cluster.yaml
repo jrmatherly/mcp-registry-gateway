@@ -4,6 +4,9 @@ kind: MongoDBCommunity
 metadata:
   name: {{ default .Values.mongodb.host "mcp-registry-mongodb" }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mcp-registry-gateway-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb
 spec:
   members: {{ default .Values.mongodb.replicas "3"}}
   type: ReplicaSet

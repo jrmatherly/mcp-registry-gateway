@@ -2,6 +2,16 @@
 global:
   domain: localhost
 
+# Name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Image configuration for job containers
+image:
+  repository: python
+  tag: "3.13.1-slim"
+  pullPolicy: IfNotPresent
+
 # Keycloak configuration
 keycloak:
   adminUser: user

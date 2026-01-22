@@ -4,10 +4,19 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-keycloak
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mcp-registry-gateway-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keycloak
   annotations:
     {{- toYaml .Values.global.ingress.annotations | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.global.ingress.className }}
+  {{- if .Values.global.ingress.tls }}
+  tls:
+    - hosts:
+        - keycloak.{{ .Values.global.domain }}
+      secretName: {{ .Release.Name }}-keycloak-tls
+  {{- end }}
   rules:
     - host: keycloak.{{ .Values.global.domain }}
       http:

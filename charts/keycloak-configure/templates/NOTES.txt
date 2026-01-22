@@ -1,0 +1,22 @@
+Keycloak Configuration Job has been created!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+The configuration job will:
+- Wait for Keycloak to be ready
+- Create the {{ .Values.keycloak.realm }} realm
+- Configure OAuth2 clients (mcp-gateway-web, mcp-gateway-m2m)
+- Create user groups and scopes
+- Set up test users with generated passwords
+
+To check the job status:
+  kubectl get jobs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=keycloak-configure
+
+To view job logs:
+  kubectl logs -n {{ .Release.Namespace }} job/{{ include "keycloak-configure.fullname" . }} -f
+
+To retrieve generated credentials:
+  kubectl get secret -n {{ .Release.Namespace }} registry-login-credentials -o jsonpath='{.data}' | base64 -d
+
+The job will automatically clean up after {{ .Values.job.ttlSecondsAfterFinished | default 300 }} seconds.

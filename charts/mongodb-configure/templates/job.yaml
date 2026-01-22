@@ -1,12 +1,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: setup-mongodb
+  name: {{ include "mongodb-configure.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels:
-    app.kubernetes.io/name: mongodb-configure
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "mongodb-configure.labels" . | nindent 4 }}
 spec:
   {{- if .Values.job.ttlSecondsAfterFinished }}
   ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
@@ -14,8 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mongodb-configure
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "mongodb-configure.selectorLabels" . | nindent 8 }}
     spec:
       securityContext:
         runAsNonRoot: true
@@ -50,7 +47,8 @@ spec:
                 - ALL
       containers:
         - name: job
-          image: python:3.13.1-slim
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
           args: [
             "pip install --no-cache-dir pyyaml motor && python /app/script.py"

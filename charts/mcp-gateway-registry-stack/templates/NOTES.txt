@@ -1,0 +1,67 @@
+MCP Gateway Registry Stack has been deployed successfully!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+=== Service Endpoints ===
+
+{{- if .Values.global.domain }}
+The following services are available:
+
+  Registry:    https://mcpregistry.{{ .Values.global.domain }}
+  Auth Server: https://auth-server.{{ .Values.global.domain }}
+  Keycloak:    https://keycloak.{{ .Values.global.domain }}
+
+{{- else }}
+
+Services are available via port-forward:
+
+  # Registry
+  kubectl port-forward svc/{{ .Release.Name }}-registry 8000:8000 -n {{ .Release.Namespace }}
+  # Access: http://localhost:8000
+
+  # Auth Server
+  kubectl port-forward svc/{{ .Release.Name }}-auth-server 8888:8888 -n {{ .Release.Namespace }}
+  # Access: http://localhost:8888
+
+  # Keycloak
+  kubectl port-forward svc/{{ .Release.Name }}-keycloak 8080:8080 -n {{ .Release.Namespace }}
+  # Access: http://localhost:8080
+
+{{- end }}
+
+=== Verification Commands ===
+
+Check all pods:
+  kubectl get pods -n {{ .Release.Namespace }}
+
+Check services:
+  kubectl get svc -n {{ .Release.Namespace }}
+
+Check ingress:
+  kubectl get ingress -n {{ .Release.Namespace }}
+
+View Helm release status:
+  helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+=== Credentials ===
+
+To retrieve Keycloak admin credentials:
+  kubectl get secret {{ .Release.Name }}-keycloak -n {{ .Release.Namespace }} -o jsonpath='{.data.admin-password}' | base64 -d
+
+To retrieve generated user credentials:
+  kubectl get secret registry-login-credentials -n {{ .Release.Namespace }} -o jsonpath='{.data}'
+
+=== Configuration Jobs ===
+
+The following configuration jobs will run automatically:
+- setup-keycloak: Configures Keycloak realm and OAuth2 clients
+- setup-mongodb: Configures MongoDB database and collections
+
+Check job status:
+  kubectl get jobs -n {{ .Release.Namespace }}
+
+=== Documentation ===
+
+For more information, see the documentation at:
+  https://github.com/jrmatherly/mcp-registry-gateway

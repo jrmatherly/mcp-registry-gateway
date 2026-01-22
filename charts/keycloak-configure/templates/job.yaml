@@ -1,12 +1,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: setup-keycloak
+  name: {{ include "keycloak-configure.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels:
-    app.kubernetes.io/name: keycloak-configure
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "keycloak-configure.labels" . | nindent 4 }}
 spec:
   {{- if .Values.job.ttlSecondsAfterFinished }}
   ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
@@ -14,8 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: keycloak-configure
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "keycloak-configure.selectorLabels" . | nindent 8 }}
     spec:
       securityContext:
         runAsNonRoot: true
@@ -24,7 +21,8 @@ spec:
         fsGroup: 1000
       containers:
         - name: job
-          image: python:3.13.1-slim
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/bash", "/app/script.sh"]
           envFrom:
             - secretRef:

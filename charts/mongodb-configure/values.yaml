@@ -1,3 +1,13 @@
+# Name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Image configuration for job containers
+image:
+  repository: python
+  tag: "3.13.1-slim"
+  pullPolicy: IfNotPresent
+
 # MongoDB configuration
 mongodb:
   database: mcp_registry
