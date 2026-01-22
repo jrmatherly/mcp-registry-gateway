@@ -6,8 +6,6 @@ import {
   PencilIcon,
   ClockIcon,
   CheckCircleIcon,
-  XCircleIcon,
-  QuestionMarkCircleIcon,
   ShieldCheckIcon,
   ShieldExclamationIcon,
   GlobeAltIcon,
@@ -110,19 +108,6 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(({
     };
     fetchSecurityScan();
   }, [agent.path, authToken]);
-
-  const getStatusIcon = () => {
-    switch (agent.status) {
-      case 'healthy':
-        return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
-      case 'healthy-auth-expired':
-        return <CheckCircleIcon className="h-4 w-4 text-orange-500" />;
-      case 'unhealthy':
-        return <XCircleIcon className="h-4 w-4 text-red-500" />;
-      default:
-        return <QuestionMarkCircleIcon className="h-4 w-4 text-gray-400" />;
-    }
-  };
 
   const getTrustLevelColor = () => {
     switch (agent.trust_level) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 import axios from 'axios';
@@ -44,31 +44,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
 
-  // Load current rating on mount
-  useEffect(() => {
-    loadCurrentRating();
-  }, [resourceType, path]);
-
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
-
-
-  const loadCurrentRating = async () => {
+  const loadCurrentRating = useCallback(async () => {
     try {
       // Build headers - use Bearer token if provided, otherwise rely on cookies
       const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
@@ -92,10 +68,33 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
           setSelectedRating(userRating.rating);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load rating:', error);
     }
-  };
+  }, [authToken, resourceType, path]);
+
+  // Load current rating on mount
+  useEffect(() => {
+    loadCurrentRating();
+  }, [loadCurrentRating]);
+
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
 
   const handleSubmitRating = async () => {

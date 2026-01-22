@@ -147,6 +147,8 @@ export const useSemanticSearch = (
       cancelled = true;
       controller.abort();
     };
+    // entityTypesKey is a serialized representation of entityTypes for stable comparison
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, enabled, minLength, maxResults, entityTypesKey]);
 
   return { results, loading, error, debouncedQuery };

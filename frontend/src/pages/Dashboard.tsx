@@ -51,19 +51,6 @@ interface Agent {
   status?: HealthStatus;
 }
 
-const normalizeAgentStatus = (status?: string | null): HealthStatus => {
-  if (status === 'healthy' || status === 'healthy-auth-expired') {
-    return status;
-  }
-  if (status === 'unhealthy') {
-    return 'unhealthy';
-  }
-  return 'unknown';
-};
-
-const buildAgentAuthHeaders = (token?: string | null) =>
-  token ? { Authorization: `Bearer ${token}` } : undefined;
-
 interface DashboardProps {
   activeFilter?: string;
 }
@@ -102,9 +89,10 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
   // Agent state management - using agents from useServerStats hook instead of separate fetch
   // Agents loading state is now handled by the useServerStats hook's 'loading' state
-  const [agentsError, setAgentsError] = useState<string | null>(null);
+  // Note: agentsError and agentApiToken are placeholders for future implementation
+  const [agentsError] = useState<string | null>(null);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
-  const [agentApiToken, setAgentApiToken] = useState<string | null>(null);
+  const [agentApiToken] = useState<string | null>(null);
 
   // View filter state
   const [viewFilter, setViewFilter] = useState<'all' | 'servers' | 'agents' | 'external'>('all');
@@ -128,42 +116,6 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       )
     );
   }, [setAgents]);
-
-  const performAgentHealthCheck = useCallback(async (agent: Agent, token?: string | null) => {
-    if (!agent?.path) return;
-
-    const headers = buildAgentAuthHeaders(token);
-    try {
-      const response = await axios.post(
-        `/api/agents${agent.path}/health`,
-        undefined,
-        headers ? { headers } : undefined
-      );
-
-      handleAgentUpdate(agent.path, {
-        status: normalizeAgentStatus(response.data?.status),
-        last_checked_time: response.data?.last_checked_iso || null
-      });
-    } catch (error) {
-      console.error(`Failed to check health for agent ${agent.name}:`, error);
-      handleAgentUpdate(agent.path, {
-        status: 'unhealthy',
-        last_checked_time: new Date().toISOString()
-      });
-    }
-  }, [handleAgentUpdate]);
-
-  const runInitialAgentHealthChecks = useCallback((agentsList: Agent[], token?: string | null) => {
-    const candidates = agentsList.filter(agent => agent.enabled);
-    if (!candidates.length) return;
-
-    Promise.allSettled(candidates.map(agent => performAgentHealthCheck(agent, token))).catch((error) => {
-      console.error('Failed to run agent health checks:', error);
-    });
-  }, [performAgentHealthCheck]);
-
-  // Note: Agents data now comes from useServerStats hook
-  // JWT token generation moved to after agents definition
 
   // Helper function to check if user has a specific UI permission for a service
   const hasUiPermission = useCallback((permission: string, servicePath: string): boolean => {
@@ -616,62 +568,6 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       setRegisterLoading(false);
     }
   }, [registerForm, registerLoading, refreshData, showToast]);
-
-  const renderServerGrid = (
-    list: Server[],
-    options?: { emptyTitle?: string; emptySubtitle?: string; showRegisterCta?: boolean }
-  ) => {
-    if (list.length === 0) {
-      const title = options?.emptyTitle ?? 'No servers found';
-      const subtitle =
-        options?.emptySubtitle ??
-        (searchTerm || activeFilter !== 'all'
-          ? 'Press Enter in the search bar to search semantically'
-          : 'No servers are registered yet');
-      const shouldShowCta =
-        options?.showRegisterCta ?? (!searchTerm && activeFilter === 'all');
-
-      return (
-        <div className="text-center py-16">
-          <div className="text-gray-400 text-xl mb-4">{title}</div>
-          <p className="text-gray-500 dark:text-gray-300 text-base max-w-md mx-auto">{subtitle}</p>
-          {shouldShowCta && (
-            <button
-              onClick={handleRegisterServer}
-              className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" />
-              Register Server
-            </button>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <div
-        className="grid pb-12"
-        style={{
-          gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-          gap: 'clamp(1.5rem, 3vw, 2.5rem)'
-        }}
-      >
-        {list.map((server) => (
-          <ServerCard
-            key={server.path}
-            server={server}
-            onToggle={handleToggleServer}
-            onEdit={handleEditServer}
-            canModify={user?.can_modify_servers || false}
-            onRefreshSuccess={refreshData}
-            onShowToast={showToast}
-            onServerUpdate={handleServerUpdate}
-            authToken={agentApiToken}
-          />
-        ))}
-      </div>
-    );
-  };
 
   const renderDashboardCollections = () => (
     <>

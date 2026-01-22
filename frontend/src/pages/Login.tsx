@@ -161,7 +161,6 @@ const Login: React.FC = () => {
   };
 
   const handleOAuthLogin = (provider: string) => {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const currentOrigin = window.location.origin;
     const redirectUri = encodeURIComponent(currentOrigin + '/');
 

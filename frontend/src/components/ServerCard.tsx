@@ -5,9 +5,6 @@ import {
   ArrowPathIcon,
   PencilIcon,
   ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  QuestionMarkCircleIcon,
   CogIcon,
   ShieldCheckIcon,
   ShieldExclamationIcon,
@@ -72,32 +69,6 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
     };
     fetchSecurityScan();
   }, [server.path, authToken]);
-
-  const getStatusIcon = () => {
-    switch (server.status) {
-      case 'healthy':
-        return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
-      case 'healthy-auth-expired':
-        return <CheckCircleIcon className="h-4 w-4 text-orange-500" />;
-      case 'unhealthy':
-        return <XCircleIcon className="h-4 w-4 text-red-500" />;
-      default:
-        return <QuestionMarkCircleIcon className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (server.status) {
-      case 'healthy':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-      case 'healthy-auth-expired':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'unhealthy':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-    }
-  };
 
   const handleViewTools = useCallback(async () => {
     if (loadingTools) return;

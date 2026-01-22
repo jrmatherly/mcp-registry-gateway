@@ -6,7 +6,6 @@ import {
   UserIcon,
   ChevronDownIcon,
   ArrowRightOnRectangleIcon,
-  KeyIcon,
   Cog6ToothIcon,
   SunIcon,
   MoonIcon
