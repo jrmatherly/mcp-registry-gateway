@@ -107,9 +107,42 @@ jobs:
         if: always()
         run: |
           if [ -f "tfsec-results.sarif" ] && [ -s "tfsec-results.sarif" ]; then
-            # Fix git:// URI scheme to file:// for GitHub Code Scanning compatibility
-            sed -i 's|"uri": "git://|"uri": "file://|g' tfsec-results.sarif
-            echo "SARIF file ready for upload"
+            echo "Processing SARIF file to remove external module references..."
+            # Use Python to filter out results from external modules (git::https:// URIs)
+            # GitHub Code Scanning only accepts file:// or relative path URIs
+            python3 << 'PYEOF'
+          import json
+          import sys
+
+          with open('tfsec-results.sarif', 'r') as f:
+              sarif = json.load(f)
+
+          for run in sarif.get('runs', []):
+              # Filter results to only include local files (not git:: external modules)
+              original_results = run.get('results', [])
+              filtered_results = []
+              for result in original_results:
+                  locations = result.get('locations', [])
+                  # Check if any location references an external module
+                  is_external = False
+                  for loc in locations:
+                      uri = loc.get('physicalLocation', {}).get('artifactLocation', {}).get('uri', '')
+                      if uri.startswith('git::') or uri.startswith('git://'):
+                          is_external = True
+                          break
+                  if not is_external:
+                      filtered_results.append(result)
+
+              removed_count = len(original_results) - len(filtered_results)
+              if removed_count > 0:
+                  print(f"Filtered out {removed_count} results from external modules")
+              run['results'] = filtered_results
+
+          with open('tfsec-results.sarif', 'w') as f:
+              json.dump(sarif, f, indent=2)
+
+          print(f"SARIF file ready with {sum(len(r.get('results', [])) for r in sarif.get('runs', []))} results")
+          PYEOF
           else
             echo "Creating valid empty SARIF file"
             cat > tfsec-results.sarif << 'SARIF_EOF'
@@ -131,8 +164,8 @@ jobs:
           }
           SARIF_EOF
           fi
-          echo "SARIF file contents:"
-          head -20 tfsec-results.sarif
+          echo "SARIF file preview:"
+          head -30 tfsec-results.sarif
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v4
