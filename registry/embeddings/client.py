@@ -260,6 +260,10 @@ class LiteLLMClient(EmbeddingsClient):
             if self.api_base:
                 kwargs["api_base"] = self.api_base
 
+            # Pass API key directly for proxy authentication
+            if self.api_key:
+                kwargs["api_key"] = self.api_key
+
             logger.debug(f"Calling LiteLLM embedding API with model: {self.model_name}")
             response = embedding(**kwargs)
 

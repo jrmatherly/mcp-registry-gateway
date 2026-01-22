@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     auth_server_url: str = "http://localhost:8888"
     auth_server_external_url: str = "http://localhost:8888"  # External URL for OAuth redirects
 
+    # Global LLM settings (defaults for all LLM operations)
+    llm_provider: str = "litellm"
+    llm_model: str = "openai/gpt-4o-mini"
+    llm_api_key: str | None = None
+    llm_api_base: str | None = None
+
     # Embeddings settings [Default]
     embeddings_provider: str = "sentence-transformers"  # 'sentence-transformers' or 'litellm'
     embeddings_model_name: str = "all-MiniLM-L6-v2"
@@ -64,6 +70,8 @@ class Settings(BaseSettings):
     security_scan_timeout: int = 60  # 1 minutes
     security_add_pending_tag: bool = True
     mcp_scanner_llm_api_key: str = ""  # Optional LLM API key for advanced analysis
+    mcp_scanner_llm_model: str = "openai/gpt-4o-mini"  # LLM model for security analysis
+    mcp_scanner_llm_api_base: str | None = None  # Custom API base URL (e.g., LiteLLM proxy)
 
     # Agent security scanning settings (A2A Agents)
     agent_security_scan_enabled: bool = True
@@ -75,6 +83,8 @@ class Settings(BaseSettings):
     agent_security_scan_timeout: int = 60  # 1 minute
     agent_security_add_pending_tag: bool = True
     a2a_scanner_llm_api_key: str = ""  # Optional Azure OpenAI API key for LLM-based analysis
+    a2a_scanner_llm_model: str = "openai/gpt-4o-mini"  # LLM model for agent security analysis
+    a2a_scanner_llm_api_base: str | None = None  # Custom API base URL (e.g., LiteLLM proxy)
 
     # Storage Backend Configuration
     storage_backend: str = "file"  # Options: "file", "documentdb"
@@ -182,6 +192,38 @@ class Settings(BaseSettings):
     def agent_state_file_path(self) -> Path:
         """Path to agent state file (enabled/disabled tracking)."""
         return self.agents_dir / "agent_state.json"
+
+    # --- Effective LLM settings with fallback logic ---
+
+    @property
+    def effective_embeddings_api_key(self) -> str | None:
+        """Get embeddings API key, falling back to global LLM API key."""
+        return self.embeddings_api_key or self.llm_api_key
+
+    @property
+    def effective_embeddings_api_base(self) -> str | None:
+        """Get embeddings API base, falling back to global LLM API base."""
+        return self.embeddings_api_base or self.llm_api_base
+
+    @property
+    def effective_mcp_scanner_api_key(self) -> str | None:
+        """Get MCP scanner API key, falling back to global LLM API key."""
+        return self.mcp_scanner_llm_api_key or self.llm_api_key
+
+    @property
+    def effective_mcp_scanner_api_base(self) -> str | None:
+        """Get MCP scanner API base, falling back to global LLM API base."""
+        return self.mcp_scanner_llm_api_base or self.llm_api_base
+
+    @property
+    def effective_a2a_scanner_api_key(self) -> str | None:
+        """Get A2A scanner API key, falling back to global LLM API key."""
+        return self.a2a_scanner_llm_api_key or self.llm_api_key
+
+    @property
+    def effective_a2a_scanner_api_base(self) -> str | None:
+        """Get A2A scanner API base, falling back to global LLM API base."""
+        return self.a2a_scanner_llm_api_base or self.llm_api_base
 
 
 class EmbeddingConfig:
