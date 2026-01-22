@@ -1,26 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app.name }}
+  name: {{ include "registry.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels:
-    app.kubernetes.io/name: {{ .Values.app.name }}
-    app.kubernetes.io/component: {{ .Values.app.name }}
+    {{- include "registry.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.app.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Values.app.name }}
-      app.kubernetes.io/component: {{ .Values.app.name }}
+      {{- include "registry.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ .Values.app.name }}
-        app.kubernetes.io/component: {{ .Values.app.name }}
+        {{- include "registry.selectorLabels" . | nindent 8 }}
     spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "registry.serviceAccountName" . }}
+      {{- end }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       initContainers:
         - name: wait-for-mongodb
-          image: python:3.13-alpine
+          image: python:3.13.1-alpine
           command: ['sh', '-c']
           envFrom:
             - secretRef:
@@ -36,17 +42,25 @@ spec:
             - mountPath: /app/wait.py
               name: script
               subPath: wait.py
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
       containers:
         - name: {{ .Values.app.name }}
           image: "{{ .Values.global.image.repository }}:{{ .Values.global.image.tag }}"
           imagePullPolicy: {{ .Values.global.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.service.port }}
               name: http
-            - containerPort: 443
-              name: https
-            - containerPort: 7860
-              name: registry
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           envFrom:
@@ -56,6 +70,29 @@ spec:
                 name: keycloak-client-secret
             - secretRef:
                 name: mongo-credentials
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold | default 3 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds | default 10 }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold | default 3 }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds | default 10 }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds | default 10 }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold | default 30 }}
       volumes:
         - name: script
           configMap:

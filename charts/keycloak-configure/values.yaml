@@ -6,3 +6,16 @@ keycloak:
 # Auth server configuration
 authServer:
   externalUrl: http://localhost:8888
+
+# Job configuration
+job:
+  # Resource limits and requests for the configuration job
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # TTL for completed jobs (seconds)
+  ttlSecondsAfterFinished: 300

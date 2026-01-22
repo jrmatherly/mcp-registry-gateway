@@ -1,8 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.app.name }}
+  name: {{ include "registry.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "registry.labels" . | nindent 4 }}
   {{- with .Values.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -14,14 +16,5 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-    - port: 443
-      targetPort: https
-      protocol: TCP
-      name: https
-    - port: 7860
-      targetPort: registry
-      protocol: TCP
-      name: registry
   selector:
-    app.kubernetes.io/name: {{ .Values.app.name }}
-    app.kubernetes.io/component: {{ .Values.app.name }}
+    {{- include "registry.selectorLabels" . | nindent 4 }}

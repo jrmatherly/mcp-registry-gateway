@@ -18,7 +18,7 @@ COPY auth_server/ /app/
 COPY registry/ /app/registry/
 
 # Install uv and setup Python environment
-RUN pip install --no-cache-dir uv && \
+RUN pip install --no-cache-dir "uv>=0.9.0,<1.0.0" && \
     uv venv .venv --python 3.12 && \
     . .venv/bin/activate && \
     uv pip install --requirement pyproject.toml

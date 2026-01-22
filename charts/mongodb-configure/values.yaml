@@ -6,9 +6,22 @@ mongodb:
   #   - A full hostname/FQDN (e.g., "mongodb.example.com" or "10.0.1.100") - will be used as-is
   host: mcp-registry-mongodb-svc
   namespace: default
-  password: CHANGEME
+  # password: ""  # REQUIRED: Must be provided via --set or values override
   port: 27017
   replica_set: mcp-registry-mongodb
   username: my-user
   use_tls: false
   storage_backend: mongodb-ce
+
+# Job configuration
+job:
+  # Resource limits and requests for the configuration job
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # TTL for completed jobs (seconds)
+  ttlSecondsAfterFinished: 300

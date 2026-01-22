@@ -2,14 +2,26 @@
 apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
-  name: {{ .Values.app.name }}
+  name: {{ include "auth-server.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "auth-server.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ printf "auth-server.%s" (.Values.global.domain | default .Values.ingress.hostname) | quote }}
+      {{- if .Values.ingress.tls.secretName }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+      {{- else }}
+      secretName: {{ include "auth-server.fullname" . }}-tls
+      {{- end }}
+  {{- end }}
   rules:
     - host: {{ printf "auth-server.%s" (.Values.global.domain | default .Values.ingress.hostname) | quote }}
       http:
@@ -18,7 +30,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.app.name }}
+                name: {{ include "auth-server.fullname" . }}
                 port:
                   name: http
 {{- end }}

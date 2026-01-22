@@ -14,10 +14,20 @@ app:
   # External URLs
   externalUrl: http://localhost:8888
 
-  # Security settings
-  secretKey: apassword
+  # Security settings - REQUIRED: Override in production
+  # secretKey: ""  # Must be provided via --set or values override
   sessionCookieDomain: ""  # Auto-inferred from Host header if empty
   sessionCookieSecure: true
+
+# Service account configuration
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
 
 # Keycloak integration
 keycloak:
@@ -29,7 +39,7 @@ keycloak:
 service:
   type: ClusterIP
   port: 8888
-  annotations: { }
+  annotations: {}
 
 # Resource limits and requests
 resources:
@@ -40,10 +50,39 @@ resources:
     cpu: 2
     memory: 2Gi
 
+# Health probe configuration
+probes:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  startup:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 30
+
 # Ingress configuration
 ingress:
   enabled: false
   className: alb
   hostname: ""
-  annotations: { }
-  tls: false
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Network Policy
+networkPolicy:
+  enabled: false

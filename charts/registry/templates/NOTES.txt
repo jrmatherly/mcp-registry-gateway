@@ -1,0 +1,25 @@
+MCP Registry has been deployed successfully!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To access the registry:
+{{- if .Values.ingress.enabled }}
+
+The registry is available at:
+  https://mcpregistry.{{ .Values.global.domain | default .Values.ingress.hostname }}
+
+{{- else }}
+
+The registry is available via port-forward:
+  kubectl port-forward svc/{{ include "registry.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }} -n {{ .Release.Namespace }}
+
+Then access: http://localhost:{{ .Values.service.port }}
+
+{{- end }}
+
+To check the health of the registry:
+  kubectl get pods -l "app.kubernetes.io/name={{ include "registry.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -n {{ .Release.Namespace }}
+
+For more information, see the documentation at:
+  https://github.com/your-org/mcp-registry-gateway

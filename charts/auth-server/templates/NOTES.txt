@@ -1,0 +1,24 @@
+MCP Auth Server has been deployed successfully!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To access the auth server:
+{{- if .Values.ingress.enabled }}
+
+The auth server is available at:
+  https://auth-server.{{ .Values.global.domain | default .Values.ingress.hostname }}
+
+{{- else }}
+
+The auth server is available via port-forward:
+  kubectl port-forward svc/{{ include "auth-server.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }} -n {{ .Release.Namespace }}
+
+Then access: http://localhost:{{ .Values.service.port }}
+
+{{- end }}
+
+To check the health of the auth server:
+  kubectl get pods -l "app.kubernetes.io/name={{ include "auth-server.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -n {{ .Release.Namespace }}
+
+Health endpoint: /health

@@ -37,7 +37,7 @@ RUN if [ -d /tmp/build-context/registry ]; then \
     rm -rf /tmp/build-context
 
 # Install uv and setup Python environment
-RUN pip install --no-cache-dir uv && \
+RUN pip install --no-cache-dir "uv>=0.9.0,<1.0.0" && \
     uv venv .venv --python 3.12
 
 # Install CPU-only PyTorch first to avoid GPU dependencies (for sentence-transformers)
