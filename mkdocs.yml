@@ -123,6 +123,10 @@ nav:
       - License: LICENSE.md
       - Notice: NOTICE.md
 
+# Custom CSS for dark mode fixes
+extra_css:
+  - stylesheets/mermaid-dark-mode.css
+
 # Extra
 extra:
   social:

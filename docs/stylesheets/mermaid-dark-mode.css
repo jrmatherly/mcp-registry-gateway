@@ -1,0 +1,154 @@
+/**
+ * Mermaid Dark Mode Text Visibility Fix
+ *
+ * MkDocs Material's dark mode (slate scheme) applies light text colors
+ * to Mermaid diagrams, making text unreadable on light-colored nodes.
+ * This CSS forces dark text on all Mermaid elements for proper visibility.
+ *
+ * The [data-md-color-scheme="slate"] selector targets only dark mode.
+ */
+
+/* ===== FLOWCHART / GRAPH DIAGRAMS ===== */
+
+/* Node labels - main text inside nodes */
+[data-md-color-scheme="slate"] .mermaid .nodeLabel,
+[data-md-color-scheme="slate"] .mermaid .node .label,
+[data-md-color-scheme="slate"] .mermaid .node text,
+[data-md-color-scheme="slate"] .mermaid .label,
+[data-md-color-scheme="slate"] .mermaid .label text {
+  color: #000 !important;
+  fill: #000 !important;
+}
+
+/* Subgraph titles/labels - critical for visibility */
+[data-md-color-scheme="slate"] .mermaid .cluster-label,
+[data-md-color-scheme="slate"] .mermaid .cluster-label text,
+[data-md-color-scheme="slate"] .mermaid .cluster-label span,
+[data-md-color-scheme="slate"] .mermaid g.cluster text,
+[data-md-color-scheme="slate"] .mermaid .cluster text {
+  color: #000 !important;
+  fill: #000 !important;
+}
+
+/* Edge labels - text on arrows/connections */
+[data-md-color-scheme="slate"] .mermaid .edgeLabel,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel text,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel span,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel .label,
+[data-md-color-scheme="slate"] .mermaid .edgePath text,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel foreignObject div {
+  color: #000 !important;
+  fill: #000 !important;
+}
+
+/* Edge label background - semi-transparent white for readability */
+[data-md-color-scheme="slate"] .mermaid .edgeLabel rect,
+[data-md-color-scheme="slate"] .mermaid .labelBkg {
+  fill: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ===== SEQUENCE DIAGRAMS ===== */
+
+/* Actor labels in boxes */
+[data-md-color-scheme="slate"] .mermaid .actor,
+[data-md-color-scheme="slate"] .mermaid .actor text,
+[data-md-color-scheme="slate"] .mermaid text.actor {
+  fill: #000 !important;
+}
+
+/* Actor box backgrounds should have dark text */
+[data-md-color-scheme="slate"] .mermaid .actor-box text {
+  fill: #000 !important;
+}
+
+/* Message labels on arrows - keep light for dark background */
+[data-md-color-scheme="slate"] .mermaid .messageText,
+[data-md-color-scheme="slate"] .mermaid text.messageText {
+  fill: #d0d0d0 !important;
+}
+
+/* Notes in sequence diagrams */
+[data-md-color-scheme="slate"] .mermaid .note text,
+[data-md-color-scheme="slate"] .mermaid .noteText {
+  fill: #000 !important;
+}
+
+/* Activation boxes */
+[data-md-color-scheme="slate"] .mermaid .activation text {
+  fill: #000 !important;
+}
+
+/* ===== GENERIC TEXT ELEMENTS ===== */
+
+/* All foreignObject content (used for complex labels) */
+[data-md-color-scheme="slate"] .mermaid foreignObject,
+[data-md-color-scheme="slate"] .mermaid foreignObject div,
+[data-md-color-scheme="slate"] .mermaid foreignObject span,
+[data-md-color-scheme="slate"] .mermaid foreignObject p {
+  color: #000 !important;
+}
+
+/* ===== NODE SPECIFIC STYLING ===== */
+
+/* Ensure all node text is dark regardless of node shape */
+[data-md-color-scheme="slate"] .mermaid .node rect + .label,
+[data-md-color-scheme="slate"] .mermaid .node polygon + .label,
+[data-md-color-scheme="slate"] .mermaid .node circle + .label,
+[data-md-color-scheme="slate"] .mermaid .node ellipse + .label,
+[data-md-color-scheme="slate"] .mermaid .node path + .label {
+  color: #000 !important;
+  fill: #000 !important;
+}
+
+/* Default nodes */
+[data-md-color-scheme="slate"] .mermaid .node.default text,
+[data-md-color-scheme="slate"] .mermaid .node.default .nodeLabel {
+  fill: #000 !important;
+}
+
+/* ===== SUBGRAPH STYLING ===== */
+
+/* Subgraph borders for better visibility */
+[data-md-color-scheme="slate"] .mermaid .cluster rect {
+  stroke: #555 !important;
+  stroke-width: 1.5px !important;
+}
+
+/* ===== CLASS DIAGRAMS ===== */
+
+[data-md-color-scheme="slate"] .mermaid .classLabel .label,
+[data-md-color-scheme="slate"] .mermaid .classTitle,
+[data-md-color-scheme="slate"] .mermaid .classText {
+  fill: #000 !important;
+}
+
+/* ===== STATE DIAGRAMS ===== */
+
+[data-md-color-scheme="slate"] .mermaid .stateLabel text,
+[data-md-color-scheme="slate"] .mermaid .statediagram-state text,
+[data-md-color-scheme="slate"] .mermaid .state-note text {
+  fill: #000 !important;
+}
+
+/* ===== ER DIAGRAMS ===== */
+
+[data-md-color-scheme="slate"] .mermaid .entityLabel,
+[data-md-color-scheme="slate"] .mermaid .relationshipLabel,
+[data-md-color-scheme="slate"] .mermaid .er text {
+  fill: #000 !important;
+}
+
+/* ===== PIE/GANTT CHARTS ===== */
+
+[data-md-color-scheme="slate"] .mermaid .pieTitleText,
+[data-md-color-scheme="slate"] .mermaid .pieCircle text,
+[data-md-color-scheme="slate"] .mermaid .legend text {
+  fill: #d0d0d0 !important;  /* Light for dark page background */
+}
+
+/* ===== CATCH-ALL FOR ANY MISSED TEXT ===== */
+
+/* This is a broad selector to catch any remaining text elements */
+[data-md-color-scheme="slate"] .mermaid g text:not(.messageText):not(.pieTitleText):not(.legend text) {
+  fill: #000 !important;
+}
