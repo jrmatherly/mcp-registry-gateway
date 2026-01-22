@@ -349,3 +349,9 @@ agent_security_scans/
 
 # Archive directory
 .archive/
+
+# Helm charts
+# Dependency archives (downloaded by helm dependency build)
+charts/**/charts/*.tgz
+# Chart.lock files can be regenerated with helm dependency build
+charts/**/Chart.lock
