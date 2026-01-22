@@ -1,28 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import type { User, UserApiResponse } from '../types';
+import { API_ENDPOINTS } from '../constants';
 
 // Configure axios to include credentials (cookies) with all requests
 axios.defaults.withCredentials = true;
-
-interface UIPermissions {
-  list_service?: string[];
-  health_check_service?: string[];
-  toggle_service?: string[];
-  list_agents?: string[];
-  [key: string]: string[] | undefined;
-}
-
-interface User {
-  username: string;
-  email?: string;
-  scopes?: string[];
-  groups?: string[];
-  auth_method?: string;
-  provider?: string;
-  can_modify_servers?: boolean;
-  is_admin?: boolean;
-  ui_permissions?: UIPermissions;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -55,7 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get('/api/auth/me');
+      const response = await axios.get<UserApiResponse>(API_ENDPOINTS.AUTH_ME);
       const userData = response.data;
       setUser({
         username: userData.username,
@@ -68,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         is_admin: userData.is_admin || false,
         ui_permissions: userData.ui_permissions || {},
       });
-    } catch (error) {
+    } catch {
       // User not authenticated
       setUser(null);
     } finally {
@@ -81,7 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     formData.append('username', username);
     formData.append('password', password);
 
-    const response = await axios.post('/api/auth/login', formData, {
+    const response = await axios.post(API_ENDPOINTS.AUTH_LOGIN, formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -94,8 +76,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('/api/auth/logout');
-    } catch (error) {
+      await axios.post(API_ENDPOINTS.AUTH_LOGOUT);
+    } catch {
       // Ignore errors during logout
     } finally {
       setUser(null);

@@ -11,45 +11,9 @@ import SemanticSearchResults from '../components/SemanticSearchResults';
 import Toast from '../components/Toast';
 import EditServerModal from '../components/EditServerModal';
 import EditAgentModal from '../components/EditAgentModal';
-import type { EditServerForm } from '../components/EditServerModal';
-import type { EditAgentForm } from '../components/EditAgentModal';
-import { hasExternalRegistryTag } from '../constants';
-import type { HealthStatus, TrustLevel, Visibility, ToastType } from '../types';
-
-
-interface Server {
-  name: string;
-  path: string;
-  description?: string;
-  official?: boolean;
-  enabled: boolean;
-  tags?: string[];
-  last_checked_time?: string;
-  usersCount?: number;
-  rating?: number;
-  status?: HealthStatus;
-  num_tools?: number;
-  proxy_pass_url?: string;
-  license?: string;
-  num_stars?: number;
-  is_python?: boolean;
-}
-
-interface Agent {
-  name: string;
-  path: string;
-  url?: string;
-  description?: string;
-  version?: string;
-  visibility?: Visibility;
-  trust_level?: TrustLevel;
-  enabled: boolean;
-  tags?: string[];
-  last_checked_time?: string;
-  usersCount?: number;
-  rating?: number;
-  status?: HealthStatus;
-}
+import { hasExternalRegistryTag, API_ENDPOINTS } from '../constants';
+import { filterEntities, getErrorMessage } from '../utils';
+import type { Server, Agent, ToastType, ActiveFilter, EditServerForm, EditAgentForm } from '../types';
 
 interface DashboardProps {
   activeFilter?: string;
@@ -87,12 +51,8 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   const [editLoading, setEditLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-  // Agent state management - using agents from useServerStats hook instead of separate fetch
-  // Agents loading state is now handled by the useServerStats hook's 'loading' state
-  // Note: agentsError and agentApiToken are placeholders for future implementation
-  const [agentsError] = useState<string | null>(null);
+  // Agent state management - using agents from useServerStats hook
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
-  const [agentApiToken] = useState<string | null>(null);
 
   // View filter state
   const [viewFilter, setViewFilter] = useState<'all' | 'servers' | 'agents' | 'external'>('all');
@@ -193,82 +153,22 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
   // Filter servers based on activeFilter and searchTerm
   const filteredServers = useMemo(() => {
-    let filtered = internalServers;
-
-    // Apply filter first
-    if (activeFilter === 'enabled') filtered = filtered.filter(s => s.enabled);
-    else if (activeFilter === 'disabled') filtered = filtered.filter(s => !s.enabled);
-    else if (activeFilter === 'unhealthy') filtered = filtered.filter(s => s.status === 'unhealthy');
-
-    // Then apply search
-    if (searchTerm) {
-      const query = searchTerm.toLowerCase();
-      filtered = filtered.filter(server =>
-        server.name.toLowerCase().includes(query) ||
-        (server.description || '').toLowerCase().includes(query) ||
-        server.path.toLowerCase().includes(query) ||
-        (server.tags || []).some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-
-    return filtered;
+    return filterEntities(internalServers, activeFilter as ActiveFilter, searchTerm);
   }, [internalServers, activeFilter, searchTerm]);
 
-  // Filter external servers based on searchTerm
+  // Filter external servers based on searchTerm (no status filter for external)
   const filteredExternalServers = useMemo(() => {
-    let filtered = externalServers;
-
-    if (searchTerm) {
-      const query = searchTerm.toLowerCase();
-      filtered = filtered.filter(server =>
-        server.name.toLowerCase().includes(query) ||
-        (server.description || '').toLowerCase().includes(query) ||
-        server.path.toLowerCase().includes(query) ||
-        (server.tags || []).some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-
-    return filtered;
+    return filterEntities(externalServers, 'all', searchTerm);
   }, [externalServers, searchTerm]);
 
-  // Filter external agents based on searchTerm
+  // Filter external agents based on searchTerm (no status filter for external)
   const filteredExternalAgents = useMemo(() => {
-    let filtered = externalAgents;
-
-    if (searchTerm) {
-      const query = searchTerm.toLowerCase();
-      filtered = filtered.filter(agent =>
-        agent.name.toLowerCase().includes(query) ||
-        (agent.description || '').toLowerCase().includes(query) ||
-        agent.path.toLowerCase().includes(query) ||
-        (agent.tags || []).some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-
-    return filtered;
+    return filterEntities(externalAgents, 'all', searchTerm);
   }, [externalAgents, searchTerm]);
 
   // Filter agents based on activeFilter and searchTerm
   const filteredAgents = useMemo(() => {
-    let filtered = internalAgents;
-
-    // Apply filter first
-    if (activeFilter === 'enabled') filtered = filtered.filter(a => a.enabled);
-    else if (activeFilter === 'disabled') filtered = filtered.filter(a => !a.enabled);
-    else if (activeFilter === 'unhealthy') filtered = filtered.filter(a => a.status === 'unhealthy');
-
-    // Then apply search
-    if (searchTerm) {
-      const query = searchTerm.toLowerCase();
-      filtered = filtered.filter(agent =>
-        agent.name.toLowerCase().includes(query) ||
-        (agent.description || '').toLowerCase().includes(query) ||
-        agent.path.toLowerCase().includes(query) ||
-        (agent.tags || []).some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-
-    return filtered;
+    return filterEntities(internalAgents, activeFilter as ActiveFilter, searchTerm);
   }, [internalAgents, activeFilter, searchTerm]);
 
   useEffect(() => {
@@ -310,7 +210,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   const handleEditServer = useCallback(async (server: Server) => {
     try {
       // Fetch full server details including proxy_pass_url and tags
-      const response = await axios.get(`/api/server_details${server.path}`);
+      const response = await axios.get(`${API_ENDPOINTS.SERVER_DETAILS}${server.path}`);
       const serverDetails = response.data;
 
       setEditingServer(server);
@@ -325,20 +225,19 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
         num_stars: serverDetails.num_stars || 0,
         is_python: serverDetails.is_python || false
       });
-    } catch (error) {
-      console.error('Failed to fetch server details:', error);
-      // Fallback to basic server data
+    } catch {
+      // Fallback to basic server data on error
       setEditingServer(server);
       setEditForm({
         name: server.name,
         path: server.path,
-        proxyPass: '',
+        proxyPass: server.proxy_pass_url || '',
         description: server.description || '',
         tags: server.tags || [],
-        license: 'N/A',
+        license: server.license || 'N/A',
         num_tools: server.num_tools || 0,
-        num_stars: 0,
-        is_python: false
+        num_stars: server.num_stars || 0,
+        is_python: server.is_python || false
       });
     }
   }, []);
@@ -388,7 +287,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       formData.append('is_python', editForm.is_python.toString());
 
       // Use the correct edit endpoint with the server path
-      await axios.post(`/api/edit${editingServer.path}`, formData, {
+      await axios.post(`${API_ENDPOINTS.SERVER_EDIT}${editingServer.path}`, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -399,9 +298,9 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       setEditingServer(null);
 
       showToast('Server updated successfully!', 'success');
-    } catch (error: any) {
-      console.error('Failed to update server:', error);
-      showToast(error.response?.data?.detail || 'Failed to update server', 'error');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Failed to update server');
+      showToast(message, 'error');
     } finally {
       setEditLoading(false);
     }
@@ -435,9 +334,9 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       // await fetchAgents();
       // setEditingAgent(null);
       // showToast('Agent updated successfully!', 'success');
-    } catch (error: any) {
-      console.error('Failed to update agent:', error);
-      showToast(error.response?.data?.detail || 'Failed to update agent', 'error');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Failed to update agent');
+      showToast(message, 'error');
     } finally {
       setEditAgentLoading(false);
     }
@@ -457,7 +356,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       const formData = new FormData();
       formData.append('enabled', enabled ? 'on' : 'off');
 
-      await axios.post(`/api/toggle${path}`, formData, {
+      await axios.post(`${API_ENDPOINTS.SERVER_TOGGLE}${path}`, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -465,9 +364,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
 
       // No need to refresh all data - the optimistic update is enough
       showToast(`Server ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
-    } catch (error: any) {
-      console.error('Failed to toggle server:', error);
-
+    } catch (err: unknown) {
       // Revert the optimistic update on error
       setServers(prevServers =>
         prevServers.map(server =>
@@ -477,7 +374,8 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
         )
       );
 
-      showToast(error.response?.data?.detail || 'Failed to toggle server', 'error');
+      const message = getErrorMessage(err, 'Failed to toggle server');
+      showToast(message, 'error');
     }
   }, [setServers, showToast]);
 
@@ -492,12 +390,10 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
     );
 
     try {
-      await axios.post(`/api/agents${path}/toggle?enabled=${enabled}`);
+      await axios.post(`${API_ENDPOINTS.AGENTS}${path}/toggle?enabled=${enabled}`);
 
       showToast(`Agent ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
-    } catch (error: any) {
-      console.error('Failed to toggle agent:', error);
-
+    } catch (err: unknown) {
       // Revert the optimistic update on error
       setAgents(prevAgents =>
         prevAgents.map(agent =>
@@ -507,7 +403,8 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
         )
       );
 
-      showToast(error.response?.data?.detail || 'Failed to toggle agent', 'error');
+      const message = getErrorMessage(err, 'Failed to toggle agent');
+      showToast(message, 'error');
     }
   }, [setAgents, showToast]);
 
@@ -540,7 +437,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       formData.append('tags', registerForm.tags.join(','));
       formData.append('license', 'MIT');
 
-      await axios.post('/api/register', formData, {
+      await axios.post(API_ENDPOINTS.SERVER_REGISTER, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -561,9 +458,9 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       await refreshData();
 
       showToast('Server registered successfully!', 'success');
-    } catch (error: any) {
-      console.error('Failed to register server:', error);
-      showToast(error.response?.data?.detail || 'Failed to register server', 'error');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Failed to register server');
+      showToast(message, 'error');
     } finally {
       setRegisterLoading(false);
     }
@@ -617,7 +514,6 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     onRefreshSuccess={refreshData}
                     onShowToast={showToast}
                     onServerUpdate={handleServerUpdate}
-                    authToken={agentApiToken}
                   />
                 ))}
               </div>
@@ -633,12 +529,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
               A2A Agents
             </h2>
 
-            {agentsError ? (
-              <div className="text-center py-12 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                <div className="text-red-500 text-lg mb-2">Failed to load agents</div>
-                <p className="text-red-600 dark:text-red-400 text-sm">{agentsError}</p>
-              </div>
-            ) : loading ? (
+            {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
               </div>
@@ -671,7 +562,6 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     onRefreshSuccess={refreshData}
                     onShowToast={showToast}
                     onAgentUpdate={handleAgentUpdate}
-                    authToken={agentApiToken}
                   />
                 ))}
               </div>
@@ -722,7 +612,6 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                         onRefreshSuccess={refreshData}
                         onShowToast={showToast}
                         onServerUpdate={handleServerUpdate}
-                        authToken={agentApiToken}
                       />
                     ))}
                   </div>
@@ -780,12 +669,11 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   );
 
   // Show error state
-  if (error && agentsError) {
+  if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <div className="text-red-500 text-lg">Failed to load servers and agents</div>
+        <div className="text-red-500 text-lg">Failed to load data</div>
         <p className="text-gray-500 text-center">{error}</p>
-        <p className="text-gray-500 text-center">{agentsError}</p>
         <button
           onClick={handleRefreshHealth}
           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"

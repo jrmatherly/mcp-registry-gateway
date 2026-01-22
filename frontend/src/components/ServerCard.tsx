@@ -12,23 +12,11 @@ import {
 import ServerConfigModal from './ServerConfigModal';
 import SecurityScanModal from './SecurityScanModal';
 import StarRatingWidget from './StarRatingWidget';
-import { formatTimeSince } from '../utils/dateUtils';
-import type { HealthStatus, RatingDetail, Tool, ShowToastCallback } from '../types';
+import { formatTimeSince, getErrorMessage } from '../utils';
+import type { Server, Tool, SecurityScanResult, ShowToastCallback } from '../types';
 
-export interface Server {
-  name: string;
-  path: string;
-  description?: string;
-  official?: boolean;
-  enabled: boolean;
-  tags?: string[];
-  last_checked_time?: string;
-  usersCount?: number;
-  num_stars?: number;
-  rating_details?: RatingDetail[];
-  status?: HealthStatus;
-  num_tools?: number;
-}
+// Re-export Server type for consumers that import from this file
+export type { Server };
 
 interface ServerCardProps {
   server: Server;
@@ -50,7 +38,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
   const [showConfig, setShowConfig] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [showSecurityScan, setShowSecurityScan] = useState(false);
-  const [securityScanResult, setSecurityScanResult] = useState<any>(null);
+  const [securityScanResult, setSecurityScanResult] = useState<SecurityScanResult | null>(null);
   const [loadingSecurityScan, setLoadingSecurityScan] = useState(false);
 
   // Fetch security scan status on mount to show correct icon color
@@ -78,10 +66,10 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
       const response = await axios.get(`/api/tools${server.path}`);
       setTools(response.data.tools || []);
       setShowTools(true);
-    } catch (error) {
-      console.error('Failed to fetch tools:', error);
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Failed to fetch tools');
       if (onShowToast) {
-        onShowToast('Failed to fetch tools', 'error');
+        onShowToast(message, 'error');
       }
     } finally {
       setLoadingTools(false);
@@ -117,10 +105,10 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
       if (onShowToast) {
         onShowToast('Health status refreshed successfully', 'success');
       }
-    } catch (error: any) {
-      console.error('Failed to refresh health:', error);
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Failed to refresh health status');
       if (onShowToast) {
-        onShowToast(error.response?.data?.detail || 'Failed to refresh health status', 'error');
+        onShowToast(message, 'error');
       }
     } finally {
       setLoadingRefresh(false);
@@ -139,12 +127,15 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(({ server, onToggle, on
         headers ? { headers } : undefined
       );
       setSecurityScanResult(response.data);
-    } catch (error: any) {
-      if (error.response?.status !== 404) {
-        console.error('Failed to fetch security scan:', error);
-        if (onShowToast) {
-          onShowToast('Failed to load security scan results', 'error');
-        }
+    } catch (err: unknown) {
+      // 404 is expected when no scan exists - only show error for other failures
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setSecurityScanResult(null);
+        return;
+      }
+      const message = getErrorMessage(err, 'Failed to load security scan results');
+      if (onShowToast) {
+        onShowToast(message, 'error');
       }
       setSecurityScanResult(null);
     } finally {

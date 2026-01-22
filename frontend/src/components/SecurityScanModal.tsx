@@ -8,28 +8,10 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
+import type { SecurityScanResult } from '../types';
 
-
-export interface SecurityScanResult {
-  server_path?: string;
-  server_url?: string;
-  agent_path?: string;
-  agent_url?: string;
-  scan_timestamp: string;
-  is_safe: boolean;
-  critical_issues: number;
-  high_severity: number;
-  medium_severity: number;
-  low_severity: number;
-  analyzers_used: string[];
-  raw_output: {
-    analysis_results?: Record<string, any>;
-    tool_results?: Record<string, any>;
-    scan_results?: Record<string, any>;
-  };
-  scan_failed: boolean;
-  error_message?: string;
-}
+// Re-export for consumers
+export type { SecurityScanResult };
 
 
 interface SecurityScanModalProps {

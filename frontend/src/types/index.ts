@@ -96,14 +96,24 @@ export interface ServerStats {
 // ============================================================================
 
 export interface SecurityScanResult {
-  scan_failed?: boolean;
-  critical_issues?: number;
-  high_severity?: number;
-  medium_severity?: number;
-  low_severity?: number;
-  scan_date?: string;
-  scanner_version?: string;
-  [key: string]: unknown;
+  server_path?: string;
+  server_url?: string;
+  agent_path?: string;
+  agent_url?: string;
+  scan_timestamp: string;
+  is_safe: boolean;
+  critical_issues: number;
+  high_severity: number;
+  medium_severity: number;
+  low_severity: number;
+  analyzers_used: string[];
+  raw_output: {
+    analysis_results?: Record<string, unknown>;
+    tool_results?: Record<string, unknown>;
+    scan_results?: Record<string, unknown>;
+  };
+  scan_failed: boolean;
+  error_message?: string;
 }
 
 // ============================================================================
@@ -216,3 +226,115 @@ export interface ToastData {
 // ============================================================================
 
 export type ShowToastCallback = (message: string, type: ToastType) => void;
+
+// ============================================================================
+// API Response Types (Backend -> Frontend mapping)
+// ============================================================================
+
+/**
+ * Server data as returned from the /api/servers endpoint.
+ */
+export interface ServerApiResponse {
+  display_name: string;
+  path: string;
+  description?: string;
+  is_official?: boolean;
+  is_enabled?: boolean;
+  tags?: string[];
+  last_checked_iso?: string;
+  num_stars?: number;
+  health_status?: string;
+  num_tools?: number;
+  proxy_pass_url?: string;
+  license?: string;
+  is_python?: boolean;
+}
+
+/**
+ * Agent data as returned from the /api/agents endpoint.
+ */
+export interface AgentApiResponse {
+  name: string;
+  path: string;
+  description?: string;
+  is_enabled?: boolean;
+  tags?: string[];
+  num_stars?: number;
+  num_skills?: number;
+  url?: string;
+  version?: string;
+  visibility?: string;
+  trust_level?: string;
+}
+
+/**
+ * Wrapper for /api/servers response.
+ */
+export interface ServersListResponse {
+  servers: ServerApiResponse[];
+}
+
+/**
+ * Wrapper for /api/agents response.
+ */
+export interface AgentsListResponse {
+  agents: AgentApiResponse[];
+}
+
+/**
+ * User data as returned from /api/auth/me endpoint.
+ */
+export interface UserApiResponse {
+  username: string;
+  email?: string;
+  scopes?: string[];
+  groups?: string[];
+  auth_method?: string;
+  provider?: string;
+  can_modify_servers?: boolean;
+  is_admin?: boolean;
+  ui_permissions?: UIPermissions;
+}
+
+// ============================================================================
+// View Filter Types
+// ============================================================================
+
+export type ViewFilter = 'all' | 'servers' | 'agents' | 'external';
+
+export type ActiveFilter = 'all' | 'enabled' | 'disabled' | 'unhealthy';
+
+// ============================================================================
+// Form Types
+// ============================================================================
+
+export interface EditServerForm {
+  name: string;
+  path: string;
+  proxyPass: string;
+  description: string;
+  tags: string[];
+  license: string;
+  num_tools: number;
+  num_stars: number;
+  is_python: boolean;
+}
+
+export interface EditAgentForm {
+  name: string;
+  path: string;
+  description: string;
+  version: string;
+  visibility: Visibility;
+  trust_level: TrustLevel;
+  tags: string[];
+}
+
+export interface RegisterServerForm {
+  name: string;
+  path: string;
+  proxyPass: string;
+  description: string;
+  official: boolean;
+  tags: string[];
+}
