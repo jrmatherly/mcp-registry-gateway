@@ -33,9 +33,10 @@ EXPOSE 8888
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8888/health || exit 1
 
-# Copy entrypoint script
+# Copy entrypoint script and dependencies
 COPY docker/auth-entrypoint.sh /app/auth-entrypoint.sh
-RUN chmod +x /app/auth-entrypoint.sh
+COPY docker/download-documentdb-ca-bundle.sh /app/download-documentdb-ca-bundle.sh
+RUN chmod +x /app/auth-entrypoint.sh /app/download-documentdb-ca-bundle.sh
 
 # Start the auth server via entrypoint
 ENTRYPOINT ["/app/auth-entrypoint.sh"]

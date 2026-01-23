@@ -1,4 +1,4 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset
 
 # Default target
 help:
@@ -38,6 +38,16 @@ help:
 	@echo "  build-and-push-keycloak     Build and push to ECR"
 	@echo "  deploy-keycloak             Update ECS service (after push)"
 	@echo "  update-keycloak             Build, push, and deploy in one command"
+	@echo ""
+	@echo "Local Keycloak Development:"
+	@echo "  setup-keycloak              Full local Keycloak setup (start, init, configure)"
+	@echo "  keycloak-start              Start Keycloak services (db + keycloak)"
+	@echo "  keycloak-init               Initialize realm, clients, groups, users"
+	@echo "  keycloak-credentials        Retrieve and display all client credentials"
+	@echo "  keycloak-status             Check Keycloak health and status"
+	@echo "  keycloak-logs               View Keycloak container logs"
+	@echo "  keycloak-stop               Stop Keycloak services"
+	@echo "  keycloak-reset              Stop Keycloak and remove data volumes"
 	@echo ""
 	@echo "Infrastructure Documentation:"
 	@echo "  save-outputs                Save Terraform outputs as JSON"
@@ -206,12 +216,95 @@ update-keycloak: build-and-push-keycloak deploy-keycloak
 	@echo ""
 	@echo "✅ Keycloak update complete!"
 	@echo ""
-	@echo "Service URLs:"
-	@echo "  Admin Console: https://kc.mycorp.click/admin"
-	@echo "  Service URL:   https://kc.mycorp.click"
-	@echo ""
 	@echo "Monitor deployment:"
 	@echo "  aws ecs describe-services --cluster keycloak --services keycloak --region $(AWS_REGION) --query 'services[0].[serviceName,status,runningCount,desiredCount]' --output table"
+
+# ========================================
+# Local Keycloak Development
+# ========================================
+
+# Full local Keycloak setup (recommended for first-time setup)
+setup-keycloak:
+	@echo "Running full Keycloak local setup..."
+	@./keycloak/setup/deploy-keycloak.sh --update-env
+	@echo ""
+	@echo "✅ Keycloak setup complete!"
+
+# Start Keycloak services only (database + keycloak)
+keycloak-start:
+	@echo "Starting Keycloak services..."
+	@docker compose up -d keycloak-db keycloak
+	@echo "Waiting for Keycloak to be ready (this may take 1-2 minutes)..."
+	@timeout=120; while [ $$timeout -gt 0 ]; do \
+		if curl -sf http://localhost:8080/realms/master >/dev/null 2>&1; then \
+			echo "✅ Keycloak is ready!"; \
+			exit 0; \
+		fi; \
+		sleep 5; \
+		timeout=$$((timeout - 5)); \
+		echo "  Waiting... ($$timeout seconds remaining)"; \
+	done; \
+	echo "⚠️  Timeout waiting for Keycloak. Check logs with: make keycloak-logs"
+
+# Initialize Keycloak realm, clients, groups, users
+keycloak-init:
+	@echo "Initializing Keycloak configuration..."
+	@./keycloak/setup/init-keycloak.sh
+	@echo "✅ Keycloak initialization complete!"
+
+# Retrieve and display all client credentials
+keycloak-credentials:
+	@echo "Retrieving Keycloak client credentials..."
+	@./keycloak/setup/get-all-client-credentials.sh
+	@echo ""
+	@echo "Credentials saved to: .oauth-tokens/keycloak-client-secrets.txt"
+	@echo "To view: cat .oauth-tokens/keycloak-client-secrets.txt"
+
+# Check Keycloak health and status
+keycloak-status:
+	@echo "Checking Keycloak status..."
+	@echo ""
+	@echo "Container Status:"
+	@docker compose ps keycloak keycloak-db 2>/dev/null || echo "  Keycloak services not running"
+	@echo ""
+	@echo "Health Checks:"
+	@if curl -sf http://localhost:8080/realms/master >/dev/null 2>&1; then \
+		echo "  ✅ Keycloak master realm: healthy"; \
+	else \
+		echo "  ❌ Keycloak master realm: unreachable"; \
+	fi
+	@if curl -sf http://localhost:8080/realms/mcp-gateway >/dev/null 2>&1; then \
+		echo "  ✅ mcp-gateway realm: configured"; \
+	else \
+		echo "  ⚠️  mcp-gateway realm: not configured (run: make keycloak-init)"; \
+	fi
+	@if curl -sf http://localhost:9000/health/ready >/dev/null 2>&1; then \
+		echo "  ✅ Health endpoint (9000): ready"; \
+	else \
+		echo "  ⚠️  Health endpoint (9000): not available"; \
+	fi
+	@echo ""
+	@echo "Service URLs (when running):"
+	@echo "  Admin Console: http://localhost:8080/admin"
+	@echo "  mcp-gateway Realm: http://localhost:8080/realms/mcp-gateway"
+
+# View Keycloak container logs
+keycloak-logs:
+	@docker compose logs -f keycloak
+
+# Stop Keycloak services
+keycloak-stop:
+	@echo "Stopping Keycloak services..."
+	@docker compose stop keycloak keycloak-db
+	@echo "✅ Keycloak services stopped"
+
+# Stop Keycloak and remove data volumes (full reset)
+keycloak-reset:
+	@echo "⚠️  This will stop Keycloak and DELETE all data!"
+	@read -p "Are you sure? (y/N) " confirm && [ "$$confirm" = "y" ] || exit 1
+	@echo "Stopping and removing Keycloak services..."
+	@docker compose down keycloak keycloak-db -v
+	@echo "✅ Keycloak reset complete. Run 'make setup-keycloak' to reinitialize."
 
 save-outputs:
 	@echo "Saving Terraform outputs as JSON..."

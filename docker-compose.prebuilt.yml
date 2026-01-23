@@ -298,7 +298,7 @@ services:
 
   # PostgreSQL database for Keycloak - using official image
   keycloak-db:
-    image: postgres:${POSTGRES_VERSION:-16}
+    image: postgres:${POSTGRES_VERSION:-17}
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -314,7 +314,7 @@ services:
 
   # Keycloak Identity Provider - using official image
   keycloak:
-    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-26.0}
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-26.5}
     command: start-dev # Use 'start' for production with proper SSL
     environment:
       # Database configuration

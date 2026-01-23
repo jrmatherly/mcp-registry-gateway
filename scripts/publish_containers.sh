@@ -100,10 +100,10 @@ declare -a COMPONENTS=(
 # External images to mirror (pull from source and push to our registries)
 declare -a EXTERNAL_IMAGES=(
     "atlassian:ghcr.io/sooperset/mcp-atlassian:latest"
-    "postgres:postgres:16-alpine"
+    "postgres:postgres:17-alpine"
     "prometheus:prom/prometheus:latest"
     "grafana:grafana/grafana:latest"
-    "keycloak:quay.io/keycloak/keycloak:25.0"
+    "keycloak:quay.io/keycloak/keycloak:26.5"
     "alpine:alpine:latest"
     "mongo:mongo:8.2"
 )

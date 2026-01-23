@@ -28,8 +28,8 @@ The following external images are pulled from their original sources:
 | Alpine Linux | `alpine:latest` | Docker Hub Official | Lightweight Linux for metrics database initialization | N/A |
 | Prometheus | `prom/prometheus:latest` | Docker Hub Official | Metrics collection and time-series database | 9090 |
 | Grafana | `grafana/grafana:latest` | Docker Hub Official | Metrics visualization and dashboards | 3000 |
-| PostgreSQL | `postgres:16` | Docker Hub Official | Database for Keycloak | 5432 (internal) |
-| Keycloak | `quay.io/keycloak/keycloak:26.0` | Quay.io | Identity and access management service | 8080 |
+| PostgreSQL | `postgres:17` | Docker Hub Official | Database for Keycloak | 5432 (internal) |
+| Keycloak | `quay.io/keycloak/keycloak:26.5` | Quay.io | Identity and access management service | 8080 |
 | MongoDB CE | `mongo:8` | Docker Hub Official | MongoDB Community Edition 8 with replica set support for local development | 27017 (internal) |
 
 ## Manual Download Commands
@@ -52,8 +52,8 @@ docker pull ghcr.io/jrmatherly/mcp-realserverfaketools-server:latest
 docker pull alpine:latest
 docker pull prom/prometheus:latest
 docker pull grafana/grafana:latest
-docker pull postgres:16
-docker pull quay.io/keycloak/keycloak:26.0
+docker pull postgres:17
+docker pull quay.io/keycloak/keycloak:26.5
 docker pull mongo:8
 ```
 

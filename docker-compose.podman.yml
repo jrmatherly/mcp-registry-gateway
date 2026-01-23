@@ -315,7 +315,7 @@ services:
 
   # PostgreSQL database for Keycloak
   keycloak-db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
@@ -331,7 +331,7 @@ services:
 
   # Keycloak Identity Provider
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0
+    image: quay.io/keycloak/keycloak:26.5
     command: start-dev # Use 'start' for production with proper SSL
     environment:
       # Database configuration

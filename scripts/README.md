@@ -267,7 +267,7 @@ The `build-and-push-keycloak.sh` script automates the process of building a Keyc
 ./scripts/build-and-push-keycloak.sh
 
 # Build and push with custom tag
-./scripts/build-and-push-keycloak.sh --image-tag v24.0.1
+./scripts/build-and-push-keycloak.sh --image-tag v26.5
 
 # Build only (don't push)
 ./scripts/build-and-push-keycloak.sh --no-push
@@ -289,7 +289,7 @@ make deploy-keycloak
 make update-keycloak
 
 # With custom parameters
-make build-and-push-keycloak AWS_REGION=us-east-1 IMAGE_TAG=v24.0.1
+make build-and-push-keycloak AWS_REGION=us-east-1 IMAGE_TAG=v26.5
 ```
 
 ### Options
@@ -322,7 +322,7 @@ make build-and-push-keycloak AWS_REGION=us-east-1 IMAGE_TAG=v24.0.1
 
 ```bash
 # Build and push image
-./scripts/build-and-push-keycloak.sh --image-tag v24.0.1
+./scripts/build-and-push-keycloak.sh --image-tag v26.5
 
 # Deploy to ECS
 aws ecs update-service \
