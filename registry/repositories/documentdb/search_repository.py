@@ -142,7 +142,8 @@ class DocumentDBSearchRepository(SearchRepositoryBase):
         collection = await self._get_collection()
 
         try:
-            indexes = await collection.list_indexes().to_list(length=100)
+            cursor = await collection.list_indexes()
+            indexes = await cursor.to_list(length=100)
             index_names = [idx["name"] for idx in indexes]
 
             if "embedding_vector_idx" not in index_names:

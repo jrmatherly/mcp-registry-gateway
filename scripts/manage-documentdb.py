@@ -261,7 +261,8 @@ async def inspect_collection(
 
         # Get indexes
         try:
-            indexes = await collection.list_indexes().to_list(length=None)
+            cursor = await collection.list_indexes()
+            indexes = await cursor.to_list(length=None)
             print("\n--- Indexes ---")
             for idx in indexes:
                 print(f"\nIndex: {idx.get('name', 'unknown')}")

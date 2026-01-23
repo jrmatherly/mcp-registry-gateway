@@ -163,7 +163,8 @@ async def _create_vector_index(
 
                 # List all indexes to see what's there
                 logger.info(f"Listing all indexes on {collection_name}...")
-                indexes = await collection.list_indexes().to_list(None)
+                cursor = await collection.list_indexes()
+                indexes = await cursor.to_list(None)
                 for idx in indexes:
                     logger.info(
                         f"  Found index: name='{idx.get('name')}', key={idx.get('key', {})}"
@@ -490,7 +491,8 @@ async def _print_collection_summary(
             count = await collection.count_documents({})
 
             # Get indexes
-            indexes = await collection.list_indexes().to_list(None)
+            cursor = await collection.list_indexes()
+            indexes = await cursor.to_list(None)
 
             logger.info(f"\nCollection: {coll_name}")
             logger.info(f"  Documents: {count}")

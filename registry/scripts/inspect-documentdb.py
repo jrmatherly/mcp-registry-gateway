@@ -93,7 +93,8 @@ async def inspect_documentdb():
             print()
 
             # List indexes
-            indexes = await collection.list_indexes().to_list(None)
+            cursor = await collection.list_indexes()
+            indexes = await cursor.to_list(None)
             print(f"Indexes ({len(indexes)}):")
             print("-" * 80)
 
