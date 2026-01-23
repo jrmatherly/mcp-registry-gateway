@@ -5,7 +5,7 @@ description = "MCP server to provide financial information using Polygon.io API"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "fastmcp>=2.0.0",
+    "fastmcp>=2.0.0,<3.0.0",  # Pin to <3 per FastMCP recommendation for production stability
     "pydantic>=2.11.3",
     "requests>=2.32.3",
     "python-dotenv>=1.0.0",

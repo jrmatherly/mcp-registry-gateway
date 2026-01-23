@@ -10,6 +10,7 @@ import os
 import secrets  # Replaced random with secrets
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Annotated, Any, ClassVar
 
 from fastmcp import FastMCP
@@ -95,6 +96,34 @@ logger.info(
 
 # Initialize FastMCP server
 mcp = FastMCP("RealServerFakeTools")
+
+
+# --- Custom HTTP Routes for browser requests ---
+FAVICON_PATH = Path(__file__).parent / "favicon.ico"
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def root_endpoint(request):
+    """Root endpoint that provides server information."""
+    from starlette.responses import JSONResponse
+
+    return JSONResponse(
+        {
+            "name": "RealServerFakeTools",
+            "description": "Demo MCP server with fake tools for testing and demonstration purposes",
+            "mcp_endpoint": "/mcp",
+        }
+    )
+
+
+@mcp.custom_route("/favicon.ico", methods=["GET"])
+async def favicon_endpoint(request):
+    """Serve favicon for browser requests."""
+    from starlette.responses import FileResponse, Response
+
+    if FAVICON_PATH.exists():
+        return FileResponse(FAVICON_PATH, media_type="image/x-icon")
+    return Response(status_code=204)
 
 
 # Define some Pydantic models for complex parameter types

@@ -319,17 +319,14 @@ class NginxConfigService:
                 else:
                     keycloak_port = "443" if keycloak_scheme == "https" else "8080"
 
-                # Validate that we can actually resolve the hostname
-                if not keycloak_host or keycloak_host == "keycloak":
-                    # If we end up with just 'keycloak', use the full URL's netloc instead
+                # Handle case where hostname parsing failed - fall back to netloc
+                if not keycloak_host:
                     keycloak_host = (
                         parsed_keycloak.netloc.split(":")[0]
                         if parsed_keycloak.netloc
                         else "keycloak"
                     )
-                    logger.warning(
-                        f"Keycloak hostname is 'keycloak', using netloc instead: {keycloak_host}"
-                    )
+                    logger.debug(f"Keycloak hostname extracted from netloc: {keycloak_host}")
 
                 logger.info(
                     f"Using Keycloak configuration from KEYCLOAK_URL '{keycloak_url}': {keycloak_scheme}://{keycloak_host}:{keycloak_port}"
@@ -375,6 +372,22 @@ class NginxConfigService:
         """Reload Nginx configuration (if running in appropriate environment)."""
         try:
             import subprocess
+            from pathlib import Path
+
+            # Check if nginx PID file exists and has valid content (nginx is running)
+            pid_file = Path("/run/nginx.pid")
+            if not pid_file.exists():
+                logger.info("Nginx not started yet (no PID file) - skipping reload")
+                return False
+
+            try:
+                pid_content = pid_file.read_text().strip()
+                if not pid_content:
+                    logger.info("Nginx PID file is empty - nginx not started yet, skipping reload")
+                    return False
+            except Exception:
+                logger.info("Cannot read nginx PID file - skipping reload")
+                return False
 
             # Test the configuration first before reloading
             test_result = subprocess.run(["nginx", "-t"], capture_output=True, text=True)
@@ -388,6 +401,10 @@ class NginxConfigService:
                 logger.info("Nginx configuration reloaded successfully")
                 return True
             else:
+                # Check if the error is due to nginx not running
+                if "invalid PID" in result.stderr:
+                    logger.info("Nginx not running yet - skipping reload")
+                    return False
                 logger.error(f"Failed to reload Nginx: {result.stderr}")
                 return False
         except FileNotFoundError:

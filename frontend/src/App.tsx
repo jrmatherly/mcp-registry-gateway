@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import TokenGeneration from './pages/TokenGeneration';
 import RegisterPage from './pages/RegisterPage';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 import OAuthCallback from './pages/OAuthCallback';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -37,6 +38,13 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <RegisterPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
                   </Layout>
                 </ProtectedRoute>
               } />

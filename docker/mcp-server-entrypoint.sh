@@ -4,8 +4,8 @@
 
 set -e
 
-# Set default port
-SERVER_PORT=${PORT:-8000}
+# Set default port - prefer MCP_SERVER_LISTEN_PORT, fallback to PORT for backward compatibility
+SERVER_PORT=${MCP_SERVER_LISTEN_PORT:-${PORT:-8000}}
 
 # Create .env file if needed (for servers that require it)
 # Note: Using -n to check for non-empty string (safer than ! -z)

@@ -168,6 +168,15 @@ async def init_database():
                 user_hash TEXT,
                 created_at TEXT DEFAULT (datetime('now'))
             );
+
+            -- Retention policies table for configurable data retention
+            CREATE TABLE IF NOT EXISTS retention_policies (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                table_name TEXT UNIQUE NOT NULL,
+                retention_days INTEGER NOT NULL DEFAULT 30,
+                is_active BOOLEAN DEFAULT 1,
+                updated_at TEXT DEFAULT (datetime('now'))
+            );
         """)
 
         # Create indexes for performance
@@ -191,6 +200,8 @@ async def init_database():
 
             CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash);
             CREATE INDEX IF NOT EXISTS idx_api_keys_service ON api_keys(service_name);
+
+            CREATE INDEX IF NOT EXISTS idx_retention_table ON retention_policies(table_name);
         """)
 
         await db.commit()
@@ -379,18 +390,20 @@ class MetricsStorage:
     async def create_api_key(
         self, key_hash: str, service_name: str, rate_limit: int = 1000
     ) -> bool:
-        """Create a new API key in the database."""
+        """Create a new API key in the database (idempotent - ignores if exists)."""
         try:
             async with aiosqlite.connect(self.db_path) as db:
-                await db.execute(
+                # Use INSERT OR IGNORE for idempotent key setup on restarts
+                cursor = await db.execute(
                     """
-                    INSERT INTO api_keys (key_hash, service_name, created_at, is_active, rate_limit)
+                    INSERT OR IGNORE INTO api_keys (key_hash, service_name, created_at, is_active, rate_limit)
                     VALUES (?, ?, datetime('now'), 1, ?)
                 """,
                     (key_hash, service_name, rate_limit),
                 )
                 await db.commit()
-                return True
+                # Return True if a row was inserted, False if it already existed
+                return cursor.rowcount > 0
         except Exception as e:
             logger.error(f"Failed to create API key: {e}")
             return False

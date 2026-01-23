@@ -51,7 +51,7 @@ services:
       - ./scripts/mcp-servers-unrestricted-execute.json:/app/scripts/mcp-servers-unrestricted-execute.json:ro
     command: >
       sh -c "
-      pip install --quiet motor pymongo &&
+      pip install --quiet --disable-pip-version-check --root-user-action=ignore motor pymongo &&
       python /app/scripts/init-mongodb-ce.py
       "
     restart: "no"
@@ -260,7 +260,7 @@ services:
       args:
         SERVER_DIR: servers/currenttime
     environment:
-      - PORT=8000
+      - MCP_SERVER_LISTEN_PORT=8000
       - MCP_TRANSPORT=streamable-http
     ports:
       - "8000:8000"
@@ -274,8 +274,11 @@ services:
       args:
         SERVER_DIR: servers/fininfo
     environment:
-      - PORT=8001
+      - MCP_SERVER_LISTEN_PORT=8001
       - SECRET_KEY=${SECRET_KEY}
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ${HOME}/mcp-gateway/secrets/fininfo/:/app/fininfo/
     ports:
@@ -290,10 +293,13 @@ services:
       args:
         SERVER_DIR: servers/mcpgw
     environment:
-      - PORT=8003
+      - MCP_SERVER_LISTEN_PORT=8003
       - REGISTRY_BASE_URL=http://registry:7860
       - REGISTRY_USERNAME=${ADMIN_USER:-admin}
       - REGISTRY_PASSWORD=${ADMIN_PASSWORD}
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ${HOME}/mcp-gateway/servers:/app/registry/servers
       - ${HOME}/mcp-gateway/models:/app/registry/models
@@ -312,7 +318,10 @@ services:
       args:
         SERVER_DIR: servers/realserverfaketools
     environment:
-      - PORT=8002
+      - MCP_SERVER_LISTEN_PORT=8002
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     ports:
       - "8002:8002"
     restart: unless-stopped
@@ -340,6 +349,10 @@ services:
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
+    environment:
+      # External labels for metrics identification
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - CLUSTER_NAME=${CLUSTER_NAME:-local}
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus

@@ -781,6 +781,45 @@ logger.info(
 mcp = FastMCP("MCPGateway")
 
 
+# --- Custom HTTP Routes for browser requests ---
+# These routes handle common browser requests that would otherwise return 404
+
+# Path to favicon file (relative to this script)
+FAVICON_PATH = Path(__file__).parent / "favicon.ico"
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def root_endpoint(request):
+    """
+    Root endpoint that provides server information.
+    Browsers often request the root path when users navigate directly to the server URL.
+    """
+    from starlette.responses import JSONResponse
+
+    return JSONResponse(
+        {
+            "name": "MCPGateway",
+            "description": "MCP Gateway Server - provides tools to interact with the MCP Gateway Registry API",
+            "mcp_endpoint": "/mcp",
+            "documentation": "https://github.com/your-org/mcp-registry-gateway",
+        }
+    )
+
+
+@mcp.custom_route("/favicon.ico", methods=["GET"])
+async def favicon_endpoint(request):
+    """
+    Serve favicon for browser requests.
+    Browsers automatically request /favicon.ico when loading a page.
+    """
+    from starlette.responses import FileResponse, Response
+
+    if FAVICON_PATH.exists():
+        return FileResponse(FAVICON_PATH, media_type="image/x-icon")
+    # Return empty response with 204 No Content if favicon doesn't exist
+    return Response(status_code=204)
+
+
 # --- Helper function for making requests to the registry ---
 async def _call_registry_api(
     method: str, endpoint: str, ctx: Context = None, **kwargs

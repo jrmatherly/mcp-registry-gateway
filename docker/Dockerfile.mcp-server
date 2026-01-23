@@ -57,7 +57,7 @@ EXPOSE 8000
 
 # Health check (generic for all MCP servers)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD nc -z localhost ${PORT:-8000} || exit 1
+    CMD nc -z localhost ${MCP_SERVER_LISTEN_PORT:-8000} || exit 1
 
 # Copy and use shared entrypoint script
 COPY docker/mcp-server-entrypoint.sh /entrypoint.sh

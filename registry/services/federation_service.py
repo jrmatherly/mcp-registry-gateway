@@ -89,6 +89,11 @@ class FederationService:
             logger.warning(f"Federation config not found at {self.config_path}, using defaults")
             return FederationConfig()
 
+        # Check if file is empty (handles mounted empty files)
+        if config_file.stat().st_size == 0:
+            logger.info(f"Federation config file is empty at {self.config_path}, using defaults")
+            return FederationConfig()
+
         try:
             with open(config_file) as f:
                 config_data = json.load(f)
@@ -136,7 +141,8 @@ class FederationService:
             List of synced server data
         """
         if not self.anthropic_client:
-            logger.error("Anthropic client not initialized")
+            # Expected when federation is disabled - use DEBUG level
+            logger.debug("Anthropic client not initialized (federation disabled)")
             return []
 
         # Fetch servers
@@ -179,7 +185,8 @@ class FederationService:
             List of synced agent data
         """
         if not self.asor_client:
-            logger.error("ASOR client not initialized")
+            # Expected when federation is disabled - use DEBUG level
+            logger.debug("ASOR client not initialized (federation disabled)")
             return []
 
         # Fetch agents

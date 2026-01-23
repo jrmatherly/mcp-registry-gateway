@@ -8,6 +8,7 @@ import asyncio
 import logging
 import os
 import time
+from pathlib import Path
 from typing import Annotated, Any, ClassVar
 
 import httpx
@@ -129,6 +130,34 @@ args = _parse_arguments()
 # Initialize FastMCP 2.0 server
 mcp = FastMCP("fininfo")
 # Note: FastMCP 2.0 handles host/port differently - set in run() method
+
+
+# --- Custom HTTP Routes for browser requests ---
+FAVICON_PATH = Path(__file__).parent / "favicon.ico"
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def root_endpoint(request):
+    """Root endpoint that provides server information."""
+    from starlette.responses import JSONResponse
+
+    return JSONResponse(
+        {
+            "name": "fininfo",
+            "description": "Financial information MCP server - provides stock market data via Polygon.io API",
+            "mcp_endpoint": "/mcp",
+        }
+    )
+
+
+@mcp.custom_route("/favicon.ico", methods=["GET"])
+async def favicon_endpoint(request):
+    """Serve favicon for browser requests."""
+    from starlette.responses import FileResponse, Response
+
+    if FAVICON_PATH.exists():
+        return FileResponse(FAVICON_PATH, media_type="image/x-icon")
+    return Response(status_code=204)
 
 
 def get_api_key_for_request() -> str:
