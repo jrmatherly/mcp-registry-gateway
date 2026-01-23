@@ -93,6 +93,7 @@ The registry will be available at `http://localhost:7860`. See the [Quick Start 
 ## Architecture Overview
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'clusterBkg': '#e8e8e8', 'clusterBorder': '#888888' }}}%%
 flowchart TB
     subgraph Human_Users["Human Users"]
         User1["Human User 1"]
