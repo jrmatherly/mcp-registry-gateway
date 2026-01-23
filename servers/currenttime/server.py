@@ -11,6 +11,8 @@ from typing import Annotated
 import pytz
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 # Configure logging
 logging.basicConfig(
@@ -54,6 +56,14 @@ logger.info(
 # Initialize FastMCP server
 mcp = FastMCP("CurrentTimeAPI", host="0.0.0.0", port=int(args.port))
 mcp.settings.mount_path = "/currenttime"
+
+
+# Health check endpoint for load balancers and monitoring
+# See: https://gofastmcp.com/deployment/http#health-checks
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request: Request) -> JSONResponse:
+    """Health check endpoint for monitoring and load balancers."""
+    return JSONResponse({"status": "healthy", "service": "currenttime-server"})
 
 
 @mcp.prompt()

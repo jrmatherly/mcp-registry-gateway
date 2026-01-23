@@ -14,7 +14,7 @@ import httpx
 from dotenv import load_dotenv
 from fastmcp import Context, FastMCP  # Updated import for FastMCP 2.0
 from fastmcp.server.dependencies import get_http_request  # New dependency function for HTTP access
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from secrets_manager import SecretsManager
 
 # Configure logging
@@ -89,6 +89,10 @@ if FALLBACK_API_KEY is None:
 
 
 class Constants(BaseModel):
+    """Server constants using Pydantic V2 ConfigDict pattern."""
+
+    model_config = ConfigDict(frozen=True)  # Make instances immutable
+
     # Using ClassVar to define class-level constants
     DESCRIPTION: ClassVar[str] = "Fininfo MCP Server"
     MAX_RETRIES: ClassVar[int] = 3
@@ -96,10 +100,6 @@ class Constants(BaseModel):
     DEFAULT_TIMEOUT: ClassVar[float] = 1
     DEFAULT_MCP_TRANSPORT: ClassVar[str] = "sse"
     DEFAULT_MCP_SERVER_LISTEN_PORT: ClassVar[str] = "8000"
-
-    # Disable instance creation - optional but recommended for constants
-    class Config:
-        frozen = True  # Make instances immutable
 
 
 def _parse_arguments():

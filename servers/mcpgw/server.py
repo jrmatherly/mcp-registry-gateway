@@ -20,7 +20,7 @@ import yaml  # Added for scopes.yml parsing
 from dotenv import load_dotenv
 from fastmcp import Context, FastMCP  # Updated import for FastMCP 2.0
 from fastmcp.server.dependencies import get_http_request  # New dependency function for HTTP access
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sklearn.metrics.pairwise import cosine_similarity  # Added
 
 # Add registry to path - works in both Docker and local dev
@@ -735,15 +735,15 @@ async def load_faiss_data_for_mcpgw():
 
 
 class Constants(BaseModel):
+    """Server constants using Pydantic V2 ConfigDict pattern."""
+
+    model_config = ConfigDict(frozen=True)  # Make instances immutable
+
     # Using ClassVar to define class-level constants
     DESCRIPTION: ClassVar[str] = "MCP Gateway Registry Interaction Server (mcpgw)"
     DEFAULT_MCP_TRANSPORT: ClassVar[str] = "streamable-http"
     DEFAULT_MCP_SEVER_LISTEN_PORT: ClassVar[str] = "8003"  # Default to a different port
     REQUEST_TIMEOUT: ClassVar[float] = 15.0  # Timeout for HTTP requests
-
-    # Disable instance creation - optional but recommended for constants
-    class Config:
-        frozen = True  # Make instances immutable
 
 
 def _parse_arguments():

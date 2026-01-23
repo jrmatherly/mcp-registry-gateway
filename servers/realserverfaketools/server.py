@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Annotated, Any, ClassVar
 
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # Configure logging
 logging.basicConfig(
@@ -51,15 +51,15 @@ def secure_sample(population, k):
 
 
 class Constants(BaseModel):
+    """Server constants using Pydantic V2 ConfigDict pattern."""
+
+    model_config = ConfigDict(frozen=True)  # Make instances immutable
+
     # Using ClassVar to define class-level constants
     DESCRIPTION: ClassVar[str] = "Real Server Fake Tools MCP Server"
     DEFAULT_MCP_TRANSPORT: ClassVar[str] = "streamable-http"
     DEFAULT_MCP_SERVER_LISTEN_PORT: ClassVar[str] = "8001"
     REQUEST_TIMEOUT: ClassVar[float] = 15.0
-
-    # Disable instance creation - optional but recommended for constants
-    class Config:
-        frozen = True  # Make instances immutable
 
 
 def _parse_arguments():
