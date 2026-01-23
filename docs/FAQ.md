@@ -602,7 +602,7 @@ cd mcp-registry-gateway
 - Additional IdP integrations
 - Enhanced RBAC capabilities
 
-**See the [full roadmap](README.md#roadmap) in the README for complete details.**
+**See the [full roadmap](../README.md#roadmap) in the README for complete details.**
 
 ---
 
