@@ -1,4 +1,7 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump
+
+# Version file
+VERSION_FILE := VERSION
 
 # Default target
 help:
@@ -83,6 +86,10 @@ help:
 	@echo "  compose-logs-agents         Follow A2A agent logs in real-time"
 	@echo "  build-agents                Build both A2A agent images locally"
 	@echo "  push-agents                 Push both A2A agent images to ECR"
+	@echo ""
+	@echo "Release Management:"
+	@echo "  version-bump                Show next version (dry-run)"
+	@echo "  release                     Bump version, create tag, and push release"
 
 # Installation
 install-dev:
@@ -415,3 +422,65 @@ push-agents:
 	@$(MAKE) push IMAGE=flight_booking_agent
 	@$(MAKE) push IMAGE=travel_assistant_agent
 	@echo "Both agents pushed to ECR"
+
+# ========================================
+# Release Management
+# ========================================
+
+# Calculate next version: increment patch, roll to next major at .10
+# Example: 2.0.7 -> 2.0.8, 2.0.9 -> 3.0.0 (not 2.0.10)
+define calc_next_version
+$(shell \
+	current=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	major=$$(echo $$current | cut -d. -f1); \
+	minor=$$(echo $$current | cut -d. -f2); \
+	patch=$$(echo $$current | cut -d. -f3); \
+	next_patch=$$((patch + 1)); \
+	if [ $$next_patch -ge 10 ]; then \
+		echo "$$((major + 1)).0.0"; \
+	else \
+		echo "$$major.$$minor.$$next_patch"; \
+	fi \
+)
+endef
+
+# Show next version without making changes
+version-bump:
+	@current=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	echo "Current version: $$current"; \
+	next=$(calc_next_version); \
+	echo "Next version: $$next"
+
+# Bump version, create tag, and push release
+release:
+	@echo "Starting release process..."
+	@echo ""
+	@current=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	next=$(calc_next_version); \
+	echo "Current version: $$current"; \
+	echo "Next version: $$next"; \
+	echo ""; \
+	read -p "Proceed with release v$$next? (y/N) " confirm; \
+	if [ "$$confirm" != "y" ] && [ "$$confirm" != "Y" ]; then \
+		echo "Release cancelled."; \
+		exit 1; \
+	fi; \
+	echo ""; \
+	echo "Updating VERSION file..."; \
+	echo "$$next" > $(VERSION_FILE); \
+	echo "Staging VERSION file..."; \
+	git add $(VERSION_FILE); \
+	echo "Creating commit..."; \
+	git commit -m "chore: bump version to $$next"; \
+	echo "Creating tag v$$next..."; \
+	git tag -a "v$$next" -m "Release v$$next"; \
+	echo "Pushing commit and tag to origin..."; \
+	git push origin HEAD; \
+	git push origin "v$$next"; \
+	echo ""; \
+	echo "✅ Release v$$next complete!"; \
+	echo ""; \
+	echo "Release artifacts:"; \
+	echo "  - VERSION file updated to $$next"; \
+	echo "  - Git tag v$$next created and pushed"; \
+	echo "  - Commit pushed to origin"
