@@ -1,19 +1,32 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { MagnifyingGlassIcon, PlusIcon, XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import {
+  ArrowPathIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 import axios from 'axios';
-import { useServerStats } from '../hooks/useServerStats';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
+import AgentCard from '../components/AgentCard';
+import EditAgentModal from '../components/EditAgentModal';
+import EditServerModal from '../components/EditServerModal';
+import SemanticSearchResults from '../components/SemanticSearchResults';
+import ServerCard from '../components/ServerCard';
+import Toast from '../components/Toast';
+import { API_ENDPOINTS, hasExternalRegistryTag } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { useSemanticSearch } from '../hooks/useSemanticSearch';
-import ServerCard from '../components/ServerCard';
-import AgentCard from '../components/AgentCard';
-import SemanticSearchResults from '../components/SemanticSearchResults';
-import Toast from '../components/Toast';
-import EditServerModal from '../components/EditServerModal';
-import EditAgentModal from '../components/EditAgentModal';
-import { hasExternalRegistryTag, API_ENDPOINTS } from '../constants';
+import { useServerStats } from '../hooks/useServerStats';
+import type {
+  ActiveFilter,
+  Agent,
+  EditAgentForm,
+  EditServerForm,
+  Server,
+  ToastType,
+} from '../types';
 import { filterEntities, getErrorMessage } from '../utils';
-import type { Server, Agent, ToastType, ActiveFilter, EditServerForm, EditAgentForm } from '../types';
 
 interface DashboardProps {
   activeFilter?: string;
@@ -21,7 +34,15 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   const navigate = useNavigate();
-  const { servers, agents: agentsFromStats, loading, error, refreshData, setServers, setAgents } = useServerStats();
+  const {
+    servers,
+    agents: agentsFromStats,
+    loading,
+    error,
+    refreshData,
+    setServers,
+    setAgents,
+  } = useServerStats();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [committedQuery, setCommittedQuery] = useState('');
@@ -32,7 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
     proxyPass: '',
     description: '',
     official: false,
-    tags: [] as string[]
+    tags: [] as string[],
   });
   const [registerLoading, setRegisterLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -67,63 +88,67 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   });
   const [editAgentLoading, setEditAgentLoading] = useState(false);
 
-  const handleAgentUpdate = useCallback((path: string, updates: Partial<Agent>) => {
-    setAgents(prevAgents =>
-      prevAgents.map(agent =>
-        agent.path === path
-          ? { ...agent, ...updates }
-          : agent
-      )
-    );
-  }, [setAgents]);
+  const handleAgentUpdate = useCallback(
+    (path: string, updates: Partial<Agent>) => {
+      setAgents((prevAgents) =>
+        prevAgents.map((agent) => (agent.path === path ? { ...agent, ...updates } : agent))
+      );
+    },
+    [setAgents]
+  );
 
   // Helper function to check if user has a specific UI permission for a service
-  const hasUiPermission = useCallback((permission: string, servicePath: string): boolean => {
-    const permissions = user?.ui_permissions?.[permission];
-    if (!permissions) return false;
+  const hasUiPermission = useCallback(
+    (permission: string, servicePath: string): boolean => {
+      const permissions = user?.ui_permissions?.[permission];
+      if (!permissions) return false;
 
-    // Extract service name from path (remove leading slash)
-    const serviceName = servicePath.replace(/^\//, '');
+      // Extract service name from path (remove leading slash)
+      const serviceName = servicePath.replace(/^\//, '');
 
-    // Check if user has 'all' permission or specific service permission
-    return permissions.includes('all') || permissions.includes(serviceName);
-  }, [user?.ui_permissions]);
+      // Check if user has 'all' permission or specific service permission
+      return permissions.includes('all') || permissions.includes(serviceName);
+    },
+    [user?.ui_permissions]
+  );
 
   // Separate internal and external registry servers using shared helper
   const internalServers = useMemo(() => {
-    return servers.filter(s => !hasExternalRegistryTag(s.tags));
+    return servers.filter((s) => !hasExternalRegistryTag(s.tags));
   }, [servers]);
 
   const externalServers = useMemo(() => {
-    return servers.filter(s => hasExternalRegistryTag(s.tags));
+    return servers.filter((s) => hasExternalRegistryTag(s.tags));
   }, [servers]);
 
   // Separate internal and external registry agents
   // Transform Server[] to Agent[] for agents from useServerStats
   const agents = useMemo(() => {
-    return agentsFromStats.map((a): Agent => ({
-      name: a.name,
-      path: a.path,
-      description: a.description,
-      enabled: a.enabled,
-      tags: a.tags,
-      rating: a.rating,
-      status: a.status,
-      last_checked_time: a.last_checked_time,
-      usersCount: a.usersCount,
-      url: '',  // Will be populated if needed
-      version: '',
-      visibility: 'public',
-      trust_level: 'community'
-    }));
+    return agentsFromStats.map(
+      (a): Agent => ({
+        name: a.name,
+        path: a.path,
+        description: a.description,
+        enabled: a.enabled,
+        tags: a.tags,
+        rating: a.rating,
+        status: a.status,
+        last_checked_time: a.last_checked_time,
+        usersCount: a.usersCount,
+        url: '', // Will be populated if needed
+        version: '',
+        visibility: 'public',
+        trust_level: 'community',
+      })
+    );
   }, [agentsFromStats]);
 
   const internalAgents = useMemo(() => {
-    return agents.filter(a => !hasExternalRegistryTag(a.tags));
+    return agents.filter((a) => !hasExternalRegistryTag(a.tags));
   }, [agents]);
 
   const externalAgents = useMemo(() => {
-    return agents.filter(a => hasExternalRegistryTag(a.tags));
+    return agents.filter((a) => hasExternalRegistryTag(a.tags));
   }, [agents]);
 
   // Semantic search
@@ -131,11 +156,11 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   const {
     results: semanticResults,
     loading: semanticLoading,
-    error: semanticError
+    error: semanticError,
   } = useSemanticSearch(committedQuery, {
     minLength: 2,
     maxResults: 12,
-    enabled: semanticEnabled
+    enabled: semanticEnabled,
   });
 
   const semanticServers = semanticResults?.servers ?? [];
@@ -223,7 +248,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
         license: serverDetails.license || 'N/A',
         num_tools: serverDetails.num_tools || 0,
         num_stars: serverDetails.num_stars || 0,
-        is_python: serverDetails.is_python || false
+        is_python: serverDetails.is_python || false,
       });
     } catch {
       // Fallback to basic server data on error
@@ -237,7 +262,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
         license: server.license || 'N/A',
         num_tools: server.num_tools || 0,
         num_stars: server.num_stars || 0,
-        is_python: server.is_python || false
+        is_python: server.is_python || false,
       });
     }
   }, []);
@@ -253,7 +278,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       version: agent.version || '1.0.0',
       visibility: agent.visibility || 'private',
       trust_level: agent.trust_level || 'community',
-      tags: agent.tags || []
+      tags: agent.tags || [],
     });
   }, []);
 
@@ -342,129 +367,123 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
     }
   };
 
-  const handleToggleServer = useCallback(async (path: string, enabled: boolean) => {
-    // Optimistically update the UI first
-    setServers(prevServers =>
-      prevServers.map(server =>
-        server.path === path
-          ? { ...server, enabled }
-          : server
-      )
-    );
-
-    try {
-      const formData = new FormData();
-      formData.append('enabled', enabled ? 'on' : 'off');
-
-      await axios.post(`${API_ENDPOINTS.SERVER_TOGGLE}${path}`, formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      // No need to refresh all data - the optimistic update is enough
-      showToast(`Server ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
-    } catch (err: unknown) {
-      // Revert the optimistic update on error
-      setServers(prevServers =>
-        prevServers.map(server =>
-          server.path === path
-            ? { ...server, enabled: !enabled }
-            : server
-        )
+  const handleToggleServer = useCallback(
+    async (path: string, enabled: boolean) => {
+      // Optimistically update the UI first
+      setServers((prevServers) =>
+        prevServers.map((server) => (server.path === path ? { ...server, enabled } : server))
       );
 
-      const message = getErrorMessage(err, 'Failed to toggle server');
-      showToast(message, 'error');
-    }
-  }, [setServers, showToast]);
+      try {
+        const formData = new FormData();
+        formData.append('enabled', enabled ? 'on' : 'off');
 
-  const handleToggleAgent = useCallback(async (path: string, enabled: boolean) => {
-    // Optimistically update the UI first
-    setAgents(prevAgents =>
-      prevAgents.map(agent =>
-        agent.path === path
-          ? { ...agent, enabled }
-          : agent
-      )
-    );
+        await axios.post(`${API_ENDPOINTS.SERVER_TOGGLE}${path}`, formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
 
-    try {
-      await axios.post(`${API_ENDPOINTS.AGENTS}${path}/toggle?enabled=${enabled}`);
+        // No need to refresh all data - the optimistic update is enough
+        showToast(`Server ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
+      } catch (err: unknown) {
+        // Revert the optimistic update on error
+        setServers((prevServers) =>
+          prevServers.map((server) =>
+            server.path === path ? { ...server, enabled: !enabled } : server
+          )
+        );
 
-      showToast(`Agent ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
-    } catch (err: unknown) {
-      // Revert the optimistic update on error
-      setAgents(prevAgents =>
-        prevAgents.map(agent =>
-          agent.path === path
-            ? { ...agent, enabled: !enabled }
-            : agent
-        )
+        const message = getErrorMessage(err, 'Failed to toggle server');
+        showToast(message, 'error');
+      }
+    },
+    [setServers, showToast]
+  );
+
+  const handleToggleAgent = useCallback(
+    async (path: string, enabled: boolean) => {
+      // Optimistically update the UI first
+      setAgents((prevAgents) =>
+        prevAgents.map((agent) => (agent.path === path ? { ...agent, enabled } : agent))
       );
 
-      const message = getErrorMessage(err, 'Failed to toggle agent');
-      showToast(message, 'error');
-    }
-  }, [setAgents, showToast]);
+      try {
+        await axios.post(`${API_ENDPOINTS.AGENTS}${path}/toggle?enabled=${enabled}`);
 
-  const handleServerUpdate = useCallback((path: string, updates: Partial<Server>) => {
-    setServers(prevServers =>
-      prevServers.map(server =>
-        server.path === path
-          ? { ...server, ...updates }
-          : server
-      )
-    );
-  }, [setServers]);
+        showToast(`Agent ${enabled ? 'enabled' : 'disabled'} successfully!`, 'success');
+      } catch (err: unknown) {
+        // Revert the optimistic update on error
+        setAgents((prevAgents) =>
+          prevAgents.map((agent) => (agent.path === path ? { ...agent, enabled: !enabled } : agent))
+        );
+
+        const message = getErrorMessage(err, 'Failed to toggle agent');
+        showToast(message, 'error');
+      }
+    },
+    [setAgents, showToast]
+  );
+
+  const handleServerUpdate = useCallback(
+    (path: string, updates: Partial<Server>) => {
+      setServers((prevServers) =>
+        prevServers.map((server) => (server.path === path ? { ...server, ...updates } : server))
+      );
+    },
+    [setServers]
+  );
 
   const handleRegisterServer = useCallback(() => {
     navigate('/servers/register');
   }, [navigate]);
 
-  const handleRegisterSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (registerLoading) return; // Prevent double submission
+  const handleRegisterSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (registerLoading) return; // Prevent double submission
 
-    try {
-      setRegisterLoading(true);
+      try {
+        setRegisterLoading(true);
 
-      const formData = new FormData();
-      formData.append('name', registerForm.name);
-      formData.append('description', registerForm.description);
-      formData.append('path', registerForm.path);
-      formData.append('proxy_pass_url', registerForm.proxyPass);
-      formData.append('tags', registerForm.tags.join(','));
-      formData.append('license', 'MIT');
+        const formData = new FormData();
+        formData.append('name', registerForm.name);
+        formData.append('description', registerForm.description);
+        formData.append('path', registerForm.path);
+        formData.append('proxy_pass_url', registerForm.proxyPass);
+        formData.append('tags', registerForm.tags.join(','));
+        formData.append('license', 'MIT');
 
-      await axios.post(API_ENDPOINTS.SERVER_REGISTER, formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
+        await axios.post(API_ENDPOINTS.SERVER_REGISTER, formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
 
-      // Reset form and close modal
-      setRegisterForm({
-        name: '',
-        path: '',
-        proxyPass: '',
-        description: '',
-        official: false,
-        tags: []
-      });
-      setShowRegisterModal(false);
+        // Reset form and close modal
+        setRegisterForm({
+          name: '',
+          path: '',
+          proxyPass: '',
+          description: '',
+          official: false,
+          tags: [],
+        });
+        setShowRegisterModal(false);
 
-      // Refresh server list
-      await refreshData();
+        // Refresh server list
+        await refreshData();
 
-      showToast('Server registered successfully!', 'success');
-    } catch (err: unknown) {
-      const message = getErrorMessage(err, 'Failed to register server');
-      showToast(message, 'error');
-    } finally {
-      setRegisterLoading(false);
-    }
-  }, [registerForm, registerLoading, refreshData, showToast]);
+        showToast('Server registered successfully!', 'success');
+      } catch (err: unknown) {
+        const message = getErrorMessage(err, 'Failed to register server');
+        showToast(message, 'error');
+      } finally {
+        setRegisterLoading(false);
+      }
+    },
+    [registerForm, registerLoading, refreshData, showToast]
+  );
 
   const renderDashboardCollections = () => (
     <>
@@ -472,9 +491,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       {(viewFilter === 'all' || viewFilter === 'servers') &&
         (filteredServers.length > 0 || (!searchTerm && activeFilter === 'all')) && (
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              MCP Servers
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">MCP Servers</h2>
 
             {filteredServers.length === 0 ? (
               <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -486,6 +503,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                 </p>
                 {!searchTerm && activeFilter === 'all' && (
                   <button
+                    type="button"
                     onClick={handleRegisterServer}
                     className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                   >
@@ -499,7 +517,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                 className="grid"
                 style={{
                   gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-                  gap: 'clamp(1.5rem, 3vw, 2.5rem)'
+                  gap: 'clamp(1.5rem, 3vw, 2.5rem)',
                 }}
               >
                 {filteredServers.map((server) => (
@@ -525,9 +543,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
       {(viewFilter === 'all' || viewFilter === 'agents') &&
         (filteredAgents.length > 0 || (!searchTerm && activeFilter === 'all')) && (
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              A2A Agents
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">A2A Agents</h2>
 
             {loading ? (
               <div className="flex items-center justify-center py-12">
@@ -547,7 +563,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                 className="grid"
                 style={{
                   gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-                  gap: 'clamp(1.5rem, 3vw, 2.5rem)'
+                  gap: 'clamp(1.5rem, 3vw, 2.5rem)',
                 }}
               >
                 {filteredAgents.map((agent) => (
@@ -579,7 +595,9 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
           {filteredExternalServers.length === 0 && filteredExternalAgents.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
               <div className="text-gray-400 text-lg mb-2">
-                {externalServers.length === 0 && externalAgents.length === 0 ? 'No External Registries Available' : 'No Results Found'}
+                {externalServers.length === 0 && externalAgents.length === 0
+                  ? 'No External Registries Available'
+                  : 'No Results Found'}
               </div>
               <p className="text-gray-500 dark:text-gray-300 text-sm max-w-md mx-auto">
                 {externalServers.length === 0 && externalAgents.length === 0
@@ -599,7 +617,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     className="grid"
                     style={{
                       gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-                      gap: 'clamp(1.5rem, 3vw, 2.5rem)'
+                      gap: 'clamp(1.5rem, 3vw, 2.5rem)',
                     }}
                   >
                     {filteredExternalServers.map((server) => (
@@ -628,7 +646,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     className="grid"
                     style={{
                       gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-                      gap: 'clamp(1.5rem, 3vw, 2.5rem)'
+                      gap: 'clamp(1.5rem, 3vw, 2.5rem)',
                     }}
                   >
                     {filteredExternalAgents.map((agent) => (
@@ -675,6 +693,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
         <div className="text-red-500 text-lg">Failed to load data</div>
         <p className="text-gray-500 text-center">{error}</p>
         <button
+          type="button"
           onClick={handleRefreshHealth}
           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
         >
@@ -696,13 +715,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
   return (
     <>
       {/* Toast Notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={hideToast}
-        />
-      )}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
       <div className="flex flex-col h-full">
         {/* Fixed Header Section */}
@@ -710,6 +723,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
           {/* View Filter Tabs */}
           <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
             <button
+              type="button"
               onClick={() => handleChangeViewFilter('all')}
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 viewFilter === 'all'
@@ -720,6 +734,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
               All
             </button>
             <button
+              type="button"
               onClick={() => handleChangeViewFilter('servers')}
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 viewFilter === 'servers'
@@ -730,6 +745,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
               MCP Servers Only
             </button>
             <button
+              type="button"
               onClick={() => handleChangeViewFilter('agents')}
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 viewFilter === 'agents'
@@ -740,6 +756,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
               A2A Agents Only
             </button>
             <button
+              type="button"
               onClick={() => handleChangeViewFilter('external')}
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 viewFilter === 'external'
@@ -782,6 +799,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
             </div>
 
             <button
+              type="button"
               onClick={handleRegisterServer}
               className="btn-primary flex items-center space-x-2 shrink-0"
             >
@@ -790,6 +808,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
             </button>
 
             <button
+              type="button"
               onClick={handleRefreshHealth}
               disabled={refreshing}
               className="btn-secondary flex items-center space-x-2 shrink-0"
@@ -889,7 +908,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     required
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                     value={registerForm.name}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, name: e.target.value }))}
                     placeholder="e.g., My Custom Server"
                   />
                 </div>
@@ -903,7 +922,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     required
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                     value={registerForm.path}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, path: e.target.value }))}
+                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, path: e.target.value }))}
                     placeholder="/my-server"
                   />
                 </div>
@@ -917,7 +936,9 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     required
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                     value={registerForm.proxyPass}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, proxyPass: e.target.value }))}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({ ...prev, proxyPass: e.target.value }))
+                    }
                     placeholder="http://localhost:8080"
                   />
                 </div>
@@ -930,7 +951,9 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                     rows={3}
                     value={registerForm.description}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({ ...prev, description: e.target.value }))
+                    }
                     placeholder="Brief description of the server"
                   />
                 </div>
@@ -942,7 +965,15 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = 'all' }) => {
                   <input
                     type="text"
                     value={registerForm.tags.join(',')}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) }))}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({
+                        ...prev,
+                        tags: e.target.value
+                          .split(',')
+                          .map((t) => t.trim())
+                          .filter((t) => t),
+                      }))
+                    }
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                     placeholder="tag1,tag2,tag3"
                   />

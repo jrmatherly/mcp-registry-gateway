@@ -8,6 +8,38 @@
 | `docker-compose.podman.yml` | Podman-compatible config |
 | `docker-compose.prebuilt.yml` | Uses prebuilt images |
 
+## Docker Compose Services
+
+### Core Services
+| Service | Description | Port |
+|---------|-------------|------|
+| `registry` | Main MCP Gateway Registry | 7860 |
+| `auth-server` | Authentication service | 9510 |
+| `mongodb` | MongoDB database | 27017 |
+| `mongodb-init` | Database initialization job | - |
+| `metrics-service` | Metrics collection | 9520 |
+
+### FastMCP Servers
+| Service | Description | Port |
+|---------|-------------|------|
+| `mcpgw-server` | MCPGateway Registry API tools | 9001 |
+| `fininfo-server` | Financial information tools | 9002 |
+| `realserverfaketools-server` | Mock/test tools | 9003 |
+| `currenttime-server` | Simple time server | 9004 |
+
+### Monitoring
+| Service | Description | Port |
+|---------|-------------|------|
+| `prometheus` | Metrics collection | 9090 |
+| `grafana` | Visualization dashboard | 3000 |
+| `metrics-db` | TimescaleDB for metrics | 5432 |
+
+### Authentication
+| Service | Description | Port |
+|---------|-------------|------|
+| `keycloak` | Identity provider | 8080 |
+| `keycloak-db` | PostgreSQL for Keycloak | 5433 |
+
 ## Environment Variables
 
 ### Registry Service

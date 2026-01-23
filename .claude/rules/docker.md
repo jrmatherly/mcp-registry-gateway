@@ -40,6 +40,14 @@ EXPOSE 8000
 CMD ["uvicorn", "registry.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
+**Note**: Project Dockerfiles follow naming convention `docker/Dockerfile.<service>`:
+- `docker/Dockerfile.registry` - Main registry service
+- `docker/Dockerfile.registry-cpu` - CPU-only variant
+- `docker/Dockerfile.auth` - Authentication server
+- `docker/Dockerfile.mcp-server` - MCP server with GPU
+- `docker/Dockerfile.mcp-server-cpu` - MCP server CPU-only
+- `docker/Dockerfile.mcp-server-light` - Lightweight MCP server
+
 ## Docker Compose Patterns
 - Use environment files for configuration
 - Define healthchecks
@@ -68,9 +76,13 @@ services:
 ```
 
 ## Project-Specific Images
+- `docker/Dockerfile.registry` - Main registry service
+- `docker/Dockerfile.registry-cpu` - Registry CPU-only variant
+- `docker/Dockerfile.auth` - Authentication server
 - `docker/Dockerfile.mcp-server` - Full MCP server with GPU support
 - `docker/Dockerfile.mcp-server-cpu` - CPU-only variant
 - `docker/Dockerfile.mcp-server-light` - Lightweight variant
+- `docker/Dockerfile.scopes-init` - Scopes initialization job
 
 ## Local Development
 ```bash

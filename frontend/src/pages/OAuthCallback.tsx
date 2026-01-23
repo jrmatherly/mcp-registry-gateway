@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -35,9 +36,7 @@ const OAuthCallback: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center items-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-      <p className="text-gray-600 dark:text-gray-400">
-        Completing authentication...
-      </p>
+      <p className="text-gray-600 dark:text-gray-400">Completing authentication...</p>
     </div>
   );
 };

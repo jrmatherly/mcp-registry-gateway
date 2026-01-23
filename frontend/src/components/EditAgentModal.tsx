@@ -1,6 +1,6 @@
-import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import type { Visibility, TrustLevel } from '../types';
+import type React from 'react';
+import type { TrustLevel, Visibility } from '../types';
 
 interface EditAgentForm {
   name: string;
@@ -100,9 +100,7 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
             </label>
             <select
               value={form.visibility}
-              onChange={(e) =>
-                onFormChange({ visibility: e.target.value as Visibility })
-              }
+              onChange={(e) => onFormChange({ visibility: e.target.value as Visibility })}
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
             >
               <option value="private">Private</option>
@@ -117,9 +115,7 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
             </label>
             <select
               value={form.trust_level}
-              onChange={(e) =>
-                onFormChange({ trust_level: e.target.value as TrustLevel })
-              }
+              onChange={(e) => onFormChange({ trust_level: e.target.value as TrustLevel })}
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
             >
               <option value="unverified">Unverified</option>

@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { API_ENDPOINTS, DEFAULT_ENTITY_TYPES, SEMANTIC_SEARCH_DEFAULTS } from '../constants';
 import type {
+  SemanticAgentHit,
   SemanticSearchResponse,
   SemanticServerHit,
   SemanticToolHit,
-  SemanticAgentHit,
 } from '../types';
-import { API_ENDPOINTS, SEMANTIC_SEARCH_DEFAULTS, DEFAULT_ENTITY_TYPES } from '../constants';
 import { getErrorMessage } from '../utils/errorHandler';
 
 // Re-export types for consumers
@@ -48,9 +48,6 @@ export const useSemanticSearch = (
   const minLength = options.minLength ?? SEMANTIC_SEARCH_DEFAULTS.MIN_LENGTH;
   const maxResults = options.maxResults ?? SEMANTIC_SEARCH_DEFAULTS.MAX_RESULTS;
   const entityTypes = options.entityTypes ?? [...DEFAULT_ENTITY_TYPES];
-
-  // Create stable key for entityTypes comparison
-  const entityTypesKey = entityTypes.join('|');
 
   // Debounce user input to minimize API calls
   useEffect(() => {
@@ -108,7 +105,7 @@ export const useSemanticSearch = (
     };
     // entityTypesKey is a serialized representation of entityTypes for stable comparison
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, enabled, minLength, maxResults, entityTypesKey]);
+  }, [debouncedQuery, enabled, minLength, maxResults, entityTypes]);
 
   return { results, loading, error, debouncedQuery };
 };

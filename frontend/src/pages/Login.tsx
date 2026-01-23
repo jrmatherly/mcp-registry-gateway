@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { ExclamationTriangleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import axios from 'axios';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
-import { EyeIcon, EyeSlashIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface OAuthProvider {
   name: string;
@@ -14,7 +15,7 @@ const Login: React.FC = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{username?: string, password?: string}>({});
+  const [fieldErrors, setFieldErrors] = useState<{ username?: string; password?: string }>({});
   const [oauthProviders, setOauthProviders] = useState<OAuthProvider[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
@@ -23,6 +24,32 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const fetchAuthConfig = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/auth/config');
+      setAuthServerUrl(response.data.auth_server_url || '');
+    } catch (err) {
+      console.error('Failed to fetch auth config:', err);
+      // Fallback to localhost for development
+      setAuthServerUrl('http://localhost:8888');
+    }
+  }, []);
+
+  const fetchOAuthProviders = useCallback(async () => {
+    try {
+      console.log('[Login] Fetching OAuth providers from /api/auth/providers');
+      // Call the registry auth providers endpoint
+      const response = await axios.get('/api/auth/providers');
+      console.log('[Login] Response received:', response.data);
+      console.log('[Login] Providers:', response.data.providers);
+      setOauthProviders(response.data.providers || []);
+      console.log('[Login] State updated with', response.data.providers?.length || 0, 'providers');
+    } catch (err) {
+      console.error('[Login] Failed to fetch OAuth providers:', err);
+      // Don't show error for missing OAuth providers, just continue with basic auth
+    }
+  }, []);
 
   useEffect(() => {
     console.log('[Login] Component mounted, fetching OAuth providers...');
@@ -40,47 +67,21 @@ const Login: React.FC = () => {
     const savedUsername = localStorage.getItem('savedUsername');
     setRememberMe(savedRememberMe);
     if (savedRememberMe && savedUsername) {
-      setCredentials(prev => ({ ...prev, username: savedUsername }));
+      setCredentials((prev) => ({ ...prev, username: savedUsername }));
     }
-  }, [searchParams]);
-
-    const fetchAuthConfig = async () => {
-        try {
-            const response = await axios.get('/api/auth/config');
-            setAuthServerUrl(response.data.auth_server_url || '');
-        } catch (error) {
-            console.error('Failed to fetch auth config:', error);
-            // Fallback to localhost for development
-            setAuthServerUrl('http://localhost:8888');
-        }
-    };
+  }, [searchParams, fetchAuthConfig, fetchOAuthProviders]);
 
   // Log when oauthProviders state changes
   useEffect(() => {
     console.log('[Login] oauthProviders state changed:', oauthProviders);
   }, [oauthProviders]);
 
-  const fetchOAuthProviders = async () => {
-    try {
-      console.log('[Login] Fetching OAuth providers from /api/auth/providers');
-      // Call the registry auth providers endpoint
-      const response = await axios.get('/api/auth/providers');
-      console.log('[Login] Response received:', response.data);
-      console.log('[Login] Providers:', response.data.providers);
-      setOauthProviders(response.data.providers || []);
-      console.log('[Login] State updated with', response.data.providers?.length || 0, 'providers');
-    } catch (error) {
-      console.error('[Login] Failed to fetch OAuth providers:', error);
-      // Don't show error for missing OAuth providers, just continue with basic auth
-    }
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     setCapsLockOn(e.getModifierState('CapsLock'));
   };
 
   const validateField = (field: string, value: string) => {
-    const errors: {username?: string, password?: string} = {};
+    const errors: { username?: string; password?: string } = {};
 
     if (field === 'username' && value.trim().length === 0) {
       errors.username = 'Username is required';
@@ -94,15 +95,15 @@ const Login: React.FC = () => {
       errors.password = 'Password must be at least 3 characters';
     }
 
-    setFieldErrors(prev => ({ ...prev, ...errors }));
+    setFieldErrors((prev) => ({ ...prev, ...errors }));
     return Object.keys(errors).length === 0;
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setCredentials(prev => ({ ...prev, [field]: value }));
+    setCredentials((prev) => ({ ...prev, [field]: value }));
     // Clear field-specific errors when user starts typing
     if (fieldErrors[field as keyof typeof fieldErrors]) {
-      setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+      setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
     }
     // Clear general error
     if (error) {
@@ -142,15 +143,25 @@ const Login: React.FC = () => {
       }
 
       navigate('/');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Login failed';
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { detail?: string } } };
+      const errorMessage = axiosError.response?.data?.detail || 'Login failed';
 
       // Provide more specific error messages
-      if (errorMessage.toLowerCase().includes('credential') || errorMessage.toLowerCase().includes('password')) {
+      if (
+        errorMessage.toLowerCase().includes('credential') ||
+        errorMessage.toLowerCase().includes('password')
+      ) {
         setError('Invalid username or password. Please check your credentials and try again.');
-      } else if (errorMessage.toLowerCase().includes('user') && errorMessage.toLowerCase().includes('not found')) {
+      } else if (
+        errorMessage.toLowerCase().includes('user') &&
+        errorMessage.toLowerCase().includes('not found')
+      ) {
         setError('User not found. Please check your username or contact support.');
-      } else if (errorMessage.toLowerCase().includes('disabled') || errorMessage.toLowerCase().includes('blocked')) {
+      } else if (
+        errorMessage.toLowerCase().includes('disabled') ||
+        errorMessage.toLowerCase().includes('blocked')
+      ) {
         setError('Account is disabled. Please contact support for assistance.');
       } else {
         setError(errorMessage);
@@ -162,7 +173,7 @@ const Login: React.FC = () => {
 
   const handleOAuthLogin = (provider: string) => {
     const currentOrigin = window.location.origin;
-    const redirectUri = encodeURIComponent(currentOrigin + '/');
+    const redirectUri = encodeURIComponent(`${currentOrigin}/`);
 
     // Use the auth server URL from config, fallback to localhost if not loaded yet
     const authUrl = authServerUrl || 'http://localhost:8888';
@@ -187,6 +198,7 @@ const Login: React.FC = () => {
             <div className="space-y-3 mb-6">
               {oauthProviders.map((provider) => (
                 <button
+                  type="button"
                   key={provider.name}
                   onClick={() => handleOAuthLogin(provider.name)}
                   className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xs text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 hover:shadow-md"
@@ -218,7 +230,10 @@ const Login: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Username
               </label>
               <input
@@ -234,12 +249,17 @@ const Login: React.FC = () => {
                 placeholder="Enter your username"
               />
               {fieldErrors.username && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.username}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {fieldErrors.username}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
@@ -269,7 +289,9 @@ const Login: React.FC = () => {
                 </button>
               </div>
               {fieldErrors.password && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.password}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {fieldErrors.password}
+                </p>
               )}
               {capsLockOn && (
                 <p className="mt-1 text-sm text-yellow-600 dark:text-yellow-400 flex items-center space-x-1">
@@ -289,7 +311,10 @@ const Login: React.FC = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 dark:border-gray-600 rounded-sm dark:bg-gray-700"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                >
                   Remember me
                 </label>
               </div>
@@ -302,9 +327,25 @@ const Login: React.FC = () => {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   <span>Signing in...</span>
                 </>

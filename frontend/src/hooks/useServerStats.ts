@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
 import axios from 'axios';
-import type {
-  HealthStatus,
-  ServerStats,
-  ServerApiResponse,
-  AgentApiResponse,
-  ServersListResponse,
-  AgentsListResponse,
-} from '../types';
+import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react';
 import { API_ENDPOINTS } from '../constants';
+import type {
+  AgentApiResponse,
+  AgentsListResponse,
+  HealthStatus,
+  ServerApiResponse,
+  ServerStats,
+  ServersListResponse,
+} from '../types';
 import { getErrorMessage } from '../utils/errorHandler';
 
 /**

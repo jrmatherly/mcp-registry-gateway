@@ -45,6 +45,7 @@ The web UI is built with modern frontend technologies (upgraded January 2026).
 | Tailwind CSS | 4.1.18 | Styling framework |
 | TypeScript | 5.9.3 | Type safety |
 | React Router | 7.12.0 | Client-side routing |
+| Vitest | 4.0.18 | Testing framework |
 
 ### Directory Structure (`frontend/`)
 | Path | Purpose |
@@ -70,6 +71,15 @@ cd frontend && npm run build
 
 # Preview production build
 cd frontend && npm run preview
+
+# Run tests (Vitest)
+cd frontend && npm test
+
+# Watch mode
+cd frontend && npm run test:watch
+
+# Coverage
+cd frontend && npm run test:coverage
 ```
 
 ### Integration with Registry
@@ -132,17 +142,18 @@ cd frontend && npm run preview
 | `registry/api/wellknown_routes.py` | `/.well-known` | Discovery endpoints |
 | `registry/api/registry_routes.py` | `/v0.1` | Anthropic API compatibility |
 
-### Server Routes (`/`)
+### Server Routes (`/api`)
 | Endpoint | Method | Function |
 |----------|--------|----------|
 | `/` | GET | `read_root` - Dashboard |
-| `/api/v2/servers` | GET | `get_servers_json` |
-| `/api/v2/servers/{path}/toggle` | POST | `toggle_service_api` |
-| `/api/v2/servers` | POST | `register_service_api` |
-| `/api/v2/servers/{path}` | DELETE | `remove_service_api` |
-| `/api/v2/servers/{path}/rating` | POST | `rate_server` |
-| `/api/v2/servers/{path}/security-scan` | GET | `get_server_security_scan` |
-| `/api/v2/groups` | GET/POST/DELETE | Group management |
+| `/api/servers` | GET | `get_servers` - List servers HTML |
+| `/api/servers/register` | POST | `register_server` |
+| `/api/toggle/{path}` | POST | `toggle_service` |
+| `/api/servers/remove` | POST | `remove_server` |
+| `/api/servers/{path}/rating` | POST | `rate_server` |
+| `/api/servers/{path}/security-scan` | GET | `get_server_security_scan` |
+| `/api/servers/groups/create` | POST | `create_group` |
+| `/api/servers/groups/delete` | POST | `delete_group` |
 
 ### Agent Routes (`/api/agents`)
 | Endpoint | Method | Function |

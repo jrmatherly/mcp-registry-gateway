@@ -1,22 +1,23 @@
-import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Link, useLocation } from 'react-router';
 import {
-  XMarkIcon,
-  FunnelIcon,
-  ChartBarIcon,
-  KeyIcon,
+  ArrowDownTrayIcon,
   ArrowLeftIcon,
+  ChartBarIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ClipboardIcon,
-  CheckIcon,
-  ArrowDownTrayIcon,
+  FunnelIcon,
+  KeyIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import type React from 'react';
+import { Fragment, useState } from 'react';
+import { Link, useLocation } from 'react-router';
+import { getScopeDescription } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { useIsMobile } from '../hooks/useMediaQuery';
-import { getScopeDescription } from '../constants';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -31,14 +32,19 @@ interface SidebarProps {
   setActiveFilter: (filter: string) => void;
 }
 
-
-const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, stats, activeFilter, setActiveFilter }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  sidebarOpen,
+  setSidebarOpen,
+  stats,
+  activeFilter,
+  setActiveFilter,
+}) => {
   const { user } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [showScopes, setShowScopes] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
-  const [tokenData, setTokenData] = useState<unknown>(null);
+  const [tokenData, setTokenData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string>('');
@@ -52,32 +58,32 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen, stats, a
 
   const isTokenPage = location.pathname === '/generate-token';
 
-const fetchAdminTokens = async () => {
-  setLoading(true);
-  setError('');
-  try {
-    const requestData = {
-      description: 'Generated via sidebar',
-      expires_in_hours: 8,
-    };
+  const fetchAdminTokens = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const requestData = {
+        description: 'Generated via sidebar',
+        expires_in_hours: 8,
+      };
 
-    const response = await axios.post('/api/tokens/generate', requestData, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+      const response = await axios.post('/api/tokens/generate', requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (response.data.success) {
-      setTokenData(response.data);
-      setShowTokenModal(true);
+      if (response.data.success) {
+        setTokenData(response.data);
+        setShowTokenModal(true);
+      }
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { detail?: string } } };
+      setError(axiosError.response?.data?.detail || 'Failed to generate token');
+    } finally {
+      setLoading(false);
     }
-  } catch (err: any) {
-    setError(err.response?.data?.detail || 'Failed to generate token');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleCopyTokens = async () => {
     if (!tokenData) return;
@@ -159,6 +165,7 @@ const fetchAdminTokens = async () => {
                 {!user.is_admin && user.scopes && user.scopes.length > 0 && (
                   <div>
                     <button
+                      type="button"
                       onClick={() => setShowScopes(!showScopes)}
                       className="flex items-center justify-between w-full text-xs text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition-colors py-1"
                     >
@@ -173,7 +180,10 @@ const fetchAdminTokens = async () => {
                     {showScopes && (
                       <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                         {user.scopes.map((scope) => (
-                          <div key={scope} className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs">
+                          <div
+                            key={scope}
+                            className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs"
+                          >
                             <div className="font-medium text-blue-800 dark:text-blue-200">
                               {scope}
                             </div>
@@ -193,7 +203,9 @@ const fetchAdminTokens = async () => {
           {/* Token Generation Help */}
           <div className="text-center">
             <KeyIcon className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Token Generation</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Token Generation
+            </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Create personal access tokens for programmatic access to MCP servers
             </p>
@@ -232,6 +244,7 @@ const fetchAdminTokens = async () => {
                   {/* JWT Token Button - Available to all users */}
                   <div className="mb-2">
                     <button
+                      type="button"
                       onClick={fetchAdminTokens}
                       disabled={loading}
                       className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -257,6 +270,7 @@ const fetchAdminTokens = async () => {
                   {!user.is_admin && user.scopes && user.scopes.length > 0 && (
                     <div>
                       <button
+                        type="button"
                         onClick={() => setShowScopes(!showScopes)}
                         className="flex items-center justify-between w-full text-xs text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition-colors py-1"
                       >
@@ -271,7 +285,10 @@ const fetchAdminTokens = async () => {
                       {showScopes && (
                         <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                           {user.scopes.map((scope) => (
-                            <div key={scope} className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs">
+                            <div
+                              key={scope}
+                              className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs"
+                            >
                               <div className="font-medium text-blue-800 dark:text-blue-200">
                                 {scope}
                               </div>
@@ -299,6 +316,7 @@ const fetchAdminTokens = async () => {
             <div className="space-y-2">
               {filters.map((filter) => (
                 <button
+                  type="button"
                   key={filter.key}
                   onClick={() => setActiveFilter(filter.key)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 ${
@@ -328,19 +346,27 @@ const fetchAdminTokens = async () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="text-xl font-semibold text-gray-900 dark:text-white">{stats.total}</div>
+                <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {stats.total}
+                </div>
                 <div className="text-xs text-gray-500 dark:text-gray-300">Total</div>
               </div>
               <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="text-xl font-semibold text-green-600 dark:text-green-400">{stats.enabled}</div>
+                <div className="text-xl font-semibold text-green-600 dark:text-green-400">
+                  {stats.enabled}
+                </div>
                 <div className="text-xs text-green-600 dark:text-green-400">Enabled</div>
               </div>
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="text-xl font-semibold text-gray-500 dark:text-gray-300">{stats.disabled}</div>
+                <div className="text-xl font-semibold text-gray-500 dark:text-gray-300">
+                  {stats.disabled}
+                </div>
                 <div className="text-xs text-gray-500 dark:text-gray-300">Disabled</div>
               </div>
               <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <div className="text-xl font-semibold text-red-600 dark:text-red-400">{stats.withIssues}</div>
+                <div className="text-xl font-semibold text-red-600 dark:text-red-400">
+                  {stats.withIssues}
+                </div>
                 <div className="text-xs text-red-600 dark:text-red-400">Issues</div>
               </div>
             </div>
@@ -456,62 +482,63 @@ const fetchAdminTokens = async () => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                  <>
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"
-                    >
-                      JWT Access Token
-                    </Dialog.Title>
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"
+                  >
+                    JWT Access Token
+                  </Dialog.Title>
 
-                    {tokenData && (
-                      <div className="space-y-4">
-                        {/* Action Buttons */}
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={handleCopyTokens}
-                            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                          >
-                            {copied ? (
-                              <>
-                                <CheckIcon className="h-4 w-4" />
-                                <span>Copied!</span>
-                              </>
-                            ) : (
-                              <>
-                                <ClipboardIcon className="h-4 w-4" />
-                                <span>Copy JSON</span>
-                              </>
-                            )}
-                          </button>
-                          <button
-                            onClick={handleDownloadTokens}
-                            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                          >
-                            <ArrowDownTrayIcon className="h-4 w-4" />
-                            <span>Download JSON</span>
-                          </button>
-                        </div>
-
-                        {/* Token Data Display */}
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                          <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
-                            {JSON.stringify(tokenData, null, 2)}
-                          </pre>
-                        </div>
-
-                        {/* Close Button */}
-                        <div className="flex justify-end">
-                          <button
-                            onClick={() => setShowTokenModal(false)}
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
-                          >
-                            Close
-                          </button>
-                        </div>
+                  {tokenData && (
+                    <div className="space-y-4">
+                      {/* Action Buttons */}
+                      <div className="flex space-x-2">
+                        <button
+                          type="button"
+                          onClick={handleCopyTokens}
+                          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        >
+                          {copied ? (
+                            <>
+                              <CheckIcon className="h-4 w-4" />
+                              <span>Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ClipboardIcon className="h-4 w-4" />
+                              <span>Copy JSON</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDownloadTokens}
+                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                        >
+                          <ArrowDownTrayIcon className="h-4 w-4" />
+                          <span>Download JSON</span>
+                        </button>
                       </div>
-                    )}
-                  </>
+
+                      {/* Token Data Display */}
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
+                          {JSON.stringify(tokenData, null, 2)}
+                        </pre>
+                      </div>
+
+                      {/* Close Button */}
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setShowTokenModal(false)}
+                          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

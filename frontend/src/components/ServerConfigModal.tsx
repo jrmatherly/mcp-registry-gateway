@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
 import { ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import type { Server } from './ServerCard';
 
 type IDE = 'vscode' | 'cursor' | 'cline' | 'claude-code';
@@ -20,7 +21,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
   const [selectedIDE, setSelectedIDE] = useState<IDE>('vscode');
 
   const generateMCPConfig = useCallback(() => {
-    const serverName = server.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const serverName = server.name
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
 
     // Get base URL and strip port for nginx proxy compatibility
     const currentUrl = new URL(window.location.origin);
@@ -126,6 +130,7 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
             MCP Configuration for {server.name}
           </h3>
           <button
+            type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
@@ -141,33 +146,46 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
             <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
               <li>Copy the configuration below</li>
               <li>
-                Paste it into your <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">mcp.json</code> file
+                Paste it into your{' '}
+                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">mcp.json</code> file
               </li>
               <li>
-                Replace <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">[YOUR_AUTH_TOKEN]</code> with your
-                gateway authentication token
+                Replace{' '}
+                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">
+                  [YOUR_AUTH_TOKEN]
+                </code>{' '}
+                with your gateway authentication token
               </li>
               <li>
-                Replace <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">[YOUR_CLIENT_ID]</code> with your
-                client ID
+                Replace{' '}
+                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">
+                  [YOUR_CLIENT_ID]
+                </code>{' '}
+                with your client ID
               </li>
               <li>Restart your AI coding assistant to load the new configuration</li>
             </ol>
           </div>
 
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-            <h4 className="font-medium text-amber-900 dark:text-amber-100 mb-2">🔐 Authentication Required</h4>
+            <h4 className="font-medium text-amber-900 dark:text-amber-100 mb-2">
+              🔐 Authentication Required
+            </h4>
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              This configuration requires gateway authentication tokens. The tokens authenticate your AI assistant with
-              the MCP Gateway, not the individual server. Visit the authentication documentation for setup instructions.
+              This configuration requires gateway authentication tokens. The tokens authenticate
+              your AI assistant with the MCP Gateway, not the individual server. Visit the
+              authentication documentation for setup instructions.
             </p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-3">Select your IDE/Tool:</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+              Select your IDE/Tool:
+            </h4>
             <div className="flex flex-wrap gap-2">
               {(['vscode', 'cursor', 'cline', 'claude-code'] as IDE[]).map((ide) => (
                 <button
+                  type="button"
                   key={ide}
                   onClick={() => setSelectedIDE(ide)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -179,10 +197,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
                   {ide === 'vscode'
                     ? 'VS Code'
                     : ide === 'cursor'
-                    ? 'Cursor'
-                    : ide === 'cline'
-                    ? 'Cline'
-                    : 'Claude Code'}
+                      ? 'Cursor'
+                      : ide === 'cline'
+                        ? 'Cline'
+                        : 'Claude Code'}
                 </button>
               ))}
             </div>
@@ -191,10 +209,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
               {selectedIDE === 'vscode'
                 ? 'VS Code'
                 : selectedIDE === 'cursor'
-                ? 'Cursor'
-                : selectedIDE === 'cline'
-                ? 'Cline'
-                : 'Claude Code'}{' '}
+                  ? 'Cursor'
+                  : selectedIDE === 'cline'
+                    ? 'Cline'
+                    : 'Claude Code'}{' '}
               integration
             </p>
           </div>
@@ -203,6 +221,7 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-gray-900 dark:text-white">Configuration JSON:</h4>
               <button
+                type="button"
                 onClick={copyConfigToClipboard}
                 className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
               >

@@ -34,7 +34,6 @@ export const filterByStatus = <T extends FilterableEntity>(
       return entities.filter((e) => !e.enabled);
     case 'unhealthy':
       return entities.filter((e) => e.status === 'unhealthy');
-    case 'all':
     default:
       return entities;
   }

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/solid';
 import axios from 'axios';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface RatingDetail {
   user: string;
@@ -23,7 +24,6 @@ interface StarRatingWidgetProps {
   onRatingUpdate?: (newRating: number) => void;
 }
 
-
 const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   resourceType,
   path,
@@ -31,7 +31,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   initialCount = 0,
   authToken,
   onShowToast,
-  onRatingUpdate
+  onRatingUpdate,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
@@ -43,17 +43,13 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-
   const loadCurrentRating = useCallback(async () => {
     try {
       // Build headers - use Bearer token if provided, otherwise rely on cookies
       const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
       // Both servers and agents now use consistent path parameter pattern
       const url = `/api/${resourceType}${path}/rating`;
-      const response = await axios.get<RatingInfoResponse>(
-        url,
-        headers ? { headers } : undefined
-      );
+      const response = await axios.get<RatingInfoResponse>(url, headers ? { headers } : undefined);
 
       setAverageRating(response.data.num_stars);
       setRatingCount(response.data.rating_details.length);
@@ -78,7 +74,6 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
     loadCurrentRating();
   }, [loadCurrentRating]);
 
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -95,7 +90,6 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isDropdownOpen]);
-
 
   const handleSubmitRating = async () => {
     console.log('handleSubmitRating called', { selectedRating, authToken: !!authToken });
@@ -125,7 +119,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
 
       // Update count (increment if new rating, keep same if update)
       if (!currentUserRating) {
-        setRatingCount(prev => prev + 1);
+        setRatingCount((prev) => prev + 1);
       }
 
       setShowSuccess(true);
@@ -152,28 +146,22 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       console.error('Failed to submit rating:', error);
       console.error('Error details:', error.response?.data);
       if (onShowToast) {
-        onShowToast(
-          error.response?.data?.detail || 'Failed to submit rating',
-          'error'
-        );
+        onShowToast(error.response?.data?.detail || 'Failed to submit rating', 'error');
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
   const handleStarClick = (rating: number) => {
     setSelectedRating(rating);
   };
-
 
   const handleCancel = () => {
     setIsDropdownOpen(false);
     setSelectedRating(currentUserRating);
     setHoverRating(null);
   };
-
 
   const renderStars = (_count: number, filled: boolean, size: 'small' | 'large' = 'large') => {
     const sizeClass = size === 'small' ? 'h-4 w-4' : 'h-6 w-6';
@@ -186,14 +174,14 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
     );
   };
 
-
-  const displayRating = hoverRating !== null ? hoverRating : (selectedRating || currentUserRating || 0);
-
+  const displayRating =
+    hoverRating !== null ? hoverRating : selectedRating || currentUserRating || 0;
 
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Rating Display - Clickable */}
       <button
+        type="button"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 p-2 rounded-lg transition-colors duration-200"
         title={`Click to rate this ${resourceType.slice(0, -1)}`}
@@ -209,7 +197,9 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
             {averageRating > 0 ? averageRating.toFixed(1) : '0'}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            {ratingCount === 0 ? 'No ratings' : `${ratingCount} rating${ratingCount !== 1 ? 's' : ''}`}
+            {ratingCount === 0
+              ? 'No ratings'
+              : `${ratingCount} rating${ratingCount !== 1 ? 's' : ''}`}
           </div>
         </div>
       </button>
@@ -225,18 +215,30 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
           {showSuccess ? (
             <div className="text-center py-6">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full mb-3">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-6 h-6 text-green-600 dark:text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                Rating {currentUserRating && selectedRating !== currentUserRating ? 'updated' : 'submitted'}!
+                Rating{' '}
+                {currentUserRating && selectedRating !== currentUserRating
+                  ? 'updated'
+                  : 'submitted'}
+                !
               </h4>
               <div className="flex justify-center items-center gap-1 mb-2">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <div key={star}>
-                    {renderStars(star, star <= (selectedRating || 0), 'small')}
-                  </div>
+                  <div key={star}>{renderStars(star, star <= (selectedRating || 0), 'small')}</div>
                 ))}
                 <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                   ({selectedRating} stars)
@@ -251,8 +253,19 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
             <div className="text-center py-6">
               <div className="inline-flex items-center justify-center w-12 h-12 mb-3">
                 <svg className="animate-spin h-8 w-8 text-cyan-600" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -263,7 +276,9 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
             // Rating Form
             <>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                {currentUserRating ? 'Update your rating:' : `Rate this ${resourceType.slice(0, -1)}:`}
+                {currentUserRating
+                  ? 'Update your rating:'
+                  : `Rate this ${resourceType.slice(0, -1)}:`}
               </h4>
               {currentUserRating && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
@@ -279,6 +294,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
               >
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
+                    type="button"
                     key={star}
                     onClick={() => handleStarClick(star)}
                     onMouseEnter={() => setHoverRating(star)}
@@ -303,12 +319,14 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
               {/* Action Buttons */}
               <div className="flex gap-2 mt-4">
                 <button
+                  type="button"
                   onClick={handleCancel}
                   className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleSubmitRating}
                   disabled={!selectedRating}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
@@ -316,7 +334,12 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                   {currentUserRating ? 'Update Rating' : 'Submit Rating'}
                   {selectedRating && (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   )}
                 </button>
@@ -328,6 +351,5 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
     </div>
   );
 };
-
 
 export default StarRatingWidget;

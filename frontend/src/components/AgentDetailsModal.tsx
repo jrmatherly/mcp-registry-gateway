@@ -1,5 +1,6 @@
-import React from 'react';
 import { ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import type React from 'react';
+
 interface AgentLike {
   name: string;
   path: string;
@@ -54,6 +55,7 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
             {agent.name} - Full Details (JSON)
           </h3>
           <button
+            type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             aria-label="Close"
@@ -64,10 +66,12 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
 
         <div className="space-y-4">
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Complete Agent Schema</h4>
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+              Complete Agent Schema
+            </h4>
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              This is the complete A2A agent definition stored in the registry. It includes all metadata, skills,
-              security schemes, and configuration details.
+              This is the complete A2A agent definition stored in the registry. It includes all
+              metadata, skills, security schemes, and configuration details.
             </p>
           </div>
 
@@ -75,6 +79,7 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-gray-900 dark:text-white">Agent JSON Schema:</h4>
               <button
+                type="button"
                 onClick={handleCopy}
                 className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
               >
@@ -101,40 +106,59 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
                 <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Core Fields</h5>
                 <ul className="space-y-1 text-gray-600 dark:text-gray-400">
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">protocol_version</code> - A2A protocol
-                    version
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      protocol_version
+                    </code>{' '}
+                    - A2A protocol version
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">name</code> - Agent display name
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">name</code> -
+                    Agent display name
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">description</code> - Agent purpose
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      description
+                    </code>{' '}
+                    - Agent purpose
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">url</code> - Agent endpoint URL
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">url</code> -
+                    Agent endpoint URL
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">path</code> - Registry path
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">path</code> -
+                    Registry path
                   </li>
                 </ul>
               </div>
               <div>
-                <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Metadata Fields</h5>
+                <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Metadata Fields
+                </h5>
                 <ul className="space-y-1 text-gray-600 dark:text-gray-400">
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">skills</code> - Agent capabilities
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">skills</code> -
+                    Agent capabilities
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">security_schemes</code> - Auth methods
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      security_schemes
+                    </code>{' '}
+                    - Auth methods
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">tags</code> - Categorization
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">tags</code> -
+                    Categorization
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">trust_level</code> - Verification status
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      trust_level
+                    </code>{' '}
+                    - Verification status
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">metadata</code> - Custom data
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">metadata</code> -
+                    Custom data
                   </li>
                 </ul>
               </div>

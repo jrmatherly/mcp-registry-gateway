@@ -1,20 +1,20 @@
-import React, { useState, useEffect, Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { Link } from 'react-router';
 import {
-  Bars3Icon,
-  UserIcon,
-  ChevronDownIcon,
   ArrowRightOnRectangleIcon,
+  Bars3Icon,
+  ChevronDownIcon,
   Cog6ToothIcon,
+  MoonIcon,
   SunIcon,
-  MoonIcon
+  UserIcon,
 } from '@heroicons/react/24/outline';
-import Sidebar from './Sidebar';
-import { useServerStats } from '../hooks/useServerStats';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Link } from 'react-router';
+import logo from '../assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import logo from '../assets/logo.png';
+import { useServerStats } from '../hooks/useServerStats';
+import Sidebar from './Sidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -30,9 +30,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   useEffect(() => {
     // Fetch version from API
     fetch('/api/version')
-      .then(res => res.json())
-      .then(data => setVersion(data.version))
-      .catch(err => console.error('Failed to fetch version:', err));
+      .then((res) => res.json())
+      .then((data) => setVersion(data.version))
+      .catch((err) => console.error('Failed to fetch version:', err));
   }, []);
 
   const handleLogout = async () => {
@@ -113,6 +113,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* Theme toggle */}
               <button
+                type="button"
                 onClick={toggleTheme}
                 className="p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               >
@@ -166,6 +167,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <Menu.Item>
                       {({ active }) => (
                         <button
+                          type="button"
                           onClick={handleLogout}
                           className={`${
                             active ? 'bg-gray-100 dark:bg-gray-800' : ''
@@ -194,13 +196,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           setActiveFilter={setActiveFilter}
         />
 
-
         {/* Main content */}
-        <main className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarOpen ? 'md:ml-64 lg:ml-72 xl:ml-80' : ''
-        }`}>
+        <main
+          className={`flex-1 flex flex-col transition-all duration-300 ${
+            sidebarOpen ? 'md:ml-64 lg:ml-72 xl:ml-80' : ''
+          }`}
+        >
           <div className="flex-1 flex flex-col px-4 sm:px-6 lg:px-8 py-4 md:py-8 overflow-y-auto">
-            {React.cloneElement(children as React.ReactElement<{ activeFilter?: string }>, { activeFilter })}
+            {React.cloneElement(children as React.ReactElement<{ activeFilter?: string }>, {
+              activeFilter,
+            })}
           </div>
         </main>
       </div>

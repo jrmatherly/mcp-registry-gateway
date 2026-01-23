@@ -20,6 +20,8 @@ uv run python script.py
 ```
 
 ## Testing
+
+### Backend (pytest)
 ```bash
 # Run full test suite with parallel workers (recommended)
 uv run pytest tests/ -n 8
@@ -56,6 +58,21 @@ make test-unit         # Unit tests only
 make test-integration  # Integration tests
 make test-fast         # Skip slow tests
 make test-coverage     # Generate coverage reports
+```
+
+### Frontend (Vitest)
+```bash
+# Run frontend tests
+cd frontend && npm test
+
+# Watch mode for development
+cd frontend && npm run test:watch
+
+# With coverage report
+cd frontend && npm run test:coverage
+
+# Run specific test file
+cd frontend && npm test -- src/components/Button.test.tsx
 ```
 
 ## Code Quality

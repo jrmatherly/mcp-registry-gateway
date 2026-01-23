@@ -1,5 +1,5 @@
-import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import type React from 'react';
 
 interface EditServerForm {
   name: string;
@@ -124,9 +124,7 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
               <input
                 type="number"
                 value={form.num_tools}
-                onChange={(e) =>
-                  onFormChange({ num_tools: parseInt(e.target.value) || 0 })
-                }
+                onChange={(e) => onFormChange({ num_tools: parseInt(e.target.value, 10) || 0 })}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                 min="0"
               />
@@ -139,9 +137,7 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
               <input
                 type="number"
                 value={form.num_stars}
-                onChange={(e) =>
-                  onFormChange({ num_stars: parseInt(e.target.value) || 0 })
-                }
+                onChange={(e) => onFormChange({ num_stars: parseInt(e.target.value, 10) || 0 })}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                 min="0"
               />

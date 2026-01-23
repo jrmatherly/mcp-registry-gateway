@@ -1,5 +1,6 @@
-import React, { useEffect, useCallback } from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import type React from 'react';
+import { useCallback, useEffect } from 'react';
 import { TOAST_DURATION_MS } from '../constants';
 import type { ToastType } from '../types';
 
@@ -20,12 +21,7 @@ export interface ToastProps {
  * - Dark mode support
  * - Animated entrance
  */
-const Toast: React.FC<ToastProps> = ({
-  message,
-  type,
-  onClose,
-  duration = TOAST_DURATION_MS,
-}) => {
+const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = TOAST_DURATION_MS }) => {
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -52,6 +48,7 @@ const Toast: React.FC<ToastProps> = ({
         <Icon className="h-5 w-5 mr-3 shrink-0" aria-hidden="true" />
         <p className="text-sm font-medium">{message}</p>
         <button
+          type="button"
           onClick={handleClose}
           className="ml-3 shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
           aria-label="Close notification"

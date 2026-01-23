@@ -1,8 +1,8 @@
-import React from 'react';
-import { UserIcon, SunIcon, MoonIcon, ShieldCheckIcon, KeyIcon } from '@heroicons/react/24/outline';
+import { KeyIcon, MoonIcon, ShieldCheckIcon, SunIcon, UserIcon } from '@heroicons/react/24/outline';
+import type React from 'react';
+import { Link } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Link } from 'react-router';
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
@@ -30,8 +30,12 @@ const Settings: React.FC = () => {
             <span className="text-sm text-gray-900 dark:text-white">{user?.email || 'N/A'}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Authentication Provider</span>
-            <span className="text-sm text-gray-900 dark:text-white capitalize">{user?.provider || user?.auth_method || 'Keycloak'}</span>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Authentication Provider
+            </span>
+            <span className="text-sm text-gray-900 dark:text-white capitalize">
+              {user?.provider || user?.auth_method || 'Keycloak'}
+            </span>
           </div>
         </div>
       </div>
@@ -76,9 +80,12 @@ const Settings: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-medium text-gray-900 dark:text-white">Dark Mode</span>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Toggle between light and dark theme</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Toggle between light and dark theme
+              </p>
             </div>
             <button
+              type="button"
               onClick={toggleTheme}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
                 theme === 'dark' ? 'bg-purple-600' : 'bg-gray-200'

@@ -544,10 +544,9 @@ Run the complete test suite with parallel execution:
 # Run all tests in parallel (using 8 workers)
 uv run pytest tests/ -n 8
 
-# Expected output (as of 2026-01-06):
-# - 701 passed
-# - 57 skipped
-# - Coverage: ~39.50%
+# Expected output (as of 2026-01-23):
+# - ~850+ tests collected
+# - Coverage: ~42%
 # - Execution time: ~30 seconds
 ```
 

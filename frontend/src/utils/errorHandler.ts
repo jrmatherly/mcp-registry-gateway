@@ -9,7 +9,10 @@
  * @param fallbackMessage - Default message if none can be extracted
  * @returns User-friendly error message
  */
-export const getErrorMessage = (error: unknown, fallbackMessage: string = 'An error occurred'): string => {
+export const getErrorMessage = (
+  error: unknown,
+  fallbackMessage: string = 'An error occurred'
+): string => {
   if (error && typeof error === 'object') {
     const axiosError = error as {
       response?: {
@@ -83,7 +86,9 @@ export const handleApiError = (
 /**
  * Type guard to check if an error is an Axios error with a response.
  */
-export const isAxiosError = (error: unknown): error is {
+export const isAxiosError = (
+  error: unknown
+): error is {
   response: {
     status: number;
     data: unknown;

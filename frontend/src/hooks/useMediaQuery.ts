@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BREAKPOINTS } from '../constants';
 
 /**
@@ -66,9 +66,7 @@ export const useIsMobile = (): boolean => {
  * Convenience hook for checking if the viewport is tablet-sized.
  */
 export const useIsTablet = (): boolean => {
-  return useMediaQuery(
-    `(min-width: ${BREAKPOINTS.MD}px) and (max-width: ${BREAKPOINTS.LG - 1}px)`
-  );
+  return useMediaQuery(`(min-width: ${BREAKPOINTS.MD}px) and (max-width: ${BREAKPOINTS.LG - 1}px)`);
 };
 
 /**

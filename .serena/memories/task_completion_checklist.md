@@ -34,8 +34,11 @@ bash -n <filename>
 # Run full test suite with parallel execution
 uv run pytest tests/ -n 8
 
-# Expected: ~701 passed, ~57 skipped, 35%+ coverage
-# Execution time: ~30 seconds
+# Expected: ~850+ tests collected
+# - ~830 passed (unit tests)
+# - ~27 errors (integration tests requiring MongoDB)
+# - Coverage: 40%+ (minimum threshold: 35%)
+# Execution time: ~2-5 minutes with parallel execution
 ```
 
 ### 6. Prerequisites for Tests

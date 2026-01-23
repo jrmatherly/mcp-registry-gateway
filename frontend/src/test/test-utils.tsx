@@ -1,20 +1,20 @@
-import React, { ReactElement, ReactNode } from 'react'
-import { render, RenderOptions, RenderResult } from '@testing-library/react'
-import { MemoryRouter, MemoryRouterProps } from 'react-router'
-import { ThemeProvider } from '../contexts/ThemeContext'
+import { type RenderOptions, type RenderResult, render } from '@testing-library/react';
+import React, { type ReactElement, type ReactNode } from 'react';
+import { MemoryRouter, type MemoryRouterProps } from 'react-router';
+import { ThemeProvider } from '../contexts/ThemeContext';
 
 /**
  * Options for customizing the test wrapper providers.
  */
 interface WrapperOptions {
   /** Initial route entries for MemoryRouter */
-  initialRoutes?: MemoryRouterProps['initialEntries']
+  initialRoutes?: MemoryRouterProps['initialEntries'];
   /** Whether to include AuthProvider (requires mocking axios first) */
-  withAuth?: boolean
+  withAuth?: boolean;
 }
 
 interface AllProvidersProps extends WrapperOptions {
-  children: ReactNode
+  children: ReactNode;
 }
 
 /**
@@ -38,7 +38,7 @@ const AllProviders: React.FC<AllProvidersProps> = ({
           ),
         }))
       )
-    : React.Fragment
+    : React.Fragment;
 
   return (
     <MemoryRouter initialEntries={initialRoutes}>
@@ -48,14 +48,14 @@ const AllProviders: React.FC<AllProvidersProps> = ({
         </React.Suspense>
       </ThemeProvider>
     </MemoryRouter>
-  )
-}
+  );
+};
 
 /**
  * Extended render options including wrapper configuration.
  */
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  wrapperOptions?: WrapperOptions
+  wrapperOptions?: WrapperOptions;
 }
 
 /**
@@ -77,17 +77,17 @@ const customRender = (
 ): RenderResult => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <AllProviders {...wrapperOptions}>{children}</AllProviders>
-  )
+  );
 
-  return render(ui, { wrapper: Wrapper, ...options })
-}
+  return render(ui, { wrapper: Wrapper, ...options });
+};
 
 // Re-export everything from testing-library
-export * from '@testing-library/react'
-export { default as userEvent } from '@testing-library/user-event'
+export * from '@testing-library/react';
+export { default as userEvent } from '@testing-library/user-event';
 
 // Override render with custom render
-export { customRender as render }
+export { customRender as render };
 
 // Export types for consumers
-export type { WrapperOptions, CustomRenderOptions }
+export type { WrapperOptions, CustomRenderOptions };

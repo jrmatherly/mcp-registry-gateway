@@ -1,5 +1,5 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -86,6 +86,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             )}
 
             <button
+              type="button"
               onClick={this.handleRetry}
               className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
             >

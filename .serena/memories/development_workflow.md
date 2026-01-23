@@ -91,6 +91,18 @@ git push origin feat/feature-name
 - **Integration Tests**: `tests/integration/` - Component interaction
 - **E2E Tests**: `tests/integration/test_e2e_workflows.py` - Full workflows
 
+### Frontend Testing (Vitest)
+```bash
+# Run frontend tests
+cd frontend && npm test
+
+# Watch mode for development
+cd frontend && npm run test:watch
+
+# With coverage
+cd frontend && npm run test:coverage
+```
+
 ### Test Markers
 ```bash
 pytest -m unit           # Unit tests only

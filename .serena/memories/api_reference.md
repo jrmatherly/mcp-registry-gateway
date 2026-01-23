@@ -11,15 +11,23 @@ All API endpoints require authentication via one of:
 
 ## Server Management API
 
+**Note**: Server routes are mounted at `/api/` prefix (not `/api/v2/`).
+
 ### List Servers
 ```
-GET /api/v2/servers
+GET /api/servers
+```
+**Response:** HTML dashboard (use JSON endpoints below for programmatic access)
+
+### Get Servers (JSON API)
+```
+GET /api/servers/list
 ```
 **Response:** Array of server objects with metadata
 
 ### Register Server
 ```
-POST /api/v2/servers
+POST /api/servers/register
 Content-Type: application/json
 
 {
@@ -35,17 +43,29 @@ Content-Type: application/json
 
 ### Toggle Server
 ```
-POST /api/v2/servers/{server_path}/toggle
+POST /api/toggle/{service_path}
+# OR via internal API:
+POST /api/servers/toggle
+Content-Type: application/json
+
+{
+  "path": "/server-path"
+}
 ```
 
-### Delete Server
+### Remove Server
 ```
-DELETE /api/v2/servers/{server_path}
+POST /api/servers/remove
+Content-Type: application/json
+
+{
+  "path": "/server-path"
+}
 ```
 
 ### Rate Server
 ```
-POST /api/v2/servers/{server_path}/rating
+POST /api/servers/{server_path}/rating
 Content-Type: application/json
 
 {
@@ -56,12 +76,17 @@ Content-Type: application/json
 
 ### Get Security Scan
 ```
-GET /api/v2/servers/{server_path}/security-scan
+GET /api/servers/{server_path}/security-scan
 ```
 
 ### Rescan Server
 ```
-POST /api/v2/servers/{server_path}/rescan
+POST /api/servers/{server_path}/rescan
+```
+
+### Refresh Server (Reload Tools)
+```
+POST /api/refresh/{service_path}
 ```
 
 ---
@@ -199,12 +224,12 @@ Content-Type: application/json
 
 ### List Groups
 ```
-GET /api/v2/groups
+GET /api/internal/list-groups
 ```
 
 ### Create Group
 ```
-POST /api/v2/groups
+POST /api/servers/groups/create
 Content-Type: application/json
 
 {
@@ -215,30 +240,32 @@ Content-Type: application/json
 
 ### Delete Group
 ```
-DELETE /api/v2/groups/{group_name}
-```
+POST /api/servers/groups/delete
+Content-Type: application/json
 
-### Get Group Details
-```
-GET /api/v2/groups/{group_name}
+{
+  "group_name": "mcp-servers-finance"
+}
 ```
 
 ### Add Server to Groups
 ```
-POST /api/v2/servers/{server_path}/groups
+POST /api/servers/groups/add
 Content-Type: application/json
 
 {
+  "path": "/server-path",
   "groups": ["group1", "group2"]
 }
 ```
 
 ### Remove Server from Groups
 ```
-DELETE /api/v2/servers/{server_path}/groups
+POST /api/servers/groups/remove
 Content-Type: application/json
 
 {
+  "path": "/server-path",
   "groups": ["group1"]
 }
 ```

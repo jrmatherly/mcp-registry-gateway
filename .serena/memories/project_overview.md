@@ -82,6 +82,28 @@ mcp-registry-gateway/
 ├── keycloak/             # Keycloak setup
 ├── metrics-service/      # Metrics service
 ├── scripts/              # Build and utility scripts
-├── servers/              # MCP server definitions
+├── servers/              # FastMCP server implementations
+│   ├── mcpgw/            # MCPGateway - Registry API tools
+│   ├── fininfo/          # Financial information tools
+│   ├── realserverfaketools/ # Test server with mock tools
+│   ├── currenttime/      # Simple time server
+│   └── example-server/   # Template for new servers
 └── terraform/            # Infrastructure as Code
 ```
+
+## FastMCP Servers
+
+The `servers/` directory contains FastMCP-based MCP server implementations:
+
+| Server | Description | Port |
+|--------|-------------|------|
+| `mcpgw` | Provides tools to interact with MCP Gateway Registry API | 9001 |
+| `fininfo` | Financial information and stock data tools | 9002 |
+| `realserverfaketools` | Test server with fake/mock tools for testing | 9003 |
+| `currenttime` | Simple server returning current time | 9004 |
+
+### Server Features (v2.0.6+)
+- Custom root endpoint (`/`) with server info JSON
+- Custom favicon endpoint (`/favicon.ico`)
+- MCP protocol at `/mcp` or `/sse` endpoints
+- Health checks and streaming support

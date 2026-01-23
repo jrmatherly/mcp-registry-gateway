@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
 import {
-  ShieldCheckIcon,
-  ShieldExclamationIcon,
-  ExclamationTriangleIcon,
-  ClipboardDocumentIcon,
   ArrowPathIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  ClipboardDocumentIcon,
+  ExclamationTriangleIcon,
+  ShieldCheckIcon,
+  ShieldExclamationIcon,
 } from '@heroicons/react/24/outline';
+import type React from 'react';
+import { useState } from 'react';
 import type { SecurityScanResult } from '../types';
 
 // Re-export for consumers
 export type { SecurityScanResult };
-
 
 interface SecurityScanModalProps {
   resourceName: string;
@@ -26,21 +26,20 @@ interface SecurityScanModalProps {
   onShowToast?: (message: string, type: 'success' | 'error') => void;
 }
 
-
 interface StatusInfo {
   icon: React.ComponentType<{ className?: string }>;
   color: string;
   text: string;
 }
 
-
 const SEVERITY_BOX_STYLES: Record<string, string> = {
-  critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-700',
+  critical:
+    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-700',
   high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-700',
-  medium: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-700',
+  medium:
+    'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-700',
   low: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-700',
 };
-
 
 const _getStatusInfo = (scanResult: SecurityScanResult | null | undefined): StatusInfo => {
   if (!scanResult) {
@@ -58,7 +57,6 @@ const _getStatusInfo = (scanResult: SecurityScanResult | null | undefined): Stat
   return { icon: ShieldCheckIcon, color: 'green', text: 'SAFE' };
 };
 
-
 const _getStatusBannerClasses = (color: string): string => {
   switch (color) {
     case 'green':
@@ -71,7 +69,6 @@ const _getStatusBannerClasses = (color: string): string => {
       return 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700';
   }
 };
-
 
 const _getStatusIconClasses = (color: string): string => {
   switch (color) {
@@ -86,7 +83,6 @@ const _getStatusIconClasses = (color: string): string => {
   }
 };
 
-
 const _getSeverityBadgeClasses = (severity: string): string => {
   const severityLower = severity.toLowerCase();
   switch (severityLower) {
@@ -100,7 +96,6 @@ const _getSeverityBadgeClasses = (severity: string): string => {
       return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
   }
 };
-
 
 const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
   resourceName,
@@ -147,7 +142,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
     try {
       await onRescan();
       onShowToast?.('Security scan completed', 'success');
-    } catch (error) {
+    } catch (_error) {
       onShowToast?.('Failed to rescan', 'error');
     } finally {
       setRescanning(false);
@@ -173,6 +168,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
             Security Scan Results - {resourceName}
           </h3>
           <button
+            type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1"
             aria-label="Close"
@@ -194,6 +190,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
             </p>
             {canRescan && onRescan && (
               <button
+                type="button"
                 onClick={handleRescan}
                 disabled={rescanning}
                 className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
@@ -258,82 +255,96 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
             )}
 
             {/* Detailed Findings */}
-            {scanResult.raw_output && scanResult.raw_output.analysis_results && (
+            {scanResult.raw_output?.analysis_results && (
               <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Detailed Findings</h4>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+                  Detailed Findings
+                </h4>
                 <div className="border dark:border-gray-700 rounded-lg overflow-hidden">
-                  {Object.entries(scanResult.raw_output.analysis_results).map(([analyzer, analyzerData]) => {
-                    // Handle both formats: direct array or object with findings property
-                    const findings = Array.isArray(analyzerData)
-                      ? analyzerData
-                      : (analyzerData as any)?.findings || [];
-                    const findingsCount = Array.isArray(findings) ? findings.length : 0;
+                  {Object.entries(scanResult.raw_output.analysis_results).map(
+                    ([analyzer, analyzerData]) => {
+                      // Handle both formats: direct array or object with findings property
+                      const findings = Array.isArray(analyzerData)
+                        ? analyzerData
+                        : (analyzerData as any)?.findings || [];
+                      const findingsCount = Array.isArray(findings) ? findings.length : 0;
 
-                    return (
-                      <div key={analyzer} className="border-b dark:border-gray-700 last:border-b-0">
-                        <button
-                          onClick={() => toggleAnalyzer(analyzer)}
-                          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      return (
+                        <div
+                          key={analyzer}
+                          className="border-b dark:border-gray-700 last:border-b-0"
                         >
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {analyzer.charAt(0).toUpperCase() + analyzer.slice(1).replace(/_/g, ' ')} Analysis
-                            <span className="ml-2 text-sm text-gray-500">
-                              ({findingsCount} finding{findingsCount !== 1 ? 's' : ''})
+                          <button
+                            type="button"
+                            onClick={() => toggleAnalyzer(analyzer)}
+                            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          >
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {analyzer.charAt(0).toUpperCase() +
+                                analyzer.slice(1).replace(/_/g, ' ')}{' '}
+                              Analysis
+                              <span className="ml-2 text-sm text-gray-500">
+                                ({findingsCount} finding{findingsCount !== 1 ? 's' : ''})
+                              </span>
                             </span>
-                          </span>
-                          {expandedAnalyzers.has(analyzer) ? (
-                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
-                          ) : (
-                            <ChevronRightIcon className="h-5 w-5 text-gray-500" />
-                          )}
-                        </button>
-                        {expandedAnalyzers.has(analyzer) && (
-                          <div className="p-3 bg-gray-50 dark:bg-gray-900/30 border-t dark:border-gray-700">
-                            {Array.isArray(findings) && findings.length > 0 ? (
-                              <div className="space-y-3">
-                                {findings.map((finding: any, idx: number) => (
-                                  <div
-                                    key={idx}
-                                    className="p-3 bg-white dark:bg-gray-800 rounded-sm border dark:border-gray-700"
-                                  >
-                                    <div className="flex items-start justify-between mb-2">
-                                      <span className="font-medium text-gray-900 dark:text-white">
-                                        {finding.tool_name || finding.skill_name || 'Finding'}
-                                      </span>
-                                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-sm ${_getSeverityBadgeClasses(finding.severity)}`}>
-                                        {finding.severity}
-                                      </span>
-                                    </div>
-                                    {finding.threat_summary && (
-                                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        {finding.threat_summary}
-                                      </p>
-                                    )}
-                                    {finding.threat_names && finding.threat_names.length > 0 && (
-                                      <div className="flex flex-wrap gap-1">
-                                        {finding.threat_names.map((threat: string, tidx: number) => (
-                                          <span
-                                            key={tidx}
-                                            className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm"
-                                          >
-                                            {threat}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
+                            {expandedAnalyzers.has(analyzer) ? (
+                              <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                             ) : (
-                              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                No findings from this analyzer.
-                              </p>
+                              <ChevronRightIcon className="h-5 w-5 text-gray-500" />
                             )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          </button>
+                          {expandedAnalyzers.has(analyzer) && (
+                            <div className="p-3 bg-gray-50 dark:bg-gray-900/30 border-t dark:border-gray-700">
+                              {Array.isArray(findings) && findings.length > 0 ? (
+                                <div className="space-y-3">
+                                  {findings.map((finding: any, idx: number) => (
+                                    <div
+                                      key={idx}
+                                      className="p-3 bg-white dark:bg-gray-800 rounded-sm border dark:border-gray-700"
+                                    >
+                                      <div className="flex items-start justify-between mb-2">
+                                        <span className="font-medium text-gray-900 dark:text-white">
+                                          {finding.tool_name || finding.skill_name || 'Finding'}
+                                        </span>
+                                        <span
+                                          className={`px-2 py-0.5 text-xs font-semibold rounded-sm ${_getSeverityBadgeClasses(finding.severity)}`}
+                                        >
+                                          {finding.severity}
+                                        </span>
+                                      </div>
+                                      {finding.threat_summary && (
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                          {finding.threat_summary}
+                                        </p>
+                                      )}
+                                      {finding.threat_names && finding.threat_names.length > 0 && (
+                                        <div className="flex flex-wrap gap-1">
+                                          {finding.threat_names.map(
+                                            (threat: string, tidx: number) => (
+                                              <span
+                                                key={tidx}
+                                                className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm"
+                                              >
+                                                {threat}
+                                              </span>
+                                            )
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                                  No findings from this analyzer.
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                  )}
                 </div>
               </div>
             )}
@@ -341,6 +352,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
             {/* Raw JSON Toggle */}
             <div>
               <button
+                type="button"
                 onClick={() => setShowRawJson(!showRawJson)}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
@@ -356,6 +368,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-4 border-t dark:border-gray-700">
               <button
+                type="button"
                 onClick={handleCopy}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
@@ -364,6 +377,7 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
               </button>
               {canRescan && onRescan && (
                 <button
+                  type="button"
                   onClick={handleRescan}
                   disabled={rescanning}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 transition-colors"

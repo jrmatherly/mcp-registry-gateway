@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-import type { User, UserApiResponse } from '../types';
+import type React from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { API_ENDPOINTS } from '../constants';
+import type { User, UserApiResponse } from '../types';
 
 // Configure axios to include credentials (cookies) with all requests
 axios.defaults.withCredentials = true;
@@ -31,11 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await axios.get<UserApiResponse>(API_ENDPOINTS.AUTH_ME);
       const userData = response.data;
@@ -56,7 +53,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const login = async (username: string, password: string) => {
     const formData = new FormData();

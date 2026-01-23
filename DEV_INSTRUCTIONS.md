@@ -99,7 +99,7 @@ uv run pytest tests/ -n 8 -v
 uv run ruff check --fix . && uv run ruff format . && uv run mypy registry/ && uv run pytest tests/ -n 8
 
 # All tests must pass before merging
-# Expected: 701+ passed, ~57 skipped, ~30 seconds runtime
+# Expected: ~850+ tests collected, ~30 seconds runtime (parallel with -n 8)
 ```
 
 ### Understanding the Tests
