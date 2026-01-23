@@ -177,14 +177,13 @@ aws ecr get-login-password --region us-east-1 | docker login --username AWS --pa
 
 ## CLI Tools
 ```bash
-# Registry CLI
-cli/registry_cli.py --help
+# Registry Management API (primary tool for server/agent management)
+uv run python api/registry_management.py --help
+uv run python api/registry_management.py list
+uv run python api/registry_management.py register --config <config.json>
+uv run python api/registry_management.py agent-list
+uv run python api/registry_management.py agent-search --query "query"
 
-# Server management
-cli/service_mgmt.sh list
-cli/service_mgmt.sh add <config.json>
-
-# Agent management
-cli/agent_mgmt.sh list
-cli/agent_mgmt.sh search "query"
+# Registry CLI (alternative wrapper)
+cli/registry_cli_wrapper.py --help
 ```

@@ -1,5 +1,9 @@
 #!/bin/bash
 #
+# DEPRECATED: This script is deprecated in favor of the Registry Management API
+# Use: uv run python api/registry_management.py
+# See: api/README.md for documentation
+#
 # Import MCP servers from Anthropic Registry
 #
 # This script fetches server definitions from the Anthropic MCP Registry
@@ -12,7 +16,28 @@
 #   GATEWAY_URL - Gateway URL (default: http://localhost)
 #                 Example: export GATEWAY_URL=https://mcpgateway.ddns.net
 #   MCP_SCANNER_LLM_API_KEY - API key for LLM-based security analysis (required if using llm analyzer)
+#   SECURITY_ANALYZERS - Security analyzers to use (default: yara)
 #
+
+echo ""
+echo "============================================================"
+echo "  WARNING: This script is DEPRECATED"
+echo "============================================================"
+echo ""
+echo "Please use the Registry Management API instead:"
+echo "  uv run python api/registry_management.py --help"
+echo ""
+echo "See api/README.md for full documentation."
+echo ""
+echo "To continue using this deprecated script, set:"
+echo "  export ALLOW_DEPRECATED=1"
+echo "============================================================"
+echo ""
+
+if [ "${ALLOW_DEPRECATED:-0}" != "1" ]; then
+    echo "Exiting. Set ALLOW_DEPRECATED=1 to proceed."
+    exit 1
+fi
 
 set -e
 
@@ -243,9 +268,13 @@ with open('$config_file', 'w') as f:
 
     print_success "Created config for $server_name (transport: $transport_type)"
 
-    # Register with service_mgmt.sh (if not dry run)
+    # Register with Registry Management API (if not dry run)
+    # Note: Security analyzers are configured via SECURITY_ANALYZERS environment variable
     if [ "$DRY_RUN" = false ]; then
-        if GATEWAY_URL="$GATEWAY_URL" "$SCRIPT_DIR/service_mgmt.sh" add "$config_file" "$ANALYZERS"; then
+        # Set SECURITY_ANALYZERS environment variable for the registration call
+        if SECURITY_ANALYZERS="$ANALYZERS" uv run python "$PROJECT_ROOT/api/registry_management.py" \
+            --registry-url "$GATEWAY_URL" \
+            register --config "$config_file"; then
             print_success "Registered $server_name"
             success_count=$((success_count + 1))
         else

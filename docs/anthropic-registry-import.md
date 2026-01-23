@@ -212,7 +212,7 @@ After importing, verify the server was registered:
 
 ```bash
 # Via CLI
-./cli/service_mgmt.sh list
+uv run python api/registry_management.py --registry-url http://localhost list
 
 # Via API
 curl http://localhost/mcpgw/mcp -X POST \
@@ -281,10 +281,14 @@ docker compose logs registry --tail 100 | grep -i "server-name"
 
 ```bash
 # Delete existing server
-./cli/service_mgmt.sh delete /server-path "server-name"
+uv run python api/registry_management.py \
+  --registry-url http://localhost \
+  remove --path /server-path
 
-# Re-import
-./cli/import_from_anthropic_registry.sh server-name
+# Re-import (note: import script is deprecated, use registry_management.py register)
+uv run python api/registry_management.py \
+  --registry-url http://localhost \
+  register --config /path/to/server-config.json
 ```
 
 ## Advanced Usage

@@ -640,8 +640,10 @@ MCP_SCANNER_LLM_API_KEY=sk-your-openai-api-key
 **Using Both Analyzers:**
 
 ```bash
-# During server addition
-./cli/service_mgmt.sh add config.json yara,llm
+# During server addition (set SECURITY_ANALYZERS environment variable)
+SECURITY_ANALYZERS=yara,llm uv run python api/registry_management.py \
+  --registry-url http://localhost \
+  register --config config.json
 
 # During periodic scans
 uv run cli/scan_all_servers.py --base-url https://mcpgateway.example.com --analyzers yara,llm

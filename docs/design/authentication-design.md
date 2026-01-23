@@ -6,6 +6,7 @@
 ## Quick Links
 
 - [Multi-Provider IdP Support](./idp-provider-support.md) - Architecture for supporting multiple identity providers
+- [Multi-Tenant Data Isolation](./multi-tenant-data-isolation.md) - Data isolation in shared infrastructure
 - [Authentication & Authorization Guide](../auth.md) - Operational guide with setup instructions
 - [Microsoft Entra ID Integration](../entra.md) - Entra ID-specific setup and configuration
 
@@ -476,7 +477,7 @@ Scopes are stored in the `mcp_scopes_default` collection:
 
 ```
 +-----------------------------------------------------------------------+
-|                    mcp_scopes_default collection                       |
+|                    mcp_scopes_default collection                      |
 +-----------------------------------------------------------------------+
 | {                                                                     |
 |   "_id": "public-mcp-users",                                          |

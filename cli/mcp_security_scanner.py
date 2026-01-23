@@ -3,7 +3,7 @@
 MCP Security Scanner CLI Tool
 
 Scans MCP servers for security vulnerabilities using cisco-ai-mcp-scanner.
-Integrates with service_mgmt.sh to provide security analysis during server registration.
+Integrates with the Registry Management API to provide security analysis during server registration.
 """
 
 import argparse
@@ -306,6 +306,8 @@ def _save_scan_output(server_url: str, raw_output: dict) -> str:
 def _disable_unsafe_server(server_path: str) -> bool:
     """Disable a server that failed security scan.
 
+    Uses the Registry Management API to toggle the server to disabled state.
+
     Args:
         server_path: Path of the server to disable (e.g., /mcpgw)
 
@@ -315,10 +317,22 @@ def _disable_unsafe_server(server_path: str) -> bool:
     logger.info(f"Disabling unsafe server: {server_path}")
 
     try:
-        # Call service_mgmt.sh to disable the server
-        cmd = [str(PROJECT_ROOT / "cli" / "service_mgmt.sh"), "disable", server_path]
+        # Use Registry Management API to disable the server
+        cmd = [
+            "uv",
+            "run",
+            "python",
+            str(PROJECT_ROOT / "api" / "registry_management.py"),
+            "toggle",
+            "--path",
+            server_path,
+            "--enabled",
+            "false",
+        ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=True, cwd=str(PROJECT_ROOT)
+        )
 
         logger.info(f"Server {server_path} disabled successfully")
         logger.debug(f"Output: {result.stdout}")

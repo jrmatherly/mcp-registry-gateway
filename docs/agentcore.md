@@ -269,10 +269,11 @@ Navigate to your `mcp-registry-gateway` directory and run:
 
 ```bash
 cd ${HOME}/workspace/mcp-registry-gateway
-source .venv/bin/activate
 
 # Register the AgentCore gateway
-./cli/service_mgmt.sh add ${HOME}/workspace/amazon-bedrock-agentcore-samples/02-use-cases/customer-support-assistant/gateway-config.json
+uv run python api/registry_management.py \
+  --registry-url http://localhost \
+  register --config ${HOME}/workspace/amazon-bedrock-agentcore-samples/02-use-cases/customer-support-assistant/gateway-config.json
 ```
 
 ### 3.3 Verify Registration

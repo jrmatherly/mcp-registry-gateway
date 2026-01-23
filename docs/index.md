@@ -259,7 +259,7 @@ Accelerate development workflows with integrated tooling:
 | [Complete Setup Guide](complete-setup-guide.md)<br/>Step-by-step from scratch on AWS EC2 | [Authentication Guide](auth.md)<br/>OAuth and identity provider integration | [AI Coding Assistants Setup](ai-coding-assistants-setup.md)<br/>VS Code, Cursor, Claude Code integration |
 | [Installation Guide](installation.md)<br/>Complete setup instructions for EC2 and EKS | [Amazon Cognito Setup](cognito.md)<br/>Step-by-step IdP configuration | [API Reference](registry_api.md)<br/>Programmatic registry management |
 | [Configuration Reference](configuration.md)<br/>Environment variables and settings | [Fine-Grained Access Control](scopes.md)<br/>Permission management and security | [Dynamic Tool Discovery](dynamic-tool-discovery.md)<br/>Autonomous agent capabilities |
-| | | [Production Deployment](installation.md)<br/>Complete setup for production environments |
+| | [Multi-Tenant Data Isolation](design/multi-tenant-data-isolation.md)<br/>Data isolation in shared infrastructure | [Production Deployment](installation.md)<br/>Complete setup for production environments |
 | | | [Troubleshooting Guide](FAQ.md)<br/>Common issues and solutions |
 
 ---

@@ -55,7 +55,7 @@ export const anthropicTools: any[] = [
       properties: {
         command: {
           type: "string",
-          description: "Bash command to execute (e.g., './cli/service_mgmt.sh list-groups', 'cat /path/to/file.json')"
+          description: "Bash command to execute (e.g., 'uv run python api/registry_management.py list-groups', 'cat /path/to/file.json')"
         }
       },
       required: ["command"]
