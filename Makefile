@@ -81,11 +81,11 @@ install-dev:
 
 install-docs:
 	@echo "Installing documentation dependencies (mkdocs)..."
-	uv sync --extra docs
+	uv sync --all-extras
 
 install-all:
 	@echo "Installing ALL dependencies (dev + docs)..."
-	uv sync --dev --extra docs
+	uv sync --dev --all-extras
 	@echo "Verifying installation..."
 	@uv run pytest --version
 	@uv run mkdocs --version

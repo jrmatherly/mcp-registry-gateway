@@ -81,12 +81,12 @@ services:
       - COGNITO_ENABLED=${COGNITO_ENABLED:-false}
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - HEALTH_CHECK_INTERVAL_SECONDS=${HEALTH_CHECK_INTERVAL_SECONDS:-30}
-      - SRE_GATEWAY_AUTH_TOKEN=${SRE_GATEWAY_AUTH_TOKEN}
-      - ATLASSIAN_AUTH_TOKEN=${ATLASSIAN_AUTH_TOKEN}
+      - SRE_GATEWAY_AUTH_TOKEN=${SRE_GATEWAY_AUTH_TOKEN:-}
+      - ATLASSIAN_AUTH_TOKEN=${ATLASSIAN_AUTH_TOKEN:-}
       # Metrics configuration
       - METRICS_SERVICE_URL=http://metrics-service:8890
-      - METRICS_API_KEY=${METRICS_API_KEY_REGISTRY}
-      - METRICS_API_KEY_NGINX=${METRICS_API_KEY_REGISTRY}
+      - METRICS_API_KEY=${METRICS_API_KEY_REGISTRY:-}
+      - METRICS_API_KEY_NGINX=${METRICS_API_KEY_REGISTRY:-}
       # Keycloak configuration
       - AUTH_PROVIDER=${AUTH_PROVIDER:-cognito}
       - KEYCLOAK_ENABLED=${KEYCLOAK_ENABLED:-false}
@@ -105,8 +105,8 @@ services:
       - ENTRA_ENABLED=${ENTRA_ENABLED:-false}
       # External Registry Configuration
       - EXTERNAL_REGISTRY_TAGS=${EXTERNAL_REGISTRY_TAGS:-anthropic-registry,workday-asor}
-      - ASOR_ACCESS_TOKEN=${ASOR_ACCESS_TOKEN}
-      - ASOR_CLIENT_CREDENTIALS=${ASOR_CLIENT_CREDENTIALS}
+      - ASOR_ACCESS_TOKEN=${ASOR_ACCESS_TOKEN:-}
+      - ASOR_CLIENT_CREDENTIALS=${ASOR_CLIENT_CREDENTIALS:-}
       # Security Scanning Configuration
       - SECURITY_SCAN_ENABLED=${SECURITY_SCAN_ENABLED:-true}
       - SECURITY_SCAN_ON_REGISTRATION=${SECURITY_SCAN_ON_REGISTRATION:-true}
@@ -166,9 +166,9 @@ services:
       - METRICS_SERVICE_HOST=0.0.0.0
       - SQLITE_DB_PATH=/var/lib/sqlite/metrics.db
       - METRICS_RETENTION_DAYS=90
-      - METRICS_API_KEY_AUTH=${METRICS_API_KEY_AUTH_SERVER}
-      - METRICS_API_KEY_REGISTRY=${METRICS_API_KEY_REGISTRY}
-      - METRICS_API_KEY_MCPGW=${METRICS_API_KEY_MCPGW_SERVER}
+      - METRICS_API_KEY_AUTH=${METRICS_API_KEY_AUTH_SERVER:-}
+      - METRICS_API_KEY_REGISTRY=${METRICS_API_KEY_REGISTRY:-}
+      - METRICS_API_KEY_MCPGW=${METRICS_API_KEY_MCPGW_SERVER:-}
       - OTEL_SERVICE_NAME=mcp-metrics-service
       - OTEL_PROMETHEUS_ENABLED=true
       - OTEL_PROMETHEUS_PORT=9465
@@ -212,7 +212,7 @@ services:
       - GOOGLE_ENABLED=${GOOGLE_ENABLED:-false}
       # Metrics configuration
       - METRICS_SERVICE_URL=http://metrics-service:8890
-      - METRICS_API_KEY=${METRICS_API_KEY_AUTH_SERVER}
+      - METRICS_API_KEY=${METRICS_API_KEY_AUTH_SERVER:-}
       # Keycloak configuration
       - AUTH_PROVIDER=${AUTH_PROVIDER:-cognito} # 'cognito' or 'keycloak'
       - KEYCLOAK_ENABLED=${KEYCLOAK_ENABLED:-true} # Enable Keycloak by default
@@ -238,7 +238,7 @@ services:
       - DOCUMENTDB_DATABASE=${DOCUMENTDB_DATABASE:-mcp_registry}
       - DOCUMENTDB_NAMESPACE=${DOCUMENTDB_NAMESPACE:-default}
       - DOCUMENTDB_USE_TLS=${DOCUMENTDB_USE_TLS:-false}
-      - DOCUMENTDB_TLS_CA_FILE=${DOCUMENTDB_TLS_CA_FILE}
+      - DOCUMENTDB_TLS_CA_FILE=${DOCUMENTDB_TLS_CA_FILE:-}
       - DOCUMENTDB_USE_IAM=${DOCUMENTDB_USE_IAM:-false}
       - DOCUMENTDB_REPLICA_SET=${DOCUMENTDB_REPLICA_SET:-rs0}
       - DOCUMENTDB_READ_PREFERENCE=${DOCUMENTDB_READ_PREFERENCE:-secondaryPreferred}
@@ -409,6 +409,10 @@ services:
       # Frontend URL for external JWT issuer
       KC_FRONTEND_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
 
+      # Health check configuration (required for /health/* endpoints)
+      # Health endpoints are served on management port 9000
+      KC_HEALTH_ENABLED: "true"
+
       # Features
       KC_FEATURES: token-exchange,admin-api
 
@@ -425,12 +429,15 @@ services:
       - ./keycloak/providers:/opt/keycloak/providers
       - ./keycloak/import:/opt/keycloak/data/import
     restart: unless-stopped
+    # Health check using bash TCP socket (curl not available in Keycloak image)
+    # Health endpoints are on management port 9000, not main port 8080
+    # See: https://www.keycloak.org/observability/health
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 90s
 
 volumes:
   ssl_data:

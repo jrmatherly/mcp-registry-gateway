@@ -86,6 +86,32 @@ EMBEDDINGS_AWS_REGION=us-east-1
 - Requires AWS credentials
 - Available in select AWS regions
 
+### Option 4: LiteLLM Proxy or Custom API Endpoint
+
+Use your own LiteLLM proxy or any OpenAI-compatible API endpoint.
+
+```bash
+# In .env
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_API_BASE=https://your-litellm-proxy.com
+EMBEDDINGS_API_KEY=your-api-key
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+
+# Model name format is flexible when using a proxy:
+EMBEDDINGS_MODEL_NAME=text-embedding-3-small          # Without prefix
+# OR
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small   # With prefix (also works)
+```
+
+**Characteristics:**
+
+- Works with LiteLLM proxy deployments
+- Works with any OpenAI-compatible API endpoint
+- Model name prefix (e.g., `openai/`) is optional when using a proxy
+- Proxy handles model routing and provider selection
+- Centralized API key management through proxy
+- Useful for enterprise deployments with custom routing
+
 ## Configuration
 
 ### Environment Variables
@@ -93,11 +119,16 @@ EMBEDDINGS_AWS_REGION=us-east-1
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `EMBEDDINGS_PROVIDER` | Provider type: `sentence-transformers` or `litellm` | `sentence-transformers` | No |
-| `EMBEDDINGS_MODEL_NAME` | Model identifier | `all-MiniLM-L6-v2` | Yes |
+| `EMBEDDINGS_MODEL_NAME` | Model identifier (see note below) | `all-MiniLM-L6-v2` | Yes |
 | `EMBEDDINGS_MODEL_DIMENSIONS` | Embedding dimension | `384` | Yes |
 | `EMBEDDINGS_API_KEY` | API key for cloud provider (OpenAI, Cohere, etc.) | - | For cloud* |
-| `EMBEDDINGS_API_BASE` | Custom API endpoint (LiteLLM only) | - | No |
+| `EMBEDDINGS_API_BASE` | Custom API endpoint (LiteLLM proxy or OpenAI-compatible) | - | No |
 | `EMBEDDINGS_AWS_REGION` | AWS region for Bedrock (LiteLLM only) | - | For Bedrock |
+
+**Model Name Format:**
+
+- **Direct LiteLLM usage**: Requires provider prefix (e.g., `openai/text-embedding-3-small`, `bedrock/amazon.titan-embed-text-v1`)
+- **With proxy (`EMBEDDINGS_API_BASE` set)**: Prefix is optional - both `text-embedding-3-small` and `openai/text-embedding-3-small` work
 
 *Not required for AWS Bedrock - use standard AWS credential chain (IAM roles, environment variables, ~/.aws/credentials)
 

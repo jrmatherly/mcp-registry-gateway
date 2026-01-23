@@ -136,13 +136,19 @@ For centralized LLM access through a LiteLLM proxy server, you can configure bot
 ```bash
 # In .env
 EMBEDDINGS_PROVIDER=litellm
-EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small
 EMBEDDINGS_MODEL_DIMENSIONS=1536
 EMBEDDINGS_API_BASE=https://your-litellm-proxy.example.com
 EMBEDDINGS_API_KEY=your-proxy-auth-token
+
+# Model name format is flexible when using a proxy:
+EMBEDDINGS_MODEL_NAME=text-embedding-3-small          # Without prefix (proxy handles routing)
+# OR
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small   # With prefix (also works)
 ```
 
 The API key is passed directly to the LiteLLM proxy for authentication. This works with any OpenAI-compatible API endpoint.
+
+**Note**: When using a proxy (`EMBEDDINGS_API_BASE` is set), the provider prefix in the model name is optional since the proxy handles model routing.
 
 **Global LLM Configuration (Fallback Values):**
 
@@ -176,11 +182,16 @@ LLM_API_BASE (global default)
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `EMBEDDINGS_PROVIDER` | Provider type: `sentence-transformers` or `litellm` | `sentence-transformers` | No |
-| `EMBEDDINGS_MODEL_NAME` | Model identifier | `all-MiniLM-L6-v2` | Yes |
+| `EMBEDDINGS_MODEL_NAME` | Model identifier (see note below) | `all-MiniLM-L6-v2` | Yes |
 | `EMBEDDINGS_MODEL_DIMENSIONS` | Embedding dimension | `384` | Yes |
 | `EMBEDDINGS_API_KEY` | API key for cloud provider (OpenAI, Cohere, etc.) | - | For cloud* |
-| `EMBEDDINGS_API_BASE` | Custom API endpoint (LiteLLM only) | - | No |
+| `EMBEDDINGS_API_BASE` | Custom API endpoint (LiteLLM proxy or OpenAI-compatible) | - | No |
 | `EMBEDDINGS_AWS_REGION` | AWS region for Bedrock (LiteLLM only) | - | For Bedrock |
+
+**Model Name Format:**
+
+- **Direct LiteLLM usage**: Requires provider prefix (e.g., `openai/text-embedding-3-small`)
+- **With proxy (`EMBEDDINGS_API_BASE` set)**: Prefix optional - both `text-embedding-3-small` and `openai/text-embedding-3-small` work
 
 *Not required for AWS Bedrock - use standard AWS credential chain (IAM roles, environment variables, ~/.aws/credentials)
 
@@ -262,9 +273,9 @@ LiteLLMClient(
 
 **Parameters:**
 
-- `model_name`: Provider-prefixed model (e.g., `openai/text-embedding-3-small`, `bedrock/amazon.titan-embed-text-v1`)
+- `model_name`: Model identifier. When using direct LiteLLM, requires provider prefix (e.g., `openai/text-embedding-3-small`). When using a proxy (`api_base` set), prefix is optional.
 - `api_key`: API key for the provider (OpenAI, Cohere, etc.; not used for Bedrock)
-- `api_base`: Custom API endpoint URL (optional)
+- `api_base`: Custom API endpoint URL (optional, makes model name prefix optional)
 - `aws_region`: AWS region for Bedrock (required for Bedrock)
 - `embedding_dimension`: Expected dimension for validation (optional)
 

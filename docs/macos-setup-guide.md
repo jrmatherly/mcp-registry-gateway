@@ -110,14 +110,14 @@ The project uses multiple dependency groups for different purposes:
 |-------|---------|-------------|
 | Core | `uv sync` | Running the application |
 | Development | `uv sync --dev` | Running tests, linting, type checking |
-| Documentation | `uv sync --extra docs` | Building MkDocs documentation |
-| All | `uv sync --dev --extra docs` | Full development environment |
+| Documentation | `uv sync --all-extras` | Building MkDocs documentation (core + all extras) |
+| All | `uv sync --dev --all-extras` | Full development environment |
 
 **For contributors working on the codebase (recommended):**
 
 ```bash
 # Install all development and documentation dependencies
-uv sync --dev --extra docs
+uv sync --dev --all-extras
 
 # Verify installation
 uv run pytest --version    # Should show pytest 9.x.x
@@ -181,9 +181,24 @@ KEYCLOAK_CLIENT_ID=mcp-gateway-web
 
 **Important**: Choose strong, unique passwords and remember them - you'll need the admin password for Keycloak login!
 
-### Download Required Embeddings Model
+### Configure Embeddings Provider
 
-The MCP Gateway requires a sentence-transformers model for intelligent tool discovery. Download it to the shared models directory:
+The MCP Gateway supports semantic search using text embeddings. You can choose between **local models** (default) or **cloud-based APIs**.
+
+#### Option A: Local Models (Default - Sentence Transformers)
+
+Use local sentence-transformers models that run on your infrastructure. No API costs, but requires downloading the model (~90MB).
+
+**Step 1: Ensure .env uses sentence-transformers (default)**
+
+```bash
+# In .env (these are the defaults)
+EMBEDDINGS_PROVIDER=sentence-transformers
+EMBEDDINGS_MODEL_NAME=all-MiniLM-L6-v2
+EMBEDDINGS_MODEL_DIMENSIONS=384
+```
+
+**Step 2: Download the model**
 
 ```bash
 # Install Hugging Face CLI
@@ -197,13 +212,104 @@ ls -la ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2/
 # You should see model files like model.safetensors, config.json, etc.
 ```
 
-**Note**: This command automatically creates the necessary directory structure and downloads all required model files (~90MB). If you don't have `hf` command installed, install it first with `pip install huggingface_hub[cli]` or with homebrew `brew install huggingface-cli`.
+#### Option B: Cloud-Based Embeddings (OpenAI, Bedrock, etc.)
+
+Use cloud-based embedding APIs. No local model download required, but requires API credentials.
+
+**For OpenAI:**
+
+```bash
+# In .env
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+EMBEDDINGS_API_KEY=sk-your-openai-api-key
+```
+
+**For Amazon Bedrock (uses IAM credentials):**
+
+```bash
+# In .env
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_MODEL_NAME=bedrock/amazon.titan-embed-text-v2:0
+EMBEDDINGS_MODEL_DIMENSIONS=1024
+EMBEDDINGS_AWS_REGION=us-east-1
+# No API key needed - uses AWS credential chain (IAM roles, env vars, or ~/.aws/credentials)
+```
+
+**For LiteLLM Proxy or any OpenAI-compatible API endpoint:**
+
+```bash
+# In .env
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_API_BASE=https://your-litellm-proxy.com  # or any OpenAI-compatible endpoint
+EMBEDDINGS_API_KEY=your-api-key
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+
+# Model name format is flexible when using a proxy:
+EMBEDDINGS_MODEL_NAME=text-embedding-3-small          # Without prefix (proxy handles routing)
+# OR
+# EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small # With prefix (also works)
+```
+
+For more embedding provider options and detailed configuration, see the [Embeddings Configuration Guide](embeddings.md).
 
 ---
 
 ## 5. Starting Keycloak Services
 
-### Set Keycloak Passwords
+You have two options for setting up Keycloak: **Automated** (recommended) or **Manual**.
+
+### Option A: Automated Deployment (Recommended)
+
+The `deploy-keycloak.sh` script automates all Keycloak setup steps, including starting services, SSL configuration, realm initialization, and credential retrieval.
+
+```bash
+# Set your passwords (must match .env file)
+export KEYCLOAK_ADMIN_PASSWORD='your-admin-password-here-from-env'
+export KEYCLOAK_DB_PASSWORD='your-db-password-here-from-env'
+
+# Run the automated deployment script
+./keycloak/setup/deploy-keycloak.sh --update-env
+
+# With test agents (optional)
+./keycloak/setup/deploy-keycloak.sh --update-env --agents "test-agent,ai-coder"
+
+# For Podman users
+./keycloak/setup/deploy-keycloak.sh --update-env --podman
+```
+
+**What the script does automatically:**
+
+1. Starts Keycloak database and server
+2. Waits for Keycloak readiness (2-3 minutes)
+3. Disables SSL requirements for macOS compatibility
+4. Creates the mcp-gateway realm, clients, groups, and users
+5. Retrieves and saves all client credentials
+6. Creates agent service accounts (if specified)
+7. Updates your `.env` file with client secrets (with `--update-env`)
+
+**Script Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-u, --update-env` | Auto-update .env file with retrieved secrets |
+| `-a, --agents LIST` | Comma-separated agent IDs to create |
+| `-g, --group GROUP` | Default group for agents (default: mcp-servers-unrestricted) |
+| `-p, --podman` | Use Podman instead of Docker |
+| `-s, --skip-services` | Skip starting services (if already running) |
+| `-f, --force` | Force re-initialization |
+| `-v, --verbose` | Enable verbose logging |
+
+After the script completes, skip to [Section 7: Starting All Services](#7-starting-all-services).
+
+---
+
+### Option B: Manual Setup
+
+If you prefer manual control or need to troubleshoot, follow these steps:
+
+#### Set Keycloak Passwords
 
 **Important**: These environment variables will override the values in your `.env` file. Use the SAME passwords you configured in Step 4!
 
@@ -221,7 +327,7 @@ echo "DB Password: $KEYCLOAK_DB_PASSWORD"
 
 **Critical**: These passwords MUST match what you set in the `.env` file in Step 4. If they don't match, Keycloak initialization will fail!
 
-### Start Database and Keycloak
+#### Start Database and Keycloak
 
 **With Docker:**
 
@@ -240,7 +346,7 @@ docker compose logs -f keycloak
 
 **Wait Time**: Allow 2-3 minutes for Keycloak to fully initialize.
 
-### Verify Keycloak is Running
+#### Verify Keycloak is Running
 
 ```bash
 # Test basic connectivity
@@ -252,7 +358,7 @@ docker compose ps keycloak
 # Should show "Up" status (may show "unhealthy" - this is normal for dev mode)
 ```
 
-### Fix macOS SSL Requirement (Critical Step)
+#### Fix macOS SSL Requirement (Critical Step)
 
 **Why this is needed on macOS**: Docker on macOS runs in a virtualized environment, which causes Keycloak to treat localhost requests as external network traffic. This triggers Keycloak's default security policy requiring HTTPS for external connections.
 
@@ -272,7 +378,7 @@ curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080/admin/"
 
 ---
 
-## 5. Keycloak Configuration
+## 5. Keycloak Configuration (Manual Only)
 
 ### Initialize Keycloak Configuration
 

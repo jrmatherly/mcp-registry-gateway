@@ -342,7 +342,7 @@ def create_embeddings_client(
         model_dir: Optional local model directory (sentence-transformers only)
         cache_dir: Optional cache directory (sentence-transformers only)
         api_key: Optional API key (litellm only)
-        api_base: Optional API base URL (litellm only)
+        api_base: Optional API base URL (litellm only, e.g., for LiteLLM proxy)
         aws_region: Optional AWS region (litellm with Bedrock only)
         embedding_dimension: Optional embedding dimension
 
@@ -355,6 +355,10 @@ def create_embeddings_client(
     Note:
         For AWS Bedrock, AWS credentials should be configured via standard AWS
         credential chain (IAM roles, environment variables, ~/.aws/credentials).
+
+        When using a LiteLLM proxy (api_base is set), the model name format is
+        flexible - both 'text-embedding-3-small' and 'openai/text-embedding-3-small'
+        are accepted as the proxy handles model routing.
     """
     provider_lower = provider.lower()
 
@@ -367,17 +371,24 @@ def create_embeddings_client(
         )
 
     elif provider_lower == "litellm":
-        # Validate that model name has provider prefix
-        if "/" not in model_name:
+        # When using a LiteLLM proxy (api_base is set), the model name format is flexible.
+        # Both 'model_name' and 'provider/model_name' formats are accepted as the proxy
+        # handles model routing. Only validate prefix for direct LiteLLM usage.
+        if "/" not in model_name and not api_base:
             raise ValueError(
                 f"Invalid model name for LiteLLM provider: '{model_name}'. "
-                f"LiteLLM requires provider-prefixed model names. "
+                f"LiteLLM requires provider-prefixed model names when not using a proxy. "
                 f"Examples: 'openai/text-embedding-3-small', 'bedrock/amazon.titan-embed-text-v1', "
                 f"'cohere/embed-english-v3.0'. "
-                f"If you want to use '{model_name}', set EMBEDDINGS_PROVIDER=sentence-transformers"
+                f"Alternatively, set EMBEDDINGS_API_BASE if using a LiteLLM proxy, "
+                f"or set EMBEDDINGS_PROVIDER=sentence-transformers for local models."
             )
 
-        logger.info(f"Creating LiteLLMClient with model: {model_name}")
+        if api_base:
+            logger.info(f"Creating LiteLLMClient with model: {model_name} via proxy: {api_base}")
+        else:
+            logger.info(f"Creating LiteLLMClient with model: {model_name}")
+
         return LiteLLMClient(
             model_name=model_name,
             api_key=api_key,

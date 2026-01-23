@@ -77,9 +77,13 @@ source .venv/bin/activate
 
 ---
 
-## Step 2: Download Embeddings Model
+## Step 2: Configure Embeddings Provider
 
-Download the required sentence-transformers model using the [HuggingFace CLI](https://huggingface.co/docs/huggingface_hub/main/en/guides/cli):
+The MCP Gateway supports two embedding options for semantic search:
+
+### Option A: Local Model (Default)
+
+Download the sentence-transformers model (~90MB) for local embeddings:
 
 ```bash
 # Install huggingface_hub if not already installed
@@ -88,6 +92,28 @@ uv pip install -U huggingface_hub
 # Download the model
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 ```
+
+### Option B: Cloud API (OpenAI, Bedrock, etc.)
+
+Skip the model download and configure a cloud provider in `.env`:
+
+```bash
+# OpenAI
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+EMBEDDINGS_API_KEY=sk-your-api-key
+
+# Or Amazon Bedrock (uses IAM credentials, no API key needed)
+# EMBEDDINGS_MODEL_NAME=bedrock/amazon.titan-embed-text-v2:0
+# EMBEDDINGS_MODEL_DIMENSIONS=1024
+
+# Or LiteLLM Proxy (model name prefix optional when using proxy)
+# EMBEDDINGS_API_BASE=https://your-litellm-proxy.com
+# EMBEDDINGS_MODEL_NAME=text-embedding-3-small  # prefix not required with proxy
+```
+
+See [Embeddings Configuration](embeddings.md) for all options.
 
 ---
 

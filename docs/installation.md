@@ -19,12 +19,12 @@ The project uses [UV](https://github.com/astral-sh/uv) for dependency management
 |-------|---------|---------|
 | Core | `uv sync` | Runtime dependencies for running the application |
 | Development | `uv sync --dev` | Testing (pytest), linting (ruff), type checking (mypy) |
-| Documentation | `uv sync --extra docs` | MkDocs and documentation plugins |
-| All | `uv sync --dev --extra docs` | Complete development environment |
+| Documentation | `uv sync --all-extras` | MkDocs and documentation plugins (core + all extras) |
+| All | `uv sync --dev --all-extras` | Complete development environment |
 
 **For deployment**, use `uv sync` (core dependencies only).
 
-**For development/contributing**, use `uv sync --dev --extra docs` to install all tools.
+**For development/contributing**, use `uv sync --dev --all-extras` to install all tools.
 
 ## Quick Start
 
@@ -40,7 +40,8 @@ cp .env.example .env
 uv sync
 source .venv/bin/activate
 
-# 3. Download embeddings model
+# 3. (Optional) Download local embeddings model
+# Skip this step if using cloud APIs (OpenAI, Bedrock) - see docs/embeddings.md
 uv pip install -U huggingface_hub
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 
@@ -138,7 +139,8 @@ podman machine start
 uv sync
 source .venv/bin/activate
 
-# 5. Download embeddings model
+# 5. (Optional) Download local embeddings model
+# Skip this step if using cloud APIs (OpenAI, Bedrock) - see docs/embeddings.md
 uv pip install -U huggingface_hub
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 

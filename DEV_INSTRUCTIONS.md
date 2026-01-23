@@ -32,7 +32,7 @@ After completing the environment setup, install all development dependencies:
 
 ```bash
 # Install ALL dependencies (testing, linting, documentation)
-uv sync --dev --extra docs
+uv sync --dev --all-extras
 
 # Verify installation
 uv run pytest --version    # Testing framework
@@ -47,8 +47,8 @@ uv run mypy --version      # Type checking
 |---------|-----------------|
 | `uv sync` | Core runtime dependencies only |
 | `uv sync --dev` | Core + pytest, ruff, mypy, bandit |
-| `uv sync --extra docs` | Core + mkdocs and plugins |
-| `uv sync --dev --extra docs` | Everything (recommended) |
+| `uv sync --all-extras` | Core + all optional extras (mkdocs, etc.) |
+| `uv sync --dev --all-extras` | Everything (recommended) |
 
 **Makefile shortcuts:**
 

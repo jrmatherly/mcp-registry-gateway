@@ -952,6 +952,37 @@ class TestCreateEmbeddingsClient:
         assert "cohere/embed-english-v3.0" in error_message
         assert "EMBEDDINGS_PROVIDER=sentence-transformers" in error_message
 
+    def test_create_litellm_client_allows_unprefixed_with_proxy(self):
+        """Test that LiteLLM allows non-prefixed model names when using a proxy."""
+        # Arrange & Act
+        client = create_embeddings_client(
+            provider="litellm",
+            model_name="text-embedding-3-small",  # No "openai/" prefix
+            api_base="https://my-litellm-proxy.com",  # Proxy handles routing
+            api_key="test-key",
+        )
+
+        # Assert
+        assert isinstance(client, LiteLLMClient)
+        assert client.model_name == "text-embedding-3-small"
+        assert client.api_base == "https://my-litellm-proxy.com"
+        assert client.api_key == "test-key"
+
+    def test_create_litellm_client_allows_prefixed_with_proxy(self):
+        """Test that LiteLLM also allows prefixed model names when using a proxy."""
+        # Arrange & Act
+        client = create_embeddings_client(
+            provider="litellm",
+            model_name="openai/text-embedding-3-small",  # With prefix
+            api_base="https://my-litellm-proxy.com",  # Proxy handles routing
+            api_key="test-key",
+        )
+
+        # Assert
+        assert isinstance(client, LiteLLMClient)
+        assert client.model_name == "openai/text-embedding-3-small"
+        assert client.api_base == "https://my-litellm-proxy.com"
+
     def test_create_unsupported_provider(self):
         """Test error with unsupported provider."""
         # Arrange & Act & Assert

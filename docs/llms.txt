@@ -1483,7 +1483,8 @@ git clone https://github.com/agentic-community/mcp-gateway-registry.git
 cd mcp-gateway-registry
 cp .env.example .env
 
-# Step 2: Download embeddings model
+# Step 2: (Optional) Download local embeddings model
+# Skip if using cloud APIs (OpenAI, Bedrock) - configure EMBEDDINGS_PROVIDER=litellm in .env instead
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 
 # Step 3: Configure environment

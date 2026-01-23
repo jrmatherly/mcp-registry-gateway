@@ -366,14 +366,14 @@ The project uses multiple dependency groups for different purposes:
 |-------|---------|-------------|
 | Core | `uv sync` | Running the application |
 | Development | `uv sync --dev` | Running tests, linting, type checking |
-| Documentation | `uv sync --extra docs` | Building MkDocs documentation |
-| All | `uv sync --dev --extra docs` | Full development environment |
+| Documentation | `uv sync --all-extras` | Building MkDocs documentation (core + all extras) |
+| All | `uv sync --dev --all-extras` | Full development environment |
 
 **For contributors working on the codebase (recommended):**
 
 ```bash
 # Install all development and documentation dependencies
-uv sync --dev --extra docs
+uv sync --dev --all-extras
 
 # Verify installation
 uv run pytest --version    # Should show pytest 9.x.x
@@ -456,9 +456,13 @@ SESSION_COOKIE_DOMAIN=  # Empty = cookie scoped to exact host only
 - **SESSION_COOKIE_SECURE**: For local development (HTTP), this MUST be `false`. Setting it to `true` will cause login to fail because cookies with `secure=true` are only sent over HTTPS connections.
 - For production deployments with HTTPS, change `SESSION_COOKIE_SECURE=true` before starting services.
 
-### Download Required Embeddings Model
+### Configure Embeddings Provider
 
-The MCP Gateway requires a sentence-transformers model for intelligent tool discovery. Download it to the shared models directory:
+The MCP Gateway supports semantic search using text embeddings. Choose between **local models** (default) or **cloud-based APIs**.
+
+#### Option A: Local Models (Default)
+
+For local sentence-transformers, download the model (~90MB):
 
 ```bash
 # Download the embeddings model (this may take a few minutes)
@@ -466,10 +470,29 @@ hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gatew
 
 # Verify the model was downloaded
 ls -la ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2/
-# You should see model files like model.safetensors, config.json, etc.
 ```
 
-**Note**: This command automatically creates the necessary directory structure and downloads all required model files (~90MB).
+#### Option B: Cloud-Based Embeddings
+
+For cloud APIs (OpenAI, Bedrock, etc.), no model download is needed. Configure in `.env`:
+
+```bash
+# OpenAI example
+EMBEDDINGS_PROVIDER=litellm
+EMBEDDINGS_MODEL_NAME=openai/text-embedding-3-small
+EMBEDDINGS_MODEL_DIMENSIONS=1536
+EMBEDDINGS_API_KEY=sk-your-api-key
+
+# Or Amazon Bedrock (uses IAM credentials)
+# EMBEDDINGS_MODEL_NAME=bedrock/amazon.titan-embed-text-v2:0
+# EMBEDDINGS_MODEL_DIMENSIONS=1024
+
+# Or LiteLLM Proxy (model name prefix optional when using proxy)
+# EMBEDDINGS_API_BASE=https://your-litellm-proxy.com
+# EMBEDDINGS_MODEL_NAME=text-embedding-3-small  # prefix not required with proxy
+```
+
+See [Embeddings Configuration](embeddings.md) for all provider options.
 
 ---
 
