@@ -106,10 +106,12 @@ resource "aws_ecs_cluster_capacity_providers" "keycloak" {
   }
 }
 
-# CloudWatch Log Group
+# CloudWatch Log Group (encrypted with CMK)
+# checkov:skip=CKV_AWS_338:Short retention acceptable for development; increase for production
 resource "aws_cloudwatch_log_group" "keycloak" {
   name              = "/ecs/keycloak"
   retention_in_days = 7
+  kms_key_id        = aws_kms_key.keycloak_logs.arn
 
   tags = local.common_tags
 }
@@ -140,7 +142,7 @@ resource "aws_iam_role_policy_attachment" "keycloak_task_exec_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Policy to read from SSM Parameter Store
+# Policy to read from SSM Parameter Store (scoped to specific KMS keys)
 resource "aws_iam_role_policy" "keycloak_task_exec_ssm_policy" {
   name = "keycloak-task-exec-ssm-policy"
   role = aws_iam_role.keycloak_task_exec_role.id
@@ -167,7 +169,10 @@ resource "aws_iam_role_policy" "keycloak_task_exec_ssm_policy" {
         Action = [
           "kms:Decrypt"
         ]
-        Resource = "*"
+        Resource = [
+          aws_kms_key.keycloak_ssm.arn,
+          aws_kms_key.rds.arn
+        ]
       }
     ]
   })
@@ -214,6 +219,9 @@ resource "aws_iam_role" "keycloak_task_role" {
 }
 
 # Policy for SSM Session Manager
+# checkov:skip=CKV_AWS_355:SSM Messages API requires Resource="*" per AWS documentation
+# checkov:skip=CKV_AWS_290:SSM Messages actions do not support resource-level permissions
+# tfsec:ignore:aws-iam-no-policy-wildcards:SSM Messages requires wildcard - AWS API limitation
 resource "aws_iam_role_policy" "keycloak_task_ssm_policy" {
   name = "keycloak-task-ssm-policy"
   role = aws_iam_role.keycloak_task_role.id
@@ -367,17 +375,19 @@ resource "aws_appautoscaling_policy" "keycloak_memory" {
   }
 }
 
-# SSM Parameters for Keycloak Credentials
+# SSM Parameters for Keycloak Credentials (encrypted with CMK)
 resource "aws_ssm_parameter" "keycloak_admin" {
-  name  = "/keycloak/admin"
-  type  = "SecureString"
-  value = var.keycloak_admin
-  tags  = local.common_tags
+  name   = "/keycloak/admin"
+  type   = "SecureString"
+  key_id = aws_kms_key.keycloak_ssm.arn
+  value  = var.keycloak_admin
+  tags   = local.common_tags
 }
 
 resource "aws_ssm_parameter" "keycloak_admin_password" {
-  name  = "/keycloak/admin_password"
-  type  = "SecureString"
-  value = var.keycloak_admin_password
-  tags  = local.common_tags
+  name   = "/keycloak/admin_password"
+  type   = "SecureString"
+  key_id = aws_kms_key.keycloak_ssm.arn
+  value  = var.keycloak_admin_password
+  tags   = local.common_tags
 }

@@ -2,6 +2,10 @@
 # Keycloak Application Load Balancer
 #
 
+# checkov:skip=CKV_AWS_150:Deletion protection disabled for development; enable for production
+# checkov:skip=CKV2_AWS_28:WAF protection to be added in production hardening phase
+# checkov:skip=CKV_AWS_91:Access logging to be configured with S3 bucket in production
+# tfsec:ignore:aws-elb-alb-not-public:Public ALB required for internet-facing Keycloak service
 resource "aws_lb" "keycloak" {
   name               = "keycloak-alb"
   internal           = false
@@ -14,7 +18,7 @@ resource "aws_lb" "keycloak" {
     [aws_security_group.keycloak_lb.id],
     local.cloudfront_prefix_list_name != "" ? [aws_security_group.keycloak_lb_cloudfront[0].id] : []
   )
-  subnets         = module.vpc.public_subnets
+  subnets = module.vpc.public_subnets
 
   tags = merge(
     local.common_tags,

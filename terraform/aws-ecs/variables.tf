@@ -260,7 +260,7 @@ variable "documentdb_admin_password" {
   description = "DocumentDB Elastic Cluster admin password (minimum 8 characters). Only required when storage_backend is 'documentdb'."
   type        = string
   sensitive   = true
-  default     = ""  # Not required when using file storage backend
+  default     = "" # Not required when using file storage backend
 }
 
 variable "documentdb_shard_capacity" {
@@ -357,7 +357,7 @@ variable "enable_cloudfront" {
 variable "cloudfront_prefix_list_name" {
   description = "Name of the managed prefix list for ALB ingress (e.g., CloudFront origin-facing IPs). Leave empty to disable prefix list rule. Default is AWS CloudFront prefix list."
   type        = string
-  default     = ""  # Set to "com.amazonaws.global.cloudfront.origin-facing" when enable_cloudfront=true
+  default     = "" # Set to "com.amazonaws.global.cloudfront.origin-facing" when enable_cloudfront=true
 }
 
 variable "enable_route53_dns" {

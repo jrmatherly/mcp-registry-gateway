@@ -17,6 +17,8 @@ resource "aws_security_group" "keycloak_ecs" {
 }
 
 # ECS Egress to Internet (HTTPS)
+# checkov:skip=CKV_AWS_382:ECS tasks require internet egress for external API calls and image registry access
+# tfsec:ignore:aws-ec2-no-public-egress-sgr:ECS tasks need HTTPS egress for Keycloak federation and updates
 resource "aws_security_group_rule" "keycloak_ecs_egress_internet" {
   description       = "Egress from Keycloak ECS task to internet (HTTPS)"
   type              = "egress"
@@ -28,6 +30,7 @@ resource "aws_security_group_rule" "keycloak_ecs_egress_internet" {
 }
 
 # ECS Egress to DNS
+# tfsec:ignore:aws-ec2-no-public-egress-sgr:DNS resolution required for external hostname lookups
 resource "aws_security_group_rule" "keycloak_ecs_egress_dns" {
   description       = "Egress from Keycloak ECS task for DNS"
   type              = "egress"
@@ -87,6 +90,8 @@ resource "aws_security_group" "keycloak_lb" {
 }
 
 # Load Balancer Ingress from allowed CIDR blocks (HTTP)
+# checkov:skip=CKV_AWS_260:HTTP ingress controlled by var.ingress_cidr_blocks; redirects to HTTPS
+# tfsec:ignore:aws-ec2-no-public-ingress-sgr:Ingress restricted to configured CIDR blocks, not 0.0.0.0/0
 resource "aws_security_group_rule" "keycloak_lb_ingress_http" {
   description       = "Ingress from allowed CIDR blocks to load balancer (HTTP)"
   type              = "ingress"
@@ -144,6 +149,7 @@ resource "aws_security_group_rule" "keycloak_lb_cloudfront_egress" {
 }
 
 # Load Balancer Ingress from allowed CIDR blocks (HTTPS)
+# tfsec:ignore:aws-ec2-no-public-ingress-sgr:Ingress restricted to configured CIDR blocks, not 0.0.0.0/0
 resource "aws_security_group_rule" "keycloak_lb_ingress_https" {
   description       = "Ingress from allowed CIDR blocks to load balancer (HTTPS)"
   type              = "ingress"

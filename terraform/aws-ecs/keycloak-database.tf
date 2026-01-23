@@ -170,10 +170,13 @@ resource "aws_iam_role_policy" "rds_proxy_policy" {
 }
 
 # Secrets Manager Secret for Database Credentials
+# Note: Secrets rotation requires Lambda functions and will be added in production hardening
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "keycloak_db_secret" {
   name                    = "keycloak/database"
   description             = "Keycloak database credentials"
   recovery_window_in_days = 7
+  kms_key_id              = aws_kms_key.rds.arn
 
   tags = local.common_tags
 }
@@ -186,24 +189,27 @@ resource "aws_secretsmanager_secret_version" "keycloak_db_secret" {
   })
 }
 
-# SSM Parameters for Database Connection
+# SSM Parameters for Database Connection (encrypted with CMK)
 resource "aws_ssm_parameter" "keycloak_database_url" {
-  name  = "/keycloak/database/url"
-  type  = "SecureString"
-  value = "jdbc:mysql://${aws_rds_cluster.keycloak.endpoint}:3306/keycloak"
-  tags  = local.common_tags
+  name   = "/keycloak/database/url"
+  type   = "SecureString"
+  key_id = aws_kms_key.rds.arn
+  value  = "jdbc:mysql://${aws_rds_cluster.keycloak.endpoint}:3306/keycloak"
+  tags   = local.common_tags
 }
 
 resource "aws_ssm_parameter" "keycloak_database_username" {
-  name  = "/keycloak/database/username"
-  type  = "SecureString"
-  value = var.keycloak_database_username
-  tags  = local.common_tags
+  name   = "/keycloak/database/username"
+  type   = "SecureString"
+  key_id = aws_kms_key.rds.arn
+  value  = var.keycloak_database_username
+  tags   = local.common_tags
 }
 
 resource "aws_ssm_parameter" "keycloak_database_password" {
-  name  = "/keycloak/database/password"
-  type  = "SecureString"
-  value = var.keycloak_database_password
-  tags  = local.common_tags
+  name   = "/keycloak/database/password"
+  type   = "SecureString"
+  key_id = aws_kms_key.rds.arn
+  value  = var.keycloak_database_password
+  tags   = local.common_tags
 }

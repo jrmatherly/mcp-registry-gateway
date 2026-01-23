@@ -1,6 +1,6 @@
 # IAM resources for MCP Gateway Registry ECS services
 
-# IAM policy for ECS tasks to access Secrets Manager
+# IAM policy for ECS tasks to access Secrets Manager (with KMS decrypt scoped to specific key)
 resource "aws_iam_policy" "ecs_secrets_access" {
   name_prefix = "${local.name_prefix}-ecs-secrets-"
 
@@ -24,6 +24,15 @@ resource "aws_iam_policy" "ecs_secrets_access" {
           var.documentdb_credentials_secret_arn != "" ? [var.documentdb_credentials_secret_arn] : [],
           var.entra_enabled ? [aws_secretsmanager_secret.entra_client_secret[0].arn] : []
         )
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt"
+        ]
+        Resource = [
+          aws_kms_key.secrets.arn
+        ]
       }
     ]
   })
@@ -32,6 +41,9 @@ resource "aws_iam_policy" "ecs_secrets_access" {
 }
 
 # IAM policy for ECS Exec - task execution role
+# checkov:skip=CKV_AWS_355:SSM Messages API requires Resource="*" per AWS documentation
+# checkov:skip=CKV_AWS_290:SSM Messages actions do not support resource-level permissions
+# tfsec:ignore:aws-iam-no-policy-wildcards:SSM Messages requires wildcard - AWS API limitation
 resource "aws_iam_policy" "ecs_exec_task_execution" {
   name_prefix = "${local.name_prefix}-ecs-exec-task-exec-"
 
@@ -65,6 +77,9 @@ resource "aws_iam_policy" "ecs_exec_task_execution" {
 }
 
 # IAM policy for ECS Exec - task role
+# checkov:skip=CKV_AWS_355:SSM Messages API requires Resource="*" per AWS documentation
+# checkov:skip=CKV_AWS_290:SSM Messages actions do not support resource-level permissions
+# tfsec:ignore:aws-iam-no-policy-wildcards:SSM Messages requires wildcard - AWS API limitation
 resource "aws_iam_policy" "ecs_exec_task" {
   name_prefix = "${local.name_prefix}-ecs-exec-task-"
 
