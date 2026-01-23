@@ -1661,7 +1661,9 @@ def substitute_env_vars(config: Any) -> Any:
                 config = config.replace("${COGNITO_DOMAIN:-auto}", cognito_domain)
 
             template = Template(config)
-            result = template.substitute(os.environ)
+            # Use safe_substitute to handle optional env vars (like SESSION_COOKIE_DOMAIN)
+            # without raising KeyError - unresolved placeholders remain as-is
+            result = template.safe_substitute(os.environ)
 
             # Convert string booleans to actual booleans
             if result.lower() == "true":
@@ -1670,8 +1672,8 @@ def substitute_env_vars(config: Any) -> Any:
                 return False
 
             return result
-        except KeyError as e:
-            logger.warning(f"Environment variable not found for template {config}: {e}")
+        except Exception as e:
+            logger.warning(f"Error processing template {config}: {e}")
             return config
     else:
         return config
