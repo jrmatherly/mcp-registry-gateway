@@ -7,10 +7,7 @@
 # - CloudWatch Logs
 # - ECR repositories
 #
-
-# Data source for current AWS account and region
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
+# Note: Data sources (aws_caller_identity, aws_region) are defined in data.tf
 
 #
 # KMS Key for Secrets Manager
