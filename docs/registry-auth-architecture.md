@@ -7,7 +7,7 @@ This document provides comprehensive technical documentation for the MCP Gateway
 1. [Overview](#overview)
 2. [Authentication Architecture](#authentication-architecture)
 3. [UI Authentication System](#ui-authentication-system)
-4. [Authorization & Permissions](#authorization--permissions)
+4. [Authorization & Permissions](#authorization-permissions)
 5. [Technical Implementation](#technical-implementation)
 6. [Configuration](#configuration)
 7. [Troubleshooting](#troubleshooting)

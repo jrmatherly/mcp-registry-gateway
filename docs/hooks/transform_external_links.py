@@ -43,6 +43,8 @@ EXTERNAL_DIRS = (
 ROOT_FILES = (
     "README.md",
     "CLAUDE.md",
+    "DEV_INSTRUCTIONS.md",
+    "TEAM.md",
     ".env.template",
     ".env.example",
     "pyproject.toml",

@@ -47,7 +47,7 @@ uv run ruff check --fix . && uv run ruff format .
 | `uv sync --extra docs` | Core + MkDocs documentation |
 | `uv sync --dev --extra docs` | Everything (recommended for contributors) |
 
-For detailed setup instructions, see [DEV_INSTRUCTIONS.md](DEV_INSTRUCTIONS.md).
+For detailed setup instructions, see [DEV_INSTRUCTIONS.md](../DEV_INSTRUCTIONS.md).
 
 ## Reporting Bugs/Feature Requests
 

@@ -6,12 +6,12 @@ This document provides comprehensive guidance for implementing Keycloak authenti
 
 ## Table of Contents
 
-1. [Architecture & Design](#architecture--design)
+1. [Architecture & Design](#architecture-design)
 2. [Environment Configuration](#environment-configuration)
-3. [Setup & Installation](#setup--installation)
+3. [Setup & Installation](#setup-installation)
 4. [Operational Procedures](#operational-procedures)
 5. [Agent Management](#agent-management)
-6. [Monitoring & Troubleshooting](#monitoring--troubleshooting)
+6. [Monitoring & Troubleshooting](#monitoring-troubleshooting)
 7. [Security Considerations](#security-considerations)
 8. [Cleanup Procedures](#cleanup-procedures)
 

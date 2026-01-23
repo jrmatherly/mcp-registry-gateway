@@ -9,11 +9,11 @@ This document provides a comprehensive overview of all 49 API endpoints availabl
 3. [A2A Agent Management APIs](#a2a-agent-management-apis)
 4. [Anthropic MCP Registry API v0](#anthropic-mcp-registry-api-v0)
 5. [Internal Server Management APIs](#internal-server-management-apis)
-6. [Authentication & Login APIs](#authentication--login-apis)
+6. [Authentication & Login APIs](#authentication-login-apis)
 7. [Health Monitoring APIs](#health-monitoring-apis)
-8. [Discovery & Well-Known Endpoints](#discovery--well-known-endpoints)
+8. [Discovery & Well-Known Endpoints](#discovery-well-known-endpoints)
 9. [Utility Endpoints](#utility-endpoints)
-10. [Response Codes & Error Handling](#response-codes--error-handling)
+10. [Response Codes & Error Handling](#response-codes-error-handling)
 11. [OpenAPI Specifications](#openapi-specifications)
 
 ---

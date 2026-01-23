@@ -8,8 +8,8 @@
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Local Development - MongoDB CE](#local-development---mongodb-ce)
-3. [Production - AWS DocumentDB via ECS](#production---aws-documentdb-via-ecs)
+2. [Local Development - MongoDB CE](#local-development-mongodb-ce)
+3. [Production - AWS DocumentDB via ECS](#production-aws-documentdb-via-ecs)
 4. [Common Operations](#common-operations)
 5. [Troubleshooting](#troubleshooting)
 

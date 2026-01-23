@@ -7,7 +7,7 @@ This guide provides comprehensive deployment options for the MCP Gateway & Regis
 | Method | Best For | Guide |
 |--------|----------|-------|
 | **Kubernetes (Helm)** | Production deployments, on-premise clusters, multi-cloud | [Kubernetes Deployment](#kubernetes-deployment-recommended) |
-| **Docker Compose** | Local development, testing, evaluation | [Quick Start](#quick-start-docker compose) |
+| **Docker Compose** | Local development, testing, evaluation | [Quick Start](#quick-start-docker-compose) |
 | **AWS ECS (Terraform)** | AWS-native deployments with Fargate | [Terraform ECS Guide](https://github.com/jrmatherly/mcp-registry-gateway/tree/main/terraform/aws-ecs) |
 | **Single VM/EC2** | Simple deployments, proof-of-concept | [VM/EC2 Setup](#vm-deployment-aws-ec2-or-on-premise) |
 
@@ -755,7 +755,7 @@ You should see the Keycloak login page. You can log in with:
 
 ### Build and Start All Services
 
-**Important**: After starting services, you MUST complete [Section 7: Storage Backend Setup](#7-storage-backend-setup-optional) before using JWT token generation from the UI. The MongoDB initialization loads required scopes that enable JWT token creation.
+**Important**: After starting services, you MUST complete [Section 7: Storage Backend Setup](#7-storage-backend-setup) before using JWT token generation from the UI. The MongoDB initialization loads required scopes that enable JWT token creation.
 
 ```bash
 # Return to project directory
