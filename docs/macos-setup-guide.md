@@ -559,16 +559,18 @@ This will create access token files (both `.json` and `.env` formats) for all Ke
 
 ### Verify Keycloak is Running
 
-Open a web browser and navigate to:
+Open a web browser and navigate to the **Keycloak Admin Console**:
 
 ```
 http://localhost:8080
 ```
 
-You should see the Keycloak login page. You can log in with:
+You should see the Keycloak Admin Console login page. You can log in with:
 
 - Username: `admin`
-- Password: The password you set in KEYCLOAK_ADMIN_PASSWORD
+- Password: The password you set in `KEYCLOAK_ADMIN_PASSWORD`
+
+> **Note**: This is the Keycloak system administrator login, not the MCP Gateway web application. See [Section 8: Verification and Testing](#8-verification-and-testing) for MCP Gateway application credentials.
 
 ---
 
@@ -656,9 +658,27 @@ docker compose logs -f registry
 
 2. **Login Page**: You should see the MCP Gateway Registry login page
 
-3. **Login with Keycloak**: Click "Login with Keycloak" and use:
-   - Username: `admin`
-   - Password: The password you set in KEYCLOAK_ADMIN_PASSWORD
+3. **Login with Keycloak**: Click "Login with Keycloak" and use one of the **MCP Gateway application users**:
+
+   | Username | Default Password | Role |
+   |----------|------------------|------|
+   | `admin` | `changeme` | Administrator with full access |
+   | `testuser` | `testpass` | Standard user for testing |
+
+   > **Important**: These are MCP Gateway application users (in the `mcp-gateway` realm), **not** the Keycloak system administrator. The `KEYCLOAK_ADMIN_PASSWORD` from your `.env` file is for accessing the Keycloak Admin Console (see [Test Admin Console](#test-admin-console) below), not for logging into the MCP Gateway web application.
+
+   **To use your `KEYCLOAK_ADMIN_PASSWORD` for the MCP Gateway admin user**, you can set the `INITIAL_ADMIN_PASSWORD` environment variable before running `init-keycloak.sh`, or reset the password after setup:
+
+   ```bash
+   # Reset admin user password to match KEYCLOAK_ADMIN_PASSWORD
+   docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh \
+     config credentials --server http://localhost:8080 --realm master \
+     --user admin --password "${KEYCLOAK_ADMIN_PASSWORD}"
+
+   docker exec mcp-registry-gateway-keycloak-1 /opt/keycloak/bin/kcadm.sh \
+     set-password -r mcp-gateway --username admin \
+     --new-password "${KEYCLOAK_ADMIN_PASSWORD}"
+   ```
 
 ### Test API Access
 
@@ -698,18 +718,22 @@ uv run cli/mcp_client.py --url http://localhost/currenttime/mcp call --tool curr
 
 ### Test Admin Console
 
+The Keycloak Admin Console is for managing realms, users, clients, and authentication settings.
+
 ```bash
 # Access Keycloak admin console
-open http://localhost:18080/admin/
+open http://localhost:8080/admin/
 
-# Login with:
+# Login with the KEYCLOAK SYSTEM ADMINISTRATOR credentials:
 # Username: admin
-# Password: The password you set in KEYCLOAK_ADMIN_PASSWORD
+# Password: The password you set in KEYCLOAK_ADMIN_PASSWORD (from .env file)
 
 # You should see the Keycloak admin interface
 # Navigate to: mcp-gateway realm > Clients
 # Verify: mcp-gateway-web and mcp-gateway-m2m clients exist
 ```
+
+> **Note**: The Keycloak Admin Console uses different credentials than the MCP Gateway web application. See the table in [Test Web Interface](#test-web-interface) for MCP Gateway login credentials.
 
 ---
 
@@ -1234,6 +1258,16 @@ You now have a fully functional MCP Gateway & Registry running on macOS! The sys
 - **Keycloak Admin**: http://localhost:18080/admin
 - **API Gateway**: http://localhost:8080/mcpgw/mcp
 - **Individual Services**: http://localhost:8080/[service-name]/mcp
+
+### Default Credentials
+
+| Service | Username | Password | Notes |
+|---------|----------|----------|-------|
+| **MCP Gateway Web App** | `admin` | `changeme` | Application admin user |
+| **MCP Gateway Web App** | `testuser` | `testpass` | Test user for development |
+| **Keycloak Admin Console** | `admin` | `KEYCLOAK_ADMIN_PASSWORD` | System administrator (from `.env`) |
+
+> **Important**: The MCP Gateway web application and Keycloak Admin Console use different credential sets. See [Verification and Testing](#8-verification-and-testing) for details.
 
 ### Key Files
 

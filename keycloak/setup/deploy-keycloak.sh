@@ -401,11 +401,10 @@ check_realm_exists() {
 run_init_keycloak() {
     log_info "Running Keycloak initialization..."
 
-    # Check if realm already exists
-    if check_realm_exists && [[ "$FORCE_INIT" != true ]]; then
-        log_warn "mcp-gateway realm already exists"
-        echo "  Use --force to re-initialize"
-        return 0
+    # Check if realm already exists - inform user but continue
+    # (init-keycloak.sh handles existing resources gracefully and will update passwords)
+    if check_realm_exists; then
+        log_info "mcp-gateway realm already exists - will update user passwords from .env"
     fi
 
     # Make script executable and run
@@ -603,7 +602,26 @@ print_summary() {
     echo "  2. Access web UI:       http://localhost"
     echo "  3. Login with Keycloak: Click 'Login with Keycloak'"
     echo ""
-    echo -e "${YELLOW}Important: Change default passwords before production use!${NC}"
+    echo "Login Credentials:"
+    echo "  MCP Gateway Web App (http://localhost):"
+    if [[ -n "${INITIAL_ADMIN_PASSWORD:-}" ]]; then
+        echo "    - admin / <INITIAL_ADMIN_PASSWORD from .env>"
+    else
+        echo "    - admin / changeme (DEFAULT)"
+    fi
+    if [[ -n "${INITIAL_USER_PASSWORD:-}" ]]; then
+        echo "    - testuser / <INITIAL_USER_PASSWORD from .env>"
+    else
+        echo "    - testuser / testpass (DEFAULT)"
+    fi
+    echo ""
+    echo "  Keycloak Admin Console (http://localhost:8080/admin):"
+    echo "    - admin / <KEYCLOAK_ADMIN_PASSWORD from .env>"
+    echo ""
+    if [[ -z "${INITIAL_ADMIN_PASSWORD:-}" ]] || [[ -z "${INITIAL_USER_PASSWORD:-}" ]]; then
+        echo -e "${YELLOW}WARNING: Using default passwords! Set INITIAL_ADMIN_PASSWORD and${NC}"
+        echo -e "${YELLOW}         INITIAL_USER_PASSWORD in .env for production use.${NC}"
+    fi
     echo "============================================================"
 }
 

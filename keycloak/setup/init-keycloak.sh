@@ -382,6 +382,52 @@ EOF
     fi
 }
 
+# Update user password using Keycloak Admin API
+# Arguments:
+#   $1 - Admin token
+#   $2 - Username
+#   $3 - New password
+update_user_password() {
+    local token=$1
+    local username=$2
+    local new_password=$3
+
+    # Get user ID
+    local user_id
+    user_id=$(get_user_id "$token" "$username" "$REALM" "$KEYCLOAK_URL")
+
+    if [[ -z "$user_id" ]]; then
+        log_debug "User $username not found, skipping password update"
+        return 1
+    fi
+
+    # Reset password
+    local password_json
+    password_json=$(cat << EOF
+{
+    "type": "password",
+    "value": "${new_password}",
+    "temporary": false
+}
+EOF
+)
+
+    local response
+    response=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X PUT "${KEYCLOAK_URL}/admin/realms/${REALM}/users/${user_id}/reset-password" \
+        -H "Authorization: Bearer ${token}" \
+        -H "Content-Type: application/json" \
+        -d "$password_json")
+
+    if [[ "$response" == "204" ]]; then
+        log_debug "Password updated for user: $username"
+        return 0
+    else
+        log_debug "Failed to update password for $username. HTTP status: $response"
+        return 1
+    fi
+}
+
 # Create test users
 create_users() {
     local token=$1
@@ -391,6 +437,10 @@ create_users() {
     # Define usernames for consistency
     local admin_username="admin"
     local test_username="testuser"
+
+    # Resolve actual passwords (for logging and consistency)
+    local admin_password="${INITIAL_ADMIN_PASSWORD:-changeme}"
+    local user_password="${INITIAL_USER_PASSWORD:-testpass}"
 
     # Create admin user
     local admin_user_json
@@ -405,7 +455,7 @@ create_users() {
     "credentials": [
         {
             "type": "password",
-            "value": "${INITIAL_ADMIN_PASSWORD:-changeme}",
+            "value": "${admin_password}",
             "temporary": false
         }
     ]
@@ -413,10 +463,21 @@ create_users() {
 EOF
 )
 
-    curl -s -X POST "${KEYCLOAK_URL}/admin/realms/${REALM}/users" \
+    local admin_response
+    admin_response=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST "${KEYCLOAK_URL}/admin/realms/${REALM}/users" \
         -H "Authorization: Bearer ${token}" \
         -H "Content-Type: application/json" \
-        -d "$admin_user_json" > /dev/null
+        -d "$admin_user_json")
+
+    if [[ "$admin_response" == "201" ]]; then
+        log_success "Created user: $admin_username"
+    elif [[ "$admin_response" == "409" ]]; then
+        log_info "User $admin_username already exists, updating password..."
+        update_user_password "$token" "$admin_username" "$admin_password"
+    else
+        log_warn "Failed to create user $admin_username. HTTP status: $admin_response"
+    fi
 
     # Create test user
     local test_user_json
@@ -431,7 +492,7 @@ EOF
     "credentials": [
         {
             "type": "password",
-            "value": "${INITIAL_USER_PASSWORD:-testpass}",
+            "value": "${user_password}",
             "temporary": false
         }
     ]
@@ -439,10 +500,21 @@ EOF
 EOF
 )
 
-    curl -s -X POST "${KEYCLOAK_URL}/admin/realms/${REALM}/users" \
+    local test_response
+    test_response=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST "${KEYCLOAK_URL}/admin/realms/${REALM}/users" \
         -H "Authorization: Bearer ${token}" \
         -H "Content-Type: application/json" \
-        -d "$test_user_json" > /dev/null
+        -d "$test_user_json")
+
+    if [[ "$test_response" == "201" ]]; then
+        log_success "Created user: $test_username"
+    elif [[ "$test_response" == "409" ]]; then
+        log_info "User $test_username already exists, updating password..."
+        update_user_password "$token" "$test_username" "$user_password"
+    else
+        log_warn "Failed to create user $test_username. HTTP status: $test_response"
+    fi
 
     log_info "Assigning users to groups..."
 
@@ -691,11 +763,29 @@ main() {
     echo "Admin console: ${KEYCLOAK_URL}/admin"
     echo "Realm: ${REALM}"
     echo ""
-    echo "Default users created:"
-    echo "  - admin/changeme (admin access)"
-    echo "  - testuser/testpass (user access)"
+
+    # Resolve actual passwords for display
+    local display_admin_pw="${INITIAL_ADMIN_PASSWORD:-changeme}"
+    local display_user_pw="${INITIAL_USER_PASSWORD:-testpass}"
+
+    echo "MCP Gateway application users (for http://localhost login):"
+    if [[ -n "${INITIAL_ADMIN_PASSWORD:-}" ]]; then
+        echo "  - admin/<INITIAL_ADMIN_PASSWORD from .env> (admin access)"
+    else
+        echo "  - admin/changeme (admin access) [DEFAULT - change in production!]"
+    fi
+    if [[ -n "${INITIAL_USER_PASSWORD:-}" ]]; then
+        echo "  - testuser/<INITIAL_USER_PASSWORD from .env> (user access)"
+    else
+        echo "  - testuser/testpass (user access) [DEFAULT - change in production!]"
+    fi
     echo ""
-    log_warn "Remember to change the default passwords!"
+    echo "NOTE: These are MCP Gateway app users, NOT the Keycloak admin."
+    echo "      Keycloak Admin Console (${KEYCLOAK_URL}/admin) uses KEYCLOAK_ADMIN_PASSWORD."
+    echo ""
+    if [[ -z "${INITIAL_ADMIN_PASSWORD:-}" ]] || [[ -z "${INITIAL_USER_PASSWORD:-}" ]]; then
+        log_warn "Using default passwords! Set INITIAL_ADMIN_PASSWORD and INITIAL_USER_PASSWORD in .env"
+    fi
 }
 
 # Run main function
