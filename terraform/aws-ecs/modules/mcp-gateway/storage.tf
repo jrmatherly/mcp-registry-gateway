@@ -1,6 +1,6 @@
 # EFS storage resources for MCP Gateway Registry
-# checkov:skip=CKV_TF_1:Using semantic versioning (~> 2.0) for controlled updates; exact pinning adds maintenance overhead
 
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 2.0) for controlled updates; exact pinning adds maintenance overhead
 module "efs" {
   source  = "terraform-aws-modules/efs/aws"
   version = "~> 2.0"

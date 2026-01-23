@@ -1,7 +1,7 @@
 # CloudWatch Monitoring and Alarms for MCP Gateway
-# checkov:skip=CKV_TF_1:Using semantic versioning (~> 7.0) for controlled updates; exact pinning adds maintenance overhead
 
 # SNS Topic for Alarm Notifications
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 7.0) for controlled updates; exact pinning adds maintenance overhead
 module "sns_alarms" {
   source  = "terraform-aws-modules/sns/aws"
   version = "~> 7.0"

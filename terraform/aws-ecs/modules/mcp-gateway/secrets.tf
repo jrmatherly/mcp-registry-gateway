@@ -3,7 +3,6 @@
 # All secrets are encrypted with a Customer Managed Key (CMK) defined in kms.tf
 #
 # Note: Secrets rotation requires Lambda functions and will be added in production hardening
-# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 
 # Random passwords for application secrets
 
@@ -23,6 +22,7 @@ resource "random_password" "admin_password" {
 
 # Core application secrets
 
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "secret_key" {
   name_prefix = "${local.name_prefix}-secret-key-"
   description = "Secret key for MCP Gateway Registry"
@@ -35,6 +35,7 @@ resource "aws_secretsmanager_secret_version" "secret_key" {
   secret_string = random_password.secret_key.result
 }
 
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "admin_password" {
   name_prefix = "${local.name_prefix}-admin-password-"
   description = "Admin password for MCP Gateway Registry"
@@ -48,6 +49,7 @@ resource "aws_secretsmanager_secret_version" "admin_password" {
 }
 
 # Keycloak client secrets (created with placeholder, updated by init-keycloak.sh)
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "keycloak_client_secret" {
   name        = "mcp-gateway-keycloak-client-secret"
   description = "Keycloak web client secret (updated by init-keycloak.sh after deployment)"
@@ -66,6 +68,7 @@ resource "aws_secretsmanager_secret_version" "keycloak_client_secret" {
   }
 }
 
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "keycloak_m2m_client_secret" {
   name        = "mcp-gateway-keycloak-m2m-client-secret"
   description = "Keycloak M2M client secret (updated by init-keycloak.sh after deployment)"
@@ -86,6 +89,7 @@ resource "aws_secretsmanager_secret_version" "keycloak_m2m_client_secret" {
 
 
 # Keycloak admin password secret (for Management API operations)
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "keycloak_admin_password" {
   name_prefix = "${local.name_prefix}-keycloak-admin-password-"
   description = "Keycloak admin password for Management API user/group operations"
@@ -100,6 +104,7 @@ resource "aws_secretsmanager_secret_version" "keycloak_admin_password" {
 
 
 # Embeddings API key secret (optional - only needed for LiteLLM provider)
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "embeddings_api_key" {
   name_prefix = "${local.name_prefix}-embeddings-api-key-"
   description = "API key for embeddings provider (OpenAI, Anthropic, etc.)"
@@ -118,6 +123,7 @@ resource "aws_secretsmanager_secret_version" "embeddings_api_key" {
 
 
 # Microsoft Entra ID client secret (for OAuth and IAM operations)
+# checkov:skip=CKV2_AWS_57:Secrets rotation requires Lambda; to be added in production hardening
 resource "aws_secretsmanager_secret" "entra_client_secret" {
   count = var.entra_enabled ? 1 : 0
 

@@ -12,6 +12,7 @@
 #
 # KMS Key for Secrets Manager
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "secrets" {
   description             = "KMS key for MCP Gateway Secrets Manager secrets"
   deletion_window_in_days = 7
@@ -71,6 +72,7 @@ resource "aws_kms_alias" "secrets" {
 #
 # KMS Key for SSM Parameters
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "ssm" {
   description             = "KMS key for MCP Gateway SSM Parameters"
   deletion_window_in_days = 7
@@ -130,6 +132,7 @@ resource "aws_kms_alias" "ssm" {
 #
 # KMS Key for CloudWatch Logs
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "logs" {
   description             = "KMS key for MCP Gateway CloudWatch Logs"
   deletion_window_in_days = 7
@@ -189,6 +192,7 @@ resource "aws_kms_alias" "logs" {
 #
 # KMS Key for ECR (Container Images)
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "ecr" {
   description             = "KMS key for MCP Gateway ECR repositories"
   deletion_window_in_days = 7

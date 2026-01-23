@@ -10,6 +10,7 @@ variable "create_codebuild" {
 }
 
 # KMS key for S3 bucket encryption
+# checkov:skip=CKV2_AWS_64:Key uses default key policy allowing account root; deletion requires IAM permissions
 resource "aws_kms_key" "codebuild_s3" {
   count                   = var.create_codebuild ? 1 : 0
   description             = "KMS key for CodeBuild S3 bucket encryption"

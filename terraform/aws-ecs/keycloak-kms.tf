@@ -9,6 +9,7 @@
 #
 # KMS Key for Keycloak SSM Parameters
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "keycloak_ssm" {
   description             = "KMS key for Keycloak SSM Parameters"
   deletion_window_in_days = 7
@@ -68,6 +69,7 @@ resource "aws_kms_alias" "keycloak_ssm" {
 #
 # KMS Key for Keycloak CloudWatch Logs
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "keycloak_logs" {
   description             = "KMS key for Keycloak CloudWatch Logs"
   deletion_window_in_days = 7
@@ -127,6 +129,7 @@ resource "aws_kms_alias" "keycloak_logs" {
 #
 # KMS Key for Keycloak ECR Repository
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "keycloak_ecr" {
   description             = "KMS key for Keycloak ECR repository"
   deletion_window_in_days = 7
