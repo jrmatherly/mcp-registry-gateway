@@ -14,6 +14,7 @@ locals {
   gateway_endpoint_prefix   = "com.amazonaws"
 }
 
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 6.0) for controlled updates; exact pinning adds maintenance overhead
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 6.0"

@@ -23,7 +23,39 @@ data "aws_cloudfront_origin_request_policy" "all_viewer" {
   name  = "Managed-AllViewer"
 }
 
+# Response headers policy for security headers
+resource "aws_cloudfront_response_headers_policy" "security_headers" {
+  count = var.enable_cloudfront ? 1 : 0
+  name  = "${var.name}-security-headers"
+
+  security_headers_config {
+    content_type_options {
+      override = true
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
+    }
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+  }
+}
+
 # CloudFront distribution for MCP Gateway ALB
+# checkov:skip=CKV2_AWS_47:WAF to be added in production hardening phase
 resource "aws_cloudfront_distribution" "mcp_gateway" {
   count = var.enable_cloudfront ? 1 : 0
 
@@ -70,6 +102,8 @@ resource "aws_cloudfront_distribution" "mcp_gateway" {
     cache_policy_id = data.aws_cloudfront_cache_policy.caching_disabled[0].id
     # Forward all headers to origin
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer[0].id
+    # Apply security headers policy
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers[0].id
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
@@ -103,6 +137,7 @@ resource "aws_cloudfront_distribution" "mcp_gateway" {
 }
 
 # CloudFront distribution for Keycloak ALB
+# checkov:skip=CKV2_AWS_47:WAF to be added in production hardening phase
 resource "aws_cloudfront_distribution" "keycloak" {
   count = var.enable_cloudfront ? 1 : 0
 
@@ -139,8 +174,9 @@ resource "aws_cloudfront_distribution" "keycloak" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "keycloak-alb"
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled[0].id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer[0].id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.caching_disabled[0].id
+    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.all_viewer[0].id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers[0].id
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true

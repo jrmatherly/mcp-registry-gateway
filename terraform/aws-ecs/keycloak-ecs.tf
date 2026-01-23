@@ -107,10 +107,9 @@ resource "aws_ecs_cluster_capacity_providers" "keycloak" {
 }
 
 # CloudWatch Log Group (encrypted with CMK)
-# checkov:skip=CKV_AWS_338:Short retention acceptable for development; increase for production
 resource "aws_cloudwatch_log_group" "keycloak" {
   name              = "/ecs/keycloak"
-  retention_in_days = 7
+  retention_in_days = 365
   kms_key_id        = aws_kms_key.keycloak_logs.arn
 
   tags = local.common_tags
@@ -244,6 +243,7 @@ resource "aws_iam_role_policy" "keycloak_task_ssm_policy" {
 }
 
 # ECS Task Definition
+# checkov:skip=CKV_AWS_336:Keycloak requires writable root filesystem for runtime configuration
 resource "aws_ecs_task_definition" "keycloak" {
   family                   = "keycloak"
   network_mode             = "awsvpc"

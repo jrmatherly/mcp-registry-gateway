@@ -1,4 +1,5 @@
 # CloudWatch Monitoring and Alarms for MCP Gateway
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 7.0) for controlled updates; exact pinning adds maintenance overhead
 
 # SNS Topic for Alarm Notifications
 module "sns_alarms" {

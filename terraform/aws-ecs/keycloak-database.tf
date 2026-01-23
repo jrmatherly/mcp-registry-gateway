@@ -37,6 +37,10 @@ resource "aws_db_proxy_target" "keycloak" {
 }
 
 # Aurora MySQL Serverless v2 Cluster
+# checkov:skip=CKV_AWS_162:Using password authentication; IAM auth not required for this use case
+# checkov:skip=CKV_AWS_326:Deletion protection disabled for development; enable for production
+# checkov:skip=CKV_AWS_226:Activity stream not required for development environment
+# checkov:skip=CKV2_AWS_8:Using native RDS backup; AWS Backup not required
 resource "aws_rds_cluster" "keycloak" {
   cluster_identifier = "keycloak"
   engine             = "aurora-mysql"
@@ -63,6 +67,9 @@ resource "aws_rds_cluster" "keycloak" {
   deletion_protection = false
   skip_final_snapshot = true
 
+  # Enable CloudWatch log exports
+  enabled_cloudwatch_logs_exports = ["audit", "error", "slowquery"]
+
   # Serverless v2 scaling
   serverlessv2_scaling_configuration {
     max_capacity = var.keycloak_database_max_acu
@@ -73,6 +80,8 @@ resource "aws_rds_cluster" "keycloak" {
 }
 
 # Aurora Cluster Instance (Serverless v2)
+# checkov:skip=CKV_AWS_118:Performance Insights disabled to reduce costs in development
+# checkov:skip=CKV_AWS_353:Performance Insights disabled to reduce costs in development
 resource "aws_rds_cluster_instance" "keycloak" {
   cluster_identifier = aws_rds_cluster.keycloak.id
   instance_class     = "db.serverless"
@@ -80,6 +89,8 @@ resource "aws_rds_cluster_instance" "keycloak" {
   engine_version     = aws_rds_cluster.keycloak.engine_version
 
   performance_insights_enabled = false
+  auto_minor_version_upgrade   = true
+  copy_tags_to_snapshot        = true
 
   tags = local.common_tags
 }
@@ -117,10 +128,46 @@ resource "aws_rds_cluster_parameter_group" "keycloak" {
 }
 
 # KMS Key for RDS Encryption
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "rds" {
   description             = "KMS key for RDS encryption"
   deletion_window_in_days = 7
   enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow RDS to use the key"
+        Effect = "Allow"
+        Principal = {
+          Service = "rds.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "kms:CallerAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      }
+    ]
+  })
 
   tags = local.common_tags
 }

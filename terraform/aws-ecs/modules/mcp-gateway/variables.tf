@@ -31,12 +31,6 @@ variable "ecs_cluster_name" {
   type        = string
 }
 
-variable "task_execution_role_arn" {
-  description = "ARN of the task execution IAM role (DEPRECATED: Module now creates its own task execution roles)"
-  type        = string
-  default     = ""
-}
-
 # Container Image URIs (pre-built images from GHCR)
 variable "registry_image_uri" {
   description = "Container image URI for registry service (defaults to pre-built image from GHCR)"
@@ -79,13 +73,6 @@ variable "travel_assistant_agent_image_uri" {
   type        = string
   default     = ""
 }
-
-variable "image_registry" {
-  description = "Container registry for pre-built images"
-  type        = string
-  default     = "ghcr.io/jrmatherly"
-}
-
 
 # Resource Configuration
 variable "cpu" {
@@ -282,13 +269,6 @@ variable "create_route53_record" {
   default     = false
 }
 
-variable "route53_zone_id" {
-  description = "Route53 hosted zone ID (required if create_route53_record is true)"
-  type        = string
-  default     = ""
-}
-
-
 # Embeddings Configuration
 variable "embeddings_provider" {
   description = "Embeddings provider: 'sentence-transformers' for local models or 'litellm' for API-based models"
@@ -443,12 +423,6 @@ variable "documentdb_credentials_secret_arn" {
 # =============================================================================
 # CLOUDFRONT CONFIGURATION (CloudFront HTTPS Support feature)
 # =============================================================================
-
-variable "enable_cloudfront" {
-  description = "Whether CloudFront is enabled (adds CloudFront prefix list to ALB security group)"
-  type        = bool
-  default     = false
-}
 
 variable "cloudfront_prefix_list_name" {
   description = "Name of the managed prefix list for CloudFront origin-facing IPs"

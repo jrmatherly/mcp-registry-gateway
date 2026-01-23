@@ -9,6 +9,14 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.1"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.1"
+    }
   }
 }
 
@@ -30,9 +38,8 @@ module "mcp_gateway" {
   ingress_cidr_blocks = var.ingress_cidr_blocks
 
   # ECS configuration
-  ecs_cluster_arn         = module.ecs_cluster.arn
-  ecs_cluster_name        = module.ecs_cluster.name
-  task_execution_role_arn = module.ecs_cluster.task_exec_iam_role_arn
+  ecs_cluster_arn  = module.ecs_cluster.arn
+  ecs_cluster_name = module.ecs_cluster.name
 
   # HTTPS configuration - only use certificate when Route53 DNS is enabled (without CloudFront)
   # When CloudFront is enabled, HTTPS termination happens at CloudFront, not ALB
@@ -60,7 +67,6 @@ module "mcp_gateway" {
   )
 
   # CloudFront configuration - allows CloudFront IPs to reach ALB
-  enable_cloudfront           = var.enable_cloudfront
   cloudfront_prefix_list_name = local.cloudfront_prefix_list_name
 
   # Container images

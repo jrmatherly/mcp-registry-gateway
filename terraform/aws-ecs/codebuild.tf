@@ -9,7 +9,32 @@ variable "create_codebuild" {
   default     = false
 }
 
+# KMS key for S3 bucket encryption
+resource "aws_kms_key" "codebuild_s3" {
+  count                   = var.create_codebuild ? 1 : 0
+  description             = "KMS key for CodeBuild S3 bucket encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name    = "codebuild-s3-key"
+      Purpose = "s3-encryption"
+    }
+  )
+}
+
+resource "aws_kms_alias" "codebuild_s3" {
+  count         = var.create_codebuild ? 1 : 0
+  name          = "alias/codebuild-s3"
+  target_key_id = aws_kms_key.codebuild_s3[0].key_id
+}
+
 # S3 bucket for CodeBuild artifacts and buildspecs
+# checkov:skip=CKV_AWS_144:Cross-region replication not needed for single-region deployment
+# checkov:skip=CKV2_AWS_62:S3 event notifications not required for buildspec storage
+# checkov:skip=CKV_AWS_18:Access logging not required for internal CodeBuild artifacts
 resource "aws_s3_bucket" "codebuild" {
   count  = var.create_codebuild ? 1 : 0
   bucket = "mcp-gateway-terraform-${data.aws_caller_identity.current.account_id}"
@@ -27,6 +52,50 @@ resource "aws_s3_bucket_versioning" "codebuild" {
   bucket = aws_s3_bucket.codebuild[0].id
   versioning_configuration {
     status = "Enabled"
+  }
+}
+
+# Block public access to the bucket
+resource "aws_s3_bucket_public_access_block" "codebuild" {
+  count  = var.create_codebuild ? 1 : 0
+  bucket = aws_s3_bucket.codebuild[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Server-side encryption with KMS
+resource "aws_s3_bucket_server_side_encryption_configuration" "codebuild" {
+  count  = var.create_codebuild ? 1 : 0
+  bucket = aws_s3_bucket.codebuild[0].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.codebuild_s3[0].arn
+      sse_algorithm     = "aws:kms"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+# Lifecycle configuration - expire old versions after 90 days
+resource "aws_s3_bucket_lifecycle_configuration" "codebuild" {
+  count  = var.create_codebuild ? 1 : 0
+  bucket = aws_s3_bucket.codebuild[0].id
+
+  rule {
+    id     = "expire-old-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 

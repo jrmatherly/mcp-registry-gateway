@@ -119,10 +119,26 @@ resource "aws_vpc_security_group_egress_rule" "auth_to_documentdb" {
 #
 # KMS Key for DocumentDB Encryption
 #
+# checkov:skip=CKV2_AWS_64:Key policy grants full control to account root; deletion requires IAM permissions
 resource "aws_kms_key" "documentdb" {
   description             = "KMS key for DocumentDB Cluster encryption"
   deletion_window_in_days = 7
   enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      }
+    ]
+  })
 
   tags = merge(
     local.common_tags,
@@ -196,10 +212,10 @@ resource "aws_docdb_cluster_parameter_group" "registry" {
     value = "enabled"
   }
 
-  # Audit logs (optional, can be enabled for compliance)
+  # Enable audit logs for security compliance
   parameter {
     name  = "audit_logs"
-    value = "disabled"
+    value = "enabled"
   }
 
   # TTL monitor (for automatic document expiration)

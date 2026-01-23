@@ -2,6 +2,7 @@ data "aws_region" "current" {}
 data "aws_partition" "current" {}
 
 # ECS Cluster using terraform-aws-modules/ecs/aws//modules/cluster
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 6.0) for controlled updates; exact pinning adds maintenance overhead
 module "ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws//modules/cluster"
   version = "~> 6.0"

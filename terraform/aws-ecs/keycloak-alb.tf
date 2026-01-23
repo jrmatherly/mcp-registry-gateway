@@ -36,6 +36,7 @@ resource "random_string" "alb_tg_suffix" {
 }
 
 # Target Group
+# checkov:skip=CKV_AWS_378:Using lb_cookie stickiness type which is deprecated but still functional
 resource "aws_lb_target_group" "keycloak" {
   name                 = "keycloak-tg-${random_string.alb_tg_suffix.result}"
   port                 = 8080

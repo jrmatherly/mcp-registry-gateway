@@ -57,6 +57,7 @@ resource "aws_security_group_rule" "alb_cloudfront_egress" {
 }
 
 # Main Application Load Balancer (for registry, auth, gradio)
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 9.0) for controlled updates; exact pinning adds maintenance overhead
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 9.0"

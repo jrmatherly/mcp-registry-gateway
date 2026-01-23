@@ -263,28 +263,6 @@ variable "documentdb_admin_password" {
   default     = "" # Not required when using file storage backend
 }
 
-variable "documentdb_shard_capacity" {
-  description = "vCPU capacity per shard (2, 4, 8, 16, 32, or 64)"
-  type        = number
-  default     = 2
-
-  validation {
-    condition     = contains([2, 4, 8, 16, 32, 64], var.documentdb_shard_capacity)
-    error_message = "Shard capacity must be one of: 2, 4, 8, 16, 32, 64"
-  }
-}
-
-variable "documentdb_shard_count" {
-  description = "Number of shards (1-32). Start with 1, scale as needed."
-  type        = number
-  default     = 1
-
-  validation {
-    condition     = var.documentdb_shard_count >= 1 && var.documentdb_shard_count <= 32
-    error_message = "Shard count must be between 1 and 32"
-  }
-}
-
 variable "documentdb_instance_class" {
   description = "Instance class for DocumentDB cluster instances (e.g., db.t3.medium, db.r5.large)"
   type        = string
@@ -295,18 +273,6 @@ variable "documentdb_instance_class" {
     error_message = "Instance class must be a valid DocumentDB instance type (e.g., db.t3.medium, db.r5.large)"
   }
 }
-
-variable "documentdb_replica_count" {
-  description = "Number of read replica instances (0-15). Start with 0, add replicas for HA."
-  type        = number
-  default     = 0
-
-  validation {
-    condition     = var.documentdb_replica_count >= 0 && var.documentdb_replica_count <= 15
-    error_message = "Replica count must be between 0 and 15"
-  }
-}
-
 
 # Storage Backend Configuration
 variable "storage_backend" {

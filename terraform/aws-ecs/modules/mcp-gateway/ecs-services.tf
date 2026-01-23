@@ -1,4 +1,5 @@
 # ECS Services for MCP Gateway Registry
+# checkov:skip=CKV_TF_1:Using semantic versioning (~> 6.0) for controlled updates; exact pinning adds maintenance overhead
 
 # ECS Service: Auth Server
 module "ecs_service_auth" {
