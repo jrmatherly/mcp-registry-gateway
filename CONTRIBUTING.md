@@ -22,8 +22,8 @@ Before contributing, ensure you have the following installed:
 git clone https://github.com/YOUR-USERNAME/mcp-registry-gateway.git
 cd mcp-registry-gateway
 
-# Install dependencies
-uv sync
+# Install ALL development dependencies (includes testing, linting, and docs)
+uv sync --dev --extra docs
 
 # Start MongoDB
 docker compose up -d mongodb
@@ -31,9 +31,21 @@ docker compose up -d mongodb
 # Run tests to verify setup
 uv run pytest tests/ -n 8
 
+# Build documentation locally (optional)
+uv run mkdocs serve
+
 # Format and lint code
 uv run ruff check --fix . && uv run ruff format .
 ```
+
+**Dependency Groups:**
+
+| Command | What It Installs |
+|---------|-----------------|
+| `uv sync` | Core runtime dependencies only |
+| `uv sync --dev` | Core + testing/linting tools |
+| `uv sync --extra docs` | Core + MkDocs documentation |
+| `uv sync --dev --extra docs` | Everything (recommended for contributors) |
 
 For detailed setup instructions, see [DEV_INSTRUCTIONS.md](DEV_INSTRUCTIONS.md).
 

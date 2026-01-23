@@ -45,6 +45,10 @@ theme:
   logo: img/mcp_gateway_horizontal_white_logo.png
   favicon: img/registry.png
 
+# Hooks for build-time transformations
+hooks:
+  - docs/hooks/transform_external_links.py
+
 # Plugins
 plugins:
   - search:
@@ -53,6 +57,15 @@ plugins:
       enable_creation_date: true
   - minify:
       minify_html: true
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
 
 # Extensions
 markdown_extensions:
@@ -98,24 +111,78 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
+      - Quick Start: quickstart.md
       - Complete Setup Guide: complete-setup-guide.md
       - Installation: installation.md
       - Configuration: configuration.md
+      - Deployment Modes: deployment-modes.md
+      - Prebuilt Images: prebuilt-images.md
       - FAQ: FAQ.md
   - Authentication & Security:
       - Authentication Guide: auth.md
+      - Authentication Management: auth-mgmt.md
       - Amazon Cognito Setup: cognito.md
+      - Microsoft Entra ID:
+          - Overview: entra.md
+          - Setup Guide: entra-id-setup.md
+      - Keycloak Integration: keycloak-integration.md
       - Access Control & Scopes: scopes.md
+      - Scopes Management: scopes-mgmt.md
       - JWT Token Vending: jwt-token-vending.md
+      - Token Refresh Service: token-refresh-service.md
+      - Session Initialization: session-initialization.md
       - Security Policy: SECURITY.md
-  - Architecture & Development:
+      - Security Scanner: security-scanner.md
+      - Scan Report Example: scan_report_example.md
+  - Architecture & Design:
       - Registry API: registry_api.md
+      - Anthropic Registry API: anthropic_registry_api.md
+      - API Reference: api-reference.md
       - Dynamic Tool Discovery: dynamic-tool-discovery.md
       - Architecture Overview: registry-auth-architecture.md
       - Detailed Architecture: registry-auth-detailed.md
-  - Integration:
+      - Architecture with Dataplane: img/architecture-with-dataplane.md
+      - Metrics Architecture: metrics-architecture.md
+      - Database Design: database-design.md
+      - Observability: OBSERVABILITY.md
+      - Features: FEATURES.md
+      - Design Documents:
+          - A2A Protocol Integration: design/a2a-protocol-integration.md
+          - Anthropic API Implementation: design/anthropic-api-implementation.md
+          - Anthropic API Test Commands: design/anthropic-api-test-commands.md
+          - Architecture Decision - Gateway: design/architectural-decision-reverse-proxy-vs-application-layer-gateway.md
+          - Authentication Design: design/authentication-design.md
+          - Cookie Security Design: design/cookie-security-design.md
+          - Database Abstraction Layer: design/database-abstraction-layer.md
+          - Hybrid Search Architecture: design/hybrid-search-architecture.md
+          - IDP Provider Support: design/idp-provider-support.md
+          - Storage Architecture: design/storage-architecture-mongodb-documentdb.md
+  - Operations:
+      - Service Management: service-management.md
+      - Datastore Management: datastore-management.md
+      - Embeddings: embeddings.md
+      - CLI Reference: cli.md
+      - Federation: federation.md
+      - Anthropic Registry Import: anthropic-registry-import.md
+  - Agent Integration:
       - AI Coding Assistants: ai-coding-assistants-setup.md
       - MCP-Gateway CLI Guide: mcp-registry-cli.md
+      - A2A Protocol: a2a.md
+      - A2A Agent Management: a2a-agent-management.md
+      - AgentCore Integration: agentcore.md
+  - Platform Setup:
+      - macOS Setup Guide: macos-setup-guide.md
+      - Podman on Apple Silicon: podman-apple-silicon.md
+      - Remote Desktop Setup: remote-desktop-setup.md
+  - Testing:
+      - Overview: testing.md
+      - Testing Guide: testing/README.md
+      - Quick Start: testing/QUICK-START.md
+      - Test Categories: testing/test-categories.md
+      - Writing Tests: testing/WRITING_TESTS.md
+      - Frontend Testing: testing/frontend-testing.md
+      - Memory Management: testing/memory-management.md
+      - Maintenance: testing/MAINTENANCE.md
   - Contributing:
       - Contributing Guide: CONTRIBUTING.md
       - Code of Conduct: CODE_OF_CONDUCT.md

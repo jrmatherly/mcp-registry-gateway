@@ -1,11 +1,13 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents
 
 # Default target
 help:
 	@echo "MCP Registry Testing Commands"
 	@echo ""
 	@echo "Setup:"
-	@echo "  install-dev     Install development dependencies"
+	@echo "  install-dev     Install development dependencies (testing, linting)"
+	@echo "  install-docs    Install documentation dependencies (mkdocs)"
+	@echo "  install-all     Install ALL dependencies (dev + docs) - recommended for contributors"
 	@echo "  check-deps      Check if test dependencies are installed"
 	@echo ""
 	@echo "Testing:"
@@ -74,8 +76,20 @@ help:
 
 # Installation
 install-dev:
-	@echo "Installing development dependencies..."
+	@echo "Installing development dependencies (testing, linting, type checking)..."
 	uv sync --dev
+
+install-docs:
+	@echo "Installing documentation dependencies (mkdocs)..."
+	uv sync --extra docs
+
+install-all:
+	@echo "Installing ALL dependencies (dev + docs)..."
+	uv sync --dev --extra docs
+	@echo "Verifying installation..."
+	@uv run pytest --version
+	@uv run mkdocs --version
+	@uv run ruff --version
 
 check-deps:
 	@python scripts/test.py check

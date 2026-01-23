@@ -11,6 +11,21 @@ Complete installation instructions for the MCP Gateway & Registry on various pla
 - **Amazon Cognito or Keycloak**: Identity provider for authentication (see [Cognito Setup Guide](cognito.md) or [Keycloak Integration](keycloak-integration.md))
 - **SSL Certificate**: Optional for HTTPS deployment in production
 
+## Dependency Groups
+
+The project uses [UV](https://github.com/astral-sh/uv) for dependency management with multiple dependency groups:
+
+| Group | Command | Purpose |
+|-------|---------|---------|
+| Core | `uv sync` | Runtime dependencies for running the application |
+| Development | `uv sync --dev` | Testing (pytest), linting (ruff), type checking (mypy) |
+| Documentation | `uv sync --extra docs` | MkDocs and documentation plugins |
+| All | `uv sync --dev --extra docs` | Complete development environment |
+
+**For deployment**, use `uv sync` (core dependencies only).
+
+**For development/contributing**, use `uv sync --dev --extra docs` to install all tools.
+
 ## Quick Start
 
 ### Docker Installation (Default)

@@ -26,6 +26,37 @@ If working on EC2 or a Linux server, complete this guide first:
 - [Complete Setup Guide](docs/complete-setup-guide.md)
 - Time to first run: ~60 minutes
 
+### Step 2: Install Development Dependencies
+
+After completing the environment setup, install all development dependencies:
+
+```bash
+# Install ALL dependencies (testing, linting, documentation)
+uv sync --dev --extra docs
+
+# Verify installation
+uv run pytest --version    # Testing framework
+uv run mkdocs --version    # Documentation builder
+uv run ruff --version      # Linting and formatting
+uv run mypy --version      # Type checking
+```
+
+**Dependency Groups Reference:**
+
+| Command | What It Installs |
+|---------|-----------------|
+| `uv sync` | Core runtime dependencies only |
+| `uv sync --dev` | Core + pytest, ruff, mypy, bandit |
+| `uv sync --extra docs` | Core + mkdocs and plugins |
+| `uv sync --dev --extra docs` | Everything (recommended) |
+
+**Makefile shortcuts:**
+
+```bash
+make install-dev   # Install dev dependencies only
+make install-all   # Install dev + docs dependencies
+```
+
 ## Before You Start Coding
 
 ### 1. Ask Your Coding Assistant to Read Documentation

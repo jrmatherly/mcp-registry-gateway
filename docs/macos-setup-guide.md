@@ -102,6 +102,39 @@ which python
 # Should show: /Users/[username]/workspace/mcp-registry-gateway/.venv/bin/python
 ```
 
+### Install Development Dependencies (For Contributors)
+
+The project uses multiple dependency groups for different purposes:
+
+| Group | Command | When Needed |
+|-------|---------|-------------|
+| Core | `uv sync` | Running the application |
+| Development | `uv sync --dev` | Running tests, linting, type checking |
+| Documentation | `uv sync --extra docs` | Building MkDocs documentation |
+| All | `uv sync --dev --extra docs` | Full development environment |
+
+**For contributors working on the codebase (recommended):**
+
+```bash
+# Install all development and documentation dependencies
+uv sync --dev --extra docs
+
+# Verify installation
+uv run pytest --version    # Should show pytest 9.x.x
+uv run mkdocs --version    # Should show mkdocs 1.x.x
+uv run ruff --version      # Should show ruff 0.x.x
+```
+
+**Building Documentation Locally:**
+
+```bash
+# Serve documentation locally with live reload
+uv run mkdocs serve
+
+# Build documentation for deployment
+uv run mkdocs build
+```
+
 ---
 
 ## 4. Environment Configuration
