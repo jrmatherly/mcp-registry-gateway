@@ -381,7 +381,15 @@ def test_reload_nginx_success(nginx_service):
     mock_reload_result = MagicMock()
     mock_reload_result.returncode = 0
 
-    with patch("subprocess.run") as mock_run:
+    # Mock the PID file to exist and have valid content
+    mock_pid_file = MagicMock()
+    mock_pid_file.exists.return_value = True
+    mock_pid_file.read_text.return_value = "12345"
+
+    with (
+        patch("pathlib.Path", return_value=mock_pid_file),
+        patch("subprocess.run") as mock_run,
+    ):
         mock_run.side_effect = [mock_test_result, mock_reload_result]
 
         result = nginx_service.reload_nginx()
@@ -397,7 +405,15 @@ def test_reload_nginx_config_test_failure(nginx_service):
     mock_test_result.returncode = 1
     mock_test_result.stderr = "Config error"
 
-    with patch("subprocess.run", return_value=mock_test_result):
+    # Mock the PID file to exist and have valid content
+    mock_pid_file = MagicMock()
+    mock_pid_file.exists.return_value = True
+    mock_pid_file.read_text.return_value = "12345"
+
+    with (
+        patch("pathlib.Path", return_value=mock_pid_file),
+        patch("subprocess.run", return_value=mock_test_result),
+    ):
         result = nginx_service.reload_nginx()
 
         assert result is False
@@ -413,7 +429,15 @@ def test_reload_nginx_reload_failure(nginx_service):
     mock_reload_result.returncode = 1
     mock_reload_result.stderr = "Reload failed"
 
-    with patch("subprocess.run") as mock_run:
+    # Mock the PID file to exist and have valid content
+    mock_pid_file = MagicMock()
+    mock_pid_file.exists.return_value = True
+    mock_pid_file.read_text.return_value = "12345"
+
+    with (
+        patch("pathlib.Path", return_value=mock_pid_file),
+        patch("subprocess.run") as mock_run,
+    ):
         mock_run.side_effect = [mock_test_result, mock_reload_result]
 
         result = nginx_service.reload_nginx()
@@ -424,7 +448,15 @@ def test_reload_nginx_reload_failure(nginx_service):
 @pytest.mark.unit
 def test_reload_nginx_not_found(nginx_service):
     """Test Nginx reload when nginx command is not found."""
-    with patch("subprocess.run", side_effect=FileNotFoundError("nginx not found")):
+    # Mock the PID file to exist and have valid content
+    mock_pid_file = MagicMock()
+    mock_pid_file.exists.return_value = True
+    mock_pid_file.read_text.return_value = "12345"
+
+    with (
+        patch("pathlib.Path", return_value=mock_pid_file),
+        patch("subprocess.run", side_effect=FileNotFoundError("nginx not found")),
+    ):
         result = nginx_service.reload_nginx()
 
         assert result is False
@@ -433,7 +465,15 @@ def test_reload_nginx_not_found(nginx_service):
 @pytest.mark.unit
 def test_reload_nginx_exception(nginx_service):
     """Test Nginx reload with unexpected exception."""
-    with patch("subprocess.run", side_effect=Exception("Unexpected error")):
+    # Mock the PID file to exist and have valid content
+    mock_pid_file = MagicMock()
+    mock_pid_file.exists.return_value = True
+    mock_pid_file.read_text.return_value = "12345"
+
+    with (
+        patch("pathlib.Path", return_value=mock_pid_file),
+        patch("subprocess.run", side_effect=Exception("Unexpected error")),
+    ):
         result = nginx_service.reload_nginx()
 
         assert result is False

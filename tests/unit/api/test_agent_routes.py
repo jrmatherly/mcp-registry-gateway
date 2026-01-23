@@ -643,18 +643,23 @@ class TestListAgents:
     @pytest.mark.asyncio
     async def test_list_agents_query_search(self, test_app, mock_user_context):
         """Test searching agents by query string."""
-        # Arrange
+        # Arrange - use explicit skills to avoid random skill names containing "data"
+        data_skill = SkillFactory(name="data-parsing", tags=["data"])
+        image_skill = SkillFactory(name="image-resize", tags=["image"])
+
         data_agent = AgentCardFactory(
             name="data-processor",
             description="Process data efficiently",
             tags=["data", "processing"],
             path="/agents/data-processor",
+            skills=[data_skill],
         )
         image_agent = AgentCardFactory(
             name="image-processor",
             description="Process images",
             tags=["image", "processing"],
             path="/agents/image-processor",
+            skills=[image_skill],
         )
 
         with patch("registry.api.agent_routes.agent_service") as mock_agent_service:
