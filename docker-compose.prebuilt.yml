@@ -13,7 +13,7 @@ services:
   registry:
     image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-registry:${REGISTRY_VERSION:-latest}
     environment:
-      - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+      - BUILD_VERSION=${BUILD_VERSION:-}
       - SECRET_KEY=${SECRET_KEY}
       - ADMIN_USER=${ADMIN_USER:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}

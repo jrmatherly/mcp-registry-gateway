@@ -598,7 +598,7 @@ chmod +x build_and_run.sh
 
 # This will:
 # - Use pre-built container images from Docker registry
-# - Skip React frontend build (already included in images)
+# - Skip Vite frontend build (already included in images)
 # - Create necessary directories
 # - Start all services
 # - Much faster than building locally!

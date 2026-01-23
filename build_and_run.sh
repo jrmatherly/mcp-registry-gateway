@@ -509,8 +509,9 @@ if [ -z "$ADMIN_PASSWORD" ] || [ "$ADMIN_PASSWORD" = "your_secure_password" ]; t
     exit 1
 fi
 
-# Determine BUILD_VERSION from git
-log "Determining version from git..."
+# Determine BUILD_VERSION
+# Priority: 1) Git tag (exact match), 2) Git describe, 3) VERSION file, 4) Default
+log "Determining version..."
 if command -v git &> /dev/null && [ -d .git ]; then
     # Get the current git tag
     GIT_TAG=$(git describe --tags --exact-match 2>/dev/null || echo "")
@@ -535,9 +536,13 @@ if command -v git &> /dev/null && [ -d .git ]; then
 
         log "Building development version: $BUILD_VERSION"
     fi
+elif [ -f "VERSION" ]; then
+    # Fallback to VERSION file (single source of truth for releases)
+    export BUILD_VERSION=$(cat VERSION | tr -d '[:space:]')
+    log "Using VERSION file: $BUILD_VERSION"
 else
-    export BUILD_VERSION="1.0.0-dev"
-    log "Git not available, using default version: $BUILD_VERSION"
+    export BUILD_VERSION="2.0.0-dev"
+    log "Git and VERSION file not available, using default: $BUILD_VERSION"
 fi
 
 # Build or pull container images
