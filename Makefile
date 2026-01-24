@@ -1,4 +1,4 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump helm-lint helm-package helm-push helm-release helm-deps
 
 # Version file
 VERSION_FILE := VERSION
@@ -86,6 +86,13 @@ help:
 	@echo "  compose-logs-agents         Follow A2A agent logs in real-time"
 	@echo "  build-agents                Build both A2A agent images locally"
 	@echo "  push-agents                 Push both A2A agent images to ECR"
+	@echo ""
+	@echo "Helm Charts:"
+	@echo "  helm-lint                   Lint all Helm charts"
+	@echo "  helm-deps                   Update Helm chart dependencies"
+	@echo "  helm-package                Package all Helm charts"
+	@echo "  helm-push                   Push charts to OCI registry (requires GITHUB_TOKEN)"
+	@echo "  helm-release                Package and push charts with current version"
 	@echo ""
 	@echo "Release Management:"
 	@echo "  version-bump                Show next version (with optional manual override)"
@@ -498,8 +505,18 @@ release:
 	sed -i.bak "s/^version = \".*\"/version = \"$$next\"/" pyproject.toml && rm -f pyproject.toml.bak; \
 	echo "Regenerating uv.lock with new version..."; \
 	uv lock; \
+	echo "Updating Helm chart versions..."; \
+	for chart in registry auth-server keycloak-configure mongodb-configure mcp-gateway-registry-stack; do \
+		chart_file="charts/$$chart/Chart.yaml"; \
+		if [ -f "$$chart_file" ]; then \
+			sed -i.bak "s/^version:.*/version: $$next/" "$$chart_file" && rm -f "$$chart_file.bak"; \
+			sed -i.bak "s/^appVersion:.*/appVersion: \"$$next\"/" "$$chart_file" && rm -f "$$chart_file.bak"; \
+		fi; \
+	done; \
+	stack_file="charts/mcp-gateway-registry-stack/Chart.yaml"; \
+	sed -i.bak "s/version: 2\.[0-9]*\.[0-9]*/version: $$next/g" "$$stack_file" && rm -f "$$stack_file.bak"; \
 	echo "Staging version files..."; \
-	git add $(VERSION_FILE) pyproject.toml uv.lock; \
+	git add $(VERSION_FILE) pyproject.toml uv.lock charts/*/Chart.yaml; \
 	echo "Creating commit..."; \
 	git commit -m "chore: bump version to $$next"; \
 	echo "Creating tag v$$next..."; \
@@ -514,5 +531,114 @@ release:
 	echo "  - VERSION file updated to $$next"; \
 	echo "  - pyproject.toml version updated to $$next"; \
 	echo "  - uv.lock regenerated with $$next"; \
+	echo "  - Helm chart versions updated to $$next"; \
 	echo "  - Git tag v$$next created and pushed"; \
-	echo "  - Commit pushed to origin"
+	echo "  - Commit pushed to origin"; \
+	echo ""; \
+	echo "GitHub Actions will automatically:"; \
+	echo "  - Build and push Docker images to ghcr.io"; \
+	echo "  - Package and push Helm charts to oci://ghcr.io/jrmatherly/charts"
+
+# =============================================================================
+# Helm Chart Management
+# =============================================================================
+
+# OCI Registry for Helm charts
+HELM_REGISTRY := ghcr.io
+HELM_REPO := $(HELM_REGISTRY)/jrmatherly/charts
+CHARTS_DIR := charts
+HELM_VERSION := 3.14.0
+
+# List of charts to manage
+CHARTS := registry auth-server keycloak-configure mongodb-configure mcp-gateway-registry-stack
+
+# Lint all Helm charts
+helm-lint:
+	@echo "Linting Helm charts..."
+	@for chart in $(CHARTS); do \
+		if [ -f "$(CHARTS_DIR)/$$chart/Chart.yaml" ]; then \
+			echo "Linting $$chart..."; \
+			helm lint "$(CHARTS_DIR)/$$chart" || exit 1; \
+		fi; \
+	done
+	@echo "All charts passed linting."
+
+# Update chart dependencies
+helm-deps:
+	@echo "Updating Helm chart dependencies..."
+	@helm repo add bitnami https://charts.bitnami.com/bitnami 2>/dev/null || true
+	@helm repo add mongodb https://mongodb.github.io/helm-charts 2>/dev/null || true
+	@helm repo update
+	@for chart in $(CHARTS); do \
+		if [ -f "$(CHARTS_DIR)/$$chart/Chart.yaml" ]; then \
+			echo "Building dependencies for $$chart..."; \
+			helm dependency build "$(CHARTS_DIR)/$$chart" || true; \
+		fi; \
+	done
+	@echo "Dependencies updated."
+
+# Package all charts
+helm-package: helm-deps
+	@echo "Packaging Helm charts..."
+	@mkdir -p dist/charts
+	@version=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	for chart in $(CHARTS); do \
+		if [ -f "$(CHARTS_DIR)/$$chart/Chart.yaml" ]; then \
+			echo "Packaging $$chart..."; \
+			helm package "$(CHARTS_DIR)/$$chart" --version "$$version" --app-version "$$version" --destination dist/charts; \
+		fi; \
+	done
+	@echo "Charts packaged in dist/charts/"
+	@ls -la dist/charts/
+
+# Push charts to OCI registry (requires GITHUB_TOKEN environment variable)
+helm-push:
+	@if [ -z "$$GITHUB_TOKEN" ]; then \
+		echo "Error: GITHUB_TOKEN environment variable is required"; \
+		echo "Usage: GITHUB_TOKEN=your_token make helm-push"; \
+		exit 1; \
+	fi
+	@echo "Logging in to $(HELM_REGISTRY)..."
+	@echo "$$GITHUB_TOKEN" | helm registry login $(HELM_REGISTRY) -u $${GITHUB_USER:-$$USER} --password-stdin
+	@echo "Pushing charts to oci://$(HELM_REPO)..."
+	@version=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	for chart in $(CHARTS); do \
+		pkg="dist/charts/$$chart-$$version.tgz"; \
+		if [ -f "$$pkg" ]; then \
+			echo "Pushing $$pkg..."; \
+			helm push "$$pkg" "oci://$(HELM_REPO)"; \
+		else \
+			echo "Warning: $$pkg not found, skipping"; \
+		fi; \
+	done
+	@helm registry logout $(HELM_REGISTRY) || true
+	@echo "Charts pushed to OCI registry."
+
+# Package and push charts (convenience target)
+helm-release: helm-lint helm-package helm-push
+	@echo "Helm chart release complete!"
+	@version=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	echo ""; \
+	echo "Charts available at:"; \
+	for chart in $(CHARTS); do \
+		echo "  oci://$(HELM_REPO)/$$chart:$$version"; \
+	done
+
+# Update chart versions (called during release)
+helm-version-update:
+	@version=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	echo "Updating Helm chart versions to $$version..."; \
+	for chart in $(CHARTS); do \
+		chart_file="$(CHARTS_DIR)/$$chart/Chart.yaml"; \
+		if [ -f "$$chart_file" ]; then \
+			echo "  Updating $$chart..."; \
+			sed -i.bak "s/^version:.*/version: $$version/" "$$chart_file" && rm -f "$$chart_file.bak"; \
+			sed -i.bak "s/^appVersion:.*/appVersion: \"$$version\"/" "$$chart_file" && rm -f "$$chart_file.bak"; \
+		fi; \
+	done; \
+	stack_file="$(CHARTS_DIR)/mcp-gateway-registry-stack/Chart.yaml"; \
+	if [ -f "$$stack_file" ]; then \
+		echo "  Updating stack chart dependency versions..."; \
+		sed -i.bak "s/version: 2\.[0-9]*\.[0-9]*/version: $$version/g" "$$stack_file" && rm -f "$$stack_file.bak"; \
+	fi; \
+	echo "Chart versions updated."

@@ -7,12 +7,8 @@
 # Note: CloudFront WAF must be created in us-east-1 region regardless of where
 # other resources are deployed.
 #
-
-# Provider for us-east-1 (required for CloudFront WAF)
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-}
+# The us-east-1 provider alias is defined in cloudfront-acm.tf
+#
 
 # WAFv2 WebACL for CloudFront (only created when CloudFront is enabled)
 resource "aws_wafv2_web_acl" "cloudfront" {

@@ -1,0 +1,53 @@
+# CI Test Values for Registry Chart
+# Used by chart-testing (ct) tool for automated testing
+# These values represent a minimal installation for CI validation
+
+global:
+  image:
+    repository: ghcr.io/jrmatherly/mcp-registry
+    tag: latest
+    pullPolicy: IfNotPresent
+
+app:
+  name: registry
+  replicas: 1
+  envSecretName: registry-secret
+  authServerUrl: http://auth-server:8888
+  # Test secret key (not for production)
+  secretKey: "ci-test-secret-key-not-for-production"
+
+serviceAccount:
+  create: true
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  liveness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  startup:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 12
+
+ingress:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+networkPolicy:
+  enabled: false

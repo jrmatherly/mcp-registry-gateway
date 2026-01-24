@@ -1,0 +1,78 @@
+# CI Test Values for MCP Gateway Registry Stack
+# Used by chart-testing (ct) tool for automated testing
+# These values represent a minimal installation for CI validation
+
+global:
+  domain: "test.local"
+  secretKey: "ci-test-secret-key-not-for-production"
+
+# Disable MongoDB operator (requires CRDs)
+mongodb:
+  enabled: false
+
+mongodb-configure:
+  enabled: false
+
+# Keycloak with minimal resources
+keycloak:
+  auth:
+    adminUser: admin
+    adminPassword: admin
+  production: false
+  proxy: edge
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  postgresql:
+    enabled: true
+    auth:
+      postgresPassword: postgres
+      password: keycloak
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+
+keycloak-configure:
+  enabled: false
+
+# Registry with minimal resources
+registry:
+  global:
+    image:
+      tag: latest
+  app:
+    replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: false
+
+# Auth server with minimal resources
+auth-server:
+  global:
+    image:
+      tag: latest
+  app:
+    replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: false
