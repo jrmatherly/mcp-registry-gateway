@@ -2,8 +2,8 @@ apiVersion: v2
 name: auth-server
 description: Authentication server for MCP Gateway Registry with OAuth2/OIDC support
 type: application
-version: 2.0.8
-appVersion: "2.0.8"
+version: 2.0.9
+appVersion: "2.0.9"
 
 # Project metadata
 home: https://github.com/jrmatherly/mcp-registry-gateway
