@@ -150,6 +150,14 @@ async def root_endpoint(request):
     )
 
 
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    """Health check endpoint for load balancers and monitoring."""
+    from starlette.responses import JSONResponse
+
+    return JSONResponse({"status": "healthy", "service": "fininfo-server"})
+
+
 @mcp.custom_route("/favicon.ico", methods=["GET"])
 async def favicon_endpoint(request):
     """Serve favicon for browser requests."""
