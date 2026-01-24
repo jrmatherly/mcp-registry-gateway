@@ -1,5 +1,5 @@
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import type React from 'react';
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import type React from "react";
 
 interface EditServerForm {
   name: string;
@@ -39,8 +39,8 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
+      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-white/10 p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Edit Server: {serverName}
@@ -102,11 +102,11 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
             </label>
             <input
               type="text"
-              value={form.tags.join(',')}
+              value={form.tags.join(",")}
               onChange={(e) =>
                 onFormChange({
                   tags: e.target.value
-                    .split(',')
+                    .split(",")
                     .map((t) => t.trim())
                     .filter((t) => t),
                 })
@@ -124,7 +124,9 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
               <input
                 type="number"
                 value={form.num_tools}
-                onChange={(e) => onFormChange({ num_tools: parseInt(e.target.value, 10) || 0 })}
+                onChange={(e) =>
+                  onFormChange({ num_tools: parseInt(e.target.value, 10) || 0 })
+                }
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                 min="0"
               />
@@ -137,7 +139,9 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
               <input
                 type="number"
                 value={form.num_stars}
-                onChange={(e) => onFormChange({ num_stars: parseInt(e.target.value, 10) || 0 })}
+                onChange={(e) =>
+                  onFormChange({ num_stars: parseInt(e.target.value, 10) || 0 })
+                }
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                 min="0"
               />
@@ -191,7 +195,7 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
               disabled={loading}
               className="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-md transition-colors"
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"
@@ -207,7 +211,7 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
   );
 };
 
-EditServerModal.displayName = 'EditServerModal';
+EditServerModal.displayName = "EditServerModal";
 
 export default EditServerModal;
 export type { EditServerForm };

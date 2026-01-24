@@ -3,36 +3,36 @@ import {
   ClipboardIcon,
   ExclamationTriangleIcon,
   KeyIcon,
-} from '@heroicons/react/24/outline';
-import axios from 'axios';
-import type React from 'react';
-import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+} from "@heroicons/react/24/outline";
+import axios from "axios";
+import type React from "react";
+import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 const TokenGeneration: React.FC = () => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
-    description: '',
+    description: "",
     expires_in_hours: 8,
-    scopeMethod: 'current' as 'current' | 'custom',
-    customScopes: '',
+    scopeMethod: "current" as "current" | "custom",
+    customScopes: "",
   });
-  const [generatedToken, setGeneratedToken] = useState<string>('');
+  const [generatedToken, setGeneratedToken] = useState<string>("");
   const [tokenDetails, setTokenDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const expirationOptions = [
-    { value: 1, label: '1 hour' },
-    { value: 8, label: '8 hours' },
-    { value: 24, label: '24 hours' },
+    { value: 1, label: "1 hour" },
+    { value: 8, label: "8 hours" },
+    { value: 24, label: "24 hours" },
   ];
 
   const handleGenerateToken = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const requestData: any = {
@@ -41,26 +41,28 @@ const TokenGeneration: React.FC = () => {
       };
 
       // Handle scopes based on the selected method
-      if (formData.scopeMethod === 'custom') {
+      if (formData.scopeMethod === "custom") {
         const customScopesText = formData.customScopes.trim();
         if (customScopesText) {
           try {
             const parsedScopes = JSON.parse(customScopesText);
             if (!Array.isArray(parsedScopes)) {
-              throw new Error('Custom scopes must be a JSON array');
+              throw new Error("Custom scopes must be a JSON array");
             }
             requestData.requested_scopes = parsedScopes;
           } catch (_e) {
-            setError('Invalid JSON format for custom scopes. Please provide a valid JSON array.');
+            setError(
+              "Invalid JSON format for custom scopes. Please provide a valid JSON array.",
+            );
             return;
           }
         }
       }
       // If using current scopes, we don't need to set requested_scopes - it will default to user's current scopes
 
-      const response = await axios.post('/api/tokens/generate', requestData, {
+      const response = await axios.post("/api/tokens/generate", requestData, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -68,11 +70,11 @@ const TokenGeneration: React.FC = () => {
         setGeneratedToken(response.data.token_data.access_token);
         setTokenDetails(response.data);
       } else {
-        throw new Error('Token generation failed');
+        throw new Error("Token generation failed");
       }
     } catch (error: any) {
-      console.error('Failed to generate token:', error);
-      setError(error.response?.data?.detail || 'Failed to generate token');
+      console.error("Failed to generate token:", error);
+      setError(error.response?.data?.detail || "Failed to generate token");
     } finally {
       setLoading(false);
     }
@@ -85,21 +87,21 @@ const TokenGeneration: React.FC = () => {
       setTimeout(() => setCopied(false), 2000);
     } catch (_error) {
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = generatedToken;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
 
       try {
-        document.execCommand('copy');
+        document.execCommand("copy");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
-        console.error('Failed to copy token:', err);
+        console.error("Failed to copy token:", err);
       }
 
       document.body.removeChild(textArea);
@@ -107,15 +109,15 @@ const TokenGeneration: React.FC = () => {
   };
 
   const validateCustomScopes = () => {
-    if (formData.scopeMethod === 'custom' && formData.customScopes.trim()) {
+    if (formData.scopeMethod === "custom" && formData.customScopes.trim()) {
       try {
         const parsed = JSON.parse(formData.customScopes);
         if (!Array.isArray(parsed)) {
-          return 'Custom scopes must be a JSON array';
+          return "Custom scopes must be a JSON array";
         }
         return null;
       } catch (_e) {
-        return 'Invalid JSON format';
+        return "Invalid JSON format";
       }
     }
     return null;
@@ -128,12 +130,15 @@ const TokenGeneration: React.FC = () => {
       {/* Compact Header Section */}
       <div className="shrink-0 pb-2">
         <div className="text-center">
-          <div className="mx-auto w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mb-2">
-            <KeyIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg shadow-primary-500/25">
+            <KeyIcon className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Generate JWT Token</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            Generate JWT Token
+          </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Generate a personal access token for programmatic access to MCP servers
+            Generate a personal access token for programmatic access to MCP
+            servers
           </p>
         </div>
       </div>
@@ -141,8 +146,8 @@ const TokenGeneration: React.FC = () => {
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="max-w-4xl mx-auto space-y-4 pb-6">
-          {/* Current User Permissions - Compact */}
-          <div className="card p-4 bg-gray-50 dark:bg-gray-800">
+          {/* Current User Permissions - Glass Card */}
+          <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] p-5">
             <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
               Your Current Permissions
             </h3>
@@ -155,7 +160,7 @@ const TokenGeneration: React.FC = () => {
                   user.scopes.map((scope) => (
                     <span
                       key={scope}
-                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30"
                     >
                       {scope}
                     </span>
@@ -169,13 +174,14 @@ const TokenGeneration: React.FC = () => {
             </div>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               <em>
-                Generated tokens can have the same or fewer permissions than your current scopes.
+                Generated tokens can have the same or fewer permissions than
+                your current scopes.
               </em>
             </p>
           </div>
 
-          {/* Token Configuration Form */}
-          <div className="card p-4">
+          {/* Token Configuration Form - Glass Card */}
+          <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] p-5">
             <form onSubmit={handleGenerateToken} className="space-y-4">
               <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                 Token Configuration
@@ -200,7 +206,10 @@ const TokenGeneration: React.FC = () => {
                       placeholder="e.g., Token for automation script"
                       value={formData.description}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, description: e.target.value }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
                       }
                     />
                   </div>
@@ -247,11 +256,13 @@ const TokenGeneration: React.FC = () => {
                           type="radio"
                           name="scopeMethod"
                           value="current"
-                          checked={formData.scopeMethod === 'current'}
+                          checked={formData.scopeMethod === "current"}
                           onChange={(e) =>
                             setFormData((prev) => ({
                               ...prev,
-                              scopeMethod: e.target.value as 'current' | 'custom',
+                              scopeMethod: e.target.value as
+                                | "current"
+                                | "custom",
                             }))
                           }
                           className="rounded-sm border-gray-300 text-primary-600 focus:ring-primary-500"
@@ -271,11 +282,13 @@ const TokenGeneration: React.FC = () => {
                           type="radio"
                           name="scopeMethod"
                           value="custom"
-                          checked={formData.scopeMethod === 'custom'}
+                          checked={formData.scopeMethod === "custom"}
                           onChange={(e) =>
                             setFormData((prev) => ({
                               ...prev,
-                              scopeMethod: e.target.value as 'current' | 'custom',
+                              scopeMethod: e.target.value as
+                                | "current"
+                                | "custom",
                             }))
                           }
                           className="rounded-sm border-gray-300 text-primary-600 focus:ring-primary-500"
@@ -292,7 +305,7 @@ const TokenGeneration: React.FC = () => {
                     </div>
 
                     {/* Custom Scopes JSON Input */}
-                    {formData.scopeMethod === 'custom' && (
+                    {formData.scopeMethod === "custom" && (
                       <div className="mt-3">
                         <label
                           htmlFor="customScopes"
@@ -302,16 +315,19 @@ const TokenGeneration: React.FC = () => {
                         </label>
                         <textarea
                           id="customScopes"
-                          className={`input h-24 font-mono text-xs ${scopeValidationError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                          className={`input h-24 font-mono text-xs ${scopeValidationError ? "border-red-300 focus:border-red-500 focus:ring-red-500" : ""}`}
                           placeholder={`["mcp-servers-restricted/read", "mcp-registry-user"]`}
                           value={formData.customScopes}
                           onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, customScopes: e.target.value }))
+                            setFormData((prev) => ({
+                              ...prev,
+                              customScopes: e.target.value,
+                            }))
                           }
                         />
                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          Enter a JSON array of scope names. Must be a subset of your current
-                          scopes.
+                          Enter a JSON array of scope names. Must be a subset of
+                          your current scopes.
                         </p>
                         {scopeValidationError && (
                           <p className="mt-1 text-xs text-red-600 dark:text-red-400">
@@ -348,7 +364,9 @@ const TokenGeneration: React.FC = () => {
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <ExclamationTriangleIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
-                    <span className="text-sm text-red-800 dark:text-red-200">{error}</span>
+                    <span className="text-sm text-red-800 dark:text-red-200">
+                      {error}
+                    </span>
                   </div>
                 </div>
               )}
@@ -357,7 +375,7 @@ const TokenGeneration: React.FC = () => {
 
           {/* Generated Token Result */}
           {generatedToken && tokenDetails && (
-            <div className="card p-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+            <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-emerald-500/30 dark:border-emerald-500/30 p-5">
               <div className="flex items-center space-x-2 mb-3">
                 <CheckIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">
@@ -377,7 +395,7 @@ const TokenGeneration: React.FC = () => {
                   type="button"
                   onClick={handleCopyToken}
                   className="absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                  title={copied ? 'Copied!' : 'Copy token'}
+                  title={copied ? "Copied!" : "Copy token"}
                 >
                   {copied ? (
                     <CheckIcon className="h-4 w-4 text-green-600" />
@@ -390,17 +408,19 @@ const TokenGeneration: React.FC = () => {
               {/* Token Details */}
               <div className="space-y-2 text-sm mb-4">
                 <p>
-                  <strong>Expires:</strong>{' '}
+                  <strong>Expires:</strong>{" "}
                   {new Date(
-                    Date.now() + tokenDetails.token_data.expires_in * 1000
+                    Date.now() + tokenDetails.token_data.expires_in * 1000,
                   ).toLocaleString()}
                 </p>
                 <p>
-                  <strong>Scopes:</strong> {tokenDetails.requested_scopes.join(', ')}
+                  <strong>Scopes:</strong>{" "}
+                  {tokenDetails.requested_scopes.join(", ")}
                 </p>
                 {tokenDetails.token_data.description && (
                   <p>
-                    <strong>Description:</strong> {tokenDetails.token_data.description}
+                    <strong>Description:</strong>{" "}
+                    {tokenDetails.token_data.description}
                   </p>
                 )}
               </div>
@@ -424,8 +444,8 @@ const TokenGeneration: React.FC = () => {
               {/* Security Warning */}
               <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  <strong>⚠️ Important:</strong> This token will not be shown again. Save it
-                  securely!
+                  <strong>⚠️ Important:</strong> This token will not be shown
+                  again. Save it securely!
                 </p>
               </div>
             </div>

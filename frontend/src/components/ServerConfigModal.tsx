@@ -1,15 +1,15 @@
-import { ClipboardDocumentIcon } from '@heroicons/react/24/outline';
-import type React from 'react';
-import { useCallback, useState } from 'react';
-import type { Server } from './ServerCard';
+import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import type React from "react";
+import { useCallback, useState } from "react";
+import type { Server } from "./ServerCard";
 
-type IDE = 'vscode' | 'cursor' | 'cline' | 'claude-code';
+type IDE = "vscode" | "cursor" | "cline" | "claude-code";
 
 interface ServerConfigModalProps {
   server: Server;
   isOpen: boolean;
   onClose: () => void;
-  onShowToast?: (message: string, type: 'success' | 'error') => void;
+  onShowToast?: (message: string, type: "success" | "error") => void;
 }
 
 const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
@@ -18,74 +18,74 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
   onClose,
   onShowToast,
 }) => {
-  const [selectedIDE, setSelectedIDE] = useState<IDE>('vscode');
+  const [selectedIDE, setSelectedIDE] = useState<IDE>("vscode");
 
   const generateMCPConfig = useCallback(() => {
     const serverName = server.name
       .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
 
     // Get base URL and strip port for nginx proxy compatibility
     const currentUrl = new URL(window.location.origin);
     const baseUrl = `${currentUrl.protocol}//${currentUrl.hostname}`;
 
     // Clean up server path - remove trailing slashes and ensure single leading slash
-    const cleanPath = server.path.replace(/\/+$/, '').replace(/^\/+/, '/');
+    const cleanPath = server.path.replace(/\/+$/, "").replace(/^\/+/, "/");
     const url = `${baseUrl}${cleanPath}/mcp`;
 
     switch (selectedIDE) {
-      case 'vscode':
+      case "vscode":
         return {
           servers: {
             [serverName]: {
-              type: 'http',
+              type: "http",
               url,
               headers: {
-                Authorization: 'Bearer [YOUR_AUTH_TOKEN]',
+                Authorization: "Bearer [YOUR_AUTH_TOKEN]",
               },
             },
           },
           inputs: [
             {
-              type: 'promptString',
-              id: 'auth-token',
-              description: 'Gateway Authentication Token',
+              type: "promptString",
+              id: "auth-token",
+              description: "Gateway Authentication Token",
             },
           ],
         };
-      case 'cursor':
+      case "cursor":
         return {
           mcpServers: {
             [serverName]: {
               url,
               headers: {
-                Authorization: 'Bearer [YOUR_AUTH_TOKEN]',
+                Authorization: "Bearer [YOUR_AUTH_TOKEN]",
               },
             },
           },
         };
-      case 'cline':
+      case "cline":
         return {
           mcpServers: {
             [serverName]: {
-              type: 'streamableHttp',
+              type: "streamableHttp",
               url,
               disabled: false,
               headers: {
-                Authorization: 'Bearer [YOUR_AUTH_TOKEN]',
+                Authorization: "Bearer [YOUR_AUTH_TOKEN]",
               },
             },
           },
         };
-      case 'claude-code':
+      case "claude-code":
         return {
           mcpServers: {
             [serverName]: {
-              type: 'http',
+              type: "http",
               url,
               headers: {
-                Authorization: 'Bearer [YOUR_AUTH_TOKEN]',
+                Authorization: "Bearer [YOUR_AUTH_TOKEN]",
               },
             },
           },
@@ -94,10 +94,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
         return {
           mcpServers: {
             [serverName]: {
-              type: 'http',
+              type: "http",
               url,
               headers: {
-                Authorization: 'Bearer [YOUR_AUTH_TOKEN]',
+                Authorization: "Bearer [YOUR_AUTH_TOKEN]",
               },
             },
           },
@@ -111,10 +111,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
       const configText = JSON.stringify(config, null, 2);
       await navigator.clipboard.writeText(configText);
 
-      onShowToast?.('Configuration copied to clipboard!', 'success');
+      onShowToast?.("Configuration copied to clipboard!", "success");
     } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-      onShowToast?.('Failed to copy configuration', 'error');
+      console.error("Failed to copy to clipboard:", error);
+      onShowToast?.("Failed to copy configuration", "error");
     }
   }, [generateMCPConfig, onShowToast]);
 
@@ -123,8 +123,8 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[80vh] overflow-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
+      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-white/10 p-6 max-w-3xl w-full mx-4 max-h-[80vh] overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             MCP Configuration for {server.name}
@@ -146,24 +146,29 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
             <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
               <li>Copy the configuration below</li>
               <li>
-                Paste it into your{' '}
-                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">mcp.json</code> file
+                Paste it into your{" "}
+                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">
+                  mcp.json
+                </code>{" "}
+                file
               </li>
               <li>
-                Replace{' '}
+                Replace{" "}
                 <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">
                   [YOUR_AUTH_TOKEN]
-                </code>{' '}
+                </code>{" "}
                 with your gateway authentication token
               </li>
               <li>
-                Replace{' '}
+                Replace{" "}
                 <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded-sm">
                   [YOUR_CLIENT_ID]
-                </code>{' '}
+                </code>{" "}
                 with your client ID
               </li>
-              <li>Restart your AI coding assistant to load the new configuration</li>
+              <li>
+                Restart your AI coding assistant to load the new configuration
+              </li>
             </ol>
           </div>
 
@@ -172,9 +177,10 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
               🔐 Authentication Required
             </h4>
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              This configuration requires gateway authentication tokens. The tokens authenticate
-              your AI assistant with the MCP Gateway, not the individual server. Visit the
-              authentication documentation for setup instructions.
+              This configuration requires gateway authentication tokens. The
+              tokens authenticate your AI assistant with the MCP Gateway, not
+              the individual server. Visit the authentication documentation for
+              setup instructions.
             </p>
           </div>
 
@@ -183,43 +189,47 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
               Select your IDE/Tool:
             </h4>
             <div className="flex flex-wrap gap-2">
-              {(['vscode', 'cursor', 'cline', 'claude-code'] as IDE[]).map((ide) => (
-                <button
-                  type="button"
-                  key={ide}
-                  onClick={() => setSelectedIDE(ide)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedIDE === ide
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  {ide === 'vscode'
-                    ? 'VS Code'
-                    : ide === 'cursor'
-                      ? 'Cursor'
-                      : ide === 'cline'
-                        ? 'Cline'
-                        : 'Claude Code'}
-                </button>
-              ))}
+              {(["vscode", "cursor", "cline", "claude-code"] as IDE[]).map(
+                (ide) => (
+                  <button
+                    type="button"
+                    key={ide}
+                    onClick={() => setSelectedIDE(ide)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedIDE === ide
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    {ide === "vscode"
+                      ? "VS Code"
+                      : ide === "cursor"
+                        ? "Cursor"
+                        : ide === "cline"
+                          ? "Cline"
+                          : "Claude Code"}
+                  </button>
+                ),
+              )}
             </div>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-              Configuration format optimized for{' '}
-              {selectedIDE === 'vscode'
-                ? 'VS Code'
-                : selectedIDE === 'cursor'
-                  ? 'Cursor'
-                  : selectedIDE === 'cline'
-                    ? 'Cline'
-                    : 'Claude Code'}{' '}
+              Configuration format optimized for{" "}
+              {selectedIDE === "vscode"
+                ? "VS Code"
+                : selectedIDE === "cursor"
+                  ? "Cursor"
+                  : selectedIDE === "cline"
+                    ? "Cline"
+                    : "Claude Code"}{" "}
               integration
             </p>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-gray-900 dark:text-white">Configuration JSON:</h4>
+              <h4 className="font-medium text-gray-900 dark:text-white">
+                Configuration JSON:
+              </h4>
               <button
                 type="button"
                 onClick={copyConfigToClipboard}

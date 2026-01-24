@@ -636,18 +636,19 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 
           {filteredExternalServers.length === 0 &&
           filteredExternalAgents.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-              <div className="text-gray-400 text-lg mb-2">
-                {externalServers.length === 0 && externalAgents.length === 0
+            <EmptyState
+              variant="generic"
+              title={
+                externalServers.length === 0 && externalAgents.length === 0
                   ? "No External Registries Available"
-                  : "No Results Found"}
-              </div>
-              <p className="text-gray-500 dark:text-gray-300 text-sm max-w-md mx-auto">
-                {externalServers.length === 0 && externalAgents.length === 0
+                  : "No Results Found"
+              }
+              description={
+                externalServers.length === 0 && externalAgents.length === 0
                   ? "External registry integrations (Anthropic, ASOR, and more) will be available soon"
-                  : "Press Enter in the search bar to search semantically"}
-              </p>
-            </div>
+                  : "Press Enter in the search bar to search semantically"
+              }
+            />
           ) : (
             <div>
               {/* External Servers */}

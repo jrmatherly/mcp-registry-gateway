@@ -1,9 +1,13 @@
-import { ExclamationTriangleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import axios from 'axios';
-import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
-import { useAuth } from '../contexts/AuthContext';
+import {
+  ExclamationTriangleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
+import axios from "axios";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { useAuth } from "../contexts/AuthContext";
 
 interface OAuthProvider {
   name: string;
@@ -12,59 +16,69 @@ interface OAuthProvider {
 }
 
 const Login: React.FC = () => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{ username?: string; password?: string }>({});
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
   const [oauthProviders, setOauthProviders] = useState<OAuthProvider[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [authServerUrl, setAuthServerUrl] = useState<string>('');
+  const [authServerUrl, setAuthServerUrl] = useState<string>("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const fetchAuthConfig = useCallback(async () => {
     try {
-      const response = await axios.get('/api/auth/config');
-      setAuthServerUrl(response.data.auth_server_url || '');
+      const response = await axios.get("/api/auth/config");
+      setAuthServerUrl(response.data.auth_server_url || "");
     } catch (err) {
-      console.error('Failed to fetch auth config:', err);
+      console.error("Failed to fetch auth config:", err);
       // Fallback to localhost for development
-      setAuthServerUrl('http://localhost:8888');
+      setAuthServerUrl("http://localhost:8888");
     }
   }, []);
 
   const fetchOAuthProviders = useCallback(async () => {
     try {
-      console.log('[Login] Fetching OAuth providers from /api/auth/providers');
+      console.log("[Login] Fetching OAuth providers from /api/auth/providers");
       // Call the registry auth providers endpoint
-      const response = await axios.get('/api/auth/providers');
-      console.log('[Login] Response received:', response.data);
-      console.log('[Login] Providers:', response.data.providers);
+      const response = await axios.get("/api/auth/providers");
+      console.log("[Login] Response received:", response.data);
+      console.log("[Login] Providers:", response.data.providers);
       setOauthProviders(response.data.providers || []);
-      console.log('[Login] State updated with', response.data.providers?.length || 0, 'providers');
+      console.log(
+        "[Login] State updated with",
+        response.data.providers?.length || 0,
+        "providers",
+      );
     } catch (err) {
-      console.error('[Login] Failed to fetch OAuth providers:', err);
+      console.error("[Login] Failed to fetch OAuth providers:", err);
       // Don't show error for missing OAuth providers, just continue with basic auth
     }
   }, []);
 
   useEffect(() => {
-    console.log('[Login] Component mounted, fetching OAuth providers...');
+    console.log("[Login] Component mounted, fetching OAuth providers...");
     fetchAuthConfig();
     fetchOAuthProviders();
 
     // Check for error parameter from URL (e.g., from OAuth callback)
-    const urlError = searchParams.get('error');
+    const urlError = searchParams.get("error");
     if (urlError) {
       setError(decodeURIComponent(urlError));
     }
 
     // Check if user preferences exist
-    const savedRememberMe = localStorage.getItem('rememberMe') === 'true';
-    const savedUsername = localStorage.getItem('savedUsername');
+    const savedRememberMe = localStorage.getItem("rememberMe") === "true";
+    const savedUsername = localStorage.getItem("savedUsername");
     setRememberMe(savedRememberMe);
     if (savedRememberMe && savedUsername) {
       setCredentials((prev) => ({ ...prev, username: savedUsername }));
@@ -73,26 +87,26 @@ const Login: React.FC = () => {
 
   // Log when oauthProviders state changes
   useEffect(() => {
-    console.log('[Login] oauthProviders state changed:', oauthProviders);
+    console.log("[Login] oauthProviders state changed:", oauthProviders);
   }, [oauthProviders]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    setCapsLockOn(e.getModifierState('CapsLock'));
+    setCapsLockOn(e.getModifierState("CapsLock"));
   };
 
   const validateField = (field: string, value: string) => {
     const errors: { username?: string; password?: string } = {};
 
-    if (field === 'username' && value.trim().length === 0) {
-      errors.username = 'Username is required';
-    } else if (field === 'username' && value.length < 2) {
-      errors.username = 'Username must be at least 2 characters';
+    if (field === "username" && value.trim().length === 0) {
+      errors.username = "Username is required";
+    } else if (field === "username" && value.length < 2) {
+      errors.username = "Username must be at least 2 characters";
     }
 
-    if (field === 'password' && value.length === 0) {
-      errors.password = 'Password is required';
-    } else if (field === 'password' && value.length < 3) {
-      errors.password = 'Password must be at least 3 characters';
+    if (field === "password" && value.length === 0) {
+      errors.password = "Password is required";
+    } else if (field === "password" && value.length < 3) {
+      errors.password = "Password must be at least 3 characters";
     }
 
     setFieldErrors((prev) => ({ ...prev, ...errors }));
@@ -107,7 +121,7 @@ const Login: React.FC = () => {
     }
     // Clear general error
     if (error) {
-      setError('');
+      setError("");
     }
   };
 
@@ -118,12 +132,12 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     setFieldErrors({});
 
     // Validate all fields
-    const usernameValid = validateField('username', credentials.username);
-    const passwordValid = validateField('password', credentials.password);
+    const usernameValid = validateField("username", credentials.username);
+    const passwordValid = validateField("password", credentials.password);
 
     if (!usernameValid || !passwordValid) {
       setLoading(false);
@@ -135,34 +149,38 @@ const Login: React.FC = () => {
 
       // Handle remember me
       if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-        localStorage.setItem('savedUsername', credentials.username);
+        localStorage.setItem("rememberMe", "true");
+        localStorage.setItem("savedUsername", credentials.username);
       } else {
-        localStorage.removeItem('rememberMe');
-        localStorage.removeItem('savedUsername');
+        localStorage.removeItem("rememberMe");
+        localStorage.removeItem("savedUsername");
       }
 
-      navigate('/');
+      navigate("/");
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { detail?: string } } };
-      const errorMessage = axiosError.response?.data?.detail || 'Login failed';
+      const errorMessage = axiosError.response?.data?.detail || "Login failed";
 
       // Provide more specific error messages
       if (
-        errorMessage.toLowerCase().includes('credential') ||
-        errorMessage.toLowerCase().includes('password')
+        errorMessage.toLowerCase().includes("credential") ||
+        errorMessage.toLowerCase().includes("password")
       ) {
-        setError('Invalid username or password. Please check your credentials and try again.');
+        setError(
+          "Invalid username or password. Please check your credentials and try again.",
+        );
       } else if (
-        errorMessage.toLowerCase().includes('user') &&
-        errorMessage.toLowerCase().includes('not found')
+        errorMessage.toLowerCase().includes("user") &&
+        errorMessage.toLowerCase().includes("not found")
       ) {
-        setError('User not found. Please check your username or contact support.');
+        setError(
+          "User not found. Please check your username or contact support.",
+        );
       } else if (
-        errorMessage.toLowerCase().includes('disabled') ||
-        errorMessage.toLowerCase().includes('blocked')
+        errorMessage.toLowerCase().includes("disabled") ||
+        errorMessage.toLowerCase().includes("blocked")
       ) {
-        setError('Account is disabled. Please contact support for assistance.');
+        setError("Account is disabled. Please contact support for assistance.");
       } else {
         setError(errorMessage);
       }
@@ -176,13 +194,18 @@ const Login: React.FC = () => {
     const redirectUri = encodeURIComponent(`${currentOrigin}/`);
 
     // Use the auth server URL from config, fallback to localhost if not loaded yet
-    const authUrl = authServerUrl || 'http://localhost:8888';
+    const authUrl = authServerUrl || "http://localhost:8888";
     window.location.href = `${authUrl}/oauth2/login/${provider}?redirect_uri=${redirectUri}`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f14] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Gradient mesh background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-transparent to-indigo-500/10 dark:from-primary-900/30 dark:via-transparent dark:to-indigo-900/20 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary-500/20 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-400/10 to-transparent rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
+
+      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white">
           Sign in to MCP Servers & A2A Agents Registry
         </h2>
@@ -191,8 +214,8 @@ const Login: React.FC = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="card p-8">
+      <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/[0.08] p-8">
           {/* OAuth Providers */}
           {oauthProviders.length > 0 && (
             <div className="space-y-3 mb-6">
@@ -241,10 +264,10 @@ const Login: React.FC = () => {
                 type="text"
                 required
                 autoComplete="username"
-                className={`input mt-1 ${fieldErrors.username ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' : ''}`}
+                className={`input mt-1 ${fieldErrors.username ? "border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500" : ""}`}
                 value={credentials.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                onBlur={(e) => handleInputBlur('username', e.target.value)}
+                onChange={(e) => handleInputChange("username", e.target.value)}
+                onBlur={(e) => handleInputBlur("username", e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Enter your username"
               />
@@ -265,13 +288,15 @@ const Login: React.FC = () => {
               <div className="relative">
                 <input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
                   autoComplete="current-password"
-                  className={`input mt-1 pr-12 ${fieldErrors.password ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' : ''}`}
+                  className={`input mt-1 pr-12 ${fieldErrors.password ? "border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500" : ""}`}
                   value={credentials.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  onBlur={(e) => handleInputBlur('password', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                  onBlur={(e) => handleInputBlur("password", e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Enter your password"
                 />

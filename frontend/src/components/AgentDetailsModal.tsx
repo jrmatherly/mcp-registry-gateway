@@ -1,5 +1,5 @@
-import { ClipboardDocumentIcon } from '@heroicons/react/24/outline';
-import type React from 'react';
+import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import type React from "react";
 
 interface AgentLike {
   name: string;
@@ -40,16 +40,18 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
       if (onCopy) {
         await onCopy(dataToCopy);
       } else {
-        await navigator.clipboard.writeText(JSON.stringify(dataToCopy, null, 2));
+        await navigator.clipboard.writeText(
+          JSON.stringify(dataToCopy, null, 2),
+        );
       }
     } catch (error) {
-      console.error('Failed to copy agent JSON:', error);
+      console.error("Failed to copy agent JSON:", error);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
+      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-white/10 p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {agent.name} - Full Details (JSON)
@@ -70,14 +72,17 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
               Complete Agent Schema
             </h4>
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              This is the complete A2A agent definition stored in the registry. It includes all
-              metadata, skills, security schemes, and configuration details.
+              This is the complete A2A agent definition stored in the registry.
+              It includes all metadata, skills, security schemes, and
+              configuration details.
             </p>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-gray-900 dark:text-white">Agent JSON Schema:</h4>
+              <h4 className="font-medium text-gray-900 dark:text-white">
+                Agent JSON Schema:
+              </h4>
               <button
                 type="button"
                 onClick={handleCopy}
@@ -100,34 +105,44 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-3">Field Reference</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+              Field Reference
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Core Fields</h5>
+                <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Core Fields
+                </h5>
                 <ul className="space-y-1 text-gray-600 dark:text-gray-400">
                   <li>
                     <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
                       protocol_version
-                    </code>{' '}
+                    </code>{" "}
                     - A2A protocol version
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">name</code> -
-                    Agent display name
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      name
+                    </code>{" "}
+                    - Agent display name
                   </li>
                   <li>
                     <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
                       description
-                    </code>{' '}
+                    </code>{" "}
                     - Agent purpose
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">url</code> -
-                    Agent endpoint URL
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      url
+                    </code>{" "}
+                    - Agent endpoint URL
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">path</code> -
-                    Registry path
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      path
+                    </code>{" "}
+                    - Registry path
                   </li>
                 </ul>
               </div>
@@ -137,28 +152,34 @@ const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({
                 </h5>
                 <ul className="space-y-1 text-gray-600 dark:text-gray-400">
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">skills</code> -
-                    Agent capabilities
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      skills
+                    </code>{" "}
+                    - Agent capabilities
                   </li>
                   <li>
                     <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
                       security_schemes
-                    </code>{' '}
+                    </code>{" "}
                     - Auth methods
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">tags</code> -
-                    Categorization
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      tags
+                    </code>{" "}
+                    - Categorization
                   </li>
                   <li>
                     <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
                       trust_level
-                    </code>{' '}
+                    </code>{" "}
                     - Verification status
                   </li>
                   <li>
-                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">metadata</code> -
-                    Custom data
+                    <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
+                      metadata
+                    </code>{" "}
+                    - Custom data
                   </li>
                 </ul>
               </div>

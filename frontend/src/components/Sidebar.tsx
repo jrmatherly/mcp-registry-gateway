@@ -357,16 +357,16 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Statistics Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4 md:p-6">
+          <div className="border-t border-gray-200/50 dark:border-white/[0.06] p-4 md:p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <ChartBarIcon className="h-5 w-5 text-gray-500" />
+              <ChartBarIcon className="h-5 w-5 text-primary-500" />
               <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                 Statistics
               </h3>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="text-center p-3 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/[0.08]">
                 <div className="text-xl font-semibold text-gray-900 dark:text-white">
                   {stats.total}
                 </div>
@@ -374,15 +374,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Total
                 </div>
               </div>
-              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="text-xl font-semibold text-green-600 dark:text-green-400">
+              <div className="text-center p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
+                <div className="text-xl font-semibold text-emerald-600 dark:text-emerald-400">
                   {stats.enabled}
                 </div>
-                <div className="text-xs text-green-600 dark:text-green-400">
+                <div className="text-xs text-emerald-600 dark:text-emerald-400">
                   Enabled
                 </div>
               </div>
-              <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="text-center p-3 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/[0.08]">
                 <div className="text-xl font-semibold text-gray-500 dark:text-gray-300">
                   {stats.disabled}
                 </div>
@@ -390,7 +390,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Disabled
                 </div>
               </div>
-              <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <div className="text-center p-3 bg-red-500/10 rounded-xl border border-red-500/30">
                 <div className="text-xl font-semibold text-red-600 dark:text-red-400">
                   {stats.withIssues}
                 </div>
@@ -554,8 +554,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                       </div>
 
                       {/* Token Data Display */}
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                        <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
+                      <div className="bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm rounded-xl p-4 max-h-96 overflow-y-auto border border-gray-200/50 dark:border-white/[0.06]">
+                        <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all font-mono">
                           {JSON.stringify(tokenData, null, 2)}
                         </pre>
                       </div>
@@ -565,7 +565,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <button
                           type="button"
                           onClick={() => setShowTokenModal(false)}
-                          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
+                          className="px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm border border-gray-200/50 dark:border-white/10"
                         >
                           Close
                         </button>
