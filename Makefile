@@ -683,7 +683,7 @@ dev: dev-services
 	@echo "Starting backend and frontend in parallel..."
 	@trap 'kill 0' EXIT; \
 	(cd frontend && npm run dev) & \
-	(uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
+	(DOCUMENTDB_HOST=localhost uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
 	wait
 
 # Start full development environment with Keycloak auth provider
@@ -703,7 +703,7 @@ dev-keycloak: dev-services-kc
 	@echo "Starting backend and frontend in parallel..."
 	@trap 'kill 0' EXIT; \
 	(cd frontend && npm run dev) & \
-	(AUTH_PROVIDER=keycloak KEYCLOAK_ENABLED=true uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
+	(DOCUMENTDB_HOST=localhost AUTH_PROVIDER=keycloak KEYCLOAK_ENABLED=true uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
 	wait
 
 # Start only frontend with Vite hot-reload
@@ -719,7 +719,7 @@ dev-backend:
 	@echo "Starting FastAPI backend with auto-reload..."
 	@echo "Backend will be available at: http://localhost:7860"
 	@echo ""
-	uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload
+	DOCUMENTDB_HOST=localhost uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload
 
 # Start supporting services only (MongoDB, auth-server, metrics)
 dev-services:
@@ -783,13 +783,18 @@ dev-services-kc:
 # Also kills any running uvicorn/node processes started by dev targets
 dev-stop:
 	@echo "Stopping development services..."
+	@# Kill processes by port first (most reliable)
+	@-lsof -ti :7860 | xargs kill -9 2>/dev/null || true
+	@-lsof -ti :3000 | xargs kill -9 2>/dev/null || true
+	@# Kill uvicorn and related processes
+	@pkill -9 -f "uvicorn registry.main" 2>/dev/null || true
+	@pkill -9 -f "uv run uvicorn" 2>/dev/null || true
+	@# Kill any running Vite dev server
+	@pkill -9 -f "vite" 2>/dev/null || true
 	@# Stop Docker services
 	@docker compose stop mongodb mongodb-init auth-server metrics-service metrics-db keycloak keycloak-db 2>/dev/null || true
-	@# Kill any running uvicorn processes for this project
-	@pkill -f "uvicorn registry.main" 2>/dev/null || true
-	@# Kill any running Vite dev server (npm run dev in frontend)
-	@pkill -f "node.*frontend.*vite" 2>/dev/null || true
-	@pkill -f "vite.*frontend" 2>/dev/null || true
+	@# Brief pause to allow processes to terminate
+	@sleep 1
 	@echo "Development services stopped."
 
 # Check status of development services
