@@ -57,6 +57,86 @@ make install-dev   # Install dev dependencies only
 make install-all   # Install dev + docs dependencies
 ```
 
+## Hot-Reload Development (Recommended for UI Work)
+
+For the fastest iteration cycle, use the hot-reload development environment instead of rebuilding Docker containers after each change.
+
+### Quick Start (Full Stack Hot-Reload)
+
+```bash
+# Start everything with hot-reload enabled
+make dev
+```
+
+This starts:
+
+- **Frontend** at `http://localhost:3000` (Vite with HMR - instant updates)
+- **Backend** at `http://localhost:7860` (FastAPI with auto-reload)
+- **Services**: MongoDB, auth-server, metrics (Docker)
+
+### Frontend-Only Development
+
+If you're only working on frontend changes:
+
+```bash
+# Terminal 1: Start supporting services
+make dev-services
+
+# Terminal 2: Start frontend with hot-reload
+make dev-frontend
+```
+
+The Vite dev server provides:
+
+- **Hot Module Replacement (HMR)**: Changes appear instantly without page refresh
+- **API Proxy**: All `/api`, `/auth`, `/health` requests proxied to backend
+- **Error Overlay**: Build errors shown in browser
+
+### Backend-Only Development
+
+If you're only working on backend changes:
+
+```bash
+# Terminal 1: Start supporting services
+make dev-services
+
+# Terminal 2: Start backend with auto-reload
+make dev-backend
+```
+
+Changes to Python files automatically restart the server.
+
+### Development Workflow Commands
+
+| Command | Description |
+|---------|-------------|
+| `make dev` | Start full hot-reload environment |
+| `make dev-frontend` | Start Vite dev server only (port 3000) |
+| `make dev-backend` | Start FastAPI with auto-reload (port 7860) |
+| `make dev-services` | Start MongoDB, auth-server, metrics |
+| `make dev-stop` | Stop all development services |
+| `make dev-status` | Check status of all services |
+| `make dev-logs` | View logs from Docker services |
+
+### Frontend Commands
+
+| Command | Description |
+|---------|-------------|
+| `make frontend-install` | Install npm dependencies |
+| `make frontend-build` | Build for production |
+| `make frontend-test` | Run frontend tests |
+| `make frontend-lint` | Lint and format code |
+
+### When to Use Docker vs Hot-Reload
+
+| Scenario | Recommended Approach |
+|----------|---------------------|
+| UI/frontend changes | `make dev-frontend` (instant feedback) |
+| Backend API changes | `make dev-backend` (auto-reload) |
+| Full stack development | `make dev` (both hot-reload) |
+| Testing Docker builds | `docker compose up --build` |
+| Production testing | `make build-push` |
+
 ## Before You Start Coding
 
 ### 1. Ask Your Coding Assistant to Read Documentation

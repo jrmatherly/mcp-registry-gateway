@@ -1,4 +1,4 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump helm-lint helm-package helm-push helm-release helm-deps
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump helm-lint helm-package helm-push helm-release helm-deps dev dev-frontend dev-backend dev-services dev-stop dev-status dev-logs frontend-install frontend-build frontend-test frontend-lint
 
 # Version file
 VERSION_FILE := VERSION
@@ -6,6 +6,21 @@ VERSION_FILE := VERSION
 # Default target
 help:
 	@echo "MCP Registry Testing Commands"
+	@echo ""
+	@echo "Hot-Reload Development (NEW - Fastest iteration):"
+	@echo "  dev             Start full hot-reload dev environment (frontend + backend + services)"
+	@echo "  dev-frontend    Start Vite dev server with hot-reload (port 3000)"
+	@echo "  dev-backend     Start FastAPI backend with auto-reload (port 7860)"
+	@echo "  dev-services    Start supporting services only (MongoDB, auth-server, metrics)"
+	@echo "  dev-stop        Stop all development services"
+	@echo "  dev-status      Check status of development services"
+	@echo "  dev-logs        View logs from development services"
+	@echo ""
+	@echo "Frontend Development:"
+	@echo "  frontend-install  Install frontend dependencies"
+	@echo "  frontend-build    Build frontend for production"
+	@echo "  frontend-test     Run frontend tests"
+	@echo "  frontend-lint     Lint and format frontend code"
 	@echo ""
 	@echo "Setup:"
 	@echo "  install-dev     Install development dependencies (testing, linting)"
@@ -642,3 +657,118 @@ helm-version-update:
 		sed -i.bak "s/version: 2\.[0-9]*\.[0-9]*/version: $$version/g" "$$stack_file" && rm -f "$$stack_file.bak"; \
 	fi; \
 	echo "Chart versions updated."
+
+# =============================================================================
+# Hot-Reload Development Environment
+# =============================================================================
+# These commands enable fast iteration without rebuilding Docker containers.
+# Frontend: Vite dev server with HMR (Hot Module Replacement)
+# Backend: Uvicorn with auto-reload on Python file changes
+# Services: MongoDB, auth-server, metrics via Docker Compose
+
+# Start full development environment with hot-reload
+dev: dev-services
+	@echo ""
+	@echo "Starting hot-reload development environment..."
+	@echo ""
+	@echo "This will start:"
+	@echo "  - Frontend: http://localhost:3000 (Vite with HMR)"
+	@echo "  - Backend:  http://localhost:7860 (FastAPI with auto-reload)"
+	@echo "  - Services: MongoDB, auth-server, metrics (Docker)"
+	@echo ""
+	@echo "Starting backend and frontend in parallel..."
+	@trap 'kill 0' EXIT; \
+	(cd frontend && npm run dev) & \
+	(uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
+	wait
+
+# Start only frontend with Vite hot-reload
+dev-frontend: frontend-install
+	@echo "Starting Vite dev server with hot-reload..."
+	@echo "Frontend will be available at: http://localhost:3000"
+	@echo "API requests proxied to: http://localhost:7860"
+	@echo ""
+	cd frontend && npm run dev
+
+# Start only backend with auto-reload
+dev-backend:
+	@echo "Starting FastAPI backend with auto-reload..."
+	@echo "Backend will be available at: http://localhost:7860"
+	@echo ""
+	uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload
+
+# Start supporting services only (MongoDB, auth-server, metrics)
+dev-services:
+	@echo "Starting development services..."
+	@docker compose up -d mongodb mongodb-init auth-server metrics-service metrics-db
+	@echo ""
+	@echo "Waiting for services to be ready..."
+	@timeout=60; while [ $$timeout -gt 0 ]; do \
+		if docker compose ps mongodb 2>/dev/null | grep -q "healthy"; then \
+			echo "MongoDB is ready."; \
+			break; \
+		fi; \
+		sleep 2; \
+		timeout=$$((timeout - 2)); \
+		echo "  Waiting for MongoDB... ($$timeout seconds remaining)"; \
+	done
+	@echo ""
+	@echo "Development services started:"
+	@echo "  - MongoDB:        localhost:27017"
+	@echo "  - Auth Server:    localhost:8888"
+	@echo "  - Metrics:        localhost:8890"
+
+# Stop all development services
+dev-stop:
+	@echo "Stopping development services..."
+	@docker compose stop mongodb mongodb-init auth-server metrics-service metrics-db 2>/dev/null || true
+	@echo "Development services stopped."
+
+# Check status of development services
+dev-status:
+	@echo "Development Services Status:"
+	@echo ""
+	@echo "Docker Services:"
+	@docker compose ps mongodb auth-server metrics-service 2>/dev/null || echo "  No Docker services running"
+	@echo ""
+	@echo "Port Check:"
+	@if lsof -i :3000 >/dev/null 2>&1; then echo "  Port 3000 (Frontend): IN USE"; else echo "  Port 3000 (Frontend): Available"; fi
+	@if lsof -i :7860 >/dev/null 2>&1; then echo "  Port 7860 (Backend):  IN USE"; else echo "  Port 7860 (Backend):  Available"; fi
+	@if lsof -i :27017 >/dev/null 2>&1; then echo "  Port 27017 (MongoDB): IN USE"; else echo "  Port 27017 (MongoDB): Available"; fi
+	@if lsof -i :8888 >/dev/null 2>&1; then echo "  Port 8888 (Auth):     IN USE"; else echo "  Port 8888 (Auth):     Available"; fi
+
+# View logs from development services
+dev-logs:
+	@docker compose logs -f mongodb auth-server metrics-service
+
+# =============================================================================
+# Frontend Development Commands
+# =============================================================================
+
+# Install frontend dependencies
+frontend-install:
+	@echo "Installing frontend dependencies..."
+	@cd frontend && npm install --legacy-peer-deps
+	@echo "Frontend dependencies installed."
+
+# Build frontend for production
+frontend-build: frontend-install
+	@echo "Building frontend for production..."
+	@cd frontend && npm run build
+	@echo "Frontend built to frontend/build/"
+
+# Run frontend tests
+frontend-test:
+	@echo "Running frontend tests..."
+	@cd frontend && npm run test
+
+# Run frontend tests with coverage
+frontend-test-coverage:
+	@echo "Running frontend tests with coverage..."
+	@cd frontend && npm run test:coverage
+
+# Lint and format frontend code
+frontend-lint:
+	@echo "Linting and formatting frontend code..."
+	@cd frontend && npm run check
+	@echo "Frontend lint complete."

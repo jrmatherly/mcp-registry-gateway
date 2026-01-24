@@ -19,8 +19,44 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Enable HMR (Hot Module Replacement) for fast development
+    hmr: {
+      overlay: true,
+    },
+    // Proxy all API and auth requests to the backend
     proxy: {
+      // Main API endpoints
       "/api": {
+        target: "http://localhost:7860",
+        changeOrigin: true,
+      },
+      // Authentication endpoints
+      "/auth": {
+        target: "http://localhost:7860",
+        changeOrigin: true,
+      },
+      // Health check endpoints
+      "/health": {
+        target: "http://localhost:7860",
+        changeOrigin: true,
+      },
+      // Anthropic registry API (v0.1)
+      "/v0.1": {
+        target: "http://localhost:7860",
+        changeOrigin: true,
+      },
+      // Well-known discovery endpoints
+      "/.well-known": {
+        target: "http://localhost:7860",
+        changeOrigin: true,
+      },
+      // MCP server endpoints
+      "/mcp": {
+        target: "http://localhost:7860",
+        changeOrigin: true,
+      },
+      // Version endpoint
+      "/version": {
         target: "http://localhost:7860",
         changeOrigin: true,
       },
