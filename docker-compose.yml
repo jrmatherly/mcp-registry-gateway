@@ -70,7 +70,7 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # MongoDB initialization (creates replica set, indexes, and loads admin scope)
+  # MongoDB initialization (creates replica set, indexes, loads scopes, and seeds servers/agents)
   mongodb-init:
     image: python:3.11-slim
     container_name: mcp-mongodb-init
@@ -84,12 +84,17 @@ services:
       - DOCUMENTDB_USERNAME=${DOCUMENTDB_USERNAME:-admin}
       - DOCUMENTDB_PASSWORD=${DOCUMENTDB_PASSWORD:-admin}
       - DOCUMENTDB_NAMESPACE=${DOCUMENTDB_NAMESPACE:-default}
+      - SEED_SERVERS_DIR=/data/servers
+      - SEED_AGENTS_DIR=/data/agents
     volumes:
       - ./scripts/init-mongodb-ce.py:/app/scripts/init-mongodb-ce.py:ro
       - ./scripts/registry-admins.json:/app/scripts/registry-admins.json:ro
       - ./scripts/mcp-registry-admin.json:/app/scripts/mcp-registry-admin.json:ro
       - ./scripts/mcp-servers-unrestricted-read.json:/app/scripts/mcp-servers-unrestricted-read.json:ro
       - ./scripts/mcp-servers-unrestricted-execute.json:/app/scripts/mcp-servers-unrestricted-execute.json:ro
+      # Mount server and agent JSON files for seeding
+      - ${MCP_GATEWAY_BASE_DIR:-${HOME}/mcp-gateway}/servers:/data/servers:ro
+      - ${MCP_GATEWAY_BASE_DIR:-${HOME}/mcp-gateway}/agents:/data/agents:ro
     command: >
       sh -c "
       pip install --quiet --disable-pip-version-check --root-user-action=ignore motor pymongo &&
