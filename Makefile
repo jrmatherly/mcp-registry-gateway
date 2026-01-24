@@ -1,4 +1,4 @@
-.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump helm-lint helm-package helm-push helm-release helm-deps dev dev-frontend dev-backend dev-services dev-stop dev-status dev-logs frontend-install frontend-build frontend-test frontend-lint
+.PHONY: help test test-unit test-integration test-e2e test-fast test-coverage test-auth test-servers test-search test-health test-core install-dev install-docs install-all lint lint-fix format format-check security check-deps clean build-keycloak push-keycloak build-and-push-keycloak deploy-keycloak update-keycloak save-outputs view-logs view-logs-keycloak view-logs-registry view-logs-auth view-logs-follow list-images build push build-push generate-manifest validate-config publish-dockerhub publish-dockerhub-component publish-dockerhub-version publish-dockerhub-no-mirror publish-local compose-up-agents compose-down-agents compose-logs-agents build-agents push-agents setup-keycloak keycloak-start keycloak-init keycloak-credentials keycloak-status keycloak-logs keycloak-stop keycloak-reset release version-bump helm-lint helm-package helm-push helm-release helm-deps dev dev-keycloak dev-frontend dev-backend dev-services dev-services-kc dev-stop dev-status dev-logs frontend-install frontend-build frontend-test frontend-lint
 
 # Version file
 VERSION_FILE := VERSION
@@ -9,10 +9,12 @@ help:
 	@echo ""
 	@echo "Hot-Reload Development (NEW - Fastest iteration):"
 	@echo "  dev             Start full hot-reload dev environment (frontend + backend + services)"
+	@echo "  dev-keycloak    Start hot-reload dev with Keycloak auth provider"
 	@echo "  dev-frontend    Start Vite dev server with hot-reload (port 3000)"
 	@echo "  dev-backend     Start FastAPI backend with auto-reload (port 7860)"
 	@echo "  dev-services    Start supporting services only (MongoDB, auth-server, metrics)"
-	@echo "  dev-stop        Stop all development services"
+	@echo "  dev-services-kc Start supporting services WITH Keycloak (for Keycloak auth)"
+	@echo "  dev-stop        Stop all development services (including Keycloak)"
 	@echo "  dev-status      Check status of development services"
 	@echo "  dev-logs        View logs from development services"
 	@echo ""
@@ -676,10 +678,32 @@ dev: dev-services
 	@echo "  - Backend:  http://localhost:7860 (FastAPI with auto-reload)"
 	@echo "  - Services: MongoDB, auth-server, metrics (Docker)"
 	@echo ""
+	@echo "NOTE: For Keycloak auth, use 'make dev-keycloak' instead."
+	@echo ""
 	@echo "Starting backend and frontend in parallel..."
 	@trap 'kill 0' EXIT; \
 	(cd frontend && npm run dev) & \
 	(uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
+	wait
+
+# Start full development environment with Keycloak auth provider
+dev-keycloak: dev-services-kc
+	@echo ""
+	@echo "Starting hot-reload development environment with Keycloak..."
+	@echo ""
+	@echo "This will start:"
+	@echo "  - Frontend:  http://localhost:3000 (Vite with HMR)"
+	@echo "  - Backend:   http://localhost:7860 (FastAPI with auto-reload)"
+	@echo "  - Keycloak:  http://localhost:8080 (Admin console)"
+	@echo "  - Services:  MongoDB, auth-server, metrics (Docker)"
+	@echo ""
+	@echo "Keycloak Admin: http://localhost:8080/admin"
+	@echo "  Default credentials: admin / (check KEYCLOAK_ADMIN_PASSWORD in .env)"
+	@echo ""
+	@echo "Starting backend and frontend in parallel..."
+	@trap 'kill 0' EXIT; \
+	(cd frontend && npm run dev) & \
+	(AUTH_PROVIDER=keycloak KEYCLOAK_ENABLED=true uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
 	wait
 
 # Start only frontend with Vite hot-reload
@@ -718,10 +742,47 @@ dev-services:
 	@echo "  - Auth Server:    localhost:8888"
 	@echo "  - Metrics:        localhost:8890"
 
-# Stop all development services
+# Start supporting services WITH Keycloak (for Keycloak auth provider)
+dev-services-kc:
+	@echo "Starting development services with Keycloak..."
+	@docker compose up -d mongodb mongodb-init keycloak-db keycloak auth-server metrics-service metrics-db
+	@echo ""
+	@echo "Waiting for services to be ready..."
+	@timeout=60; while [ $$timeout -gt 0 ]; do \
+		if docker compose ps mongodb 2>/dev/null | grep -q "healthy"; then \
+			echo "MongoDB is ready."; \
+			break; \
+		fi; \
+		sleep 2; \
+		timeout=$$((timeout - 2)); \
+		echo "  Waiting for MongoDB... ($$timeout seconds remaining)"; \
+	done
+	@echo ""
+	@echo "Waiting for Keycloak to be ready (this may take 1-2 minutes)..."
+	@timeout=120; while [ $$timeout -gt 0 ]; do \
+		if curl -sf http://localhost:8080/realms/master >/dev/null 2>&1; then \
+			echo "Keycloak is ready."; \
+			break; \
+		fi; \
+		sleep 5; \
+		timeout=$$((timeout - 5)); \
+		echo "  Waiting for Keycloak... ($$timeout seconds remaining)"; \
+	done
+	@echo ""
+	@if ! curl -sf http://localhost:8080/realms/mcp-gateway >/dev/null 2>&1; then \
+		echo "mcp-gateway realm not found. Run 'make keycloak-init' to initialize."; \
+	fi
+	@echo ""
+	@echo "Development services started:"
+	@echo "  - MongoDB:        localhost:27017"
+	@echo "  - Keycloak:       localhost:8080"
+	@echo "  - Auth Server:    localhost:8888"
+	@echo "  - Metrics:        localhost:8890"
+
+# Stop all development services (including Keycloak if running)
 dev-stop:
 	@echo "Stopping development services..."
-	@docker compose stop mongodb mongodb-init auth-server metrics-service metrics-db 2>/dev/null || true
+	@docker compose stop mongodb mongodb-init auth-server metrics-service metrics-db keycloak keycloak-db 2>/dev/null || true
 	@echo "Development services stopped."
 
 # Check status of development services
@@ -729,17 +790,28 @@ dev-status:
 	@echo "Development Services Status:"
 	@echo ""
 	@echo "Docker Services:"
-	@docker compose ps mongodb auth-server metrics-service 2>/dev/null || echo "  No Docker services running"
+	@docker compose ps mongodb auth-server metrics-service keycloak 2>/dev/null || echo "  No Docker services running"
 	@echo ""
 	@echo "Port Check:"
-	@if lsof -i :3000 >/dev/null 2>&1; then echo "  Port 3000 (Frontend): IN USE"; else echo "  Port 3000 (Frontend): Available"; fi
-	@if lsof -i :7860 >/dev/null 2>&1; then echo "  Port 7860 (Backend):  IN USE"; else echo "  Port 7860 (Backend):  Available"; fi
-	@if lsof -i :27017 >/dev/null 2>&1; then echo "  Port 27017 (MongoDB): IN USE"; else echo "  Port 27017 (MongoDB): Available"; fi
-	@if lsof -i :8888 >/dev/null 2>&1; then echo "  Port 8888 (Auth):     IN USE"; else echo "  Port 8888 (Auth):     Available"; fi
+	@if lsof -i :3000 >/dev/null 2>&1; then echo "  Port 3000 (Frontend):  IN USE"; else echo "  Port 3000 (Frontend):  Available"; fi
+	@if lsof -i :7860 >/dev/null 2>&1; then echo "  Port 7860 (Backend):   IN USE"; else echo "  Port 7860 (Backend):   Available"; fi
+	@if lsof -i :27017 >/dev/null 2>&1; then echo "  Port 27017 (MongoDB):  IN USE"; else echo "  Port 27017 (MongoDB):  Available"; fi
+	@if lsof -i :8080 >/dev/null 2>&1; then echo "  Port 8080 (Keycloak):  IN USE"; else echo "  Port 8080 (Keycloak):  Available"; fi
+	@if lsof -i :8888 >/dev/null 2>&1; then echo "  Port 8888 (Auth):      IN USE"; else echo "  Port 8888 (Auth):      Available"; fi
+	@echo ""
+	@echo "Keycloak Realm Status:"
+	@if curl -sf http://localhost:8080/realms/mcp-gateway >/dev/null 2>&1; then \
+		echo "  mcp-gateway realm: Configured"; \
+	elif curl -sf http://localhost:8080/realms/master >/dev/null 2>&1; then \
+		echo "  mcp-gateway realm: Not initialized (run 'make keycloak-init')"; \
+	else \
+		echo "  Keycloak: Not running"; \
+	fi
 
 # View logs from development services
 dev-logs:
-	@docker compose logs -f mongodb auth-server metrics-service
+	@docker compose logs -f mongodb auth-server metrics-service keycloak 2>/dev/null || \
+	 docker compose logs -f mongodb auth-server metrics-service
 
 # =============================================================================
 # Frontend Development Commands

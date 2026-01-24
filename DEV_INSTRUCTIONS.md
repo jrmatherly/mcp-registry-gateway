@@ -64,8 +64,11 @@ For the fastest iteration cycle, use the hot-reload development environment inst
 ### Quick Start (Full Stack Hot-Reload)
 
 ```bash
-# Start everything with hot-reload enabled
+# Start everything with hot-reload enabled (Cognito/GitHub/Google auth)
 make dev
+
+# OR: Start with Keycloak as auth provider
+make dev-keycloak
 ```
 
 This starts:
@@ -73,6 +76,7 @@ This starts:
 - **Frontend** at `http://localhost:3000` (Vite with HMR - instant updates)
 - **Backend** at `http://localhost:7860` (FastAPI with auto-reload)
 - **Services**: MongoDB, auth-server, metrics (Docker)
+- **Keycloak** at `http://localhost:8080` (only with `make dev-keycloak`)
 
 ### Frontend-Only Development
 
@@ -111,12 +115,29 @@ Changes to Python files automatically restart the server.
 | Command | Description |
 |---------|-------------|
 | `make dev` | Start full hot-reload environment |
+| `make dev-keycloak` | Start hot-reload with Keycloak auth provider |
 | `make dev-frontend` | Start Vite dev server only (port 3000) |
 | `make dev-backend` | Start FastAPI with auto-reload (port 7860) |
 | `make dev-services` | Start MongoDB, auth-server, metrics |
+| `make dev-services-kc` | Start services WITH Keycloak |
 | `make dev-stop` | Stop all development services |
 | `make dev-status` | Check status of all services |
 | `make dev-logs` | View logs from Docker services |
+
+### Keycloak Development
+
+If using Keycloak as your auth provider:
+
+```bash
+# First time setup: Initialize Keycloak realm, clients, users
+make dev-services-kc
+make keycloak-init
+
+# After initialization, use this for development
+make dev-keycloak
+```
+
+The `dev-keycloak` target automatically sets `AUTH_PROVIDER=keycloak` and `KEYCLOAK_ENABLED=true` environment variables for the backend.
 
 ### Frontend Commands
 
