@@ -783,10 +783,15 @@ dev-services-kc:
 # Also kills any running uvicorn/node processes started by dev targets
 dev-stop:
 	@echo "Stopping development services..."
-	@# Kill processes by port first (most reliable)
-	@-lsof -ti :7860 | xargs kill -9 2>/dev/null || true
-	@-lsof -ti :3000 | xargs kill -9 2>/dev/null || true
-	@# Kill uvicorn and related processes
+	@# Kill processes by port first (most reliable for catching orphaned children)
+	@for port in 7860 3000; do \
+		pids=$$(lsof -ti :$$port 2>/dev/null); \
+		if [ -n "$$pids" ]; then \
+			echo "  Killing processes on port $$port: $$pids"; \
+			echo "$$pids" | xargs kill -9 2>/dev/null || true; \
+		fi; \
+	done
+	@# Kill uvicorn and related processes by pattern
 	@pkill -9 -f "uvicorn registry.main" 2>/dev/null || true
 	@pkill -9 -f "uv run uvicorn" 2>/dev/null || true
 	@# Kill any running Vite dev server
