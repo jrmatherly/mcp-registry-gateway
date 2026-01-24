@@ -38,10 +38,11 @@ repos:
         description: Validate YAML file syntax
         exclude: ^(docker/|\.github/|charts/|mkdocs\.yml)
 
-      # Check JSON syntax
+      # Check JSON syntax (excludes .vscode/ which uses JSONC with comments)
       - id: check-json
         name: Check JSON
         description: Validate JSON file syntax
+        exclude: ^\.vscode/
 
       # Prevent large files from being committed
       - id: check-added-large-files
