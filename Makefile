@@ -470,8 +470,10 @@ release:
 	echo "$$next" > $(VERSION_FILE); \
 	echo "Updating pyproject.toml version..."; \
 	sed -i.bak "s/^version = \".*\"/version = \"$$next\"/" pyproject.toml && rm -f pyproject.toml.bak; \
+	echo "Regenerating uv.lock with new version..."; \
+	uv lock; \
 	echo "Staging version files..."; \
-	git add $(VERSION_FILE) pyproject.toml; \
+	git add $(VERSION_FILE) pyproject.toml uv.lock; \
 	echo "Creating commit..."; \
 	git commit -m "chore: bump version to $$next"; \
 	echo "Creating tag v$$next..."; \
@@ -485,5 +487,6 @@ release:
 	echo "Release artifacts:"; \
 	echo "  - VERSION file updated to $$next"; \
 	echo "  - pyproject.toml version updated to $$next"; \
+	echo "  - uv.lock regenerated with $$next"; \
 	echo "  - Git tag v$$next created and pushed"; \
 	echo "  - Commit pushed to origin"
