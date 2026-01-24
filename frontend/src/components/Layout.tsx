@@ -110,8 +110,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* Version badge */}
               {version && (
-                <div className="hidden md:flex items-center px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 rounded-md">
-                  <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                <div className="hidden md:flex items-center px-2.5 py-1 bg-gradient-to-r from-primary-500/10 to-indigo-500/10 backdrop-blur-sm rounded-lg border border-primary-500/20">
+                  <span className="text-xs font-medium text-primary-700 dark:text-primary-300">
                     {version}
                   </span>
                 </div>
@@ -134,8 +134,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Menu as="div" className="relative">
                 <div>
                   <Menu.Button className="flex items-center space-x-3 text-sm rounded-full focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-800 flex items-center justify-center">
-                      <UserIcon className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                      <UserIcon className="h-5 w-5 text-white" />
                     </div>
                     <span className="hidden md:block text-gray-700 dark:text-gray-100 font-medium">
                       {user?.username || "Admin"}
@@ -159,8 +159,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <Link
                           to="/settings"
                           className={`${
-                            active ? "bg-gray-100 dark:bg-gray-800" : ""
-                          } flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-100`}
+                            active ? "bg-white/50 dark:bg-white/10" : ""
+                          } flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-100 transition-colors`}
                         >
                           <Cog6ToothIcon className="mr-3 h-4 w-4" />
                           Settings
@@ -168,7 +168,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       )}
                     </Menu.Item>
 
-                    <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+                    <div className="border-t border-gray-200/50 dark:border-white/10 my-1" />
 
                     <Menu.Item>
                       {({ active }) => (
@@ -176,8 +176,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           type="button"
                           onClick={handleLogout}
                           className={`${
-                            active ? "bg-gray-100 dark:bg-gray-800" : ""
-                          } flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100`}
+                            active ? "bg-white/50 dark:bg-white/10" : ""
+                          } flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 transition-colors`}
                         >
                           <ArrowRightOnRectangleIcon className="mr-3 h-4 w-4" />
                           Sign out

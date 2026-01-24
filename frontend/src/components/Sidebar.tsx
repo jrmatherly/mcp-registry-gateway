@@ -229,10 +229,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         /* Dashboard - Show user info, filters and stats */
         <>
           {/* User Info Header */}
-          <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 md:p-6 border-b border-gray-200/50 dark:border-white/[0.06]">
             {/* User Access Information */}
             {user && (
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="p-3 bg-white/60 dark:bg-white/[0.03] backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/10">
                 <div className="text-sm">
                   <div className="font-medium text-gray-900 dark:text-white mb-1">
                     {user.username}
@@ -262,7 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       type="button"
                       onClick={fetchAdminTokens}
                       disabled={loading}
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-medium transition-all bg-gradient-to-r from-primary-500 to-indigo-600 text-white hover:from-primary-600 hover:to-indigo-700 shadow-lg shadow-primary-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>
@@ -338,16 +338,22 @@ const Sidebar: React.FC<SidebarProps> = ({
                   type="button"
                   key={filter.key}
                   onClick={() => setActiveFilter(filter.key)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all focus:outline-hidden focus:ring-2 focus:ring-primary-500 ${
                     activeFilter === filter.key
-                      ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      ? "bg-gradient-to-r from-primary-500/15 to-indigo-500/10 text-primary-700 dark:text-primary-300 border border-primary-500/30 shadow-sm"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 border border-transparent"
                   }`}
                   tabIndex={0}
                 >
                   <div className="flex items-center justify-between">
                     <span>{filter.label}</span>
-                    <span className="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full backdrop-blur-sm ${
+                        activeFilter === filter.key
+                          ? "bg-primary-500/20 text-primary-600 dark:text-primary-300"
+                          : "bg-gray-200/80 dark:bg-white/10 text-gray-600 dark:text-gray-400"
+                      }`}
+                    >
                       {stats[filter.count as keyof typeof stats]}
                     </span>
                   </div>
