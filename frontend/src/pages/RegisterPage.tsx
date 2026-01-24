@@ -7,55 +7,13 @@ import {
   ExclamationCircleIcon,
   InformationCircleIcon,
   ServerIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import axios from "axios";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import Toast from "../components/Toast";
 import { useAuth } from "../contexts/AuthContext";
-
-// Toast notification component
-interface ToastProps {
-  message: string;
-  type: "success" | "error";
-  onClose: () => void;
-}
-
-const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div className="fixed top-4 right-4 z-50 animate-slide-in-top">
-      <div
-        className={`flex items-center p-4 rounded-lg shadow-lg border ${
-          type === "success"
-            ? "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/50 dark:border-green-700 dark:text-green-200"
-            : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/50 dark:border-red-700 dark:text-red-200"
-        }`}
-      >
-        {type === "success" ? (
-          <CheckCircleIcon className="h-5 w-5 mr-3 shrink-0" />
-        ) : (
-          <ExclamationCircleIcon className="h-5 w-5 mr-3 shrink-0" />
-        )}
-        <p className="text-sm font-medium">{message}</p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="ml-3 shrink-0 text-current opacity-70 hover:opacity-100"
-        >
-          <XMarkIcon className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
 
 type RegistrationType = "server" | "agent";
 type RegistrationMode = "form" | "json";

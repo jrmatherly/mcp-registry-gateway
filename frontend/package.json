@@ -8,7 +8,7 @@
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/postcss": "^4.1.18",
-    "ajv": "8.17.1",
+
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "postcss": "^8.5.6",

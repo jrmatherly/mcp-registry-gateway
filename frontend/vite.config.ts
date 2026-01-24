@@ -16,6 +16,28 @@ export default defineConfig({
   root: ".",
   build: {
     outDir: "build",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Vendor chunks for better caching
+          if (id.includes("node_modules")) {
+            if (id.includes("react-router")) {
+              return "vendor-router";
+            }
+            if (id.includes("@headlessui") || id.includes("@heroicons")) {
+              return "vendor-ui";
+            }
+            if (id.includes("axios") || id.includes("clsx")) {
+              return "vendor-utils";
+            }
+            // React and React-DOM go to main vendor chunk
+            if (id.includes("react") || id.includes("react-dom")) {
+              return "vendor-react";
+            }
+          }
+        },
+      },
+    },
   },
   server: {
     port: 3000,
