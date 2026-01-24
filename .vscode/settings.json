@@ -1,5 +1,17 @@
 {
   "yaml.schemas": {
     "./.vscode/schemas/grafana-datasource-provisioning.schema.json": "config/grafana/datasources/*.yml"
-  }
+  },
+  "[helm]": {
+    "editor.formatOnSave": false
+  },
+  "files.associations": {
+    "charts/**/templates/**/*.yaml": "helm",
+    "charts/**/templates/**/*.yml": "helm",
+    "charts/**/templates/**/*.tpl": "helm"
+  },
+  "yaml.customTags": [
+    "!vault",
+    "!include_raw"
+  ]
 }
