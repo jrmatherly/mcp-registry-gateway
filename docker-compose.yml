@@ -9,24 +9,65 @@
 # Note: DocumentDB is a managed AWS service and runs outside of Docker.
 
 services:
+  # MongoDB keyfile initialization (generates keyfile for replica set authentication)
+  # This runs once before MongoDB starts to create the keyfile with correct permissions
+  mongodb-keyfile-init:
+    image: alpine:latest
+    container_name: mcp-mongodb-keyfile-init
+    volumes:
+      - mongodb-keyfile:/keyfile
+    command: >
+      sh -c "
+      if [ ! -f /keyfile/replica.key ]; then
+        echo 'Generating MongoDB keyfile...';
+        apk add --no-cache openssl;
+        openssl rand -base64 756 > /keyfile/replica.key;
+        chmod 400 /keyfile/replica.key;
+        chown 999:999 /keyfile/replica.key;
+        echo 'Keyfile generated successfully';
+      else
+        echo 'Keyfile already exists, skipping generation';
+      fi
+      "
+    restart: "no"
+
   # MongoDB Community Edition 8.2 (alternative to DocumentDB for local development)
   # Vector search is implemented in application code (see search_repository.py)
-  # Running without authentication for local development simplicity
+  # Running with authentication enabled for security
   mongodb:
-    image: mongo:8.2
+    image: mongo:${MONGODB_VERSION:-8}
     container_name: mcp-mongodb
-    command: mongod --replSet rs0 --bind_ip 127.0.0.1,mongodb
+    command: mongod --replSet rs0 --bind_ip 127.0.0.1,mongodb --auth --keyFile /keyfile/replica.key
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DOCUMENTDB_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${DOCUMENTDB_PASSWORD:-admin}
     ports:
       - "27017:27017"
     volumes:
       - mongodb-data:/data/db
       - mongodb-config:/data/configdb
+      - mongodb-keyfile:/keyfile:ro
+    depends_on:
+      mongodb-keyfile-init:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "-u",
+          "${DOCUMENTDB_USERNAME:-admin}",
+          "-p",
+          "${DOCUMENTDB_PASSWORD:-admin}",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
       interval: 60s
       timeout: 5s
       retries: 5
-      start_period: 20s
+      start_period: 30s
     restart: unless-stopped
 
   # MongoDB initialization (creates replica set, indexes, and loads admin scope)
@@ -64,6 +105,7 @@ services:
       args:
         BUILD_VERSION: ${BUILD_VERSION:-}
     environment:
+      - BUILD_VERSION=${BUILD_VERSION:-}
       - SECRET_KEY=${SECRET_KEY}
       - ADMIN_USER=${ADMIN_USER:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -215,7 +257,7 @@ services:
       - METRICS_API_KEY=${METRICS_API_KEY_AUTH_SERVER:-}
       # Keycloak configuration
       - AUTH_PROVIDER=${AUTH_PROVIDER:-cognito} # 'cognito' or 'keycloak'
-      - KEYCLOAK_ENABLED=${KEYCLOAK_ENABLED:-true} # Enable Keycloak by default
+      - KEYCLOAK_ENABLED=${KEYCLOAK_ENABLED:-false}
       - KEYCLOAK_URL=${KEYCLOAK_URL:-http://keycloak:8080}
       - KEYCLOAK_EXTERNAL_URL=${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM:-mcp-gateway}
@@ -460,3 +502,4 @@ volumes:
   grafana-data:
   mongodb-data:
   mongodb-config:
+  mongodb-keyfile:

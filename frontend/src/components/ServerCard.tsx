@@ -6,14 +6,19 @@ import {
   ShieldCheckIcon,
   ShieldExclamationIcon,
   WrenchScrewdriverIcon,
-} from '@heroicons/react/24/outline';
-import axios from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
-import type { SecurityScanResult, Server, ShowToastCallback, Tool } from '../types';
-import { formatTimeSince, getErrorMessage } from '../utils';
-import SecurityScanModal from './SecurityScanModal';
-import ServerConfigModal from './ServerConfigModal';
-import StarRatingWidget from './StarRatingWidget';
+} from "@heroicons/react/24/outline";
+import axios from "axios";
+import React, { useCallback, useEffect, useState } from "react";
+import type {
+  SecurityScanResult,
+  Server,
+  ShowToastCallback,
+  Tool,
+} from "../types";
+import { formatTimeSince, getErrorMessage } from "../utils";
+import SecurityScanModal from "./SecurityScanModal";
+import ServerConfigModal from "./ServerConfigModal";
+import StarRatingWidget from "./StarRatingWidget";
 
 // Re-export Server type for consumers that import from this file
 export type { Server };
@@ -50,17 +55,20 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
     const [showConfig, setShowConfig] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [showSecurityScan, setShowSecurityScan] = useState(false);
-    const [securityScanResult, setSecurityScanResult] = useState<SecurityScanResult | null>(null);
+    const [securityScanResult, setSecurityScanResult] =
+      useState<SecurityScanResult | null>(null);
     const [loadingSecurityScan, setLoadingSecurityScan] = useState(false);
 
     // Fetch security scan status on mount to show correct icon color
     useEffect(() => {
       const fetchSecurityScan = async () => {
         try {
-          const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+          const headers = authToken
+            ? { Authorization: `Bearer ${authToken}` }
+            : undefined;
           const response = await axios.get(
             `/api/servers${server.path}/security-scan`,
-            headers ? { headers } : undefined
+            headers ? { headers } : undefined,
           );
           setSecurityScanResult(response.data);
         } catch {
@@ -79,9 +87,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
         setTools(response.data.tools || []);
         setShowTools(true);
       } catch (err: unknown) {
-        const message = getErrorMessage(err, 'Failed to fetch tools');
+        const message = getErrorMessage(err, "Failed to fetch tools");
         if (onShowToast) {
-          onShowToast(message, 'error');
+          onShowToast(message, "error");
         }
       } finally {
         setLoadingTools(false);
@@ -94,7 +102,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
       setLoadingRefresh(true);
       try {
         // Extract service name from path (remove leading slash)
-        const serviceName = server.path.replace(/^\//, '');
+        const serviceName = server.path.replace(/^\//, "");
 
         const response = await axios.post(`/api/refresh/${serviceName}`);
 
@@ -102,13 +110,13 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
         if (onServerUpdate && response.data) {
           const updates: Partial<Server> = {
             status:
-              response.data.status === 'healthy'
-                ? 'healthy'
-                : response.data.status === 'healthy-auth-expired'
-                  ? 'healthy-auth-expired'
-                  : response.data.status === 'unhealthy'
-                    ? 'unhealthy'
-                    : 'unknown',
+              response.data.status === "healthy"
+                ? "healthy"
+                : response.data.status === "healthy-auth-expired"
+                  ? "healthy-auth-expired"
+                  : response.data.status === "unhealthy"
+                    ? "unhealthy"
+                    : "unknown",
             last_checked_time: response.data.last_checked_iso,
             num_tools: response.data.num_tools,
           };
@@ -120,17 +128,23 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
         }
 
         if (onShowToast) {
-          onShowToast('Health status refreshed successfully', 'success');
+          onShowToast("Health status refreshed successfully", "success");
         }
       } catch (err: unknown) {
-        const message = getErrorMessage(err, 'Failed to refresh health status');
+        const message = getErrorMessage(err, "Failed to refresh health status");
         if (onShowToast) {
-          onShowToast(message, 'error');
+          onShowToast(message, "error");
         }
       } finally {
         setLoadingRefresh(false);
       }
-    }, [server.path, loadingRefresh, onRefreshSuccess, onShowToast, onServerUpdate]);
+    }, [
+      server.path,
+      loadingRefresh,
+      onRefreshSuccess,
+      onShowToast,
+      onServerUpdate,
+    ]);
 
     const handleViewSecurityScan = useCallback(async () => {
       if (loadingSecurityScan) return;
@@ -138,10 +152,12 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
       setShowSecurityScan(true);
       setLoadingSecurityScan(true);
       try {
-        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+        const headers = authToken
+          ? { Authorization: `Bearer ${authToken}` }
+          : undefined;
         const response = await axios.get(
           `/api/servers${server.path}/security-scan`,
-          headers ? { headers } : undefined
+          headers ? { headers } : undefined,
         );
         setSecurityScanResult(response.data);
       } catch (err: unknown) {
@@ -150,9 +166,12 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
           setSecurityScanResult(null);
           return;
         }
-        const message = getErrorMessage(err, 'Failed to load security scan results');
+        const message = getErrorMessage(
+          err,
+          "Failed to load security scan results",
+        );
         if (onShowToast) {
-          onShowToast(message, 'error');
+          onShowToast(message, "error");
         }
         setSecurityScanResult(null);
       } finally {
@@ -161,11 +180,13 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
     }, [server.path, authToken, loadingSecurityScan, onShowToast]);
 
     const handleRescan = useCallback(async () => {
-      const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+      const headers = authToken
+        ? { Authorization: `Bearer ${authToken}` }
+        : undefined;
       const response = await axios.post(
         `/api/servers${server.path}/rescan`,
         undefined,
-        headers ? { headers } : undefined
+        headers ? { headers } : undefined,
       );
       setSecurityScanResult(response.data);
     }, [server.path, authToken]);
@@ -175,16 +196,16 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
       if (!securityScanResult) {
         return {
           Icon: ShieldCheckIcon,
-          color: 'text-gray-400 dark:text-gray-500',
-          title: 'View security scan results',
+          color: "text-gray-400 dark:text-gray-500",
+          title: "View security scan results",
         };
       }
       // Red: scan failed or any vulnerabilities found
       if (securityScanResult.scan_failed) {
         return {
           Icon: ShieldExclamationIcon,
-          color: 'text-red-500 dark:text-red-400',
-          title: 'Security scan failed',
+          color: "text-red-500 dark:text-red-400",
+          title: "Security scan failed",
         };
       }
       const hasVulnerabilities =
@@ -195,32 +216,32 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
       if (hasVulnerabilities) {
         return {
           Icon: ShieldExclamationIcon,
-          color: 'text-red-500 dark:text-red-400',
-          title: 'Security issues found',
+          color: "text-red-500 dark:text-red-400",
+          title: "Security issues found",
         };
       }
       // Green: scan passed with no vulnerabilities
       return {
         Icon: ShieldCheckIcon,
-        color: 'text-green-500 dark:text-green-400',
-        title: 'Security scan passed',
+        color: "text-green-500 dark:text-green-400",
+        title: "Security scan passed",
       };
     };
 
     // Generate MCP configuration for the server
     // Check if this is an Anthropic registry server
-    const isAnthropicServer = server.tags?.includes('anthropic-registry');
+    const isAnthropicServer = server.tags?.includes("anthropic-registry");
 
     // Check if this server has security pending
-    const isSecurityPending = server.tags?.includes('security-pending');
+    const isSecurityPending = server.tags?.includes("security-pending");
 
     return (
       <>
         <div
-          className={`group rounded-2xl shadow-xs hover:shadow-xl transition-all duration-300 h-full flex flex-col ${
+          className={`group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 ${
             isAnthropicServer
-              ? 'bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600'
-              : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600'
+              ? "bg-gradient-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-900/30 dark:to-indigo-900/30 border-2 border-purple-300/50 dark:border-purple-600/50 hover:border-purple-400/70 dark:hover:border-purple-500/70 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20"
+              : "bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.08] hover:border-primary-300/50 dark:hover:border-primary-500/30 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-primary-500/10"
           }`}
         >
           {/* Header */}
@@ -232,7 +253,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                     {server.name}
                   </h3>
                   {server.official && (
-                    <span className="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full shrink-0">
+                    <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full shrink-0 bg-gradient-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30 shadow-sm">
                       OFFICIAL
                     </span>
                   )}
@@ -242,7 +263,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                     </span>
                   )}
                   {/* Check if this is an ASOR server */}
-                  {server.tags?.includes('asor') && (
+                  {server.tags?.includes("asor") && (
                     <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full shrink-0 border border-orange-200 dark:border-orange-600">
                       ASOR
                     </span>
@@ -290,13 +311,15 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                 title={getSecurityIconState().title}
                 aria-label="View security scan results"
               >
-                {React.createElement(getSecurityIconState().Icon, { className: 'h-4 w-4' })}
+                {React.createElement(getSecurityIconState().Icon, {
+                  className: "h-4 w-4",
+                })}
               </button>
             </div>
 
             {/* Description */}
             <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2 mb-4">
-              {server.description || 'No description available'}
+              {server.description || "No description available"}
             </p>
 
             {/* Tags */}
@@ -349,7 +372,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                       <WrenchScrewdriverIcon className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold">{server.num_tools}</div>
+                      <div className="text-sm font-semibold">
+                        {server.num_tools}
+                      </div>
                       <div className="text-xs">Tools</div>
                     </div>
                   </button>
@@ -359,7 +384,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                       <WrenchScrewdriverIcon className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold">{server.num_tools || 0}</div>
+                      <div className="text-sm font-semibold">
+                        {server.num_tools || 0}
+                      </div>
                       <div className="text-xs">Tools</div>
                     </div>
                   </div>
@@ -369,7 +396,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
           </div>
 
           {/* Footer */}
-          <div className="mt-auto px-5 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 rounded-b-2xl">
+          <div className="mt-auto px-5 py-4 border-t border-gray-200/50 dark:border-white/[0.06] bg-gradient-to-r from-gray-50/80 to-gray-100/50 dark:from-white/[0.02] dark:to-white/[0.01] rounded-b-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* Status Indicators */}
@@ -377,12 +404,12 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                   <div
                     className={`w-3 h-3 rounded-full ${
                       server.enabled
-                        ? 'bg-green-400 shadow-lg shadow-green-400/30'
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        ? "bg-green-400 shadow-lg shadow-green-400/30"
+                        : "bg-gray-300 dark:bg-gray-600"
                     }`}
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {server.enabled ? 'Enabled' : 'Disabled'}
+                    {server.enabled ? "Enabled" : "Disabled"}
                   </span>
                 </div>
 
@@ -391,23 +418,23 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-3 h-3 rounded-full ${
-                      server.status === 'healthy'
-                        ? 'bg-emerald-400 shadow-lg shadow-emerald-400/30'
-                        : server.status === 'healthy-auth-expired'
-                          ? 'bg-orange-400 shadow-lg shadow-orange-400/30'
-                          : server.status === 'unhealthy'
-                            ? 'bg-red-400 shadow-lg shadow-red-400/30'
-                            : 'bg-amber-400 shadow-lg shadow-amber-400/30'
+                      server.status === "healthy"
+                        ? "bg-emerald-400 shadow-lg shadow-emerald-400/30"
+                        : server.status === "healthy-auth-expired"
+                          ? "bg-orange-400 shadow-lg shadow-orange-400/30"
+                          : server.status === "unhealthy"
+                            ? "bg-red-400 shadow-lg shadow-red-400/30"
+                            : "bg-amber-400 shadow-lg shadow-amber-400/30"
                     }`}
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {server.status === 'healthy'
-                      ? 'Healthy'
-                      : server.status === 'healthy-auth-expired'
-                        ? 'Healthy (Auth Expired)'
-                        : server.status === 'unhealthy'
-                          ? 'Unhealthy'
-                          : 'Unknown'}
+                    {server.status === "healthy"
+                      ? "Healthy"
+                      : server.status === "healthy-auth-expired"
+                        ? "Healthy (Auth Expired)"
+                        : server.status === "unhealthy"
+                          ? "Unhealthy"
+                          : "Unknown"}
                   </span>
                 </div>
               </div>
@@ -435,7 +462,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                     title="Refresh health status"
                     aria-label={`Refresh health status for ${server.name}`}
                   >
-                    <ArrowPathIcon className={`h-4 w-4 ${loadingRefresh ? 'animate-spin' : ''}`} />
+                    <ArrowPathIcon
+                      className={`h-4 w-4 ${loadingRefresh ? "animate-spin" : ""}`}
+                    />
                   </button>
                 )}
 
@@ -451,12 +480,14 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                     />
                     <div
                       className={`relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out ${
-                        server.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                        server.enabled
+                          ? "bg-blue-600"
+                          : "bg-gray-300 dark:bg-gray-600"
                       }`}
                     >
                       <div
                         className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                          server.enabled ? 'translate-x-6' : 'translate-x-0'
+                          server.enabled ? "translate-x-6" : "translate-x-0"
                         }`}
                       />
                     </div>
@@ -469,8 +500,8 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 
         {/* Tools Modal */}
         {showTools && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto border border-gray-200/50 dark:border-white/10 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Tools for {server.name}
@@ -541,9 +572,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
         />
       </>
     );
-  }
+  },
 );
 
-ServerCard.displayName = 'ServerCard';
+ServerCard.displayName = "ServerCard";
 
 export default ServerCard;

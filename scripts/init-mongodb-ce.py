@@ -3,12 +3,25 @@
 Initialize MongoDB CE for local development.
 
 This script:
-1. Initializes replica set (rs0)
+1. Initializes replica set (rs0) using authenticated connection
 2. Creates collections and indexes
-3. Loads default admin scope from registry-admins.json
+3. Loads default admin scopes from JSON files
+
+Prerequisites:
+- MongoDB must be started with MONGO_INITDB_ROOT_USERNAME and MONGO_INITDB_ROOT_PASSWORD
+  environment variables, which automatically create the admin user on first startup.
+- The same credentials must be passed via DOCUMENTDB_USERNAME/PASSWORD.
 
 Usage:
     python init-mongodb-ce.py
+
+Environment Variables:
+    DOCUMENTDB_HOST: MongoDB host (default: mongodb)
+    DOCUMENTDB_PORT: MongoDB port (default: 27017)
+    DOCUMENTDB_DATABASE: Database name (default: mcp_registry)
+    DOCUMENTDB_USERNAME: Admin username for auth (default: admin)
+    DOCUMENTDB_PASSWORD: Admin password for auth (default: admin)
+    DOCUMENTDB_NAMESPACE: Collection namespace suffix (default: default)
 """
 
 import asyncio
@@ -20,7 +33,7 @@ import time
 from pathlib import Path
 
 from pymongo import ASCENDING, AsyncMongoClient
-from pymongo.errors import OperationFailure, ServerSelectionTimeoutError
+from pymongo.errors import ServerSelectionTimeoutError
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -58,42 +71,50 @@ def _initialize_replica_set(
     username: str,
     password: str,
 ) -> None:
-    """Initialize MongoDB replica set using pymongo (synchronous)."""
-    from pymongo import MongoClient
+    """Initialize MongoDB replica set using pymongo (synchronous).
 
-    logger.info("Initializing MongoDB replica set...")
+    When MongoDB is started with --auth and MONGO_INITDB_ROOT_* environment variables,
+    the Docker entrypoint creates the admin user automatically. This function then
+    connects WITH authentication to initialize the replica set if needed.
+    """
+    from pymongo import MongoClient
+    from pymongo.errors import OperationFailure
+
+    logger.info("Checking/initializing MongoDB replica set...")
 
     try:
-        # Connect without replica set for initialization
+        # Connect WITH authentication (user created by MONGO_INITDB_ROOT_*)
         client = MongoClient(
-            f"mongodb://{username}:{password}@{host}:{port}/?authMechanism=SCRAM-SHA-256&authSource=admin",
-            serverSelectionTimeoutMS=5000,
+            f"mongodb://{username}:{password}@{host}:{port}/?authSource=admin",
+            serverSelectionTimeoutMS=10000,
             directConnection=True,
         )
 
-        # Check if already initialized
+        # Check replica set status
         try:
             status = client.admin.command("replSetGetStatus")
-            logger.info("Replica set already initialized")
-            client.close()  # Sync MongoClient, not async
+            logger.info(
+                f"Replica set already initialized, state: {status.get('myState', 'unknown')}"
+            )
+            client.close()
             return
         except OperationFailure as e:
-            if "no replset config has been received" in str(e).lower():
-                # Not initialized, proceed
-                pass
+            error_msg = str(e).lower()
+            if "no replset config has been received" in error_msg:
+                logger.info("Replica set not yet initialized, proceeding...")
             else:
                 raise
 
         # Initialize replica set
         config = {"_id": "rs0", "members": [{"_id": 0, "host": f"{host}:{port}"}]}
-
         result = client.admin.command("replSetInitiate", config)
         logger.info(f"Replica set initialized: {result}")
-        client.close()  # Sync MongoClient, not async
 
         # Wait for replica set to elect primary
         logger.info("Waiting for replica set to elect primary...")
         time.sleep(10)
+
+        client.close()
 
     except Exception as e:
         logger.error(f"Error initializing replica set: {e}")
@@ -223,7 +244,7 @@ async def _initialize_mongodb_ce() -> None:
     logger.info("Waiting for MongoDB to be ready...")
     time.sleep(10)
 
-    # Initialize replica set (synchronous)
+    # Initialize replica set (synchronous) - user is created by MONGO_INITDB_ROOT_* env vars
     _initialize_replica_set(config["host"], config["port"], config["username"], config["password"])
 
     # Connect with motor for async operations

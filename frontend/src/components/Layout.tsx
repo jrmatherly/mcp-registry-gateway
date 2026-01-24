@@ -1,4 +1,4 @@
-import { Menu, Transition } from '@headlessui/react';
+import { Menu, Transition } from "@headlessui/react";
 import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
@@ -7,14 +7,14 @@ import {
   MoonIcon,
   SunIcon,
   UserIcon,
-} from '@heroicons/react/24/outline';
-import React, { Fragment, useEffect, useState } from 'react';
-import { Link } from 'react-router';
-import logo from '../assets/logo.png';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { useServerStats } from '../hooks/useServerStats';
-import Sidebar from './Sidebar';
+} from "@heroicons/react/24/outline";
+import React, { Fragment, useEffect, useState } from "react";
+import { Link } from "react-router";
+import logo from "../assets/logo.png";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
+import { useServerStats } from "../hooks/useServerStats";
+import Sidebar from "./Sidebar";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -29,24 +29,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   useEffect(() => {
     // Fetch version from API
-    fetch('/api/version')
+    fetch("/api/version")
       .then((res) => res.json())
       .then((data) => setVersion(data.version))
-      .catch((err) => console.error('Failed to fetch version:', err));
+      .catch((err) => console.error("Failed to fetch version:", err));
   }, []);
 
   const handleLogout = async () => {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f14] overflow-hidden">
+      {/* Gradient mesh background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-indigo-500/5 dark:from-primary-900/20 dark:via-transparent dark:to-indigo-900/10 pointer-events-none" />
+
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-xs border-b border-gray-200 dark:border-gray-700">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10 shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Left side */}
@@ -56,7 +59,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 type="button"
                 className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-purple-500 mr-2"
                 onClick={() => {
-                  console.log('Toggle clicked, current state:', sidebarOpen);
+                  console.log("Toggle clicked, current state:", sidebarOpen);
                   setSidebarOpen(!sidebarOpen);
                 }}
               >
@@ -65,7 +68,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* Logo */}
               <div className="flex items-center ml-2 md:ml-0">
-                <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+                <Link
+                  to="/"
+                  className="flex items-center hover:opacity-80 transition-opacity"
+                >
                   <img
                     src={logo}
                     alt="MCP Servers & A2A Agents Registry Logo"
@@ -117,7 +123,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClick={toggleTheme}
                 className="p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                {theme === 'dark' ? (
+                {theme === "dark" ? (
                   <SunIcon className="h-5 w-5" />
                 ) : (
                   <MoonIcon className="h-5 w-5" />
@@ -132,7 +138,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <UserIcon className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                     </div>
                     <span className="hidden md:block text-gray-700 dark:text-gray-100 font-medium">
-                      {user?.username || 'Admin'}
+                      {user?.username || "Admin"}
                     </span>
                     <ChevronDownIcon className="h-4 w-4 text-gray-400" />
                   </Menu.Button>
@@ -147,13 +153,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden">
+                  <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl py-1 shadow-xl border border-gray-200/50 dark:border-white/10 focus:outline-hidden">
                     <Menu.Item>
                       {({ active }) => (
                         <Link
                           to="/settings"
                           className={`${
-                            active ? 'bg-gray-100 dark:bg-gray-800' : ''
+                            active ? "bg-gray-100 dark:bg-gray-800" : ""
                           } flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-100`}
                         >
                           <Cog6ToothIcon className="mr-3 h-4 w-4" />
@@ -170,7 +176,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           type="button"
                           onClick={handleLogout}
                           className={`${
-                            active ? 'bg-gray-100 dark:bg-gray-800' : ''
+                            active ? "bg-gray-100 dark:bg-gray-800" : ""
                           } flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100`}
                         >
                           <ArrowRightOnRectangleIcon className="mr-3 h-4 w-4" />
@@ -199,13 +205,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Main content */}
         <main
           className={`flex-1 flex flex-col transition-all duration-300 ${
-            sidebarOpen ? 'md:ml-64 lg:ml-72 xl:ml-80' : ''
+            sidebarOpen ? "md:ml-64 lg:ml-72 xl:ml-80" : ""
           }`}
         >
           <div className="flex-1 flex flex-col px-4 sm:px-6 lg:px-8 py-4 md:py-8 overflow-y-auto">
-            {React.cloneElement(children as React.ReactElement<{ activeFilter?: string }>, {
-              activeFilter,
-            })}
+            {React.cloneElement(
+              children as React.ReactElement<{ activeFilter?: string }>,
+              {
+                activeFilter,
+              },
+            )}
           </div>
         </main>
       </div>

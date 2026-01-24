@@ -1,4 +1,4 @@
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, Transition } from "@headlessui/react";
 import {
   ArrowDownTrayIcon,
   ArrowLeftIcon,
@@ -10,14 +10,14 @@ import {
   FunnelIcon,
   KeyIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline';
-import axios from 'axios';
-import type React from 'react';
-import { Fragment, useState } from 'react';
-import { Link, useLocation } from 'react-router';
-import { getScopeDescription } from '../constants';
-import { useAuth } from '../contexts/AuthContext';
-import { useIsMobile } from '../hooks/useMediaQuery';
+} from "@heroicons/react/24/outline";
+import axios from "axios";
+import type React from "react";
+import { Fragment, useState } from "react";
+import { Link, useLocation } from "react-router";
+import { getScopeDescription } from "../constants";
+import { useAuth } from "../contexts/AuthContext";
+import { useIsMobile } from "../hooks/useMediaQuery";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -44,32 +44,34 @@ const Sidebar: React.FC<SidebarProps> = ({
   const isMobile = useIsMobile();
   const [showScopes, setShowScopes] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
-  const [tokenData, setTokenData] = useState<Record<string, unknown> | null>(null);
+  const [tokenData, setTokenData] = useState<Record<string, unknown> | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const filters = [
-    { key: 'all', label: 'All Services', count: 'total' },
-    { key: 'enabled', label: 'Enabled', count: 'enabled' },
-    { key: 'disabled', label: 'Disabled', count: 'disabled' },
-    { key: 'unhealthy', label: 'With Issues', count: 'withIssues' },
+    { key: "all", label: "All Services", count: "total" },
+    { key: "enabled", label: "Enabled", count: "enabled" },
+    { key: "disabled", label: "Disabled", count: "disabled" },
+    { key: "unhealthy", label: "With Issues", count: "withIssues" },
   ];
 
-  const isTokenPage = location.pathname === '/generate-token';
+  const isTokenPage = location.pathname === "/generate-token";
 
   const fetchAdminTokens = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const requestData = {
-        description: 'Generated via sidebar',
+        description: "Generated via sidebar",
         expires_in_hours: 8,
       };
 
-      const response = await axios.post('/api/tokens/generate', requestData, {
+      const response = await axios.post("/api/tokens/generate", requestData, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -79,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { detail?: string } } };
-      setError(axiosError.response?.data?.detail || 'Failed to generate token');
+      setError(axiosError.response?.data?.detail || "Failed to generate token");
     } finally {
       setLoading(false);
     }
@@ -94,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      console.error("Failed to copy:", error);
     }
   };
 
@@ -102,11 +104,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     if (!tokenData) return;
 
     const formattedData = JSON.stringify(tokenData, null, 2);
-    const blob = new Blob([formattedData], { type: 'application/json' });
+    const blob = new Blob([formattedData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `mcp-registry-api-tokens-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `mcp-registry-api-tokens-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -150,13 +152,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                   {user.is_admin ? (
-                    <span className="text-green-600 dark:text-green-400">🔑 Admin Access</span>
+                    <span className="text-green-600 dark:text-green-400">
+                      🔑 Admin Access
+                    </span>
                   ) : user.can_modify_servers ? (
-                    <span className="text-blue-600 dark:text-blue-400">⚙️ Modify Access</span>
+                    <span className="text-blue-600 dark:text-blue-400">
+                      ⚙️ Modify Access
+                    </span>
                   ) : (
-                    <span className="text-gray-600 dark:text-gray-300">👁️ Read-only Access</span>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      👁️ Read-only Access
+                    </span>
                   )}
-                  {user.auth_method === 'oauth2' && user.provider && (
+                  {user.auth_method === "oauth2" && user.provider && (
                     <span className="ml-1">({user.provider})</span>
                   )}
                 </div>
@@ -207,7 +215,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               Token Generation
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Create personal access tokens for programmatic access to MCP servers
+              Create personal access tokens for programmatic access to MCP
+              servers
             </p>
             <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
               <p>• Tokens inherit your current permissions</p>
@@ -230,13 +239,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                     {user.is_admin ? (
-                      <span className="text-green-600 dark:text-green-400">🔑 Admin Access</span>
+                      <span className="text-green-600 dark:text-green-400">
+                        🔑 Admin Access
+                      </span>
                     ) : user.can_modify_servers ? (
-                      <span className="text-blue-600 dark:text-blue-400">⚙️ Modify Access</span>
+                      <span className="text-blue-600 dark:text-blue-400">
+                        ⚙️ Modify Access
+                      </span>
                     ) : (
-                      <span className="text-gray-600 dark:text-gray-300">👁️ Read-only Access</span>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        👁️ Read-only Access
+                      </span>
                     )}
-                    {user.auth_method === 'oauth2' && user.provider && (
+                    {user.auth_method === "oauth2" && user.provider && (
                       <span className="ml-1">({user.provider})</span>
                     )}
                   </div>
@@ -262,7 +277,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                       )}
                     </button>
                     {error && (
-                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                        {error}
+                      </p>
                     )}
                   </div>
 
@@ -310,7 +327,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex-1 p-4 md:p-6">
             <div className="flex items-center space-x-2 mb-4">
               <FunnelIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Filter Services</h3>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                Filter Services
+              </h3>
             </div>
 
             <div className="space-y-2">
@@ -321,8 +340,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => setActiveFilter(filter.key)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 ${
                     activeFilter === filter.key
-                      ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                   tabIndex={0}
                 >
@@ -341,7 +360,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="border-t border-gray-200 dark:border-gray-700 p-4 md:p-6">
             <div className="flex items-center space-x-2 mb-4">
               <ChartBarIcon className="h-5 w-5 text-gray-500" />
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Statistics</h3>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                Statistics
+              </h3>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -349,25 +370,33 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <div className="text-xl font-semibold text-gray-900 dark:text-white">
                   {stats.total}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-300">Total</div>
+                <div className="text-xs text-gray-500 dark:text-gray-300">
+                  Total
+                </div>
               </div>
               <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div className="text-xl font-semibold text-green-600 dark:text-green-400">
                   {stats.enabled}
                 </div>
-                <div className="text-xs text-green-600 dark:text-green-400">Enabled</div>
+                <div className="text-xs text-green-600 dark:text-green-400">
+                  Enabled
+                </div>
               </div>
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="text-xl font-semibold text-gray-500 dark:text-gray-300">
                   {stats.disabled}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-300">Disabled</div>
+                <div className="text-xs text-gray-500 dark:text-gray-300">
+                  Disabled
+                </div>
               </div>
               <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                 <div className="text-xl font-semibold text-red-600 dark:text-red-400">
                   {stats.withIssues}
                 </div>
-                <div className="text-xs text-red-600 dark:text-red-400">Issues</div>
+                <div className="text-xs text-red-600 dark:text-red-400">
+                  Issues
+                </div>
               </div>
             </div>
           </div>
@@ -426,7 +455,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                   </Transition.Child>
 
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-white/10">
                     <SidebarContent />
                   </div>
                 </Dialog.Panel>
@@ -448,7 +477,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <div className="fixed left-0 top-16 bottom-0 z-40 w-64 lg:w-72 xl:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+            <div className="fixed left-0 top-16 bottom-0 z-40 w-64 lg:w-72 xl:w-80 bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-white/10 overflow-y-auto">
               <SidebarContent />
             </div>
           </Transition.Child>
@@ -457,7 +486,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Token Modal */}
       <Transition appear show={showTokenModal} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={() => setShowTokenModal(false)}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setShowTokenModal(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -467,7 +500,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
@@ -481,7 +514,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl p-6 text-left align-middle shadow-2xl border border-gray-200/50 dark:border-white/10 transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"

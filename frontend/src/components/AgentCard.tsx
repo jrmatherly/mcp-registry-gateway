@@ -9,21 +9,21 @@ import {
   PencilIcon,
   ShieldCheckIcon,
   ShieldExclamationIcon,
-} from '@heroicons/react/24/outline';
-import axios from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
+} from "@heroicons/react/24/outline";
+import axios from "axios";
+import React, { useCallback, useEffect, useState } from "react";
 import type {
   HealthStatus,
   RatingDetail,
   ShowToastCallback,
   TrustLevel,
   Visibility,
-} from '../types';
-import { formatTimeSince } from '../utils/dateUtils';
-import { handleApiError } from '../utils/errorHandler';
-import AgentDetailsModal from './AgentDetailsModal';
-import SecurityScanModal from './SecurityScanModal';
-import StarRatingWidget from './StarRatingWidget';
+} from "../types";
+import { formatTimeSince } from "../utils/dateUtils";
+import { handleApiError } from "../utils/errorHandler";
+import AgentDetailsModal from "./AgentDetailsModal";
+import SecurityScanModal from "./SecurityScanModal";
+import StarRatingWidget from "./StarRatingWidget";
 
 /**
  * Agent interface representing an A2A agent.
@@ -62,13 +62,13 @@ interface AgentCardProps {
 }
 
 const normalizeHealthStatus = (status?: string | null): HealthStatus => {
-  if (status === 'healthy' || status === 'healthy-auth-expired') {
+  if (status === "healthy" || status === "healthy-auth-expired") {
     return status;
   }
-  if (status === 'unhealthy') {
-    return 'unhealthy';
+  if (status === "unhealthy") {
+    return "unhealthy";
   }
-  return 'unknown';
+  return "unknown";
 };
 
 /**
@@ -103,10 +103,12 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
     useEffect(() => {
       const fetchSecurityScan = async () => {
         try {
-          const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+          const headers = authToken
+            ? { Authorization: `Bearer ${authToken}` }
+            : undefined;
           const response = await axios.get(
             `/api/agents${agent.path}/security-scan`,
-            headers ? { headers } : undefined
+            headers ? { headers } : undefined,
           );
           setSecurityScanResult(response.data);
         } catch {
@@ -118,20 +120,20 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
     const getTrustLevelColor = () => {
       switch (agent.trust_level) {
-        case 'trusted':
-          return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-700';
-        case 'verified':
-          return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-700';
+        case "trusted":
+          return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-700";
+        case "verified":
+          return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-700";
         default:
-          return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600';
+          return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600";
       }
     };
 
     const getTrustLevelIcon = () => {
       switch (agent.trust_level) {
-        case 'trusted':
+        case "trusted":
           return <ShieldCheckIcon className="h-3 w-3" />;
-        case 'verified':
+        case "verified":
           return <CheckCircleIcon className="h-3 w-3" />;
         default:
           return null;
@@ -139,7 +141,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
     };
 
     const getVisibilityIcon = () => {
-      return agent.visibility === 'public' ? (
+      return agent.visibility === "public" ? (
         <GlobeAltIcon className="h-3 w-3" />
       ) : (
         <LockClosedIcon className="h-3 w-3" />
@@ -151,11 +153,13 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
       setLoadingRefresh(true);
       try {
-        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+        const headers = authToken
+          ? { Authorization: `Bearer ${authToken}` }
+          : undefined;
         const response = await axios.post(
           `/api/agents${agent.path}/health`,
           undefined,
-          headers ? { headers } : undefined
+          headers ? { headers } : undefined,
         );
 
         // Update just this agent instead of triggering global refresh
@@ -172,25 +176,32 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
         }
 
         if (onShowToast) {
-          onShowToast('Agent health status refreshed successfully', 'success');
+          onShowToast("Agent health status refreshed successfully", "success");
         }
       } catch (error: unknown) {
-        handleApiError(error, 'refresh agent health', onShowToast);
+        handleApiError(error, "refresh agent health", onShowToast);
       } finally {
         setLoadingRefresh(false);
       }
-    }, [agent.path, authToken, loadingRefresh, onRefreshSuccess, onShowToast, onAgentUpdate]);
+    }, [
+      agent.path,
+      authToken,
+      loadingRefresh,
+      onRefreshSuccess,
+      onShowToast,
+      onAgentUpdate,
+    ]);
 
     const handleCopyDetails = useCallback(
       async (data: unknown) => {
         try {
           await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-          onShowToast?.('Full agent JSON copied to clipboard!', 'success');
+          onShowToast?.("Full agent JSON copied to clipboard!", "success");
         } catch (error: unknown) {
-          handleApiError(error, 'copy JSON', onShowToast);
+          handleApiError(error, "copy JSON", onShowToast);
         }
       },
-      [onShowToast]
+      [onShowToast],
     );
 
     const handleViewSecurityScan = useCallback(async () => {
@@ -199,14 +210,18 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
       setShowSecurityScan(true);
       setLoadingSecurityScan(true);
       try {
-        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+        const headers = authToken
+          ? { Authorization: `Bearer ${authToken}` }
+          : undefined;
         const response = await axios.get(
           `/api/agents${agent.path}/security-scan`,
-          headers ? { headers } : undefined
+          headers ? { headers } : undefined,
         );
         setSecurityScanResult(response.data);
       } catch (error: unknown) {
-        handleApiError(error, 'load security scan results', onShowToast, { silentOn404: true });
+        handleApiError(error, "load security scan results", onShowToast, {
+          silentOn404: true,
+        });
         setSecurityScanResult(null);
       } finally {
         setLoadingSecurityScan(false);
@@ -214,11 +229,13 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
     }, [agent.path, authToken, loadingSecurityScan, onShowToast]);
 
     const handleRescan = useCallback(async () => {
-      const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+      const headers = authToken
+        ? { Authorization: `Bearer ${authToken}` }
+        : undefined;
       const response = await axios.post(
         `/api/agents${agent.path}/rescan`,
         undefined,
-        headers ? { headers } : undefined
+        headers ? { headers } : undefined,
       );
       setSecurityScanResult(response.data);
     }, [agent.path, authToken]);
@@ -228,16 +245,16 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
       if (!securityScanResult) {
         return {
           Icon: ShieldCheckIcon,
-          color: 'text-gray-400 dark:text-gray-500',
-          title: 'View security scan results',
+          color: "text-gray-400 dark:text-gray-500",
+          title: "View security scan results",
         };
       }
       // Red: scan failed or any vulnerabilities found
       if (securityScanResult.scan_failed) {
         return {
           Icon: ShieldExclamationIcon,
-          color: 'text-red-500 dark:text-red-400',
-          title: 'Security scan failed',
+          color: "text-red-500 dark:text-red-400",
+          title: "Security scan failed",
         };
       }
       const hasVulnerabilities =
@@ -248,21 +265,21 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
       if (hasVulnerabilities) {
         return {
           Icon: ShieldExclamationIcon,
-          color: 'text-red-500 dark:text-red-400',
-          title: 'Security issues found',
+          color: "text-red-500 dark:text-red-400",
+          title: "Security issues found",
         };
       }
       // Green: scan passed with no vulnerabilities
       return {
         Icon: ShieldCheckIcon,
-        color: 'text-green-500 dark:text-green-400',
-        title: 'Security scan passed',
+        color: "text-green-500 dark:text-green-400",
+        title: "Security scan passed",
       };
     };
 
     return (
       <>
-        <div className="group rounded-2xl shadow-xs hover:shadow-xl transition-all duration-300 h-full flex flex-col bg-linear-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-2 border-cyan-200 dark:border-cyan-700 hover:border-cyan-300 dark:hover:border-cyan-600">
+        <div className="group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-900/30 dark:to-blue-900/30 border-2 border-cyan-300/50 dark:border-cyan-600/50 hover:border-cyan-400/70 dark:hover:border-cyan-500/70 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/20 backdrop-blur-xl">
           {/* Header */}
           <div className="p-5 pb-4">
             <div className="flex items-start justify-between mb-4">
@@ -271,11 +288,12 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                     {agent.name}
                   </h3>
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-cyan-100 to-blue-100 text-cyan-700 dark:from-cyan-900/30 dark:to-blue-900/30 dark:text-cyan-300 rounded-full shrink-0 border border-cyan-200 dark:border-cyan-600">
+                  <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full shrink-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-600 dark:text-cyan-300 border border-cyan-500/30 shadow-sm">
                     AGENT
                   </span>
                   {/* Check if this is an ASOR agent */}
-                  {(agent.tags?.includes('asor') || (agent as any).provider === 'ASOR') && (
+                  {(agent.tags?.includes("asor") ||
+                    (agent as any).provider === "ASOR") && (
                     <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full shrink-0 border border-orange-200 dark:border-orange-600">
                       ASOR
                     </span>
@@ -291,9 +309,9 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   {agent.visibility && (
                     <span
                       className={`px-2 py-0.5 text-xs font-semibold rounded-full shrink-0 flex items-center gap-1 ${
-                        agent.visibility === 'public'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-700'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
+                        agent.visibility === "public"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-700"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
                       }`}
                     >
                       {getVisibilityIcon()}
@@ -341,7 +359,9 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                 title={getSecurityIconState().title}
                 aria-label="View security scan results"
               >
-                {React.createElement(getSecurityIconState().Icon, { className: 'h-4 w-4' })}
+                {React.createElement(getSecurityIconState().Icon, {
+                  className: "h-4 w-4",
+                })}
               </button>
 
               {/* Full Details Button */}
@@ -351,10 +371,12 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   setShowDetails(true);
                   setLoadingDetails(true);
                   try {
-                    const response = await axios.get(`/api/agents${agent.path}`);
+                    const response = await axios.get(
+                      `/api/agents${agent.path}`,
+                    );
                     setFullAgentDetails(response.data);
                   } catch (error: unknown) {
-                    handleApiError(error, 'load agent details', onShowToast);
+                    handleApiError(error, "load agent details", onShowToast);
                   } finally {
                     setLoadingDetails(false);
                   }
@@ -368,7 +390,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
             {/* Description */}
             <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2 mb-4">
-              {agent.description || 'No description available'}
+              {agent.description || "No description available"}
             </p>
 
             {/* Tags */}
@@ -416,14 +438,16 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   <div className="text-sm font-semibold text-gray-900 dark:text-white">
                     {agent.usersCount || 0}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Users</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Users
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-auto px-5 py-4 border-t border-cyan-100 dark:border-cyan-700 bg-cyan-50/50 dark:bg-cyan-900/30 rounded-b-2xl">
+          <div className="mt-auto px-5 py-4 border-t border-cyan-200/50 dark:border-cyan-700/50 bg-gradient-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-900/20 dark:to-blue-900/10 rounded-b-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* Status Indicators */}
@@ -431,12 +455,12 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   <div
                     className={`w-3 h-3 rounded-full ${
                       agent.enabled
-                        ? 'bg-green-400 shadow-lg shadow-green-400/30'
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        ? "bg-green-400 shadow-lg shadow-green-400/30"
+                        : "bg-gray-300 dark:bg-gray-600"
                     }`}
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {agent.enabled ? 'Enabled' : 'Disabled'}
+                    {agent.enabled ? "Enabled" : "Disabled"}
                   </span>
                 </div>
 
@@ -445,23 +469,23 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-3 h-3 rounded-full ${
-                      agent.status === 'healthy'
-                        ? 'bg-emerald-400 shadow-lg shadow-emerald-400/30'
-                        : agent.status === 'healthy-auth-expired'
-                          ? 'bg-orange-400 shadow-lg shadow-orange-400/30'
-                          : agent.status === 'unhealthy'
-                            ? 'bg-red-400 shadow-lg shadow-red-400/30'
-                            : 'bg-amber-400 shadow-lg shadow-amber-400/30'
+                      agent.status === "healthy"
+                        ? "bg-emerald-400 shadow-lg shadow-emerald-400/30"
+                        : agent.status === "healthy-auth-expired"
+                          ? "bg-orange-400 shadow-lg shadow-orange-400/30"
+                          : agent.status === "unhealthy"
+                            ? "bg-red-400 shadow-lg shadow-red-400/30"
+                            : "bg-amber-400 shadow-lg shadow-amber-400/30"
                     }`}
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {agent.status === 'healthy'
-                      ? 'Healthy'
-                      : agent.status === 'healthy-auth-expired'
-                        ? 'Healthy (Auth Expired)'
-                        : agent.status === 'unhealthy'
-                          ? 'Unhealthy'
-                          : 'Unknown'}
+                    {agent.status === "healthy"
+                      ? "Healthy"
+                      : agent.status === "healthy-auth-expired"
+                        ? "Healthy (Auth Expired)"
+                        : agent.status === "unhealthy"
+                          ? "Unhealthy"
+                          : "Unknown"}
                   </span>
                 </div>
               </div>
@@ -488,7 +512,9 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                     className="p-2.5 text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-lg transition-all duration-200 disabled:opacity-50"
                     title="Refresh agent health status"
                   >
-                    <ArrowPathIcon className={`h-4 w-4 ${loadingRefresh ? 'animate-spin' : ''}`} />
+                    <ArrowPathIcon
+                      className={`h-4 w-4 ${loadingRefresh ? "animate-spin" : ""}`}
+                    />
                   </button>
                 )}
 
@@ -509,12 +535,14 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                     />
                     <div
                       className={`relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out ${
-                        agent.enabled ? 'bg-cyan-600' : 'bg-gray-300 dark:bg-gray-600'
+                        agent.enabled
+                          ? "bg-cyan-600"
+                          : "bg-gray-300 dark:bg-gray-600"
                       }`}
                     >
                       <div
                         className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                          agent.enabled ? 'translate-x-6' : 'translate-x-0'
+                          agent.enabled ? "translate-x-6" : "translate-x-0"
                         }`}
                       />
                     </div>
@@ -547,9 +575,9 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
         />
       </>
     );
-  }
+  },
 );
 
-AgentCard.displayName = 'AgentCard';
+AgentCard.displayName = "AgentCard";
 
 export default AgentCard;

@@ -1,39 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap')
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap")
 layer(base);
 
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin '@tailwindcss/forms';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  /* Primary colors - enhanced purple gradient palette */
   --color-primary-50: #f7f5ff;
   --color-primary-100: #f0edff;
   --color-primary-200: #e2dcff;
   --color-primary-300: #cdc0ff;
   --color-primary-400: #b199ff;
-  --color-primary-500: #9573ff;
-  --color-primary-600: #7a00cc;
-  --color-primary-700: #6b46c1;
-  --color-primary-800: #553c9a;
-  --color-primary-900: #483177;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
 
-  --color-gray-50: #f8f9fa;
-  --color-gray-100: #f1f3f4;
-  --color-gray-200: #e8eaed;
-  --color-gray-300: #dadce0;
-  --color-gray-400: #bdc1c6;
-  --color-gray-500: #9aa0a6;
-  --color-gray-600: #80868b;
-  --color-gray-700: #5f6368;
-  --color-gray-800: #3c4043;
-  --color-gray-900: #202124;
+  /* Gray scale - refined for glassmorphism */
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-gray-950: #0a0e17;
+
+  /* Glassmorphism tokens */
+  --glass-bg-light: rgba(255, 255, 255, 0.7);
+  --glass-bg-dark: rgba(255, 255, 255, 0.05);
+  --glass-border-light: rgba(255, 255, 255, 0.5);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
+
+  /* Gradient tokens */
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  --gradient-accent: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  --gradient-hero-light: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.08) 0%,
+    transparent 60%
+  );
+  --gradient-hero-dark: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    transparent 60%
+  );
+  --gradient-mesh:
+    radial-gradient(at 40% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 50%);
 
   --font-sans: Inter, system-ui, sans-serif;
 
-  --animate-fade-in: fadeIn 0.2s ease-in-out;
-  --animate-slide-up: slideUp 0.2s ease-out;
+  /* Enhanced animations */
+  --animate-fade-in: fadeIn 0.2s ease-out;
+  --animate-slide-up: slideUp 0.25s ease-out;
+  --animate-scale-in: scaleIn 0.2s ease-out;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
 
   @keyframes fadeIn {
     0% {
@@ -53,16 +85,27 @@ layer(base);
       opacity: 1;
     }
   }
+  @keyframes scaleIn {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+    100% {
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+    }
+  }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* Tailwind v4 border compatibility */
 @layer base {
   *,
   ::after,
@@ -73,24 +116,240 @@ layer(base);
   }
 }
 
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================ */
+
+/* Glass card - Dark mode */
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glass card - Light mode variant */
+@utility glass-card-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 1rem;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glass card hover effect */
+@utility glass-card-hover {
+  &:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+}
+
+/* Glass surface for sidebars/panels */
+@utility glass-surface {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Glass surface light */
+@utility glass-surface-light {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   GRADIENT UTILITIES
+   ============================================ */
+
+@utility gradient-primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+@utility gradient-accent {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+@utility gradient-hero {
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.08) 0%,
+    transparent 60%
+  );
+}
+
+@utility gradient-hero-dark {
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    transparent 60%
+  );
+}
+
+@utility gradient-mesh {
+  background:
+    radial-gradient(at 40% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 50%);
+}
+
+@utility gradient-border {
+  position: relative;
+  background: transparent;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.5) 0%,
+      rgba(99, 102, 241, 0.3) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* ============================================
+   BUTTON UTILITIES
+   ============================================ */
+
 @utility btn-primary {
-  @apply bg-primary-600 hover:bg-primary-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  @apply font-medium px-4 py-2 rounded-xl text-white transition-all duration-200;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+  }
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
 }
 
 @utility btn-secondary {
-  @apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  @apply bg-white/10 hover:bg-white/15 text-gray-200 font-medium px-4 py-2 rounded-xl transition-all duration-200 border border-white/10;
+  &:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+  }
 }
 
+@utility btn-ghost {
+  @apply text-gray-400 hover:text-white hover:bg-white/5 font-medium px-4 py-2 rounded-xl transition-all duration-200;
+}
+
+/* ============================================
+   CARD & INPUT UTILITIES
+   ============================================ */
+
 @utility card {
-  @apply bg-white dark:bg-gray-800 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700;
+  @apply bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg border border-gray-200 dark:border-white/5;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 @utility input {
-  @apply block w-full px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  @apply block w-full px-4 py-3 rounded-xl placeholder-gray-400 transition-all duration-200;
+  @apply bg-white/5 border border-white/10 text-white;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50;
+  &:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+  }
 }
 
+@utility input-light {
+  @apply block w-full px-4 py-3 rounded-xl placeholder-gray-400 transition-all duration-200;
+  @apply bg-white/80 border border-gray-200 text-gray-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500/50;
+}
+
+/* ============================================
+   BADGE UTILITIES
+   ============================================ */
+
+@utility badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+@utility badge-primary {
+  @apply badge bg-primary-500/20 text-primary-300 border border-primary-500/30;
+}
+
+@utility badge-success {
+  @apply badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30;
+}
+
+@utility badge-warning {
+  @apply badge bg-amber-500/20 text-amber-300 border border-amber-500/30;
+}
+
+@utility badge-danger {
+  @apply badge bg-red-500/20 text-red-300 border border-red-500/30;
+}
+
+@utility badge-official {
+  @apply badge;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2) 0%,
+    rgba(99, 102, 241, 0.2) 100%
+  );
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* ============================================
+   STATUS INDICATOR UTILITIES
+   ============================================ */
+
+@utility status-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+@utility status-dot-success {
+  @apply status-dot bg-emerald-500;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+@utility status-dot-warning {
+  @apply status-dot bg-amber-500;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+@utility status-dot-danger {
+  @apply status-dot bg-red-500;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+@utility status-dot-offline {
+  @apply status-dot bg-gray-500;
+}
+
+/* ============================================
+   TEXT & LAYOUT UTILITIES
+   ============================================ */
+
 @utility line-clamp-2 {
-  /* Line clamp utilities for text truncation */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -104,20 +363,51 @@ layer(base);
   overflow: hidden;
 }
 
+@utility text-gradient {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+
 @utility animate-slide-in-top {
-  /* Toast animations */
   animation: slide-in-top 0.3s ease-out;
 }
 
+@utility animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@utility animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     margin: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    background: #0f0f14;
+    color: #e2e8f0;
+  }
+
+  /* Light mode body */
+  body.light,
+  :root:not(.dark) body {
+    background: #f8fafc;
+    color: #1e293b;
   }
 }
 
@@ -131,5 +421,24 @@ layer(base);
       transform: translateY(0);
       opacity: 1;
     }
+  }
+
+  /* Scrollbar styling for dark mode */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
   }
 }
