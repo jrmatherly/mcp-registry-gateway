@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "grafana-datasource-provisioning",
+  "title": "Grafana Datasource Provisioning",
+  "description": "Schema for Grafana datasource provisioning YAML files",
+  "type": "object",
+  "required": ["apiVersion", "datasources"],
+  "properties": {
+    "apiVersion": {
+      "type": "integer",
+      "description": "API version for the datasource provisioning format",
+      "enum": [1]
+    },
+    "deleteDatasources": {
+      "type": "array",
+      "description": "List of datasources to delete before provisioning",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "orgId": { "type": "integer" }
+        },
+        "required": ["name", "orgId"]
+      }
+    },
+    "datasources": {
+      "type": "array",
+      "description": "List of datasources to provision",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique name for the datasource"
+          },
+          "uid": {
+            "type": "string",
+            "description": "Unique identifier for the datasource"
+          },
+          "type": {
+            "type": "string",
+            "description": "Datasource type (e.g., prometheus, loki, elasticsearch)",
+            "examples": ["prometheus", "loki", "elasticsearch", "graphite", "influxdb", "mysql", "postgres"]
+          },
+          "access": {
+            "type": "string",
+            "enum": ["proxy", "direct"],
+            "description": "Access mode: proxy (server-side) or direct (browser)",
+            "default": "proxy"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of the datasource"
+          },
+          "user": {
+            "type": "string",
+            "description": "Database user (if applicable)"
+          },
+          "database": {
+            "type": "string",
+            "description": "Database name (if applicable)"
+          },
+          "basicAuth": {
+            "type": "boolean",
+            "description": "Enable basic authentication"
+          },
+          "basicAuthUser": {
+            "type": "string",
+            "description": "Basic auth username"
+          },
+          "withCredentials": {
+            "type": "boolean",
+            "description": "Send credentials with requests"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Set as default datasource",
+            "default": false
+          },
+          "editable": {
+            "type": "boolean",
+            "description": "Allow editing in Grafana UI",
+            "default": true
+          },
+          "orgId": {
+            "type": "integer",
+            "description": "Organization ID",
+            "default": 1
+          },
+          "version": {
+            "type": "integer",
+            "description": "Version number for the datasource config"
+          },
+          "jsonData": {
+            "type": "object",
+            "description": "Datasource-specific configuration",
+            "additionalProperties": true
+          },
+          "secureJsonData": {
+            "type": "object",
+            "description": "Sensitive configuration (passwords, tokens)",
+            "additionalProperties": true
+          },
+          "secureJsonFields": {
+            "type": "object",
+            "description": "Fields that are stored securely",
+            "additionalProperties": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
