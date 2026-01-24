@@ -455,8 +455,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Server Name *</label>
+          <label htmlFor="server-name" className={labelClass}>Server Name *</label>
           <input
+            id="server-name"
             type="text"
             required
             className={`${inputClass} ${errors.name ? "border-red-500" : ""}`}
@@ -468,8 +469,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Path *</label>
+          <label htmlFor="server-path" className={labelClass}>Path *</label>
           <input
+            id="server-path"
             type="text"
             required
             className={`${inputClass} ${errors.path ? "border-red-500" : ""}`}
@@ -486,8 +488,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className={labelClass}>Proxy URL *</label>
+          <label htmlFor="server-proxy-url" className={labelClass}>Proxy URL *</label>
           <input
+            id="server-proxy-url"
             type="url"
             required
             className={`${inputClass} ${errors.proxy_pass_url ? "border-red-500" : ""}`}
@@ -506,8 +509,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className={labelClass}>Description *</label>
+          <label htmlFor="server-description" className={labelClass}>Description *</label>
           <textarea
+            id="server-description"
             required
             className={`${inputClass} ${errors.description ? "border-red-500" : ""}`}
             rows={3}
@@ -536,8 +540,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Tags</label>
+          <label htmlFor="server-tags" className={labelClass}>Tags</label>
           <input
+            id="server-tags"
             type="text"
             className={inputClass}
             value={serverForm.tags}
@@ -552,8 +557,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Number of Tools</label>
+          <label htmlFor="server-num-tools" className={labelClass}>Number of Tools</label>
           <input
+            id="server-num-tools"
             type="number"
             min="0"
             className={inputClass}
@@ -568,8 +574,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>License</label>
+          <label htmlFor="server-license" className={labelClass}>License</label>
           <select
+            id="server-license"
             className={inputClass}
             value={serverForm.license}
             onChange={(e) =>
@@ -585,8 +592,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Visibility</label>
+          <label htmlFor="server-visibility" className={labelClass}>Visibility</label>
           <select
+            id="server-visibility"
             className={inputClass}
             value={serverForm.visibility}
             onChange={(e) =>
@@ -619,8 +627,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Author</label>
+          <label htmlFor="server-author" className={labelClass}>Author</label>
           <input
+            id="server-author"
             type="text"
             className={inputClass}
             value={serverForm.author}
@@ -632,8 +641,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Homepage</label>
+          <label htmlFor="server-homepage" className={labelClass}>Homepage</label>
           <input
+            id="server-homepage"
             type="url"
             className={inputClass}
             value={serverForm.homepage}
@@ -645,8 +655,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className={labelClass}>Repository URL</label>
+          <label htmlFor="server-repository-url" className={labelClass}>Repository URL</label>
           <input
+            id="server-repository-url"
             type="url"
             className={inputClass}
             value={serverForm.repository_url}
@@ -694,8 +705,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Agent Name *</label>
+          <label htmlFor="agent-name" className={labelClass}>Agent Name *</label>
           <input
+            id="agent-name"
             type="text"
             required
             className={`${inputClass} ${errors.name ? "border-red-500" : ""}`}
@@ -707,8 +719,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Path (auto-generated)</label>
+          <label htmlFor="agent-path" className={labelClass}>Path (auto-generated)</label>
           <input
+            id="agent-path"
             type="text"
             className={`${inputClass} ${errors.path ? "border-red-500" : ""}`}
             value={agentForm.path}
@@ -724,8 +737,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className={labelClass}>Agent URL *</label>
+          <label htmlFor="agent-url" className={labelClass}>Agent URL *</label>
           <input
+            id="agent-url"
             type="url"
             required
             className={`${inputClass} ${errors.url ? "border-red-500" : ""}`}
@@ -742,8 +756,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className={labelClass}>Description *</label>
+          <label htmlFor="agent-description" className={labelClass}>Description *</label>
           <textarea
+            id="agent-description"
             required
             className={`${inputClass} ${errors.description ? "border-red-500" : ""}`}
             rows={3}
@@ -769,8 +784,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Protocol Version</label>
+          <label htmlFor="agent-protocol-version" className={labelClass}>Protocol Version</label>
           <input
+            id="agent-protocol-version"
             type="text"
             className={inputClass}
             value={agentForm.protocol_version}
@@ -785,8 +801,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Agent Version</label>
+          <label htmlFor="agent-version" className={labelClass}>Agent Version</label>
           <input
+            id="agent-version"
             type="text"
             className={inputClass}
             value={agentForm.version}
@@ -798,8 +815,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Tags</label>
+          <label htmlFor="agent-tags" className={labelClass}>Tags</label>
           <input
+            id="agent-tags"
             type="text"
             className={inputClass}
             value={agentForm.tags}
@@ -814,8 +832,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>License</label>
+          <label htmlFor="agent-license" className={labelClass}>License</label>
           <select
+            id="agent-license"
             className={inputClass}
             value={agentForm.license}
             onChange={(e) =>
@@ -831,8 +850,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Visibility</label>
+          <label htmlFor="agent-visibility" className={labelClass}>Visibility</label>
           <select
+            id="agent-visibility"
             className={inputClass}
             value={agentForm.visibility}
             onChange={(e) =>
@@ -865,8 +885,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Author / Organization</label>
+          <label htmlFor="agent-author" className={labelClass}>Author / Organization</label>
           <input
+            id="agent-author"
             type="text"
             className={inputClass}
             value={agentForm.author}
@@ -878,8 +899,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div>
-          <label className={labelClass}>Homepage</label>
+          <label htmlFor="agent-homepage" className={labelClass}>Homepage</label>
           <input
+            id="agent-homepage"
             type="url"
             className={inputClass}
             value={agentForm.homepage}
@@ -891,8 +913,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <label className={labelClass}>Repository URL</label>
+          <label htmlFor="agent-repository-url" className={labelClass}>Repository URL</label>
           <input
+            id="agent-repository-url"
             type="url"
             className={inputClass}
             value={agentForm.repository_url}
@@ -958,7 +981,7 @@ const RegisterPage: React.FC = () => {
       {/* JSON Preview */}
       {jsonContent && (
         <div>
-          <label className={labelClass}>JSON Preview</label>
+          <span className={labelClass}>JSON Preview</span>
           <div className="relative">
             <pre className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-auto max-h-64 text-sm text-gray-800 dark:text-gray-200">
               {jsonContent}
@@ -1074,9 +1097,9 @@ const RegisterPage: React.FC = () => {
 
       {/* Registration Type Selector */}
       <div className="mb-8">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
+        <p className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
           What would you like to register?
-        </label>
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
             type="button"
@@ -1084,8 +1107,8 @@ const RegisterPage: React.FC = () => {
             onClick={() => setRegistrationType("server")}
             className={`relative flex items-center p-4 border-2 rounded-xl transition-all backdrop-blur-sm ${
               registrationType === "server"
-                ? "border-primary-500 bg-gradient-to-r from-primary-500/10 to-indigo-500/10 dark:from-primary-900/30 dark:to-indigo-900/20 shadow-lg shadow-primary-500/10"
-                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] hover:border-gray-300 dark:hover:border-white/20"
+                ? "border-primary-500 bg-linear-to-r from-primary-500/10 to-indigo-500/10 dark:from-primary-900/30 dark:to-indigo-900/20 shadow-lg shadow-primary-500/10"
+                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 hover:border-gray-300 dark:hover:border-white/20"
             } ${!canRegisterServer ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <ServerIcon
@@ -1120,8 +1143,8 @@ const RegisterPage: React.FC = () => {
             onClick={() => setRegistrationType("agent")}
             className={`relative flex items-center p-4 border-2 rounded-xl transition-all backdrop-blur-sm ${
               registrationType === "agent"
-                ? "border-primary-500 bg-gradient-to-r from-primary-500/10 to-indigo-500/10 dark:from-primary-900/30 dark:to-indigo-900/20 shadow-lg shadow-primary-500/10"
-                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] hover:border-gray-300 dark:hover:border-white/20"
+                ? "border-primary-500 bg-linear-to-r from-primary-500/10 to-indigo-500/10 dark:from-primary-900/30 dark:to-indigo-900/20 shadow-lg shadow-primary-500/10"
+                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 hover:border-gray-300 dark:hover:border-white/20"
             } ${!canRegisterAgent ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <CpuChipIcon
@@ -1154,17 +1177,17 @@ const RegisterPage: React.FC = () => {
 
       {/* Registration Mode Selector */}
       <div className="mb-8">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
+        <p className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
           Registration Method
-        </label>
+        </p>
         <div className="flex space-x-4">
           <button
             type="button"
             onClick={() => setRegistrationMode("form")}
             className={`flex items-center px-4 py-2 rounded-xl border transition-all ${
               registrationMode === "form"
-                ? "border-primary-500 bg-gradient-to-r from-primary-500/10 to-indigo-500/10 text-primary-700 dark:text-primary-300 shadow-sm"
-                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20"
+                ? "border-primary-500 bg-linear-to-r from-primary-500/10 to-indigo-500/10 text-primary-700 dark:text-primary-300 shadow-sm"
+                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20"
             }`}
           >
             <DocumentTextIcon className="h-5 w-5 mr-2" />
@@ -1175,8 +1198,8 @@ const RegisterPage: React.FC = () => {
             onClick={() => setRegistrationMode("json")}
             className={`flex items-center px-4 py-2 rounded-xl border transition-all ${
               registrationMode === "json"
-                ? "border-primary-500 bg-gradient-to-r from-primary-500/10 to-indigo-500/10 text-primary-700 dark:text-primary-300 shadow-sm"
-                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20"
+                ? "border-primary-500 bg-linear-to-r from-primary-500/10 to-indigo-500/10 text-primary-700 dark:text-primary-300 shadow-sm"
+                : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20"
             }`}
           >
             <CloudArrowUpIcon className="h-5 w-5 mr-2" />
@@ -1186,7 +1209,7 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* Form Content */}
-      <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/[0.08] p-6">
+      <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/8 p-6">
         {registrationMode === "form"
           ? registrationType === "server"
             ? renderServerForm()

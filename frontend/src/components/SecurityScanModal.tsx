@@ -32,6 +32,20 @@ interface StatusInfo {
   text: string;
 }
 
+// Type for security findings within analyzer results
+interface SecurityFinding {
+  tool_name?: string;
+  skill_name?: string;
+  severity?: string;
+  threat_summary?: string;
+  threat_names?: string[];
+}
+
+// Type for analyzer data that may contain findings
+interface AnalyzerData {
+  findings?: SecurityFinding[];
+}
+
 const SEVERITY_BOX_STYLES: Record<string, string> = {
   critical:
     "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-700",
@@ -286,9 +300,9 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                   {Object.entries(scanResult.raw_output.analysis_results).map(
                     ([analyzer, analyzerData]) => {
                       // Handle both formats: direct array or object with findings property
-                      const findings = Array.isArray(analyzerData)
+                      const findings: SecurityFinding[] = Array.isArray(analyzerData)
                         ? analyzerData
-                        : (analyzerData as any)?.findings || [];
+                        : (analyzerData as AnalyzerData)?.findings || [];
                       const findingsCount = Array.isArray(findings)
                         ? findings.length
                         : 0;
@@ -323,9 +337,9 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                               {Array.isArray(findings) &&
                               findings.length > 0 ? (
                                 <div className="space-y-3">
-                                  {findings.map((finding: any, idx: number) => (
+                                  {findings.map((finding: SecurityFinding) => (
                                     <div
-                                      key={idx}
+                                      key={`${finding.tool_name || finding.skill_name || ''}-${finding.severity}-${finding.threat_summary || ''}`}
                                       className="p-3 bg-white dark:bg-gray-800 rounded-sm border dark:border-gray-700"
                                     >
                                       <div className="flex items-start justify-between mb-2">
@@ -335,9 +349,9 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                                             "Finding"}
                                         </span>
                                         <span
-                                          className={`px-2 py-0.5 text-xs font-semibold rounded-sm ${_getSeverityBadgeClasses(finding.severity)}`}
+                                          className={`px-2 py-0.5 text-xs font-semibold rounded-sm ${_getSeverityBadgeClasses(finding.severity ?? "unknown")}`}
                                         >
-                                          {finding.severity}
+                                          {finding.severity ?? "unknown"}
                                         </span>
                                       </div>
                                       {finding.threat_summary && (
@@ -349,12 +363,9 @@ const SecurityScanModal: React.FC<SecurityScanModalProps> = ({
                                         finding.threat_names.length > 0 && (
                                           <div className="flex flex-wrap gap-1">
                                             {finding.threat_names.map(
-                                              (
-                                                threat: string,
-                                                tidx: number,
-                                              ) => (
+                                              (threat: string) => (
                                                 <span
-                                                  key={tidx}
+                                                  key={threat}
                                                   className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm"
                                                 >
                                                   {threat}

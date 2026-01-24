@@ -39,9 +39,7 @@
             "$ref": "#/$defs/TZ_Name"
           }
         },
-        "required": [
-          "params"
-        ],
+        "required": ["params"],
         "title": "current_time_by_timezoneArguments",
         "type": "object"
       }

@@ -81,9 +81,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "input_patterns"
-        ],
+        "required": ["input_patterns"],
         "title": "neural_pattern_synthesizerArguments",
         "type": "object"
       }
@@ -116,10 +114,7 @@
                 "type": ["number", "null"]
               }
             },
-            "required": [
-              "latitude",
-              "longitude"
-            ],
+            "required": ["latitude", "longitude"],
             "title": "GeoCoordinates",
             "type": "object"
           }
@@ -146,9 +141,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "coordinates"
-        ],
+        "required": ["coordinates"],
         "title": "hyper_dimensional_mapperArguments",
         "type": "object"
       }
@@ -195,9 +188,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "timeframe"
-        ],
+        "required": ["timeframe"],
         "title": "temporal_anomaly_detectorArguments",
         "type": "object"
       }
@@ -239,10 +230,7 @@
                 "type": "array"
               }
             },
-            "required": [
-              "username",
-              "email"
-            ],
+            "required": ["username", "email"],
             "title": "UserProfile",
             "type": "object"
           },
@@ -282,9 +270,7 @@
             "description": "Options for the analysis"
           }
         },
-        "required": [
-          "profile"
-        ],
+        "required": ["profile"],
         "title": "user_profile_analyzerArguments",
         "type": "object"
       }
@@ -318,9 +304,7 @@
             "type": ["integer", "null"]
           }
         },
-        "required": [
-          "schema"
-        ],
+        "required": ["schema"],
         "title": "synthetic_data_generatorArguments",
         "type": "object"
       }

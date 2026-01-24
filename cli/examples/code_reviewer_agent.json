@@ -14,10 +14,7 @@
       "id": "analyze_code_quality",
       "name": "Analyze Code Quality",
       "description": "Analyze code for quality metrics including complexity, duplication, and maintainability",
-      "tags": [
-        "analysis",
-        "metrics"
-      ],
+      "tags": ["analysis", "metrics"],
       "examples": [
         "Analyze code quality for this Python function",
         "Check code quality metrics for JavaScript module"
@@ -29,10 +26,7 @@
       "id": "detect_bugs",
       "name": "Detect Bugs",
       "description": "Identify potential bugs and issues in the code",
-      "tags": [
-        "bug-detection",
-        "validation"
-      ],
+      "tags": ["bug-detection", "validation"],
       "examples": [
         "Detect critical bugs in this code",
         "Find high severity issues"
@@ -44,10 +38,7 @@
       "id": "suggest_improvements",
       "name": "Suggest Improvements",
       "description": "Provide suggestions for code improvements and refactoring",
-      "tags": [
-        "improvement",
-        "refactoring"
-      ],
+      "tags": ["improvement", "refactoring"],
       "examples": [
         "Suggest performance improvements for this code",
         "Recommend security enhancements"
@@ -72,11 +63,7 @@
   ],
   "metadata": {
     "max_code_size_mb": 10,
-    "supported_formats": [
-      "json",
-      "xml",
-      "yaml"
-    ],
+    "supported_formats": ["json", "xml", "yaml"],
     "response_time_ms": 2000,
     "availability": "99.9%"
   },

@@ -1,16 +1,25 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { API_ENDPOINTS, DEFAULT_ENTITY_TYPES, SEMANTIC_SEARCH_DEFAULTS } from '../constants';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import {
+  API_ENDPOINTS,
+  DEFAULT_ENTITY_TYPES,
+  SEMANTIC_SEARCH_DEFAULTS,
+} from "../constants";
 import type {
   SemanticAgentHit,
   SemanticSearchResponse,
   SemanticServerHit,
   SemanticToolHit,
-} from '../types';
-import { getErrorMessage } from '../utils/errorHandler';
+} from "../types";
+import { getErrorMessage } from "../utils/errorHandler";
 
 // Re-export types for consumers
-export type { SemanticSearchResponse, SemanticServerHit, SemanticToolHit, SemanticAgentHit };
+export type {
+  SemanticSearchResponse,
+  SemanticServerHit,
+  SemanticToolHit,
+  SemanticAgentHit,
+};
 
 type SearchEntityType = (typeof DEFAULT_ENTITY_TYPES)[number];
 
@@ -37,12 +46,12 @@ interface UseSemanticSearchReturn {
  */
 export const useSemanticSearch = (
   query: string,
-  options: UseSemanticSearchOptions = {}
+  options: UseSemanticSearchOptions = {},
 ): UseSemanticSearchReturn => {
   const [results, setResults] = useState<SemanticSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const enabled = options.enabled ?? true;
   const minLength = options.minLength ?? SEMANTIC_SEARCH_DEFAULTS.MIN_LENGTH;
@@ -80,14 +89,14 @@ export const useSemanticSearch = (
             entity_types: entityTypes,
             max_results: maxResults,
           },
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
         if (!cancelled) {
           setResults(response.data);
         }
       } catch (err: unknown) {
         if (axios.isCancel(err) || cancelled) return;
-        const message = getErrorMessage(err, 'Semantic search failed.');
+        const message = getErrorMessage(err, "Semantic search failed.");
         setError(message);
         setResults(null);
       } finally {

@@ -15,6 +15,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import type {
   HealthStatus,
   RatingDetail,
+  SecurityScanResult,
   ShowToastCallback,
   TrustLevel,
   Visibility,
@@ -43,13 +44,14 @@ export interface Agent {
   rating?: number;
   rating_details?: RatingDetail[];
   status?: HealthStatus;
+  provider?: string;
 }
 
 /**
  * Props for the AgentCard component.
  */
 interface AgentCardProps {
-  agent: Agent & { [key: string]: any }; // Allow additional fields from full agent JSON
+  agent: Agent;
   onToggle: (path: string, enabled: boolean) => void;
   onEdit?: (agent: Agent) => void;
   canModify?: boolean;
@@ -92,11 +94,10 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
   }) => {
     const [showDetails, setShowDetails] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
-    const [fullAgentDetails, setFullAgentDetails] = useState<any>(null);
+    const [fullAgentDetails, setFullAgentDetails] = useState<Record<string, unknown> | null>(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [showSecurityScan, setShowSecurityScan] = useState(false);
-    // Using any type to match SecurityScanModal's expected type which differs from our shared type
-    const [securityScanResult, setSecurityScanResult] = useState<any>(null);
+    const [securityScanResult, setSecurityScanResult] = useState<SecurityScanResult | null>(null);
     const [loadingSecurityScan, setLoadingSecurityScan] = useState(false);
 
     // Fetch security scan status on mount to show correct icon color
@@ -279,7 +280,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
     return (
       <>
-        <div className="group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-900/30 dark:to-blue-900/30 border-2 border-cyan-300/50 dark:border-cyan-600/50 hover:border-cyan-400/70 dark:hover:border-cyan-500/70 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/20 backdrop-blur-xl">
+        <div className="group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 bg-linear-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-900/30 dark:to-blue-900/30 border-2 border-cyan-300/50 dark:border-cyan-600/50 hover:border-cyan-400/70 dark:hover:border-cyan-500/70 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/20 backdrop-blur-xl">
           {/* Header */}
           <div className="p-5 pb-4">
             <div className="flex items-start justify-between mb-4">
@@ -288,12 +289,12 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                     {agent.name}
                   </h3>
-                  <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full shrink-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-600 dark:text-cyan-300 border border-cyan-500/30 shadow-sm">
+                  <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full shrink-0 bg-linear-to-r from-cyan-500/20 to-blue-500/20 text-cyan-600 dark:text-cyan-300 border border-cyan-500/30 shadow-sm">
                     AGENT
                   </span>
                   {/* Check if this is an ASOR agent */}
                   {(agent.tags?.includes("asor") ||
-                    (agent as any).provider === "ASOR") && (
+                    agent.provider === "ASOR") && (
                     <span className="px-2 py-0.5 text-xs font-semibold bg-linear-to-r from-orange-100 to-red-100 text-orange-700 dark:from-orange-900/30 dark:to-red-900/30 dark:text-orange-300 rounded-full shrink-0 border border-orange-200 dark:border-orange-600">
                       ASOR
                     </span>
@@ -447,7 +448,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
           </div>
 
           {/* Footer */}
-          <div className="mt-auto px-5 py-4 border-t border-cyan-200/50 dark:border-cyan-700/50 bg-gradient-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-900/20 dark:to-blue-900/10 rounded-b-2xl backdrop-blur-sm">
+          <div className="mt-auto px-5 py-4 border-t border-cyan-200/50 dark:border-cyan-700/50 bg-linear-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-900/20 dark:to-blue-900/10 rounded-b-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* Status Indicators */}
@@ -523,6 +524,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   <label
                     className="relative inline-flex items-center cursor-pointer"
                     onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
                   >
                     <input
                       type="checkbox"

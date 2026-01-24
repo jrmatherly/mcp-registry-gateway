@@ -46,12 +46,7 @@
           },
           "doc_format": {
             "type": "string",
-            "enum": [
-              "openapi",
-              "postman",
-              "markdown",
-              "html"
-            ],
+            "enum": ["openapi", "postman", "markdown", "html"],
             "description": "Documentation format"
           },
           "include_examples": {
@@ -59,15 +54,9 @@
             "description": "Include code examples"
           }
         },
-        "required": [
-          "code_path",
-          "doc_format"
-        ]
+        "required": ["code_path", "doc_format"]
       },
-      "tags": [
-        "documentation",
-        "api-generation"
-      ]
+      "tags": ["documentation", "api-generation"]
     },
     {
       "id": "extract_docstrings",
@@ -85,32 +74,18 @@
           },
           "docstring_style": {
             "type": "string",
-            "enum": [
-              "google",
-              "numpy",
-              "sphinx",
-              "rest"
-            ],
+            "enum": ["google", "numpy", "sphinx", "rest"],
             "description": "Docstring style to parse"
           },
           "output_format": {
             "type": "string",
-            "enum": [
-              "markdown",
-              "rst",
-              "html"
-            ],
+            "enum": ["markdown", "rst", "html"],
             "description": "Output documentation format"
           }
         },
-        "required": [
-          "source_files"
-        ]
+        "required": ["source_files"]
       },
-      "tags": [
-        "extraction",
-        "formatting"
-      ]
+      "tags": ["extraction", "formatting"]
     },
     {
       "id": "generate_readme",
@@ -149,14 +124,9 @@
             "description": "README sections to include"
           }
         },
-        "required": [
-          "project_info"
-        ]
+        "required": ["project_info"]
       },
-      "tags": [
-        "readme",
-        "project-info"
-      ]
+      "tags": ["readme", "project-info"]
     },
     {
       "id": "maintain_docs",
@@ -178,15 +148,9 @@
             "description": "Automatically update outdated sections"
           }
         },
-        "required": [
-          "source_path",
-          "docs_path"
-        ]
+        "required": ["source_path", "docs_path"]
       },
-      "tags": [
-        "maintenance",
-        "synchronization"
-      ]
+      "tags": ["maintenance", "synchronization"]
     },
     {
       "id": "generate_changelog",
@@ -209,22 +173,13 @@
           },
           "format": {
             "type": "string",
-            "enum": [
-              "keep-a-changelog",
-              "conventional",
-              "markdown"
-            ],
+            "enum": ["keep-a-changelog", "conventional", "markdown"],
             "description": "Changelog format"
           }
         },
-        "required": [
-          "git_repo_path"
-        ]
+        "required": ["git_repo_path"]
       },
-      "tags": [
-        "changelog",
-        "versioning"
-      ]
+      "tags": ["changelog", "versioning"]
     }
   ],
   "metadata": {
@@ -237,13 +192,7 @@
       "csharp",
       "typescript"
     ],
-    "documentation_formats": [
-      "markdown",
-      "html",
-      "pdf",
-      "postman",
-      "openapi"
-    ],
+    "documentation_formats": ["markdown", "html", "pdf", "postman", "openapi"],
     "average_generation_time_seconds": 45,
     "max_project_size_mb": 500
   }

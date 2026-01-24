@@ -977,10 +977,14 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label
+                    htmlFor="register-server-name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+                  >
                     Server Name *
                   </label>
                   <input
+                    id="register-server-name"
                     type="text"
                     required
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
@@ -996,10 +1000,14 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label
+                    htmlFor="register-server-path"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+                  >
                     Path *
                   </label>
                   <input
+                    id="register-server-path"
                     type="text"
                     required
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
@@ -1015,10 +1023,14 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label
+                    htmlFor="register-server-proxy-url"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+                  >
                     Proxy URL *
                   </label>
                   <input
+                    id="register-server-proxy-url"
                     type="url"
                     required
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
@@ -1034,10 +1046,14 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label
+                    htmlFor="register-server-description"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+                  >
                     Description
                   </label>
                   <textarea
+                    id="register-server-description"
                     className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
                     rows={3}
                     value={registerForm.description}
@@ -1052,10 +1068,14 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label
+                    htmlFor="register-server-tags"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+                  >
                     Tags
                   </label>
                   <input
+                    id="register-server-tags"
                     type="text"
                     value={registerForm.tags.join(",")}
                     onChange={(e) =>

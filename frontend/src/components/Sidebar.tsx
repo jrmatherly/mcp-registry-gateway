@@ -229,10 +229,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         /* Dashboard - Show user info, filters and stats */
         <>
           {/* User Info Header */}
-          <div className="p-4 md:p-6 border-b border-gray-200/50 dark:border-white/[0.06]">
+          <div className="p-4 md:p-6 border-b border-gray-200/50 dark:border-white/6">
             {/* User Access Information */}
             {user && (
-              <div className="p-3 bg-white/60 dark:bg-white/[0.03] backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/10">
+              <div className="p-3 bg-white/60 dark:bg-white/3 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/10">
                 <div className="text-sm">
                   <div className="font-medium text-gray-900 dark:text-white mb-1">
                     {user.username}
@@ -262,7 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       type="button"
                       onClick={fetchAdminTokens}
                       disabled={loading}
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-medium transition-all bg-gradient-to-r from-primary-500 to-indigo-600 text-white hover:from-primary-600 hover:to-indigo-700 shadow-lg shadow-primary-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-medium transition-all bg-linear-to-r from-primary-500 to-indigo-600 text-white hover:from-primary-600 hover:to-indigo-700 shadow-lg shadow-primary-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>
@@ -340,7 +340,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => setActiveFilter(filter.key)}
                   className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all focus:outline-hidden focus:ring-2 focus:ring-primary-500 ${
                     activeFilter === filter.key
-                      ? "bg-gradient-to-r from-primary-500/15 to-indigo-500/10 text-primary-700 dark:text-primary-300 border border-primary-500/30 shadow-sm"
+                      ? "bg-linear-to-r from-primary-500/15 to-indigo-500/10 text-primary-700 dark:text-primary-300 border border-primary-500/30 shadow-sm"
                       : "text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 border border-transparent"
                   }`}
                   tabIndex={0}
@@ -363,7 +363,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Statistics Section */}
-          <div className="border-t border-gray-200/50 dark:border-white/[0.06] p-4 md:p-6">
+          <div className="border-t border-gray-200/50 dark:border-white/6 p-4 md:p-6">
             <div className="flex items-center space-x-2 mb-4">
               <ChartBarIcon className="h-5 w-5 text-primary-500" />
               <h3 className="text-sm font-medium text-gray-900 dark:text-white">
@@ -372,7 +372,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-3 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/[0.08]">
+              <div className="text-center p-3 bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/8">
                 <div className="text-xl font-semibold text-gray-900 dark:text-white">
                   {stats.total}
                 </div>
@@ -388,7 +388,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Enabled
                 </div>
               </div>
-              <div className="text-center p-3 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/[0.08]">
+              <div className="text-center p-3 bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/8">
                 <div className="text-xl font-semibold text-gray-500 dark:text-gray-300">
                   {stats.disabled}
                 </div>
@@ -483,7 +483,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <div className="fixed left-0 top-16 bottom-0 z-40 w-64 lg:w-72 xl:w-80 bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-white/10 overflow-y-auto">
+            <div className="fixed left-0 top-16 bottom-0 z-40 w-64 lg:w-72 xl:w-80 bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/30 dark:border-white/5 shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.4)] overflow-y-auto">
               <SidebarContent />
             </div>
           </Transition.Child>
@@ -560,7 +560,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       </div>
 
                       {/* Token Data Display */}
-                      <div className="bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm rounded-xl p-4 max-h-96 overflow-y-auto border border-gray-200/50 dark:border-white/[0.06]">
+                      <div className="bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl p-4 max-h-96 overflow-y-auto border border-gray-200/50 dark:border-white/6">
                         <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all font-mono">
                           {JSON.stringify(tokenData, null, 2)}
                         </pre>

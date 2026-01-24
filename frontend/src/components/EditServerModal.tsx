@@ -57,10 +57,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-server-name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Server Name *
             </label>
             <input
+              id="edit-server-name"
               type="text"
               value={form.name}
               onChange={(e) => onFormChange({ name: e.target.value })}
@@ -70,10 +74,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-server-proxy-pass"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Proxy Pass URL *
             </label>
             <input
+              id="edit-server-proxy-pass"
               type="url"
               value={form.proxyPass}
               onChange={(e) => onFormChange({ proxyPass: e.target.value })}
@@ -84,10 +92,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-server-description"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Description
             </label>
             <textarea
+              id="edit-server-description"
               value={form.description}
               onChange={(e) => onFormChange({ description: e.target.value })}
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"
@@ -97,10 +109,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-server-tags"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Tags
             </label>
             <input
+              id="edit-server-tags"
               type="text"
               value={form.tags.join(",")}
               onChange={(e) =>
@@ -118,10 +134,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label
+                htmlFor="edit-server-num-tools"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+              >
                 Number of Tools
               </label>
               <input
+                id="edit-server-num-tools"
                 type="number"
                 value={form.num_tools}
                 onChange={(e) =>
@@ -133,10 +153,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label
+                htmlFor="edit-server-num-stars"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+              >
                 Stars
               </label>
               <input
+                id="edit-server-num-stars"
                 type="number"
                 value={form.num_stars}
                 onChange={(e) =>
@@ -149,10 +173,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-server-license"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               License
             </label>
             <input
+              id="edit-server-license"
               type="text"
               value={form.license}
               onChange={(e) => onFormChange({ license: e.target.value })}
@@ -178,10 +206,14 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-server-path"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Path (read-only)
             </label>
             <input
+              id="edit-server-path"
               type="text"
               value={form.path}
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300"

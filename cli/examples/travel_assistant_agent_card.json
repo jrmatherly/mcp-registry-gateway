@@ -2,12 +2,8 @@
   "capabilities": {
     "streaming": true
   },
-  "defaultInputModes": [
-    "text"
-  ],
-  "defaultOutputModes": [
-    "text"
-  ],
+  "defaultInputModes": ["text"],
+  "defaultOutputModes": ["text"],
   "description": "Flight search and trip planning agent",
   "name": "Travel Assistant Agent",
   "preferredTransport": "JSONRPC",

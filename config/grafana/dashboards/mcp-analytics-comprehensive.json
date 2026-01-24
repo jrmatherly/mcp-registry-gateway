@@ -31,9 +31,9 @@
           "legendFormat": "Auth Success Rate"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -59,9 +59,9 @@
           "legendFormat": "Failed Auth"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -83,7 +83,7 @@
           "legendFormat": "Success Rate %"
         }
       ],
-      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
       "options": {
         "colorMode": "background",
         "graphMode": "area"
@@ -93,9 +93,9 @@
           "unit": "percent",
           "thresholds": {
             "steps": [
-              {"color": "red", "value": 0},
-              {"color": "orange", "value": 85},
-              {"color": "green", "value": 95}
+              { "color": "red", "value": 0 },
+              { "color": "orange", "value": 85 },
+              { "color": "green", "value": 95 }
             ]
           }
         }
@@ -111,20 +111,20 @@
           "legendFormat": "Active Servers"
         }
       ],
-      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8},
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
       "options": {
         "colorMode": "background",
         "graphMode": "area"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "unit": "short",
           "thresholds": {
             "steps": [
-              {"color": "blue", "value": 0},
-              {"color": "green", "value": 3},
-              {"color": "green", "value": 10}
+              { "color": "blue", "value": 0 },
+              { "color": "green", "value": 3 },
+              { "color": "green", "value": 10 }
             ]
           }
         }
@@ -140,20 +140,20 @@
           "legendFormat": "Tools/Hour"
         }
       ],
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8},
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
       "options": {
         "colorMode": "background",
         "graphMode": "area"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "unit": "short",
           "thresholds": {
             "steps": [
-              {"color": "blue", "value": 0},
-              {"color": "blue", "value": 50},
-              {"color": "blue", "value": 100}
+              { "color": "blue", "value": 0 },
+              { "color": "blue", "value": 50 },
+              { "color": "blue", "value": 100 }
             ]
           }
         }
@@ -169,18 +169,16 @@
           "legendFormat": "{{tool_name}}"
         }
       ],
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
       "options": {
         "colorMode": "background",
         "textMode": "name"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "thresholds": {
-            "steps": [
-              {"color": "purple", "value": 0}
-            ]
+            "steps": [{ "color": "purple", "value": 0 }]
           }
         }
       }
@@ -207,9 +205,9 @@
           "legendFormat": "Tool Exec P99 Latency"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -231,9 +229,9 @@
           "legendFormat": "{{method}}"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -259,9 +257,9 @@
           "legendFormat": "Tool Execution Error Rate"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -272,9 +270,9 @@
           "unit": "percent",
           "thresholds": {
             "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 1},
-              {"color": "red", "value": 5}
+              { "color": "green", "value": 0 },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
             ]
           }
         }
@@ -294,9 +292,9 @@
           "legendFormat": "Tool Exec Avg Response Time"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -332,7 +330,7 @@
           "instant": true
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
       "transformations": [
         {
           "id": "merge",
@@ -341,7 +339,7 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {"Time": true},
+            "excludeByName": { "Time": true },
             "renameByName": {
               "server_name": "Server",
               "Value #A": "Total Calls",
@@ -370,7 +368,7 @@
           "instant": true
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
       "transformations": [
         {
           "id": "merge",
@@ -379,7 +377,7 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {"Time": true},
+            "excludeByName": { "Time": true },
             "renameByName": {
               "tool_name": "Tool Name",
               "Value #A": "Total Calls",
@@ -407,14 +405,14 @@
           "legendFormat": "{{method}}"
         }
       ],
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 36},
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 36 },
       "options": {
         "orientation": "horizontal",
         "displayMode": "gradient"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisLabel": "Request Count"
           },
@@ -434,7 +432,7 @@
           "format": "table"
         }
       ],
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 36},
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 36 },
       "options": {
         "orientation": "vertical",
         "xTickLabelRotation": -45,
@@ -444,7 +442,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisLabel": "Tool Call Count",
             "axisPlacement": "left"
@@ -463,14 +461,14 @@
           "legendFormat": "{{client_name}}"
         }
       ],
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 36},
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 36 },
       "options": {
         "orientation": "horizontal",
         "displayMode": "gradient"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisLabel": "Total Executions"
           },
@@ -502,7 +500,7 @@
           "instant": true
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 44},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 44 },
       "transformations": [
         {
           "id": "merge",
@@ -511,7 +509,7 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {"Time": true},
+            "excludeByName": { "Time": true },
             "renameByName": {
               "client_name": "Client",
               "Value #A": "Initialize",
@@ -532,14 +530,14 @@
           "legendFormat": "{{method}}"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 44},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 44 },
       "options": {
         "orientation": "horizontal",
         "displayMode": "gradient"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisLabel": "Request Count"
           },
@@ -565,9 +563,9 @@
           "legendFormat": "P99 Request Size"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 52},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 52 },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom"}
+        "legend": { "displayMode": "table", "placement": "bottom" }
       },
       "fieldConfig": {
         "defaults": {
@@ -589,14 +587,14 @@
           "legendFormat": "{{client_name}}"
         }
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 52},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 52 },
       "options": {
         "orientation": "horizontal",
         "displayMode": "gradient"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "continuous-GrYlRd"},
+          "color": { "mode": "continuous-GrYlRd" },
           "custom": {
             "axisLabel": "Activity Rate (req/s)"
           },

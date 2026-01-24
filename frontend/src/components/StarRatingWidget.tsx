@@ -1,8 +1,8 @@
-import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
-import axios from 'axios';
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
+import { StarIcon } from "@heroicons/react/24/solid";
+import axios from "axios";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface RatingDetail {
   user: string;
@@ -15,12 +15,12 @@ interface RatingInfoResponse {
 }
 
 interface StarRatingWidgetProps {
-  resourceType: 'agents' | 'servers';
+  resourceType: "agents" | "servers";
   path: string;
   initialRating?: number;
   initialCount?: number;
   authToken?: string | null;
-  onShowToast?: (message: string, type: 'success' | 'error') => void;
+  onShowToast?: (message: string, type: "success" | "error") => void;
   onRatingUpdate?: (newRating: number) => void;
 }
 
@@ -36,7 +36,9 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const [currentUserRating, setCurrentUserRating] = useState<number | null>(null);
+  const [currentUserRating, setCurrentUserRating] = useState<number | null>(
+    null,
+  );
   const [averageRating, setAverageRating] = useState(initialRating);
   const [ratingCount, setRatingCount] = useState(initialCount);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,17 +48,25 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   const loadCurrentRating = useCallback(async () => {
     try {
       // Build headers - use Bearer token if provided, otherwise rely on cookies
-      const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+      const headers = authToken
+        ? { Authorization: `Bearer ${authToken}` }
+        : undefined;
       // Both servers and agents now use consistent path parameter pattern
       const url = `/api/${resourceType}${path}/rating`;
-      const response = await axios.get<RatingInfoResponse>(url, headers ? { headers } : undefined);
+      const response = await axios.get<RatingInfoResponse>(
+        url,
+        headers ? { headers } : undefined,
+      );
 
       setAverageRating(response.data.num_stars);
       setRatingCount(response.data.rating_details.length);
 
       // Find current user's rating from the rating details
       // The backend should return rating_details for the current authenticated user
-      if (response.data.rating_details && response.data.rating_details.length > 0) {
+      if (
+        response.data.rating_details &&
+        response.data.rating_details.length > 0
+      ) {
         // For now, use the first rating (should be the current user's rating from backend)
         const userRating = response.data.rating_details[0];
         if (userRating) {
@@ -65,7 +75,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
         }
       }
     } catch (error: unknown) {
-      console.error('Failed to load rating:', error);
+      console.error("Failed to load rating:", error);
     }
   }, [authToken, resourceType, path]);
 
@@ -77,42 +87,50 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
 
   const handleSubmitRating = async () => {
-    console.log('handleSubmitRating called', { selectedRating, authToken: !!authToken });
+    console.log("handleSubmitRating called", {
+      selectedRating,
+      authToken: !!authToken,
+    });
     if (!selectedRating) {
-      console.log('Validation failed - no rating selected');
+      console.log("Validation failed - no rating selected");
       return;
     }
 
     setIsSubmitting(true);
     try {
       // Build headers - use Bearer token if provided, otherwise rely on cookies
-      const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
+      const headers = authToken
+        ? { Authorization: `Bearer ${authToken}` }
+        : undefined;
       // Both servers and agents now use consistent path parameter pattern
       const url = `/api/${resourceType}${path}/rate`;
-      console.log('Submitting rating to:', url, { rating: selectedRating });
+      console.log("Submitting rating to:", url, { rating: selectedRating });
 
       const response = await axios.post(
         url,
         { rating: selectedRating },
-        headers ? { headers } : undefined
+        headers ? { headers } : undefined,
       );
 
-      console.log('Rating response:', response.data);
+      console.log("Rating response:", response.data);
       const newAverageRating = response.data.average_rating;
       setAverageRating(newAverageRating);
       setCurrentUserRating(selectedRating);
@@ -126,8 +144,10 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
 
       if (onShowToast) {
         onShowToast(
-          currentUserRating ? 'Rating updated successfully!' : 'Rating submitted successfully!',
-          'success'
+          currentUserRating
+            ? "Rating updated successfully!"
+            : "Rating submitted successfully!",
+          "success",
         );
       }
 
@@ -136,17 +156,21 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       }
 
       // Auto-close after 2 seconds
-      console.log('Setting timeout to close dialog...');
+      console.log("Setting timeout to close dialog...");
       setTimeout(() => {
-        console.log('Closing dialog now');
+        console.log("Closing dialog now");
         setShowSuccess(false);
         setIsDropdownOpen(false);
       }, 2000);
-    } catch (error: any) {
-      console.error('Failed to submit rating:', error);
-      console.error('Error details:', error.response?.data);
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { detail?: string } } };
+      console.error("Failed to submit rating:", error);
+      console.error("Error details:", axiosError.response?.data);
       if (onShowToast) {
-        onShowToast(error.response?.data?.detail || 'Failed to submit rating', 'error');
+        onShowToast(
+          axiosError.response?.data?.detail || "Failed to submit rating",
+          "error",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -163,19 +187,25 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
     setHoverRating(null);
   };
 
-  const renderStars = (_count: number, filled: boolean, size: 'small' | 'large' = 'large') => {
-    const sizeClass = size === 'small' ? 'h-4 w-4' : 'h-6 w-6';
+  const renderStars = (
+    _count: number,
+    filled: boolean,
+    size: "small" | "large" = "large",
+  ) => {
+    const sizeClass = size === "small" ? "h-4 w-4" : "h-6 w-6";
     const IconComponent = filled ? StarIcon : StarIconOutline;
 
     return (
       <IconComponent
-        className={`${sizeClass} ${filled ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
+        className={`${sizeClass} ${filled ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"}`}
       />
     );
   };
 
   const displayRating =
-    hoverRating !== null ? hoverRating : selectedRating || currentUserRating || 0;
+    hoverRating !== null
+      ? hoverRating
+      : selectedRating || currentUserRating || 0;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -194,12 +224,12 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
         </div>
         <div>
           <div className="text-sm font-semibold text-gray-900 dark:text-white">
-            {averageRating > 0 ? averageRating.toFixed(1) : '0'}
+            {averageRating > 0 ? averageRating.toFixed(1) : "0"}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
             {ratingCount === 0
-              ? 'No ratings'
-              : `${ratingCount} rating${ratingCount !== 1 ? 's' : ''}`}
+              ? "No ratings"
+              : `${ratingCount} rating${ratingCount !== 1 ? "s" : ""}`}
           </div>
         </div>
       </button>
@@ -220,7 +250,9 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-labelledby="success-checkmark-title"
                 >
+                  <title id="success-checkmark-title">Success</title>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -230,15 +262,17 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                 </svg>
               </div>
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                Rating{' '}
+                Rating{" "}
                 {currentUserRating && selectedRating !== currentUserRating
-                  ? 'updated'
-                  : 'submitted'}
+                  ? "updated"
+                  : "submitted"}
                 !
               </h4>
               <div className="flex justify-center items-center gap-1 mb-2">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <div key={star}>{renderStars(star, star <= (selectedRating || 0), 'small')}</div>
+                  <div key={star}>
+                    {renderStars(star, star <= (selectedRating || 0), "small")}
+                  </div>
                 ))}
                 <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                   ({selectedRating} stars)
@@ -252,7 +286,13 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
             // Loading State
             <div className="text-center py-6">
               <div className="inline-flex items-center justify-center w-12 h-12 mb-3">
-                <svg className="animate-spin h-8 w-8 text-cyan-600" fill="none" viewBox="0 0 24 24">
+                <svg
+                  className="animate-spin h-8 w-8 text-cyan-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  aria-labelledby="loading-spinner-title"
+                >
+                  <title id="loading-spinner-title">Loading</title>
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -277,7 +317,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
             <>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                 {currentUserRating
-                  ? 'Update your rating:'
+                  ? "Update your rating:"
                   : `Rate this ${resourceType.slice(0, -1)}:`}
               </h4>
               {currentUserRating && (
@@ -293,6 +333,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                 aria-label="Select rating"
               >
                 {[1, 2, 3, 4, 5].map((star) => (
+                  // biome-ignore lint/a11y/useSemanticElements: Button with role="radio" is intentional for custom SVG star styling with hover effects
                   <button
                     type="button"
                     key={star}
@@ -302,7 +343,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                     className="p-1 hover:scale-110 transition-transform duration-150 focus:outline-hidden focus:ring-2 focus:ring-yellow-400 rounded-sm"
                     role="radio"
                     aria-checked={selectedRating === star}
-                    aria-label={`${star} star${star !== 1 ? 's' : ''}`}
+                    aria-label={`${star} star${star !== 1 ? "s" : ""}`}
                   >
                     {renderStars(star, star <= displayRating)}
                   </button>
@@ -312,7 +353,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
               {/* Rating Preview Text */}
               {displayRating > 0 && (
                 <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  {displayRating} star{displayRating !== 1 ? 's' : ''}
+                  {displayRating} star{displayRating !== 1 ? "s" : ""}
                 </p>
               )}
 
@@ -331,9 +372,15 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                   disabled={!selectedRating}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                 >
-                  {currentUserRating ? 'Update Rating' : 'Submit Rating'}
+                  {currentUserRating ? "Update Rating" : "Submit Rating"}
                   {selectedRating && (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"

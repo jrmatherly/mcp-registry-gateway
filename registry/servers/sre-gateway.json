@@ -5,14 +5,8 @@
   "proxy_pass_url": "https://sre-gateway-i7ge1zayhw.gateway.bedrock-agentcore.us-east-1.amazonaws.com/",
   "auth_provider": "bedrock-agentcore",
   "auth_type": "oauth",
-  "supported_transports": [
-    "streamable-http"
-  ],
-  "tags": [
-    "sre",
-    "gateway",
-    "agentcore"
-  ],
+  "supported_transports": ["streamable-http"],
+  "tags": ["sre", "gateway", "agentcore"],
   "headers": [
     {
       "Authorization": "Bearer $SRE_GATEWAY_AUTH_TOKEN"
@@ -38,9 +32,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "query"
-        ]
+        "required": ["query"]
       }
     },
     {
@@ -57,11 +49,7 @@
           "severity": {
             "description": "Filter by event severity",
             "type": "string",
-            "enum": [
-              "Warning",
-              "Error",
-              "Normal"
-            ]
+            "enum": ["Warning", "Error", "Normal"]
           },
           "since": {
             "format": "date-time",
@@ -151,11 +139,7 @@
           "resource_type": {
             "description": "Type of resource to monitor",
             "type": "string",
-            "enum": [
-              "cpu",
-              "memory",
-              "pods"
-            ]
+            "enum": ["cpu", "memory", "pods"]
           }
         }
       }
@@ -174,12 +158,7 @@
           "time_window": {
             "description": "Time window for pattern analysis",
             "type": "string",
-            "enum": [
-              "1h",
-              "6h",
-              "24h",
-              "7d"
-            ]
+            "enum": ["1h", "6h", "24h", "7d"]
           },
           "min_occurrences": {
             "description": "Minimum occurrences to be considered a pattern",
@@ -206,26 +185,15 @@
           "time_window": {
             "description": "Time window for counting",
             "type": "string",
-            "enum": [
-              "1h",
-              "6h",
-              "24h",
-              "7d"
-            ]
+            "enum": ["1h", "6h", "24h", "7d"]
           },
           "group_by": {
             "description": "Group results by this field",
             "type": "string",
-            "enum": [
-              "service",
-              "level",
-              "hour"
-            ]
+            "enum": ["service", "level", "hour"]
           }
         },
-        "required": [
-          "event_type"
-        ]
+        "required": ["event_type"]
       }
     },
     {
@@ -301,17 +269,10 @@
           "log_level": {
             "description": "Filter by log level",
             "type": "string",
-            "enum": [
-              "ERROR",
-              "WARN",
-              "INFO",
-              "DEBUG"
-            ]
+            "enum": ["ERROR", "WARN", "INFO", "DEBUG"]
           }
         },
-        "required": [
-          "pattern"
-        ]
+        "required": ["pattern"]
       }
     },
     {
@@ -336,21 +297,14 @@
           "time_window": {
             "description": "Time window for trend analysis",
             "type": "string",
-            "enum": [
-              "1h",
-              "6h",
-              "24h",
-              "7d"
-            ]
+            "enum": ["1h", "6h", "24h", "7d"]
           },
           "service": {
             "description": "Filter by service name",
             "type": "string"
           }
         },
-        "required": [
-          "metric_name"
-        ]
+        "required": ["metric_name"]
       }
     },
     {
@@ -367,13 +321,7 @@
           "time_window": {
             "description": "Time window for availability calculation",
             "type": "string",
-            "enum": [
-              "1h",
-              "6h",
-              "24h",
-              "7d",
-              "30d"
-            ]
+            "enum": ["1h", "6h", "24h", "7d", "30d"]
           },
           "service": {
             "description": "Service name",
@@ -396,12 +344,7 @@
           "time_window": {
             "description": "Time window for error rates",
             "type": "string",
-            "enum": [
-              "1h",
-              "6h",
-              "24h",
-              "7d"
-            ]
+            "enum": ["1h", "6h", "24h", "7d"]
           },
           "service": {
             "description": "Filter by service name",
@@ -433,12 +376,7 @@
           "metric_type": {
             "description": "Type of performance metric",
             "type": "string",
-            "enum": [
-              "response_time",
-              "throughput",
-              "cpu_usage",
-              "memory_usage"
-            ]
+            "enum": ["response_time", "throughput", "cpu_usage", "memory_usage"]
           },
           "end_time": {
             "format": "date-time",
@@ -462,12 +400,7 @@
           "time_window": {
             "description": "Time window for metrics",
             "type": "string",
-            "enum": [
-              "1h",
-              "6h",
-              "24h",
-              "7d"
-            ]
+            "enum": ["1h", "6h", "24h", "7d"]
           },
           "service": {
             "description": "Filter by service name",
@@ -476,12 +409,7 @@
           "resource_type": {
             "description": "Type of resource metric",
             "type": "string",
-            "enum": [
-              "cpu",
-              "memory",
-              "disk",
-              "network"
-            ]
+            "enum": ["cpu", "memory", "disk", "network"]
           }
         }
       }
@@ -506,9 +434,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "issue"
-        ]
+        "required": ["issue"]
       }
     },
     {
@@ -525,12 +451,7 @@
           "severity": {
             "description": "Incident severity",
             "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "critical"
-            ]
+            "enum": ["low", "medium", "high", "critical"]
           },
           "incident_type": {
             "description": "Type of incident",
@@ -555,9 +476,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "playbook_id"
-        ]
+        "required": ["playbook_id"]
       }
     },
     {
@@ -578,12 +497,7 @@
           "category": {
             "description": "Troubleshooting category",
             "type": "string",
-            "enum": [
-              "kubernetes",
-              "performance",
-              "networking",
-              "database"
-            ]
+            "enum": ["kubernetes", "performance", "networking", "database"]
           }
         }
       }
@@ -602,22 +516,12 @@
           "severity": {
             "description": "Incident severity level",
             "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "critical"
-            ]
+            "enum": ["low", "medium", "high", "critical"]
           },
           "incident_type": {
             "description": "Type of incident",
             "type": "string",
-            "enum": [
-              "performance",
-              "availability",
-              "security",
-              "deployment"
-            ]
+            "enum": ["performance", "availability", "security", "deployment"]
           },
           "keyword": {
             "description": "Search keyword in runbook content",

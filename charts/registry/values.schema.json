@@ -123,10 +123,7 @@
           "type": "object",
           "properties": {
             "cpu": {
-              "oneOf": [
-                {"type": "string"},
-                {"type": "integer"}
-              ],
+              "oneOf": [{ "type": "string" }, { "type": "integer" }],
               "description": "CPU request"
             },
             "memory": {
@@ -139,10 +136,7 @@
           "type": "object",
           "properties": {
             "cpu": {
-              "oneOf": [
-                {"type": "string"},
-                {"type": "integer"}
-              ],
+              "oneOf": [{ "type": "string" }, { "type": "integer" }],
               "description": "CPU limit"
             },
             "memory": {
@@ -219,15 +213,15 @@
         },
         "minAvailable": {
           "oneOf": [
-            {"type": "integer", "minimum": 0},
-            {"type": "string", "pattern": "^[0-9]+%$"}
+            { "type": "integer", "minimum": 0 },
+            { "type": "string", "pattern": "^[0-9]+%$" }
           ],
           "description": "Minimum available pods"
         },
         "maxUnavailable": {
           "oneOf": [
-            {"type": "integer", "minimum": 0},
-            {"type": "string", "pattern": "^[0-9]+%$"}
+            { "type": "integer", "minimum": 0 },
+            { "type": "string", "pattern": "^[0-9]+%$" }
           ],
           "description": "Maximum unavailable pods"
         }

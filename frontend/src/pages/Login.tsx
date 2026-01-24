@@ -201,9 +201,9 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f14] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Gradient mesh background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-transparent to-indigo-500/10 dark:from-primary-900/30 dark:via-transparent dark:to-indigo-900/20 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary-500/20 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-400/10 to-transparent rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary-500/10 via-transparent to-indigo-500/10 dark:from-primary-900/30 dark:via-transparent dark:to-indigo-900/20 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-primary-500/20 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-linear-to-tr from-cyan-400/10 to-transparent rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white">
@@ -215,7 +215,7 @@ const Login: React.FC = () => {
       </div>
 
       <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/[0.08] p-8">
+        <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 dark:border-white/8 p-8">
           {/* OAuth Providers */}
           {oauthProviders.length > 0 && (
             <div className="space-y-3 mb-6">
@@ -357,7 +357,9 @@ const Login: React.FC = () => {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
+                    aria-labelledby="login-spinner-title"
                   >
+                    <title id="login-spinner-title">Loading</title>
                     <circle
                       className="opacity-25"
                       cx="12"

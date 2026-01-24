@@ -11,9 +11,9 @@
  */
 export const getErrorMessage = (
   error: unknown,
-  fallbackMessage: string = 'An error occurred'
+  fallbackMessage: string = "An error occurred",
 ): string => {
-  if (error && typeof error === 'object') {
+  if (error && typeof error === "object") {
     const axiosError = error as {
       response?: {
         data?: {
@@ -55,17 +55,18 @@ export const getErrorMessage = (
 export const handleApiError = (
   error: unknown,
   context: string,
-  onShowToast?: (message: string, type: 'success' | 'error') => void,
+  onShowToast?: (message: string, type: "success" | "error") => void,
   options?: {
     silentOn404?: boolean;
     logError?: boolean;
-  }
+  },
 ): void => {
   const { silentOn404 = false, logError = true } = options || {};
 
   // Check if this is a 404 that should be silent
   if (silentOn404) {
-    const status = (error as { response?: { status?: number } })?.response?.status;
+    const status = (error as { response?: { status?: number } })?.response
+      ?.status;
     if (status === 404) {
       return;
     }
@@ -79,7 +80,7 @@ export const handleApiError = (
   // Show toast if callback provided
   if (onShowToast) {
     const message = getErrorMessage(error, `Failed to ${context}`);
-    onShowToast(message, 'error');
+    onShowToast(message, "error");
   }
 };
 
@@ -87,7 +88,7 @@ export const handleApiError = (
  * Type guard to check if an error is an Axios error with a response.
  */
 export const isAxiosError = (
-  error: unknown
+  error: unknown,
 ): error is {
   response: {
     status: number;
@@ -96,9 +97,9 @@ export const isAxiosError = (
   message: string;
 } => {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'response' in error &&
-    typeof (error as { response?: unknown }).response === 'object'
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object"
   );
 };

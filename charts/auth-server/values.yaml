@@ -16,7 +16,7 @@ app:
 
   # Security settings - REQUIRED: Override in production
   # secretKey: ""  # Must be provided via --set or values override
-  sessionCookieDomain: ""  # Auto-inferred from Host header if empty
+  sessionCookieDomain: "" # Auto-inferred from Host header if empty
   sessionCookieSecure: true
 
 # Service account configuration

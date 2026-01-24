@@ -1,8 +1,12 @@
-import { CheckCircleIcon, ExclamationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import type React from 'react';
-import { useCallback, useEffect } from 'react';
-import { TOAST_DURATION_MS } from '../constants';
-import type { ToastType } from '../types';
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import type React from "react";
+import { useCallback, useEffect } from "react";
+import { TOAST_DURATION_MS } from "../constants";
+import type { ToastType } from "../types";
 
 export interface ToastProps {
   message: string;
@@ -21,7 +25,12 @@ export interface ToastProps {
  * - Dark mode support
  * - Animated entrance
  */
-const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = TOAST_DURATION_MS }) => {
+const Toast: React.FC<ToastProps> = ({
+  message,
+  type,
+  onClose,
+  duration = TOAST_DURATION_MS,
+}) => {
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -31,12 +40,12 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = TOAST_
     return () => clearTimeout(timer);
   }, [handleClose, duration]);
 
-  const Icon = type === 'success' ? CheckCircleIcon : ExclamationCircleIcon;
+  const Icon = type === "success" ? CheckCircleIcon : ExclamationCircleIcon;
 
   const colorClasses =
-    type === 'success'
-      ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/50 dark:border-green-700 dark:text-green-200'
-      : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/50 dark:border-red-700 dark:text-red-200';
+    type === "success"
+      ? "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/50 dark:border-green-700 dark:text-green-200"
+      : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/50 dark:border-red-700 dark:text-red-200";
 
   return (
     <div className="fixed top-4 right-4 z-50 animate-slide-in-top">
@@ -60,6 +69,6 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = TOAST_
   );
 };
 
-Toast.displayName = 'Toast';
+Toast.displayName = "Toast";
 
 export default Toast;

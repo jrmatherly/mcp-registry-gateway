@@ -67,15 +67,9 @@
             "description": "Confidence level for hypothesis tests"
           }
         },
-        "required": [
-          "data",
-          "analyses"
-        ]
+        "required": ["data", "analyses"]
       },
-      "tags": [
-        "statistics",
-        "analysis"
-      ]
+      "tags": ["statistics", "analysis"]
     },
     {
       "id": "data_visualization",
@@ -90,14 +84,7 @@
           },
           "chart_type": {
             "type": "string",
-            "enum": [
-              "line",
-              "bar",
-              "pie",
-              "scatter",
-              "heatmap",
-              "box-plot"
-            ],
+            "enum": ["line", "bar", "pie", "scatter", "heatmap", "box-plot"],
             "description": "Type of chart to create"
           },
           "title": {
@@ -106,23 +93,13 @@
           },
           "export_format": {
             "type": "string",
-            "enum": [
-              "svg",
-              "png",
-              "pdf"
-            ],
+            "enum": ["svg", "png", "pdf"],
             "description": "Output format"
           }
         },
-        "required": [
-          "data",
-          "chart_type"
-        ]
+        "required": ["data", "chart_type"]
       },
-      "tags": [
-        "visualization",
-        "charts"
-      ]
+      "tags": ["visualization", "charts"]
     },
     {
       "id": "predictive_modeling",
@@ -156,15 +133,9 @@
             "description": "Model-specific hyperparameters"
           }
         },
-        "required": [
-          "training_data",
-          "model_type"
-        ]
+        "required": ["training_data", "model_type"]
       },
-      "tags": [
-        "machine-learning",
-        "prediction"
-      ]
+      "tags": ["machine-learning", "prediction"]
     },
     {
       "id": "anomaly_detection",
@@ -194,15 +165,9 @@
             "description": "Proportion of outliers expected"
           }
         },
-        "required": [
-          "data",
-          "method"
-        ]
+        "required": ["data", "method"]
       },
-      "tags": [
-        "anomaly-detection",
-        "outliers"
-      ]
+      "tags": ["anomaly-detection", "outliers"]
     },
     {
       "id": "data_transformation",
@@ -229,25 +194,14 @@
             "description": "Transformations to apply"
           }
         },
-        "required": [
-          "data",
-          "transformations"
-        ]
+        "required": ["data", "transformations"]
       },
-      "tags": [
-        "preprocessing",
-        "transformation"
-      ]
+      "tags": ["preprocessing", "transformation"]
     }
   ],
   "metadata": {
     "max_dataset_size_gb": 100,
-    "supported_formats": [
-      "csv",
-      "json",
-      "parquet",
-      "xlsx"
-    ],
+    "supported_formats": ["csv", "json", "parquet", "xlsx"],
     "computation_gpu_enabled": true,
     "avg_analysis_time_seconds": 30
   }

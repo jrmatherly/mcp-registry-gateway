@@ -4,10 +4,28 @@ import {
   ExclamationTriangleIcon,
   KeyIcon,
 } from "@heroicons/react/24/outline";
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
 import type React from "react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+
+interface TokenData {
+  access_token: string;
+  expires_in: number;
+  description?: string;
+}
+
+interface TokenGenerationResponse {
+  success: boolean;
+  token_data: TokenData;
+  requested_scopes: string[];
+}
+
+interface TokenRequestData {
+  description: string;
+  expires_in_hours: number;
+  requested_scopes?: string[];
+}
 
 const TokenGeneration: React.FC = () => {
   const { user } = useAuth();
@@ -18,7 +36,8 @@ const TokenGeneration: React.FC = () => {
     customScopes: "",
   });
   const [generatedToken, setGeneratedToken] = useState<string>("");
-  const [tokenDetails, setTokenDetails] = useState<any>(null);
+  const [tokenDetails, setTokenDetails] =
+    useState<TokenGenerationResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string>("");
@@ -35,7 +54,7 @@ const TokenGeneration: React.FC = () => {
     setError("");
 
     try {
-      const requestData: any = {
+      const requestData: TokenRequestData = {
         description: formData.description,
         expires_in_hours: formData.expires_in_hours,
       };
@@ -72,9 +91,10 @@ const TokenGeneration: React.FC = () => {
       } else {
         throw new Error("Token generation failed");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to generate token:", error);
-      setError(error.response?.data?.detail || "Failed to generate token");
+      const axiosError = error as AxiosError<{ detail?: string }>;
+      setError(axiosError.response?.data?.detail || "Failed to generate token");
     } finally {
       setLoading(false);
     }
@@ -130,7 +150,7 @@ const TokenGeneration: React.FC = () => {
       {/* Compact Header Section */}
       <div className="shrink-0 pb-2">
         <div className="text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg shadow-primary-500/25">
+          <div className="mx-auto w-12 h-12 bg-linear-to-br from-primary-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg shadow-primary-500/25">
             <KeyIcon className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -147,7 +167,7 @@ const TokenGeneration: React.FC = () => {
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="max-w-4xl mx-auto space-y-4 pb-6">
           {/* Current User Permissions - Glass Card */}
-          <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] p-5">
+          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/8 p-5">
             <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
               Your Current Permissions
             </h3>
@@ -160,7 +180,7 @@ const TokenGeneration: React.FC = () => {
                   user.scopes.map((scope) => (
                     <span
                       key={scope}
-                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30"
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-linear-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30"
                     >
                       {scope}
                     </span>
@@ -181,7 +201,7 @@ const TokenGeneration: React.FC = () => {
           </div>
 
           {/* Token Configuration Form - Glass Card */}
-          <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] p-5">
+          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/8 p-5">
             <form onSubmit={handleGenerateToken} className="space-y-4">
               <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                 Token Configuration
@@ -375,7 +395,7 @@ const TokenGeneration: React.FC = () => {
 
           {/* Generated Token Result */}
           {generatedToken && tokenDetails && (
-            <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-emerald-500/30 dark:border-emerald-500/30 p-5">
+            <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-emerald-500/30 dark:border-emerald-500/30 p-5">
               <div className="flex items-center space-x-2 mb-3">
                 <CheckIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">

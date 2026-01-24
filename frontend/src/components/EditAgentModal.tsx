@@ -56,10 +56,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Agent Name *
             </label>
             <input
+              id="edit-agent-name"
               type="text"
               value={form.name}
               onChange={(e) => onFormChange({ name: e.target.value })}
@@ -69,10 +73,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-description"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Description
             </label>
             <textarea
+              id="edit-agent-description"
               value={form.description}
               onChange={(e) => onFormChange({ description: e.target.value })}
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-cyan-500 focus:border-cyan-500"
@@ -82,10 +90,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-version"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Version
             </label>
             <input
+              id="edit-agent-version"
               type="text"
               value={form.version}
               onChange={(e) => onFormChange({ version: e.target.value })}
@@ -95,10 +107,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-visibility"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Visibility
             </label>
             <select
+              id="edit-agent-visibility"
               value={form.visibility}
               onChange={(e) =>
                 onFormChange({ visibility: e.target.value as Visibility })
@@ -112,10 +128,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-trust-level"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Trust Level
             </label>
             <select
+              id="edit-agent-trust-level"
               value={form.trust_level}
               onChange={(e) =>
                 onFormChange({ trust_level: e.target.value as TrustLevel })
@@ -130,10 +150,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-tags"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Tags
             </label>
             <input
+              id="edit-agent-tags"
               type="text"
               value={form.tags.join(",")}
               onChange={(e) =>
@@ -150,10 +174,14 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="edit-agent-path"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+            >
               Path (read-only)
             </label>
             <input
+              id="edit-agent-path"
               type="text"
               value={form.path}
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300"

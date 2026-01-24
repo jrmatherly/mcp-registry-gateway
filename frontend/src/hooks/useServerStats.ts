@@ -1,6 +1,12 @@
-import axios from 'axios';
-import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react';
-import { API_ENDPOINTS } from '../constants';
+import axios from "axios";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { API_ENDPOINTS } from "../constants";
 import type {
   AgentApiResponse,
   AgentsListResponse,
@@ -8,8 +14,8 @@ import type {
   ServerApiResponse,
   ServerStats,
   ServersListResponse,
-} from '../types';
-import { getErrorMessage } from '../utils/errorHandler';
+} from "../types";
+import { getErrorMessage } from "../utils/errorHandler";
 
 /**
  * Internal server representation used by the hook.
@@ -27,7 +33,7 @@ interface ServerEntity {
   rating?: number;
   status?: HealthStatus;
   num_tools?: number;
-  type: 'server' | 'agent';
+  type: "server" | "agent";
 }
 
 interface UseServerStatsReturn {
@@ -47,26 +53,28 @@ interface UseServerStatsReturn {
  * Maps backend health status string to frontend HealthStatus type.
  */
 const mapHealthStatus = (healthStatus: string | undefined): HealthStatus => {
-  if (!healthStatus || healthStatus === 'unknown') return 'unknown';
-  if (healthStatus === 'healthy') return 'healthy';
-  if (healthStatus === 'healthy-auth-expired') return 'healthy-auth-expired';
+  if (!healthStatus || healthStatus === "unknown") return "unknown";
+  if (healthStatus === "healthy") return "healthy";
+  if (healthStatus === "healthy-auth-expired") return "healthy-auth-expired";
   if (
-    healthStatus.includes('unhealthy') ||
-    healthStatus.includes('error') ||
-    healthStatus.includes('timeout')
+    healthStatus.includes("unhealthy") ||
+    healthStatus.includes("error") ||
+    healthStatus.includes("timeout")
   ) {
-    return 'unhealthy';
+    return "unhealthy";
   }
-  return 'unknown';
+  return "unknown";
 };
 
 /**
  * Transforms server API response to frontend entity format.
  */
-const transformServerResponse = (serverInfo: ServerApiResponse): ServerEntity => ({
-  name: serverInfo.display_name || 'Unknown Server',
+const transformServerResponse = (
+  serverInfo: ServerApiResponse,
+): ServerEntity => ({
+  name: serverInfo.display_name || "Unknown Server",
   path: serverInfo.path,
-  description: serverInfo.description || '',
+  description: serverInfo.description || "",
   official: serverInfo.is_official || false,
   enabled: serverInfo.is_enabled ?? false,
   tags: serverInfo.tags || [],
@@ -75,25 +83,25 @@ const transformServerResponse = (serverInfo: ServerApiResponse): ServerEntity =>
   rating: serverInfo.num_stars || 0,
   status: mapHealthStatus(serverInfo.health_status),
   num_tools: serverInfo.num_tools || 0,
-  type: 'server',
+  type: "server",
 });
 
 /**
  * Transforms agent API response to frontend entity format.
  */
 const transformAgentResponse = (agentInfo: AgentApiResponse): ServerEntity => ({
-  name: agentInfo.name || 'Unknown Agent',
+  name: agentInfo.name || "Unknown Agent",
   path: agentInfo.path,
-  description: agentInfo.description || '',
+  description: agentInfo.description || "",
   official: false,
   enabled: agentInfo.is_enabled ?? false,
   tags: agentInfo.tags || [],
   last_checked_time: undefined,
   usersCount: 0,
   rating: agentInfo.num_stars || 0,
-  status: 'unknown',
+  status: "unknown",
   num_tools: agentInfo.num_skills || 0,
-  type: 'agent',
+  type: "agent",
 });
 
 /**
@@ -105,9 +113,9 @@ const calculateStats = (services: ServerEntity[]): ServerStats => {
       total: acc.total + 1,
       enabled: acc.enabled + (service.enabled ? 1 : 0),
       disabled: acc.disabled + (service.enabled ? 0 : 1),
-      withIssues: acc.withIssues + (service.status === 'unhealthy' ? 1 : 0),
+      withIssues: acc.withIssues + (service.status === "unhealthy" ? 1 : 0),
     }),
-    { total: 0, enabled: 0, disabled: 0, withIssues: 0 }
+    { total: 0, enabled: 0, disabled: 0, withIssues: 0 },
   );
 };
 
@@ -123,7 +131,7 @@ export const useServerStats = (): UseServerStatsReturn => {
   });
   const [servers, setServers] = useState<ServerEntity[]>([]);
   const [agents, setAgents] = useState<ServerEntity[]>([]);
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [activeFilter, setActiveFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -155,7 +163,7 @@ export const useServerStats = (): UseServerStatsReturn => {
       const allServices = [...transformedServers, ...transformedAgents];
       setStats(calculateStats(allServices));
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err, 'Failed to fetch data');
+      const errorMessage = getErrorMessage(err, "Failed to fetch data");
       setError(errorMessage);
       setServers([]);
       setAgents([]);

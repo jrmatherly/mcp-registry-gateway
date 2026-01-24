@@ -1,15 +1,15 @@
-import { Route, BrowserRouter as Router, Routes } from 'react-router';
-import ErrorBoundary from './components/ErrorBoundary';
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import OAuthCallback from './pages/OAuthCallback';
-import RegisterPage from './pages/RegisterPage';
-import Settings from './pages/Settings';
-import TokenGeneration from './pages/TokenGeneration';
+import { Route, BrowserRouter as Router, Routes } from "react-router";
+import ErrorBoundary from "./components/ErrorBoundary";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import OAuthCallback from "./pages/OAuthCallback";
+import RegisterPage from "./pages/RegisterPage";
+import Settings from "./pages/Settings";
+import TokenGeneration from "./pages/TokenGeneration";
 
 function App() {
   return (

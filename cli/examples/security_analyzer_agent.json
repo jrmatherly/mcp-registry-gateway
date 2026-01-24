@@ -47,12 +47,7 @@
           },
           "severity_threshold": {
             "type": "string",
-            "enum": [
-              "critical",
-              "high",
-              "medium",
-              "low"
-            ],
+            "enum": ["critical", "high", "medium", "low"],
             "description": "Minimum severity to report"
           },
           "include_dependencies": {
@@ -60,14 +55,9 @@
             "description": "Also scan dependencies and third-party libraries"
           }
         },
-        "required": [
-          "code_path"
-        ]
+        "required": ["code_path"]
       },
-      "tags": [
-        "scanning",
-        "vulnerability-detection"
-      ]
+      "tags": ["scanning", "vulnerability-detection"]
     },
     {
       "id": "check_compliance",
@@ -96,15 +86,9 @@
             "description": "Standards to check against"
           }
         },
-        "required": [
-          "artifact",
-          "standards"
-        ]
+        "required": ["artifact", "standards"]
       },
-      "tags": [
-        "compliance",
-        "standards"
-      ]
+      "tags": ["compliance", "standards"]
     },
     {
       "id": "analyze_authentication",
@@ -131,14 +115,9 @@
             "description": "Authentication aspects to check"
           }
         },
-        "required": [
-          "auth_config"
-        ]
+        "required": ["auth_config"]
       },
-      "tags": [
-        "authentication",
-        "access-control"
-      ]
+      "tags": ["authentication", "access-control"]
     },
     {
       "id": "penetration_test",
@@ -153,11 +132,7 @@
           },
           "test_scope": {
             "type": "string",
-            "enum": [
-              "basic",
-              "standard",
-              "comprehensive"
-            ],
+            "enum": ["basic", "standard", "comprehensive"],
             "description": "Scope of penetration testing"
           },
           "attack_vectors": {
@@ -175,14 +150,9 @@
             "description": "Specific attack vectors to test"
           }
         },
-        "required": [
-          "target_url"
-        ]
+        "required": ["target_url"]
       },
-      "tags": [
-        "penetration-testing",
-        "exploitation"
-      ]
+      "tags": ["penetration-testing", "exploitation"]
     },
     {
       "id": "generate_security_report",
@@ -197,11 +167,7 @@
           },
           "format": {
             "type": "string",
-            "enum": [
-              "html",
-              "pdf",
-              "json"
-            ],
+            "enum": ["html", "pdf", "json"],
             "description": "Report format"
           },
           "include_remediations": {
@@ -209,15 +175,9 @@
             "description": "Include remediation steps"
           }
         },
-        "required": [
-          "findings",
-          "format"
-        ]
+        "required": ["findings", "format"]
       },
-      "tags": [
-        "reporting",
-        "recommendations"
-      ]
+      "tags": ["reporting", "recommendations"]
     }
   ],
   "metadata": {
@@ -230,13 +190,7 @@
       "rust",
       "csharp"
     ],
-    "compliance_frameworks": [
-      "owasp",
-      "cis",
-      "pci-dss",
-      "hipaa",
-      "gdpr"
-    ],
+    "compliance_frameworks": ["owasp", "cis", "pci-dss", "hipaa", "gdpr"],
     "reporting_templates": 12,
     "updates_frequency": "daily"
   }

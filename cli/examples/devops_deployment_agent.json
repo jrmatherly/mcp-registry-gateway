@@ -47,21 +47,12 @@
           },
           "target_environment": {
             "type": "string",
-            "enum": [
-              "development",
-              "staging",
-              "production"
-            ],
+            "enum": ["development", "staging", "production"],
             "description": "Target environment"
           },
           "cloud_provider": {
             "type": "string",
-            "enum": [
-              "aws",
-              "gcp",
-              "azure",
-              "kubernetes"
-            ],
+            "enum": ["aws", "gcp", "azure", "kubernetes"],
             "description": "Cloud platform to deploy to"
           },
           "rollback_on_failure": {
@@ -69,15 +60,9 @@
             "description": "Automatically rollback on deployment failure"
           }
         },
-        "required": [
-          "deployment_config",
-          "target_environment"
-        ]
+        "required": ["deployment_config", "target_environment"]
       },
-      "tags": [
-        "deployment",
-        "orchestration"
-      ]
+      "tags": ["deployment", "orchestration"]
     },
     {
       "id": "manage_infrastructure",
@@ -92,33 +77,18 @@
           },
           "action": {
             "type": "string",
-            "enum": [
-              "plan",
-              "apply",
-              "destroy",
-              "validate"
-            ],
+            "enum": ["plan", "apply", "destroy", "validate"],
             "description": "IaC action to perform"
           },
           "cloud_provider": {
             "type": "string",
-            "enum": [
-              "aws",
-              "gcp",
-              "azure"
-            ],
+            "enum": ["aws", "gcp", "azure"],
             "description": "Cloud provider"
           }
         },
-        "required": [
-          "infrastructure_code",
-          "action"
-        ]
+        "required": ["infrastructure_code", "action"]
       },
-      "tags": [
-        "infrastructure",
-        "iac"
-      ]
+      "tags": ["infrastructure", "iac"]
     },
     {
       "id": "configure_cicd",
@@ -133,37 +103,21 @@
           },
           "pipeline_type": {
             "type": "string",
-            "enum": [
-              "github-actions",
-              "gitlab-ci",
-              "jenkins",
-              "circleci"
-            ],
+            "enum": ["github-actions", "gitlab-ci", "jenkins", "circleci"],
             "description": "CI/CD platform"
           },
           "stages": {
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "test",
-                "build",
-                "deploy",
-                "monitor"
-              ]
+              "enum": ["test", "build", "deploy", "monitor"]
             },
             "description": "Pipeline stages to include"
           }
         },
-        "required": [
-          "repository_url",
-          "pipeline_type"
-        ]
+        "required": ["repository_url", "pipeline_type"]
       },
-      "tags": [
-        "ci-cd",
-        "automation"
-      ]
+      "tags": ["ci-cd", "automation"]
     },
     {
       "id": "monitor_health",
@@ -180,13 +134,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "cpu",
-                "memory",
-                "network",
-                "latency",
-                "error_rate"
-              ]
+              "enum": ["cpu", "memory", "network", "latency", "error_rate"]
             },
             "description": "Metrics to monitor"
           },
@@ -195,14 +143,9 @@
             "description": "Threshold values for alerts"
           }
         },
-        "required": [
-          "deployment_id"
-        ]
+        "required": ["deployment_id"]
       },
-      "tags": [
-        "monitoring",
-        "observability"
-      ]
+      "tags": ["monitoring", "observability"]
     },
     {
       "id": "manage_secrets",
@@ -227,24 +170,13 @@
           },
           "rotation_policy": {
             "type": "string",
-            "enum": [
-              "daily",
-              "weekly",
-              "monthly",
-              "manual"
-            ],
+            "enum": ["daily", "weekly", "monthly", "manual"],
             "description": "Secret rotation policy"
           }
         },
-        "required": [
-          "secret_name",
-          "secret_type"
-        ]
+        "required": ["secret_name", "secret_type"]
       },
-      "tags": [
-        "security",
-        "secrets-management"
-      ]
+      "tags": ["security", "secrets-management"]
     },
     {
       "id": "scale_application",
@@ -259,11 +191,7 @@
           },
           "scaling_metric": {
             "type": "string",
-            "enum": [
-              "cpu_utilization",
-              "memory_usage",
-              "request_count"
-            ],
+            "enum": ["cpu_utilization", "memory_usage", "request_count"],
             "description": "Metric to trigger scaling"
           },
           "min_instances": {
@@ -277,15 +205,9 @@
             "description": "Maximum number of instances"
           }
         },
-        "required": [
-          "deployment_id",
-          "scaling_metric"
-        ]
+        "required": ["deployment_id", "scaling_metric"]
       },
-      "tags": [
-        "scaling",
-        "optimization"
-      ]
+      "tags": ["scaling", "optimization"]
     }
   ],
   "metadata": {
@@ -296,18 +218,8 @@
       "digitalocean",
       "linode"
     ],
-    "supported_container_platforms": [
-      "docker",
-      "kubernetes",
-      "ecs",
-      "gke"
-    ],
-    "iac_frameworks": [
-      "terraform",
-      "cloudformation",
-      "pulumi",
-      "ansible"
-    ],
+    "supported_container_platforms": ["docker", "kubernetes", "ecs", "gke"],
+    "iac_frameworks": ["terraform", "cloudformation", "pulumi", "ansible"],
     "cicd_platforms": [
       "github-actions",
       "gitlab-ci",

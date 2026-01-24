@@ -4,37 +4,95 @@
   "server_access": [
     {
       "server": "context7",
-      "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call", "resources/list", "resources/templates/list"],
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "resources/list",
+        "resources/templates/list"
+      ],
       "tools": ["*"]
     },
     {
       "server": "/context7",
-      "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call", "resources/list", "resources/templates/list"],
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "resources/list",
+        "resources/templates/list"
+      ],
       "tools": ["*"]
     },
     {
       "server": "/context7/",
-      "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call", "resources/list", "resources/templates/list"],
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "resources/list",
+        "resources/templates/list"
+      ],
       "tools": ["*"]
     },
     {
       "server": "cloudflare-docs",
-      "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call", "resources/list", "resources/templates/list"],
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "resources/list",
+        "resources/templates/list"
+      ],
       "tools": ["*"]
     },
     {
       "server": "/cloudflare-docs",
-      "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call", "resources/list", "resources/templates/list"],
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "resources/list",
+        "resources/templates/list"
+      ],
       "tools": ["*"]
     },
     {
       "server": "/cloudflare-docs/",
-      "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call", "resources/list", "resources/templates/list"],
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "resources/list",
+        "resources/templates/list"
+      ],
       "tools": ["*"]
     },
     {
       "server": "api",
-      "methods": ["initialize", "GET", "POST", "servers", "agents", "search", "rating", "tools", "tokens"],
+      "methods": [
+        "initialize",
+        "GET",
+        "POST",
+        "servers",
+        "agents",
+        "search",
+        "rating",
+        "tools",
+        "tokens"
+      ],
       "tools": []
     },
     {
@@ -57,7 +115,10 @@
       }
     }
   ],
-  "group_mappings": ["public-mcp-users", "5f605d68-06bc-4208-b992-bb378eee12c5"],
+  "group_mappings": [
+    "public-mcp-users",
+    "5f605d68-06bc-4208-b992-bb378eee12c5"
+  ],
   "ui_permissions": {
     "list_service": ["all"],
     "list_agents": ["/flight-booking"],

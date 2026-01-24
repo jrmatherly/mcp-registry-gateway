@@ -240,8 +240,8 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
         <div
           className={`group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 ${
             isAnthropicServer
-              ? "bg-gradient-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-900/30 dark:to-indigo-900/30 border-2 border-purple-300/50 dark:border-purple-600/50 hover:border-purple-400/70 dark:hover:border-purple-500/70 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20"
-              : "bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.08] hover:border-primary-300/50 dark:hover:border-primary-500/30 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-primary-500/10"
+              ? "bg-linear-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-900/30 dark:to-indigo-900/30 border-2 border-purple-300/50 dark:border-purple-600/50 hover:border-purple-400/70 dark:hover:border-purple-500/70 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20"
+              : "bg-white/80 dark:bg-white/3 backdrop-blur-xl border border-gray-200/50 dark:border-white/8 hover:border-primary-300/50 dark:hover:border-primary-500/30 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-primary-500/10"
           }`}
         >
           {/* Header */}
@@ -253,7 +253,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
                     {server.name}
                   </h3>
                   {server.official && (
-                    <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full shrink-0 bg-gradient-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30 shadow-sm">
+                    <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full shrink-0 bg-linear-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30 shadow-sm">
                       OFFICIAL
                     </span>
                   )}
@@ -396,7 +396,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
           </div>
 
           {/* Footer */}
-          <div className="mt-auto px-5 py-4 border-t border-gray-200/50 dark:border-white/[0.06] bg-gradient-to-r from-gray-50/80 to-gray-100/50 dark:from-white/[0.02] dark:to-white/[0.01] rounded-b-2xl backdrop-blur-sm">
+          <div className="mt-auto px-5 py-4 border-t border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-gray-100/50 dark:from-white/2 dark:to-white/1 rounded-b-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* Status Indicators */}
@@ -517,9 +517,9 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 
               <div className="space-y-4">
                 {tools.length > 0 ? (
-                  tools.map((tool, index) => (
+                  tools.map((tool) => (
                     <div
-                      key={index}
+                      key={tool.name}
                       className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
                     >
                       <h4 className="font-medium text-gray-900 dark:text-white mb-2">

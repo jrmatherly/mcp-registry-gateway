@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { BREAKPOINTS } from '../constants';
+import { useCallback, useEffect, useState } from "react";
+import { BREAKPOINTS } from "../constants";
 
 /**
  * Custom hook that tracks whether a media query matches.
@@ -14,7 +14,7 @@ import { BREAKPOINTS } from '../constants';
 export const useMediaQuery = (query: string): boolean => {
   const getMatches = useCallback((mediaQuery: string): boolean => {
     // Check if window is defined (SSR safety)
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return window.matchMedia(mediaQuery).matches;
     }
     return false;
@@ -35,7 +35,7 @@ export const useMediaQuery = (query: string): boolean => {
 
     // Add listener (modern API)
     if (mediaQueryList.addEventListener) {
-      mediaQueryList.addEventListener('change', handleChange);
+      mediaQueryList.addEventListener("change", handleChange);
     } else {
       // Fallback for older browsers
       mediaQueryList.addListener(handleChange);
@@ -43,7 +43,7 @@ export const useMediaQuery = (query: string): boolean => {
 
     return () => {
       if (mediaQueryList.removeEventListener) {
-        mediaQueryList.removeEventListener('change', handleChange);
+        mediaQueryList.removeEventListener("change", handleChange);
       } else {
         // Fallback for older browsers
         mediaQueryList.removeListener(handleChange);
@@ -66,7 +66,9 @@ export const useIsMobile = (): boolean => {
  * Convenience hook for checking if the viewport is tablet-sized.
  */
 export const useIsTablet = (): boolean => {
-  return useMediaQuery(`(min-width: ${BREAKPOINTS.MD}px) and (max-width: ${BREAKPOINTS.LG - 1}px)`);
+  return useMediaQuery(
+    `(min-width: ${BREAKPOINTS.MD}px) and (max-width: ${BREAKPOINTS.LG - 1}px)`,
+  );
 };
 
 /**

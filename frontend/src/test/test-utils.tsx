@@ -1,14 +1,18 @@
-import { type RenderOptions, type RenderResult, render } from '@testing-library/react';
-import React, { type ReactElement, type ReactNode } from 'react';
-import { MemoryRouter, type MemoryRouterProps } from 'react-router';
-import { ThemeProvider } from '../contexts/ThemeContext';
+import {
+  type RenderOptions,
+  type RenderResult,
+  render,
+} from "@testing-library/react";
+import React, { type ReactElement, type ReactNode } from "react";
+import { MemoryRouter, type MemoryRouterProps } from "react-router";
+import { ThemeProvider } from "../contexts/ThemeContext";
 
 /**
  * Options for customizing the test wrapper providers.
  */
 interface WrapperOptions {
   /** Initial route entries for MemoryRouter */
-  initialRoutes?: MemoryRouterProps['initialEntries'];
+  initialRoutes?: MemoryRouterProps["initialEntries"];
   /** Whether to include AuthProvider (requires mocking axios first) */
   withAuth?: boolean;
 }
@@ -26,17 +30,17 @@ interface AllProvidersProps extends WrapperOptions {
  */
 const AllProviders: React.FC<AllProvidersProps> = ({
   children,
-  initialRoutes = ['/'],
+  initialRoutes = ["/"],
   withAuth = false,
 }) => {
   // Dynamic import to avoid circular dependencies and allow conditional loading
   const AuthWrapper = withAuth
     ? React.lazy(() =>
-        import('../contexts/AuthContext').then((m) => ({
+        import("../contexts/AuthContext").then((m) => ({
           default: ({ children }: { children: ReactNode }) => (
             <m.AuthProvider>{children}</m.AuthProvider>
           ),
-        }))
+        })),
       )
     : React.Fragment;
 
@@ -54,7 +58,7 @@ const AllProviders: React.FC<AllProvidersProps> = ({
 /**
  * Extended render options including wrapper configuration.
  */
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
   wrapperOptions?: WrapperOptions;
 }
 
@@ -73,7 +77,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
  */
 const customRender = (
   ui: ReactElement,
-  { wrapperOptions, ...options }: CustomRenderOptions = {}
+  { wrapperOptions, ...options }: CustomRenderOptions = {},
 ): RenderResult => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <AllProviders {...wrapperOptions}>{children}</AllProviders>
@@ -83,8 +87,8 @@ const customRender = (
 };
 
 // Re-export everything from testing-library
-export * from '@testing-library/react';
-export { default as userEvent } from '@testing-library/user-event';
+export * from "@testing-library/react";
+export { default as userEvent } from "@testing-library/user-event";
 
 // Override render with custom render
 export { customRender as render };

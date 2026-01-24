@@ -6,13 +6,17 @@
 // Health Status Types
 // ============================================================================
 
-export type HealthStatus = 'healthy' | 'healthy-auth-expired' | 'unhealthy' | 'unknown';
+export type HealthStatus =
+  | "healthy"
+  | "healthy-auth-expired"
+  | "unhealthy"
+  | "unknown";
 
-export type TrustLevel = 'community' | 'verified' | 'trusted' | 'unverified';
+export type TrustLevel = "community" | "verified" | "trusted" | "unverified";
 
-export type Visibility = 'public' | 'private' | 'group-restricted';
+export type Visibility = "public" | "private" | "group-restricted";
 
-export type EntityType = 'server' | 'agent';
+export type EntityType = "server" | "agent";
 
 // ============================================================================
 // Rating Types
@@ -61,6 +65,12 @@ export interface Agent extends ServerBase {
   usersCount?: number;
   rating?: number;
   rating_details?: RatingDetail[];
+  provider?: string;
+}
+
+// Extended Agent type for full API responses with additional metadata
+export interface AgentDetails extends Agent {
+  [key: string]: unknown;
 }
 
 // ============================================================================
@@ -214,7 +224,7 @@ export interface User {
 // Toast Types
 // ============================================================================
 
-export type ToastType = 'success' | 'error';
+export type ToastType = "success" | "error";
 
 export interface ToastData {
   message: string;
@@ -300,9 +310,9 @@ export interface UserApiResponse {
 // View Filter Types
 // ============================================================================
 
-export type ViewFilter = 'all' | 'servers' | 'agents' | 'external';
+export type ViewFilter = "all" | "servers" | "agents" | "external";
 
-export type ActiveFilter = 'all' | 'enabled' | 'disabled' | 'unhealthy';
+export type ActiveFilter = "all" | "enabled" | "disabled" | "unhealthy";
 
 // ============================================================================
 // Form Types

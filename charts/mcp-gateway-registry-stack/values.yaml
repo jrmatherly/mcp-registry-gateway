@@ -13,7 +13,7 @@ global:
     annotations:
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
       alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/success-codes: 200,302
 
@@ -49,7 +49,7 @@ keycloak:
       value: xforwarded
 
   ingress:
-    enabled: false  # We use a custom ingress template that supports global.domain
+    enabled: false # We use a custom ingress template that supports global.domain
 
   # Lifecycle hook to configure realm SSL settings
   lifecycleHooks:
@@ -105,7 +105,7 @@ registry:
     annotations:
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
       alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/success-codes: 200,302
 
@@ -125,7 +125,7 @@ auth-server:
     annotations:
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
       alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/success-codes: 200,302
       alb.ingress.kubernetes.io/healthcheck-path: /health

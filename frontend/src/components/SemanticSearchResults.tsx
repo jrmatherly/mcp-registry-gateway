@@ -3,19 +3,19 @@ import {
   CogIcon,
   InformationCircleIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline';
-import axios from 'axios';
-import type React from 'react';
-import { useMemo, useState } from 'react';
+} from "@heroicons/react/24/outline";
+import axios from "axios";
+import type React from "react";
+import { useMemo, useState } from "react";
 import type {
   SemanticAgentHit,
   SemanticServerHit,
   SemanticToolHit,
-} from '../hooks/useSemanticSearch';
-import type { Agent as AgentType } from './AgentCard';
-import AgentDetailsModal from './AgentDetailsModal';
-import type { Server } from './ServerCard';
-import ServerConfigModal from './ServerConfigModal';
+} from "../hooks/useSemanticSearch";
+import type { Agent as AgentType } from "./AgentCard";
+import AgentDetailsModal from "./AgentDetailsModal";
+import type { Server } from "./ServerCard";
+import ServerConfigModal from "./ServerConfigModal";
 
 interface SemanticSearchResultsProps {
   query: string;
@@ -29,7 +29,7 @@ interface SemanticSearchResultsProps {
 interface ToolSchemaModalProps {
   toolName: string;
   serverName: string;
-  schema: Record<string, any> | null;
+  schema: Record<string, unknown> | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -48,8 +48,12 @@ const ToolSchemaModal: React.FC<ToolSchemaModalProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{toolName}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{serverName}</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {toolName}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {serverName}
+            </p>
           </div>
           <button
             type="button"
@@ -78,7 +82,8 @@ const ToolSchemaModal: React.FC<ToolSchemaModalProps> = ({
   );
 };
 
-const formatPercent = (value: number) => `${Math.round(Math.min(value, 1) * 100)}%`;
+const formatPercent = (value: number) =>
+  `${Math.round(Math.min(value, 1) * 100)}%`;
 
 const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
   query,
@@ -88,20 +93,25 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
   tools,
   agents,
 }) => {
-  const hasResults = servers.length > 0 || tools.length > 0 || agents.length > 0;
-  const [configServer, setConfigServer] = useState<SemanticServerHit | null>(null);
-  const [detailsAgent, setDetailsAgent] = useState<SemanticAgentHit | null>(null);
-  const [agentDetailsData, setAgentDetailsData] = useState<any>(null);
+  const hasResults =
+    servers.length > 0 || tools.length > 0 || agents.length > 0;
+  const [configServer, setConfigServer] = useState<SemanticServerHit | null>(
+    null,
+  );
+  const [detailsAgent, setDetailsAgent] = useState<SemanticAgentHit | null>(
+    null,
+  );
+  const [agentDetailsData, setAgentDetailsData] = useState<Record<string, unknown> | null>(null);
   const [agentDetailsLoading, setAgentDetailsLoading] = useState(false);
   const [selectedToolSchema, setSelectedToolSchema] = useState<{
     toolName: string;
     serverName: string;
-    schema: Record<string, any> | null;
+    schema: Record<string, unknown> | null;
   } | null>(null);
 
   // Build a lookup map from server_path + tool_name to inputSchema
   const toolSchemaMap = useMemo(() => {
-    const map = new Map<string, Record<string, any>>();
+    const map = new Map<string, Record<string, unknown>>();
     for (const tool of tools) {
       const key = `${tool.server_path}:${tool.tool_name}`;
       if (tool.inputSchema) {
@@ -111,7 +121,11 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
     return map;
   }, [tools]);
 
-  const openToolSchema = (serverPath: string, serverName: string, toolName: string) => {
+  const openToolSchema = (
+    serverPath: string,
+    serverName: string,
+    toolName: string,
+  ) => {
     const key = `${serverPath}:${toolName}`;
     const schema = toolSchemaMap.get(key) || null;
     setSelectedToolSchema({ toolName, serverName, schema });
@@ -125,7 +139,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
       const response = await axios.get(`/api/agents${agentHit.path}`);
       setAgentDetailsData(response.data);
     } catch (error) {
-      console.error('Failed to fetch agent details:', error);
+      console.error("Failed to fetch agent details:", error);
     } finally {
       setAgentDetailsLoading(false);
     }
@@ -134,14 +148,14 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
   const mapHitToAgent = (hit: SemanticAgentHit): AgentType => ({
     name: hit.agent_name,
     path: hit.path,
-    url: hit.url || (hit.agent_card as any)?.url,
+    url: hit.url || (hit.agent_card as Record<string, unknown> | undefined)?.url as string | undefined,
     description: hit.description,
-    version: (hit as any).version,
-    visibility: (hit.visibility as AgentType['visibility']) ?? 'public',
-    trust_level: (hit.trust_level as AgentType['trust_level']) ?? 'unverified',
+    version: (hit as unknown as { version?: string }).version,
+    visibility: (hit.visibility as AgentType["visibility"]) ?? "public",
+    trust_level: (hit.trust_level as AgentType["trust_level"]) ?? "unverified",
     enabled: hit.is_enabled ?? true,
     tags: hit.tags,
-    status: 'unknown',
+    status: "unknown",
   });
 
   return (
@@ -153,7 +167,10 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
               Semantic Search
             </p>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Results for <span className="text-purple-600 dark:text-purple-300">“{query}”</span>
+              Results for{" "}
+              <span className="text-purple-600 dark:text-purple-300">
+                “{query}”
+              </span>
             </h3>
           </div>
           {loading && (
@@ -176,9 +193,10 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
               No semantic matches found
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              Try refining your query or describing the tools or capabilities you need. Semantic
-              search understands natural language — phrases like “servers that handle
-              authentication” or “tools for syncing calendars” work great.
+              Try refining your query or describing the tools or capabilities
+              you need. Semantic search understands natural language — phrases
+              like “servers that handle authentication” or “tools for syncing
+              calendars” work great.
             </p>
           </div>
         )}
@@ -187,13 +205,18 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Matching Servers{' '}
-                <span className="text-sm font-normal text-gray-500">({servers.length})</span>
+                Matching Servers{" "}
+                <span className="text-sm font-normal text-gray-500">
+                  ({servers.length})
+                </span>
               </h4>
             </div>
             <div
               className="grid"
-              style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}
+              style={{
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "1.5rem",
+              }}
             >
               {servers.map((server) => (
                 <div
@@ -205,7 +228,9 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                       <p className="text-base font-semibold text-gray-900 dark:text-white">
                         {server.server_name}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-300">{server.path}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-300">
+                        {server.path}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -222,7 +247,9 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                     </div>
                   </div>
                   <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
-                    {server.description || server.match_context || 'No description available.'}
+                    {server.description ||
+                      server.match_context ||
+                      "No description available."}
                   </p>
 
                   {server.tags?.length > 0 && (
@@ -255,13 +282,19 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                               </span>
                               <span className="mx-2 text-gray-400">-</span>
                               <span className="text-gray-600 dark:text-gray-300 line-clamp-1">
-                                {tool.description || tool.match_context || 'No description'}
+                                {tool.description ||
+                                  tool.match_context ||
+                                  "No description"}
                               </span>
                             </div>
                             <button
                               type="button"
                               onClick={() =>
-                                openToolSchema(server.path, server.server_name, tool.tool_name)
+                                openToolSchema(
+                                  server.path,
+                                  server.server_name,
+                                  tool.tool_name,
+                                )
                               }
                               className="shrink-0 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-sm transition-colors"
                               title="View input schema"
@@ -283,15 +316,17 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Matching Tools{' '}
-                <span className="text-sm font-normal text-gray-500">({tools.length})</span>
+                Matching Tools{" "}
+                <span className="text-sm font-normal text-gray-500">
+                  ({tools.length})
+                </span>
               </h4>
             </div>
             <div
               className="grid"
               style={{
-                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                gap: '1.25rem',
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "1.25rem",
               }}
             >
               {tools.map((tool) => (
@@ -307,7 +342,9 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                       </span>
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                      {tool.description || tool.match_context || 'No description available.'}
+                      {tool.description ||
+                        tool.match_context ||
+                        "No description available."}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -339,15 +376,17 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Matching Agents{' '}
-                <span className="text-sm font-normal text-gray-500">({agents.length})</span>
+                Matching Agents{" "}
+                <span className="text-sm font-normal text-gray-500">
+                  ({agents.length})
+                </span>
               </h4>
             </div>
             <div
               className="grid"
               style={{
-                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                gap: '1.25rem',
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "1.25rem",
               }}
             >
               {agents.map((agent) => (
@@ -361,7 +400,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                         {agent.agent_name}
                       </p>
                       <p className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500">
-                        {agent.visibility || 'public'}
+                        {agent.visibility || "public"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -380,7 +419,9 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                   </div>
 
                   <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
-                    {agent.description || agent.match_context || 'No description available.'}
+                    {agent.description ||
+                      agent.match_context ||
+                      "No description available."}
                   </p>
 
                   {agent.skills?.length > 0 && (
@@ -389,8 +430,8 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                         Key Skills
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-300">
-                        {agent.skills.slice(0, 4).join(', ')}
-                        {agent.skills.length > 4 && '…'}
+                        {agent.skills.slice(0, 4).join(", ")}
+                        {agent.skills.length > 4 && "…"}
                       </p>
                     </div>
                   )}
@@ -410,9 +451,9 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
 
                   <div className="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span className="font-semibold text-cyan-700 dark:text-cyan-200">
-                      {agent.trust_level || 'unverified'}
+                      {agent.trust_level || "unverified"}
                     </span>
-                    <span>{agent.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                    <span>{agent.is_enabled ? "Enabled" : "Disabled"}</span>
                   </div>
                 </div>
               ))}

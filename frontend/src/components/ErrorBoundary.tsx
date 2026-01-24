@@ -1,5 +1,8 @@
-import { ArrowPathIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import {
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -37,8 +40,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log error to console in development
     if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught an error:', error);
-      console.error('Component stack:', errorInfo.componentStack);
+      console.error("ErrorBoundary caught an error:", error);
+      console.error("Component stack:", errorInfo.componentStack);
     }
 
     // Store error info for display
@@ -75,13 +78,15 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             </h2>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              An unexpected error occurred. Please try again or contact support if the problem
-              persists.
+              An unexpected error occurred. Please try again or contact support
+              if the problem persists.
             </p>
 
             {import.meta.env.DEV && error && (
               <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-left overflow-auto max-h-32">
-                <p className="text-xs font-mono text-red-600 dark:text-red-400">{error.message}</p>
+                <p className="text-xs font-mono text-red-600 dark:text-red-400">
+                  {error.message}
+                </p>
               </div>
             )}
 

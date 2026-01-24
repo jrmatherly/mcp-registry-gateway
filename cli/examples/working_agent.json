@@ -5,12 +5,8 @@
   "url": "http://flight-booking-agent:9000/",
   "version": "0.0.1",
   "capabilities": {},
-  "default_input_modes": [
-    "text/plain"
-  ],
-  "default_output_modes": [
-    "text/plain"
-  ],
+  "default_input_modes": ["text/plain"],
+  "default_output_modes": ["text/plain"],
   "skills": [
     {
       "id": "check_availability",
@@ -75,11 +71,7 @@
   "supports_authenticated_extended_card": null,
   "metadata": {},
   "path": "/flight-booking",
-  "tags": [
-    "travel",
-    "flight-booking",
-    "reservation"
-  ],
+  "tags": ["travel", "flight-booking", "reservation"],
   "is_enabled": false,
   "num_stars": 0,
   "license": "MIT",

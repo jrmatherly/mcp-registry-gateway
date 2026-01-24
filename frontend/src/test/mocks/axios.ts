@@ -2,11 +2,11 @@
  * Centralized axios mock utilities for consistent test setup.
  */
 
-import axios from 'axios';
-import { vi } from 'vitest';
+import axios from "axios";
+import { vi } from "vitest";
 
 // Create typed mock
-vi.mock('axios');
+vi.mock("axios");
 export const mockedAxios = vi.mocked(axios, true);
 
 /**
@@ -24,7 +24,7 @@ export const resetAxiosMocks = (): void => {
  */
 export const mockAxiosSuccess = <T>(
   data: T,
-  method: 'get' | 'post' | 'put' | 'delete' = 'get'
+  method: "get" | "post" | "put" | "delete" = "get",
 ): void => {
   mockedAxios[method].mockResolvedValueOnce({ data });
 };
@@ -35,7 +35,7 @@ export const mockAxiosSuccess = <T>(
 export const mockAxiosError = (
   status: number,
   detail: string,
-  method: 'get' | 'post' | 'put' | 'delete' = 'get'
+  method: "get" | "post" | "put" | "delete" = "get",
 ): void => {
   const error = {
     response: {
@@ -50,15 +50,17 @@ export const mockAxiosError = (
 /**
  * Setup axios to simulate network error.
  */
-export const mockAxiosNetworkError = (method: 'get' | 'post' | 'put' | 'delete' = 'get'): void => {
-  mockedAxios[method].mockRejectedValueOnce(new Error('Network Error'));
+export const mockAxiosNetworkError = (
+  method: "get" | "post" | "put" | "delete" = "get",
+): void => {
+  mockedAxios[method].mockRejectedValueOnce(new Error("Network Error"));
 };
 
 /**
  * Setup axios to return a pending promise (useful for loading state tests).
  */
 export const mockAxiosPending = <T>(
-  method: 'get' | 'post' | 'put' | 'delete' = 'get'
+  method: "get" | "post" | "put" | "delete" = "get",
 ): { resolve: (data: T) => void; reject: (error: Error) => void } => {
   let resolvePromise: (value: { data: T }) => void;
   let rejectPromise: (error: Error) => void;

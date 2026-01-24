@@ -8,7 +8,9 @@
  * @param timestamp - ISO timestamp string, null, or undefined
  * @returns Formatted string like "5m ago", "2h ago", "3d ago", or null if invalid
  */
-export const formatTimeSince = (timestamp: string | null | undefined): string | null => {
+export const formatTimeSince = (
+  timestamp: string | null | undefined,
+): string | null => {
   if (!timestamp) {
     return null;
   }
@@ -41,7 +43,12 @@ export const formatTimeSince = (timestamp: string | null | undefined): string | 
     return `${diffSeconds}s ago`;
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('formatTimeSince error:', error, 'for timestamp:', timestamp);
+      console.error(
+        "formatTimeSince error:",
+        error,
+        "for timestamp:",
+        timestamp,
+      );
     }
     return null;
   }
@@ -54,5 +61,5 @@ export const formatTimeSince = (timestamp: string | null | undefined): string | 
  * @returns ISO date string
  */
 export const formatISODate = (date: Date | number): string => {
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toISOString().split("T")[0];
 };

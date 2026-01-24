@@ -2,7 +2,7 @@
  * Reusable filter utilities for servers and agents.
  */
 
-import type { ActiveFilter } from '../types';
+import type { ActiveFilter } from "../types";
 
 /**
  * Base interface for filterable entities (servers and agents).
@@ -25,15 +25,15 @@ interface FilterableEntity {
  */
 export const filterByStatus = <T extends FilterableEntity>(
   entities: T[],
-  activeFilter: ActiveFilter
+  activeFilter: ActiveFilter,
 ): T[] => {
   switch (activeFilter) {
-    case 'enabled':
+    case "enabled":
       return entities.filter((e) => e.enabled);
-    case 'disabled':
+    case "disabled":
       return entities.filter((e) => !e.enabled);
-    case 'unhealthy':
-      return entities.filter((e) => e.status === 'unhealthy');
+    case "unhealthy":
+      return entities.filter((e) => e.status === "unhealthy");
     default:
       return entities;
   }
@@ -48,7 +48,7 @@ export const filterByStatus = <T extends FilterableEntity>(
  */
 export const filterBySearchTerm = <T extends FilterableEntity>(
   entities: T[],
-  searchTerm: string
+  searchTerm: string,
 ): T[] => {
   if (!searchTerm.trim()) {
     return entities;
@@ -58,9 +58,9 @@ export const filterBySearchTerm = <T extends FilterableEntity>(
   return entities.filter(
     (entity) =>
       entity.name.toLowerCase().includes(query) ||
-      (entity.description || '').toLowerCase().includes(query) ||
+      (entity.description || "").toLowerCase().includes(query) ||
       entity.path.toLowerCase().includes(query) ||
-      (entity.tags || []).some((tag) => tag.toLowerCase().includes(query))
+      (entity.tags || []).some((tag) => tag.toLowerCase().includes(query)),
   );
 };
 
@@ -75,7 +75,7 @@ export const filterBySearchTerm = <T extends FilterableEntity>(
 export const filterEntities = <T extends FilterableEntity>(
   entities: T[],
   activeFilter: ActiveFilter,
-  searchTerm: string
+  searchTerm: string,
 ): T[] => {
   const statusFiltered = filterByStatus(entities, activeFilter);
   return filterBySearchTerm(statusFiltered, searchTerm);

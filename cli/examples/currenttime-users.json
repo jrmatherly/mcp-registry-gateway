@@ -7,24 +7,32 @@
       "methods": ["initialize", "tools/list", "tools/call"],
       "tools": ["current_time_by_timezone"]
     },
-     {
+    {
       "server": "/currenttime/",
       "methods": ["initialize", "tools/list", "tools/call"],
       "tools": ["current_time_by_timezone"]
     },
-     {
+    {
       "server": "/currenttime",
       "methods": ["initialize", "tools/list", "tools/call"],
       "tools": ["current_time_by_timezone"]
     },
-     {
+    {
       "server": "context7",
       "methods": ["initialize", "tools/list", "tools/call"],
       "tools": ["*"]
     },
     {
       "server": "api",
-      "methods": ["initialize", "GET", "POST", "servers", "agents", "search", "rating"],
+      "methods": [
+        "initialize",
+        "GET",
+        "POST",
+        "servers",
+        "agents",
+        "search",
+        "rating"
+      ],
       "tools": []
     }
   ],

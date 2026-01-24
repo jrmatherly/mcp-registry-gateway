@@ -13,12 +13,12 @@ interface AgentLike {
 }
 
 interface AgentDetailsModalProps {
-  agent: AgentLike & { [key: string]: any };
+  agent: AgentLike;
   isOpen: boolean;
   onClose: () => void;
   loading: boolean;
-  fullDetails?: any;
-  onCopy?: (data: any) => Promise<void> | void;
+  fullDetails?: Record<string, unknown> | null;
+  onCopy?: (data: AgentLike | Record<string, unknown>) => Promise<void> | void;
 }
 
 const AgentDetailsModal: React.FC<AgentDetailsModalProps> = ({

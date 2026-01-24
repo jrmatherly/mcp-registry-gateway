@@ -5,7 +5,7 @@ import {
   ServerStackIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import React from "react";
+import type React from "react";
 
 type QuickAction = {
   id: string;

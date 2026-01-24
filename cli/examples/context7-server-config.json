@@ -4,5 +4,12 @@
   "path": "/context7",
   "proxy_pass_url": "https://mcp.context7.com/mcp",
   "supported_transports": ["streamable-http"],
-  "tags": ["documentation", "search", "libraries", "packages", "api-reference", "code-examples"]
+  "tags": [
+    "documentation",
+    "search",
+    "libraries",
+    "packages",
+    "api-reference",
+    "code-examples"
+  ]
 }

@@ -1,8 +1,15 @@
-import axios from 'axios';
-import type React from 'react';
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { API_ENDPOINTS } from '../constants';
-import type { User, UserApiResponse } from '../types';
+import axios from "axios";
+import type React from "react";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { API_ENDPOINTS } from "../constants";
+import type { User, UserApiResponse } from "../types";
 
 // Configure axios to include credentials (cookies) with all requests
 axios.defaults.withCredentials = true;
@@ -19,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -41,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email: userData.email,
         scopes: userData.scopes || [],
         groups: userData.groups || [],
-        auth_method: userData.auth_method || 'basic',
+        auth_method: userData.auth_method || "basic",
         provider: userData.provider,
         can_modify_servers: userData.can_modify_servers || false,
         is_admin: userData.is_admin || false,
@@ -61,12 +68,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string) => {
     const formData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
+    formData.append("username", username);
+    formData.append("password", password);
 
     const response = await axios.post(API_ENDPOINTS.AUTH_LOGIN, formData, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     });
 

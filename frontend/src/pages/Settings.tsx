@@ -21,8 +21,8 @@ const Settings: React.FC = () => {
       </h1>
 
       {/* User Profile Section */}
-      <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] mb-6 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/[0.06] bg-gradient-to-r from-gray-50/80 to-transparent dark:from-white/[0.02] dark:to-transparent">
+      <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/8 mb-6 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
           <div className="flex items-center">
             <div className="p-2 bg-primary-500/10 rounded-lg mr-3">
               <UserIcon className="h-5 w-5 text-primary-500" />
@@ -62,8 +62,8 @@ const Settings: React.FC = () => {
 
       {/* Scopes Section */}
       {user?.scopes && user.scopes.length > 0 && (
-        <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] mb-6 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/[0.06] bg-gradient-to-r from-gray-50/80 to-transparent dark:from-white/[0.02] dark:to-transparent">
+        <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/8 mb-6 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
             <div className="flex items-center">
               <div className="p-2 bg-emerald-500/10 rounded-lg mr-3">
                 <ShieldCheckIcon className="h-5 w-5 text-emerald-500" />
@@ -75,10 +75,10 @@ const Settings: React.FC = () => {
           </div>
           <div className="px-6 py-4">
             <div className="flex flex-wrap gap-2">
-              {user.scopes.map((scope: string, index: number) => (
+              {user.scopes.map((scope: string) => (
                 <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30"
+                  key={scope}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-linear-to-r from-primary-500/20 to-indigo-500/20 text-primary-600 dark:text-primary-300 border border-primary-500/30"
                 >
                   {scope}
                 </span>
@@ -89,8 +89,8 @@ const Settings: React.FC = () => {
       )}
 
       {/* Appearance Section */}
-      <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] mb-6 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/[0.06] bg-gradient-to-r from-gray-50/80 to-transparent dark:from-white/[0.02] dark:to-transparent">
+      <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/8 mb-6 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
           <div className="flex items-center">
             <div className="p-2 bg-amber-500/10 rounded-lg mr-3">
               {theme === "dark" ? (
@@ -132,8 +132,8 @@ const Settings: React.FC = () => {
       </div>
 
       {/* Token Generation Link */}
-      <div className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/[0.08] overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/[0.06] bg-gradient-to-r from-gray-50/80 to-transparent dark:from-white/[0.02] dark:to-transparent">
+      <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-white/8 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
           <div className="flex items-center">
             <div className="p-2 bg-cyan-500/10 rounded-lg mr-3">
               <KeyIcon className="h-5 w-5 text-cyan-500" />

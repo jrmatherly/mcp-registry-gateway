@@ -1,5 +1,5 @@
 import { SparklesIcon } from "@heroicons/react/24/outline";
-import React from "react";
+import type React from "react";
 
 interface HeroBannerProps {
   title?: string;
@@ -19,14 +19,14 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
   showRegisterButton = true,
 }) => {
   return (
-    <div className="relative overflow-hidden rounded-2xl mb-8">
+    <div className="relative overflow-hidden rounded-2xl mb-8 shadow-xl shadow-primary-900/20 dark:shadow-primary-900/40">
       {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-indigo-800" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary-600 via-primary-700 to-indigo-800" />
 
       {/* Mesh overlay */}
       <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-400/20 to-transparent rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-white/20 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-linear-to-tr from-cyan-400/20 to-transparent rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Floating geometric shapes */}

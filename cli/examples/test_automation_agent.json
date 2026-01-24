@@ -37,10 +37,7 @@
       "api_key": []
     },
     {
-      "oauth2": [
-        "test:read",
-        "test:write"
-      ]
+      "oauth2": ["test:read", "test:write"]
     }
   ],
   "skills": [
@@ -57,12 +54,7 @@
           },
           "framework": {
             "type": "string",
-            "enum": [
-              "pytest",
-              "unittest",
-              "jest",
-              "junit"
-            ],
+            "enum": ["pytest", "unittest", "jest", "junit"],
             "description": "Testing framework to use"
           },
           "coverage_target": {
@@ -72,15 +64,9 @@
             "description": "Target code coverage percentage"
           }
         },
-        "required": [
-          "source_code",
-          "framework"
-        ]
+        "required": ["source_code", "framework"]
       },
-      "tags": [
-        "generation",
-        "unit-testing"
-      ]
+      "tags": ["generation", "unit-testing"]
     },
     {
       "id": "execute_tests",
@@ -103,14 +89,9 @@
             "description": "Timeout per test in seconds"
           }
         },
-        "required": [
-          "test_suite_path"
-        ]
+        "required": ["test_suite_path"]
       },
-      "tags": [
-        "execution",
-        "reporting"
-      ]
+      "tags": ["execution", "reporting"]
     },
     {
       "id": "analyze_test_coverage",
@@ -131,14 +112,9 @@
             "description": "Glob patterns to exclude from coverage"
           }
         },
-        "required": [
-          "source_path"
-        ]
+        "required": ["source_path"]
       },
-      "tags": [
-        "analysis",
-        "coverage"
-      ]
+      "tags": ["analysis", "coverage"]
     },
     {
       "id": "generate_test_report",
@@ -153,41 +129,18 @@
           },
           "format": {
             "type": "string",
-            "enum": [
-              "html",
-              "pdf",
-              "json",
-              "markdown"
-            ],
+            "enum": ["html", "pdf", "json", "markdown"],
             "description": "Report format"
           }
         },
-        "required": [
-          "test_results",
-          "format"
-        ]
+        "required": ["test_results", "format"]
       },
-      "tags": [
-        "reporting",
-        "documentation"
-      ]
+      "tags": ["reporting", "documentation"]
     }
   ],
   "metadata": {
-    "frameworks_supported": [
-      "pytest",
-      "unittest",
-      "jest",
-      "mocha",
-      "rspec"
-    ],
-    "languages_supported": [
-      "python",
-      "javascript",
-      "java",
-      "ruby",
-      "go"
-    ],
+    "frameworks_supported": ["pytest", "unittest", "jest", "mocha", "rspec"],
+    "languages_supported": ["python", "javascript", "java", "ruby", "go"],
     "concurrent_tests": 8,
     "test_history_days": 90
   }

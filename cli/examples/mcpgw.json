@@ -5,7 +5,14 @@
   "proxy_pass_url": "http://mcpgw-server:8003/",
   "supported_transports": ["streamable-http"],
   "auth_type": "none",
-  "tags": ["registry", "management", "admin", "gateway", "mcp-tools", "server-management"],
+  "tags": [
+    "registry",
+    "management",
+    "admin",
+    "gateway",
+    "mcp-tools",
+    "server-management"
+  ],
   "num_tools": 11,
   "num_stars": 0,
   "is_python": true,
@@ -83,10 +90,7 @@
             "type": "string"
           },
           "description": {
-            "anyOf": [
-              {"type": "string"},
-              {"type": "null"}
-            ],
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
             "default": "",
             "description": "Description of the server.",
             "title": "Description"
@@ -94,47 +98,35 @@
           "tags": {
             "anyOf": [
               {
-                "items": {"type": "string"},
+                "items": { "type": "string" },
                 "type": "array"
               },
-              {"type": "null"}
+              { "type": "null" }
             ],
             "default": null,
             "description": "Optional list of tags for categorization.",
             "title": "Tags"
           },
           "num_tools": {
-            "anyOf": [
-              {"type": "integer"},
-              {"type": "null"}
-            ],
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
             "default": 0,
             "description": "Number of tools provided by the server.",
             "title": "Num Tools"
           },
           "num_stars": {
-            "anyOf": [
-              {"type": "integer"},
-              {"type": "null"}
-            ],
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
             "default": 0,
             "description": "Number of stars/rating for the server.",
             "title": "Num Stars"
           },
           "is_python": {
-            "anyOf": [
-              {"type": "boolean"},
-              {"type": "null"}
-            ],
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
             "default": false,
             "description": "Whether the server is implemented in Python.",
             "title": "Is Python"
           },
           "license": {
-            "anyOf": [
-              {"type": "string"},
-              {"type": "null"}
-            ],
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
             "default": "N/A",
             "description": "License information for the server.",
             "title": "License"
@@ -221,10 +213,7 @@
       "schema": {
         "properties": {
           "natural_language_query": {
-            "anyOf": [
-              {"type": "string"},
-              {"type": "null"}
-            ],
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
             "default": null,
             "description": "Your query in natural language describing the task you want to perform. Optional if tags are provided.",
             "title": "Natural Language Query"
@@ -232,10 +221,10 @@
           "tags": {
             "anyOf": [
               {
-                "items": {"type": "string"},
+                "items": { "type": "string" },
                 "type": "array"
               },
-              {"type": "null"}
+              { "type": "null" }
             ],
             "default": null,
             "description": "List of tags to filter tools by using AND logic. IMPORTANT: AI agents should ONLY use this if the user explicitly provides specific tags. DO NOT infer tags - incorrect tags will exclude valid results.",
@@ -274,7 +263,7 @@
           },
           "group_names": {
             "description": "List of scopes group names to add the server to (e.g., ['mcp-servers-restricted/read', 'mcp-servers-restricted/execute']).",
-            "items": {"type": "string"},
+            "items": { "type": "string" },
             "title": "Group Names",
             "type": "array"
           }
@@ -300,7 +289,7 @@
           },
           "group_names": {
             "description": "List of scopes group names to remove the server from (e.g., ['mcp-servers-restricted/read', 'mcp-servers-restricted/execute']).",
-            "items": {"type": "string"},
+            "items": { "type": "string" },
             "title": "Group Names",
             "type": "array"
           }
