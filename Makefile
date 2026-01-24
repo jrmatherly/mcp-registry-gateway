@@ -468,8 +468,10 @@ release:
 	echo ""; \
 	echo "Updating VERSION file..."; \
 	echo "$$next" > $(VERSION_FILE); \
-	echo "Staging VERSION file..."; \
-	git add $(VERSION_FILE); \
+	echo "Updating pyproject.toml version..."; \
+	sed -i.bak "s/^version = \".*\"/version = \"$$next\"/" pyproject.toml && rm -f pyproject.toml.bak; \
+	echo "Staging version files..."; \
+	git add $(VERSION_FILE) pyproject.toml; \
 	echo "Creating commit..."; \
 	git commit -m "chore: bump version to $$next"; \
 	echo "Creating tag v$$next..."; \
@@ -482,5 +484,6 @@ release:
 	echo ""; \
 	echo "Release artifacts:"; \
 	echo "  - VERSION file updated to $$next"; \
+	echo "  - pyproject.toml version updated to $$next"; \
 	echo "  - Git tag v$$next created and pushed"; \
 	echo "  - Commit pushed to origin"

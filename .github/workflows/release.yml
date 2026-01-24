@@ -62,6 +62,10 @@ jobs:
             CHANGELOG=$(git log -20 --pretty=format:"- %s (%h)" --no-merges)
           fi
 
+          # Sanitize changelog: remove leading backticks from commit messages
+          # These can appear from certain commit message formatting tools and break markdown rendering
+          CHANGELOG=$(echo "$CHANGELOG" | sed 's/^- ``` /- /g')
+
           # Write to file for the release
           echo "## What's Changed" > /tmp/changelog.md
           echo "" >> /tmp/changelog.md
