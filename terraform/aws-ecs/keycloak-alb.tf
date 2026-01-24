@@ -3,8 +3,6 @@
 #
 
 # checkov:skip=CKV_AWS_150:Deletion protection disabled for development; enable for production
-# checkov:skip=CKV2_AWS_28:WAF protection to be added in production hardening phase
-# checkov:skip=CKV_AWS_91:Access logging to be configured with S3 bucket in production
 # tfsec:ignore:aws-elb-alb-not-public:Public ALB required for internet-facing Keycloak service
 resource "aws_lb" "keycloak" {
   name               = "keycloak-alb"
@@ -13,6 +11,13 @@ resource "aws_lb" "keycloak" {
 
   drop_invalid_header_fields = true
   enable_deletion_protection = false
+
+  # Access logging configuration (addresses CKV_AWS_91)
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.id
+    prefix  = "keycloak"
+    enabled = true
+  }
 
   security_groups = concat(
     [aws_security_group.keycloak_lb.id],

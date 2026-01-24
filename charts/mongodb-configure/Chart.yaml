@@ -1,12 +1,35 @@
 apiVersion: v2
 name: mongodb-configure
-description: A Helm chart for configuring MongoDB
+description: Configuration job for MongoDB database and users for MCP Gateway Registry
 type: application
-version: 0.1.0
-appVersion: "1.0.0"
+version: 2.0.8
+appVersion: "2.0.8"
+
+# Project metadata
+home: https://github.com/jrmatherly/mcp-registry-gateway
+icon: https://raw.githubusercontent.com/jrmatherly/mcp-registry-gateway/main/registry/static/logo.png
+sources:
+  - https://github.com/jrmatherly/mcp-registry-gateway
+
+keywords:
+  - mcp
+  - mongodb
+  - configuration
+  - database
+
+maintainers:
+  - name: Jason Matherly
+    url: https://github.com/jrmatherly
+
+kubeVersion: ">=1.25.0-0"
+
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/category: ai-machine-learning
+
 dependencies:
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - bitnami-common
-    version: 2.x.x
+    version: 2.31.4

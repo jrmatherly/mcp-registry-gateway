@@ -1,0 +1,270 @@
+name: Helm Chart Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Chart version to publish (without v prefix)"
+        required: true
+        type: string
+
+concurrency:
+  group: helm-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  HELM_VERSION: "3.14.0"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # =============================================================================
+  # Lint Charts Before Publishing
+  # =============================================================================
+  lint:
+    name: Lint Charts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami || true
+          helm repo add mongodb https://mongodb.github.io/helm-charts || true
+          helm repo update
+
+      - name: Build chart dependencies
+        run: |
+          for chart in charts/*/; do
+            if [ -f "${chart}Chart.yaml" ]; then
+              echo "Building dependencies for ${chart}..."
+              helm dependency build "$chart" || true
+            fi
+          done
+
+      - name: Lint all charts
+        run: |
+          for chart in charts/*/; do
+            if [ -f "${chart}Chart.yaml" ]; then
+              echo "Linting ${chart}..."
+              helm lint "$chart"
+            fi
+          done
+
+  # =============================================================================
+  # Publish Individual Charts to OCI Registry
+  # =============================================================================
+  publish-subcharts:
+    name: Publish Subcharts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint
+    strategy:
+      matrix:
+        chart:
+          - registry
+          - auth-server
+          - keycloak-configure
+          - mongodb-configure
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Chart version: $VERSION"
+
+      - name: Update chart version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          CHART_PATH="charts/${{ matrix.chart }}/Chart.yaml"
+
+          # Update version and appVersion
+          sed -i "s/^version:.*/version: ${VERSION}/" "$CHART_PATH"
+          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" "$CHART_PATH"
+
+          echo "Updated $CHART_PATH:"
+          grep -E "^(version|appVersion):" "$CHART_PATH"
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Build chart dependencies
+        run: |
+          helm dependency build "charts/${{ matrix.chart }}"
+
+      - name: Package chart
+        run: |
+          helm package "charts/${{ matrix.chart }}" --destination .
+
+      - name: Push chart to OCI registry
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          CHART_PACKAGE="${{ matrix.chart }}-${VERSION}.tgz"
+
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+
+      - name: Logout from registry
+        if: always()
+        run: |
+          helm registry logout ${{ env.REGISTRY }} || true
+
+  # =============================================================================
+  # Publish Umbrella Stack Chart
+  # =============================================================================
+  publish-stack:
+    name: Publish Stack Chart
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: publish-subcharts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Chart version: $VERSION"
+
+      - name: Update stack chart version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          CHART_PATH="charts/mcp-gateway-registry-stack/Chart.yaml"
+
+          # Update version and appVersion
+          sed -i "s/^version:.*/version: ${VERSION}/" "$CHART_PATH"
+          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" "$CHART_PATH"
+
+          # Update subchart dependency versions to use OCI registry
+          # Replace file:// references with OCI references for published chart
+          sed -i "s|repository: \"file://../auth-server\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../registry\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../keycloak-configure\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../mongodb-configure\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+
+          # Update dependency versions
+          sed -i "s/version: 2\.0\.8/version: ${VERSION}/g" "$CHART_PATH"
+
+          echo "Updated $CHART_PATH:"
+          cat "$CHART_PATH"
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami || true
+          helm repo add mongodb https://mongodb.github.io/helm-charts || true
+          helm repo update
+
+      - name: Build dependencies
+        run: |
+          helm dependency build charts/mcp-gateway-registry-stack
+
+      - name: Package stack chart
+        run: |
+          helm package "charts/mcp-gateway-registry-stack" --destination .
+
+      - name: Push stack chart to OCI registry
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          CHART_PACKAGE="mcp-gateway-registry-stack-${VERSION}.tgz"
+
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+
+      - name: Logout from registry
+        if: always()
+        run: |
+          helm registry logout ${{ env.REGISTRY }} || true
+
+  # =============================================================================
+  # Summary
+  # =============================================================================
+  summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [publish-subcharts, publish-stack]
+    if: always()
+    steps:
+      - name: Extract version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate summary
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          REGISTRY="${{ env.REGISTRY }}"
+          OWNER="${{ github.repository_owner }}"
+
+          echo "## Helm Chart Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Published Charts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Chart | OCI URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| registry | \`oci://${REGISTRY}/${OWNER}/charts/registry:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| auth-server | \`oci://${REGISTRY}/${OWNER}/charts/auth-server:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| keycloak-configure | \`oci://${REGISTRY}/${OWNER}/charts/keycloak-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mongodb-configure | \`oci://${REGISTRY}/${OWNER}/charts/mongodb-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mcp-gateway-registry-stack | \`oci://${REGISTRY}/${OWNER}/charts/mcp-gateway-registry-stack:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Install the full stack:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "helm install mcp-stack oci://${REGISTRY}/${OWNER}/charts/mcp-gateway-registry-stack --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Or install individual charts:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "helm install registry oci://${REGISTRY}/${OWNER}/charts/registry --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

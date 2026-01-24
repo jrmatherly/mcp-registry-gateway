@@ -69,6 +69,10 @@ module "mcp_gateway" {
   # CloudFront configuration - allows CloudFront IPs to reach ALB
   cloudfront_prefix_list_name = local.cloudfront_prefix_list_name
 
+  # ALB access logging configuration
+  alb_access_logs_bucket = aws_s3_bucket.alb_logs.id
+  alb_access_logs_prefix = "mcp-gateway"
+
   # Container images
   registry_image_uri               = var.registry_image_uri
   auth_server_image_uri            = var.auth_server_image_uri

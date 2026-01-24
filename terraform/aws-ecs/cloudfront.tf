@@ -55,7 +55,6 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
 }
 
 # CloudFront distribution for MCP Gateway ALB
-# checkov:skip=CKV2_AWS_47:WAF to be added in production hardening phase
 resource "aws_cloudfront_distribution" "mcp_gateway" {
   count = var.enable_cloudfront ? 1 : 0
 
@@ -63,6 +62,9 @@ resource "aws_cloudfront_distribution" "mcp_gateway" {
   comment             = "${var.name} MCP Gateway Registry CloudFront Distribution"
   default_root_object = ""
   price_class         = "PriceClass_100"
+
+  # WAF WebACL for CloudFront protection (addresses CKV2_AWS_47)
+  web_acl_id = aws_wafv2_web_acl.cloudfront[0].arn
 
   # Custom domain alias when Route53 is also enabled (Mode 3)
   aliases = var.enable_route53_dns ? ["registry.${local.root_domain}"] : []
@@ -137,13 +139,15 @@ resource "aws_cloudfront_distribution" "mcp_gateway" {
 }
 
 # CloudFront distribution for Keycloak ALB
-# checkov:skip=CKV2_AWS_47:WAF to be added in production hardening phase
 resource "aws_cloudfront_distribution" "keycloak" {
   count = var.enable_cloudfront ? 1 : 0
 
   enabled     = true
   comment     = "${var.name} Keycloak CloudFront Distribution"
   price_class = "PriceClass_100"
+
+  # WAF WebACL for CloudFront protection (addresses CKV2_AWS_47)
+  web_acl_id = aws_wafv2_web_acl.cloudfront[0].arn
 
   # Custom domain alias when Route53 is also enabled (Mode 3)
   aliases = var.enable_route53_dns ? [local.keycloak_domain] : []

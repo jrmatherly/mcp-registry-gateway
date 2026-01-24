@@ -24,6 +24,56 @@ echo "Registry: https://mcpregistry.yourdomain.com"
 echo "Keycloak: https://keycloak.yourdomain.com"
 ```
 
+## Install from OCI Registry
+
+Charts are published as OCI artifacts to GitHub Container Registry. This is the recommended installation method for production.
+
+### Install Full Stack
+
+```bash
+# Install the complete MCP Gateway stack
+helm install mcp-stack oci://ghcr.io/jrmatherly/charts/mcp-gateway-registry-stack \
+  --version 2.0.8 \
+  --namespace mcp-gateway --create-namespace \
+  --set global.domain=yourdomain.com \
+  --set global.secretKey=your-production-secret \
+  --wait --timeout=10m
+```
+
+### Install Individual Charts
+
+```bash
+# Install only the registry service
+helm install registry oci://ghcr.io/jrmatherly/charts/registry \
+  --version 2.0.8 \
+  --namespace mcp-gateway
+
+# Install only the auth server
+helm install auth-server oci://ghcr.io/jrmatherly/charts/auth-server \
+  --version 2.0.8 \
+  --namespace mcp-gateway
+```
+
+### Pull Charts Locally
+
+```bash
+# Pull chart to local directory for inspection
+helm pull oci://ghcr.io/jrmatherly/charts/registry --version 2.0.8
+
+# Pull and untar
+helm pull oci://ghcr.io/jrmatherly/charts/registry --version 2.0.8 --untar
+```
+
+### Show Chart Information
+
+```bash
+# View chart metadata
+helm show chart oci://ghcr.io/jrmatherly/charts/registry --version 2.0.8
+
+# View default values
+helm show values oci://ghcr.io/jrmatherly/charts/registry --version 2.0.8
+```
+
 ## Prerequisites
 
 ### Required Components

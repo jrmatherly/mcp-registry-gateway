@@ -23,3 +23,8 @@ To check the health of the registry:
 
 For more information, see the documentation at:
   https://github.com/jrmatherly/mcp-registry-gateway
+
+To upgrade this release from OCI registry:
+  helm upgrade {{ .Release.Name }} oci://ghcr.io/jrmatherly/charts/registry \
+    --version {{ .Chart.Version }} \
+    --namespace {{ .Release.Namespace }}

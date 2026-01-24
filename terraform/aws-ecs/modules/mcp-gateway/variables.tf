@@ -444,6 +444,19 @@ variable "enable_https" {
   default     = false
 }
 
+# ALB Access Logging Configuration
+variable "alb_access_logs_bucket" {
+  description = "S3 bucket ID for ALB access logs. If provided, access logging is enabled."
+  type        = string
+  default     = ""
+}
+
+variable "alb_access_logs_prefix" {
+  description = "Prefix for ALB access logs within the S3 bucket"
+  type        = string
+  default     = "mcp-gateway"
+}
+
 # =============================================================================
 # MICROSOFT ENTRA ID CONFIGURATION
 # =============================================================================

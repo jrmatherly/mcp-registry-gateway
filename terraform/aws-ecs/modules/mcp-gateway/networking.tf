@@ -70,6 +70,13 @@ module "alb" {
   vpc_id  = var.vpc_id
   subnets = var.alb_scheme == "internal" ? var.private_subnet_ids : var.public_subnet_ids
 
+  # Access logging configuration (addresses CKV_AWS_91)
+  access_logs = var.alb_access_logs_bucket != "" ? {
+    bucket  = var.alb_access_logs_bucket
+    prefix  = var.alb_access_logs_prefix
+    enabled = true
+  } : {}
+
   # Attach additional security groups (CloudFront SG when enabled)
   # This keeps CloudFront prefix list rules in a separate SG to avoid the 60 rules/SG limit
   security_groups = var.cloudfront_prefix_list_name != "" ? [aws_security_group.alb_cloudfront[0].id] : []

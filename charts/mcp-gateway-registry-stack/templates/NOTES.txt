@@ -61,6 +61,14 @@ The following configuration jobs will run automatically:
 Check job status:
   kubectl get jobs -n {{ .Release.Namespace }}
 
+=== Upgrade from OCI Registry ===
+
+To upgrade this release from the OCI registry:
+  helm upgrade {{ .Release.Name }} oci://ghcr.io/jrmatherly/charts/mcp-gateway-registry-stack \
+    --version {{ .Chart.Version }} \
+    --namespace {{ .Release.Namespace }} \
+    --set global.domain={{ .Values.global.domain | default "your-domain.com" }}
+
 === Documentation ===
 
 For more information, see the documentation at:

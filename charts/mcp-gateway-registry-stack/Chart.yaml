@@ -1,9 +1,37 @@
 apiVersion: v2
-name: mcp-registry-gateway-stack
-description: A Helm chart for deploying the MCP Gateway Registry Stack
+name: mcp-gateway-registry-stack
+description: Complete MCP Gateway Registry stack with authentication, database, and registry services
 type: application
-version: 0.1.0
-appVersion: "1.0.0"
+version: 2.0.8
+appVersion: "2.0.8"
+
+# Project metadata
+home: https://github.com/jrmatherly/mcp-registry-gateway
+icon: https://raw.githubusercontent.com/jrmatherly/mcp-registry-gateway/main/registry/static/logo.png
+sources:
+  - https://github.com/jrmatherly/mcp-registry-gateway
+
+keywords:
+  - mcp
+  - model-context-protocol
+  - ai
+  - agents
+  - registry
+  - gateway
+  - keycloak
+  - mongodb
+
+maintainers:
+  - name: Jason Matherly
+    url: https://github.com/jrmatherly
+
+kubeVersion: ">=1.25.0-0"
+
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/category: ai-machine-learning
+  artifacthub.io/containsSecurityUpdates: "false"
+
 dependencies:
   - name: keycloak
     version: 25.2.0
@@ -13,15 +41,15 @@ dependencies:
     repository: https://mongodb.github.io/helm-charts
     condition: mongodb.enabled
   - name: auth-server
-    version: 0.1.0
+    version: 2.0.8
     repository: "file://../auth-server"
   - name: registry
-    version: 0.1.0
+    version: 2.0.8
     repository: "file://../registry"
   - name: keycloak-configure
-    version: 0.1.0
+    version: 2.0.8
     repository: "file://../keycloak-configure"
   - name: mongodb-configure
-    version: 0.1.0
+    version: 2.0.8
     repository: "file://../mongodb-configure"
     condition: mongodb-configure.enabled

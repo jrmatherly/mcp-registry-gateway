@@ -52,7 +52,7 @@ skip-check:
 
   # =============================================================================
   # DEFERRED TO PRODUCTION HARDENING
-  # These require additional infrastructure (Lambda, WAF, S3) and are tracked
+  # These require additional infrastructure (Lambda) and are tracked
   # in production hardening backlog.
   # =============================================================================
 
@@ -60,10 +60,12 @@ skip-check:
   # Tracked in: Production Hardening - Secrets Rotation
   - CKV2_AWS_57  # Secrets Manager secrets should have automatic rotation
 
-  # WAF protection requires WebACL setup with managed rules
-  # Tracked in: Production Hardening - WAF Configuration
-  - CKV2_AWS_28  # Public facing ALB are protected by WAF
-  - CKV2_AWS_47  # CloudFront attached WAFv2 WebACL configured for Log4j
+  # =============================================================================
+  # IMPLEMENTED ITEMS (kept for reference, can be removed after validation)
+  # =============================================================================
+  # CKV_AWS_91  - ALB Access Logging: IMPLEMENTED in alb-logging.tf
+  # CKV2_AWS_28 - WAF for ALB: IMPLEMENTED in waf.tf
+  # CKV2_AWS_47 - WAF for CloudFront: IMPLEMENTED in waf-cloudfront.tf
 
 # Directories to scan
 directory:
