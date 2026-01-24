@@ -2,8 +2,8 @@ apiVersion: v2
 name: mcp-gateway-registry-stack
 description: Complete MCP Gateway Registry stack with authentication, database, and registry services
 type: application
-version: 2.0.9
-appVersion: "2.0.9"
+version: 2.0.10
+appVersion: "2.0.10"
 
 # Project metadata
 home: https://github.com/jrmatherly/mcp-registry-gateway
@@ -41,15 +41,15 @@ dependencies:
     repository: https://mongodb.github.io/helm-charts
     condition: mongodb.enabled
   - name: auth-server
-    version: 2.0.9
+    version: 2.0.10
     repository: "file://../auth-server"
   - name: registry
-    version: 2.0.9
+    version: 2.0.10
     repository: "file://../registry"
   - name: keycloak-configure
-    version: 2.0.9
+    version: 2.0.10
     repository: "file://../keycloak-configure"
   - name: mongodb-configure
-    version: 2.0.9
+    version: 2.0.10
     repository: "file://../mongodb-configure"
     condition: mongodb-configure.enabled
