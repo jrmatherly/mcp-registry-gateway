@@ -36,6 +36,12 @@ module "vpc" {
   # VPC Flow Logs
   enable_flow_log = false
 
+  # Restrict default security group to have no rules (CKV2_AWS_12)
+  # All traffic should use explicitly defined security groups
+  manage_default_security_group  = true
+  default_security_group_ingress = []
+  default_security_group_egress  = []
+
   # Tags for ECS and ALB usage
   private_subnet_tags = {
     "subnet-type" = "private"

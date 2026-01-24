@@ -88,8 +88,8 @@ help:
 	@echo "  push-agents                 Push both A2A agent images to ECR"
 	@echo ""
 	@echo "Release Management:"
-	@echo "  version-bump                Show next version (dry-run)"
-	@echo "  release                     Bump version, create tag, and push release"
+	@echo "  version-bump                Show next version (with optional manual override)"
+	@echo "  release                     Bump version, create tag, and push release (with optional manual override)"
 
 # Installation
 install-dev:
@@ -444,21 +444,47 @@ $(shell \
 )
 endef
 
-# Show next version without making changes
+# Show next version without making changes (with optional manual override)
 version-bump:
 	@current=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
+	auto_next=$(calc_next_version); \
 	echo "Current version: $$current"; \
-	next=$(calc_next_version); \
-	echo "Next version: $$next"
+	echo "Auto-calculated next version: $$auto_next"; \
+	echo ""; \
+	read -p "Enter version manually (or press Enter for $$auto_next): " manual_version; \
+	if [ -n "$$manual_version" ]; then \
+		if ! echo "$$manual_version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$$'; then \
+			echo "Error: Invalid version format. Expected X.Y.Z (e.g., 2.1.0)"; \
+			exit 1; \
+		fi; \
+		next="$$manual_version"; \
+		echo "Using manual version: $$next"; \
+	else \
+		next="$$auto_next"; \
+		echo "Using auto-calculated version: $$next"; \
+	fi
 
-# Bump version, create tag, and push release
+# Bump version, create tag, and push release (with optional manual override)
 release:
 	@echo "Starting release process..."
 	@echo ""
 	@current=$$(cat $(VERSION_FILE) | tr -d '[:space:]'); \
-	next=$(calc_next_version); \
+	auto_next=$(calc_next_version); \
 	echo "Current version: $$current"; \
-	echo "Next version: $$next"; \
+	echo "Auto-calculated next version: $$auto_next"; \
+	echo ""; \
+	read -p "Enter version manually (or press Enter for $$auto_next): " manual_version; \
+	if [ -n "$$manual_version" ]; then \
+		if ! echo "$$manual_version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$$'; then \
+			echo "Error: Invalid version format. Expected X.Y.Z (e.g., 2.1.0)"; \
+			exit 1; \
+		fi; \
+		next="$$manual_version"; \
+		echo "Using manual version: $$next"; \
+	else \
+		next="$$auto_next"; \
+		echo "Using auto-calculated version: $$next"; \
+	fi; \
 	echo ""; \
 	read -p "Proceed with release v$$next? (y/N) " confirm; \
 	if [ "$$confirm" != "y" ] && [ "$$confirm" != "Y" ]; then \

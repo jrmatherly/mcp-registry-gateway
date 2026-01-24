@@ -37,9 +37,9 @@ resource "aws_db_proxy_target" "keycloak" {
 }
 
 # Aurora MySQL Serverless v2 Cluster
+# checkov:skip=CKV_AWS_139:Deletion protection disabled for development; enable for production
 # checkov:skip=CKV_AWS_162:Using password authentication; IAM auth not required for this use case
-# checkov:skip=CKV_AWS_326:Deletion protection disabled for development; enable for production
-# checkov:skip=CKV_AWS_226:Activity stream not required for development environment
+# checkov:skip=CKV_AWS_326:Aurora backtracking disabled; not needed for Keycloak stateless sessions
 # checkov:skip=CKV2_AWS_8:Using native RDS backup; AWS Backup not required
 resource "aws_rds_cluster" "keycloak" {
   cluster_identifier = "keycloak"

@@ -1,0 +1,75 @@
+# Checkov Configuration for MCP Gateway Registry Terraform
+# See: https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html
+#
+# This configuration suppresses findings that are:
+# 1. In external terraform-aws-modules (cannot fix directly)
+# 2. Intentional design decisions
+# 3. Deferred to production hardening phase
+#
+# All suppressions are documented with justifications.
+
+framework:
+  - terraform
+
+# Skip checks that are not applicable or intentionally accepted
+skip-check:
+  # =============================================================================
+  # EXTERNAL MODULES - Cannot fix directly (terraform-aws-modules/*)
+  # These findings are in vendored modules from terraform-aws-modules.
+  # Open upstream issues if fixes are desired.
+  # =============================================================================
+
+  # IAM policy wildcards in terraform-aws-modules/ecs and alb modules
+  # The modules use Resource="*" for certain AWS API calls that require it
+  - CKV_AWS_111  # IAM policies does not allow write access without constraints
+  - CKV_AWS_356  # No IAM policies documents allow "*" as resource
+
+  # EFS encryption in transit - terraform-aws-modules/ecs
+  # EFS volumes configured by module; encryption settings not exposed
+  - CKV_AWS_97   # Encryption in transit for EFS volumes in ECS Task definitions
+
+  # Security groups attachment detection - false positives
+  # Checkov cannot trace dynamic security group references through modules
+  - CKV2_AWS_5   # Security Groups are attached to another resource
+
+  # CloudWatch log retention in terraform-aws-modules/ecs
+  # Module default log retention; configure via module variables if needed
+  - CKV_AWS_338  # CloudWatch log groups retains logs for at least 1 year
+
+  # ALB configuration in terraform-aws-modules/alb
+  # Module-level settings; configure via module variables
+  - CKV_AWS_2    # ALB protocol is HTTPS (external module listener config)
+
+  # =============================================================================
+  # INTENTIONAL DESIGN DECISIONS
+  # These are accepted risks or architectural choices, not vulnerabilities.
+  # =============================================================================
+
+  # Terraform module semantic versioning preferred over commit hash pinning
+  # Semantic versioning (~> 6.0) provides controlled updates while reducing
+  # maintenance overhead. terraform-aws-modules are well-maintained.
+  - CKV_TF_1     # Terraform module sources use a commit hash
+
+  # =============================================================================
+  # DEFERRED TO PRODUCTION HARDENING
+  # These require additional infrastructure (Lambda, WAF, S3) and are tracked
+  # in production hardening backlog.
+  # =============================================================================
+
+  # Secrets rotation requires Lambda rotation functions
+  # Tracked in: Production Hardening - Secrets Rotation
+  - CKV2_AWS_57  # Secrets Manager secrets should have automatic rotation
+
+  # WAF protection requires WebACL setup with managed rules
+  # Tracked in: Production Hardening - WAF Configuration
+  - CKV2_AWS_28  # Public facing ALB are protected by WAF
+  - CKV2_AWS_47  # CloudFront attached WAFv2 WebACL configured for Log4j
+
+# Directories to scan
+directory:
+  - .
+
+# Exclude external modules directory from scanning
+# These are vendored modules that we cannot modify directly
+skip-path:
+  - .external_modules/
