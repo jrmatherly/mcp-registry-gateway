@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/jrmatherly/mcp-registry-gateway/charts/auth-server/values.schema.json",
   "title": "MCP Auth Server Helm Chart Values",
   "description": "Schema for validating MCP Auth Server Helm chart values",
@@ -182,13 +182,13 @@
       "description": "Health probe configuration",
       "properties": {
         "liveness": {
-          "$ref": "#/$defs/probeConfig"
+          "$ref": "#/definitions/probeConfig"
         },
         "readiness": {
-          "$ref": "#/$defs/probeConfig"
+          "$ref": "#/definitions/probeConfig"
         },
         "startup": {
-          "$ref": "#/$defs/probeConfig"
+          "$ref": "#/definitions/probeConfig"
         }
       }
     },
@@ -269,7 +269,7 @@
       }
     }
   },
-  "$defs": {
+  "definitions": {
     "probeConfig": {
       "type": "object",
       "properties": {

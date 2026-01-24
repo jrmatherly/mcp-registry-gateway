@@ -1,0 +1,10 @@
+{
+  "yaml.schemas": {
+    "https://json.schemastore.org/grafana-dashboard": "config/grafana/dashboards/*.json",
+    "": "config/grafana/datasources/*.yml"
+  },
+  "yaml.customTags": [],
+  "files.associations": {
+    "config/grafana/datasources/*.yml": "yaml"
+  }
+}
