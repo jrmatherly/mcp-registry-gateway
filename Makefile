@@ -14,7 +14,7 @@ help:
 	@echo "  dev-backend     Start FastAPI backend with auto-reload (port 7860)"
 	@echo "  dev-services    Start supporting services only (MongoDB, auth-server, metrics)"
 	@echo "  dev-services-kc Start supporting services WITH Keycloak (for Keycloak auth)"
-	@echo "  dev-stop        Stop all development services (including Keycloak)"
+	@echo "  dev-stop        Stop all development services and processes"
 	@echo "  dev-status      Check status of development services"
 	@echo "  dev-logs        View logs from development services"
 	@echo ""
@@ -780,9 +780,16 @@ dev-services-kc:
 	@echo "  - Metrics:        localhost:8890"
 
 # Stop all development services (including Keycloak if running)
+# Also kills any running uvicorn/node processes started by dev targets
 dev-stop:
 	@echo "Stopping development services..."
+	@# Stop Docker services
 	@docker compose stop mongodb mongodb-init auth-server metrics-service metrics-db keycloak keycloak-db 2>/dev/null || true
+	@# Kill any running uvicorn processes for this project
+	@pkill -f "uvicorn registry.main" 2>/dev/null || true
+	@# Kill any running Vite dev server (npm run dev in frontend)
+	@pkill -f "node.*frontend.*vite" 2>/dev/null || true
+	@pkill -f "vite.*frontend" 2>/dev/null || true
 	@echo "Development services stopped."
 
 # Check status of development services

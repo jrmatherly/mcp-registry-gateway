@@ -67,9 +67,11 @@ For the fastest iteration cycle, use the hot-reload development environment inst
 # Start everything with hot-reload enabled (Cognito/GitHub/Google auth)
 make dev
 
-# OR: Start with Keycloak as auth provider
+# OR: Start with Keycloak as auth provider (see "Keycloak Development" section below for first-time setup)
 make dev-keycloak
 ```
+
+**Note**: For Keycloak, see the "Keycloak Development" section below for first-time initialization requirements.
 
 This starts:
 
@@ -128,14 +130,27 @@ Changes to Python files automatically restart the server.
 
 If using Keycloak as your auth provider:
 
+**First-time setup** (required once to initialize the Keycloak realm):
+
 ```bash
-# First time setup: Initialize Keycloak realm, clients, users
+# 1. Start services including Keycloak
 make dev-services-kc
+
+# 2. Initialize realm, clients, groups, users (wait for Keycloak to be ready first)
 make keycloak-init
 
-# After initialization, use this for development
+# 3. Now start the full development environment
 make dev-keycloak
 ```
+
+**Subsequent sessions** (after realm is initialized):
+
+```bash
+# Just run this - it starts services and the dev environment
+make dev-keycloak
+```
+
+**How to tell if initialization is needed**: When you run `make dev-keycloak`, you'll see a message like "mcp-gateway realm not found. Run 'make keycloak-init' to initialize." if the realm hasn't been set up yet.
 
 The `dev-keycloak` target automatically sets `AUTH_PROVIDER=keycloak` and `KEYCLOAK_ENABLED=true` environment variables for the backend.
 
