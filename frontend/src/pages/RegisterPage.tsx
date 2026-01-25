@@ -1,13 +1,13 @@
 import {
-  ArrowLeftIcon,
-  CheckCircleIcon,
-  CloudArrowUpIcon,
-  CpuChipIcon,
-  DocumentTextIcon,
-  ExclamationCircleIcon,
-  InformationCircleIcon,
-  ServerIcon,
-} from "@heroicons/react/24/outline";
+  IconAlertCircle,
+  IconArrowLeft,
+  IconCheck,
+  IconCloudUpload,
+  IconCpu,
+  IconFileText,
+  IconInfoCircle,
+  IconServer,
+} from "@tabler/icons-react";
 import axios from "axios";
 import type React from "react";
 import { useCallback, useState } from "react";
@@ -911,7 +911,7 @@ const RegisterPage: React.FC = () => {
     <div className="space-y-6">
       {/* File Upload Area */}
       <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-        <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />
+        <IconCloudUpload className="mx-auto h-12 w-12 text-gray-400" />
         <div className="mt-4">
           <label htmlFor="json-upload" className="cursor-pointer">
             <span className="text-purple-600 dark:text-purple-400 hover:text-purple-500 font-medium">
@@ -951,7 +951,7 @@ const RegisterPage: React.FC = () => {
       {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex">
-          <InformationCircleIcon className="h-5 w-5 text-blue-400 shrink-0" />
+          <IconInfoCircle className="h-5 w-5 text-blue-400 shrink-0" />
           <div className="ml-3">
             <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">
               About JSON Upload
@@ -1005,7 +1005,7 @@ const RegisterPage: React.FC = () => {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 text-center">
-          <ExclamationCircleIcon className="mx-auto h-12 w-12 text-yellow-400" />
+          <IconAlertCircle className="mx-auto h-12 w-12 text-yellow-400" />
           <h3 className="mt-4 text-lg font-medium text-yellow-800 dark:text-yellow-200">
             Permission Required
           </h3>
@@ -1042,7 +1042,7 @@ const RegisterPage: React.FC = () => {
           onClick={() => navigate("/")}
           className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
         >
-          <ArrowLeftIcon className="h-4 w-4 mr-2" />
+          <IconArrowLeft className="h-4 w-4 mr-2" />
           Back to Dashboard
         </button>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -1069,7 +1069,7 @@ const RegisterPage: React.FC = () => {
                 : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 hover:border-gray-300 dark:hover:border-white/20"
             } ${!canRegisterServer ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
-            <ServerIcon
+            <IconServer
               className={`h-8 w-8 ${
                 registrationType === "server"
                   ? "text-purple-600"
@@ -1091,7 +1091,7 @@ const RegisterPage: React.FC = () => {
               </p>
             </div>
             {registrationType === "server" && (
-              <CheckCircleIcon className="absolute top-3 right-3 h-5 w-5 text-purple-600" />
+              <IconCheck className="absolute top-3 right-3 h-5 w-5 text-purple-600" />
             )}
           </button>
 
@@ -1105,7 +1105,7 @@ const RegisterPage: React.FC = () => {
                 : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 hover:border-gray-300 dark:hover:border-white/20"
             } ${!canRegisterAgent ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
-            <CpuChipIcon
+            <IconCpu
               className={`h-8 w-8 ${
                 registrationType === "agent"
                   ? "text-purple-600"
@@ -1127,7 +1127,7 @@ const RegisterPage: React.FC = () => {
               </p>
             </div>
             {registrationType === "agent" && (
-              <CheckCircleIcon className="absolute top-3 right-3 h-5 w-5 text-purple-600" />
+              <IconCheck className="absolute top-3 right-3 h-5 w-5 text-purple-600" />
             )}
           </button>
         </div>
@@ -1148,7 +1148,7 @@ const RegisterPage: React.FC = () => {
                 : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20"
             }`}
           >
-            <DocumentTextIcon className="h-5 w-5 mr-2" />
+            <IconFileText className="h-5 w-5 mr-2" />
             Quick Form
           </button>
           <button
@@ -1160,7 +1160,7 @@ const RegisterPage: React.FC = () => {
                 : "border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-white/2 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20"
             }`}
           >
-            <CloudArrowUpIcon className="h-5 w-5 mr-2" />
+            <IconCloudUpload className="h-5 w-5 mr-2" />
             JSON Upload
           </button>
         </div>

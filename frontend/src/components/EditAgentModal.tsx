@@ -1,6 +1,13 @@
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { IconX } from "@tabler/icons-react";
 import type React from "react";
 import type { TrustLevel, Visibility } from "../types";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface EditAgentForm {
 	name: string;
@@ -38,21 +45,24 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
 	};
 
 	return (
-		<div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
-			<div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-white/10 p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-				<div className="flex items-center justify-between mb-4">
-					<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-						Edit Agent: {agentName}
-					</h3>
-					<button
-						type="button"
-						onClick={onClose}
-						className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-						aria-label="Close modal"
-					>
-						<XMarkIcon className="h-6 w-6" />
-					</button>
-				</div>
+		<Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+			<DialogContent
+				className="max-w-md max-h-[90vh] overflow-y-auto"
+				showCloseButton={false}
+			>
+				<DialogHeader>
+					<div className="flex items-center justify-between">
+						<DialogTitle>Edit Agent: {agentName}</DialogTitle>
+						<button
+							type="button"
+							onClick={onClose}
+							className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+							aria-label="Close modal"
+						>
+							<IconX className="h-6 w-6" />
+						</button>
+					</div>
+				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
@@ -190,24 +200,25 @@ const EditAgentModal: React.FC<EditAgentModalProps> = ({
 					</div>
 
 					<div className="flex space-x-3 pt-4">
-						<button
+						<Button
 							type="submit"
 							disabled={loading}
-							className="flex-1 px-4 py-3 text-sm font-medium text-white rounded-xl transition-all duration-200 disabled:opacity-50 bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:-translate-y-0.5"
+							className="flex-1 bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700"
 						>
 							{loading ? "Saving..." : "Save Changes"}
-						</button>
-						<button
+						</Button>
+						<Button
 							type="button"
+							variant="outline"
 							onClick={onClose}
-							className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 rounded-xl border border-gray-200 dark:border-white/10 hover:border-cyan-500/30 transition-all duration-200"
+							className="flex-1"
 						>
 							Cancel
-						</button>
+						</Button>
 					</div>
 				</form>
-			</div>
-		</div>
+			</DialogContent>
+		</Dialog>
 	);
 };
 

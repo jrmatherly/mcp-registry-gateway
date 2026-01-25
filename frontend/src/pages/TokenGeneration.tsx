@@ -1,9 +1,9 @@
 import {
-  CheckIcon,
-  ClipboardIcon,
-  ExclamationTriangleIcon,
-  KeyIcon,
-} from "@heroicons/react/24/outline";
+  IconAlertTriangle,
+  IconCheck,
+  IconClipboard,
+  IconKey,
+} from "@tabler/icons-react";
 import axios, { type AxiosError } from "axios";
 import type React from "react";
 import { useState } from "react";
@@ -151,7 +151,7 @@ const TokenGeneration: React.FC = () => {
       <div className="shrink-0 pb-2">
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-linear-to-br from-primary-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg shadow-primary-500/25">
-            <KeyIcon className="w-6 h-6 text-white" />
+            <IconKey className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Generate JWT Token
@@ -373,7 +373,7 @@ const TokenGeneration: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <KeyIcon className="h-4 w-4" />
+                    <IconKey className="h-4 w-4" />
                     <span>Generate Token</span>
                   </>
                 )}
@@ -383,7 +383,7 @@ const TokenGeneration: React.FC = () => {
               {error && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                   <div className="flex items-center space-x-2">
-                    <ExclamationTriangleIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    <IconAlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
                     <span className="text-sm text-red-800 dark:text-red-200">
                       {error}
                     </span>
@@ -397,7 +397,7 @@ const TokenGeneration: React.FC = () => {
           {generatedToken && tokenDetails && (
             <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xl rounded-2xl shadow-lg border border-emerald-500/30 dark:border-emerald-500/30 p-5">
               <div className="flex items-center space-x-2 mb-3">
-                <CheckIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <IconCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">
                   Token Generated Successfully
                 </h3>
@@ -418,9 +418,9 @@ const TokenGeneration: React.FC = () => {
                   title={copied ? "Copied!" : "Copy token"}
                 >
                   {copied ? (
-                    <CheckIcon className="h-4 w-4 text-green-600" />
+                    <IconCheck className="h-4 w-4 text-green-600" />
                   ) : (
-                    <ClipboardIcon className="h-4 w-4" />
+                    <IconClipboard className="h-4 w-4" />
                   )}
                 </button>
               </div>

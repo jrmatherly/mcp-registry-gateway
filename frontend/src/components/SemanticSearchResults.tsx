@@ -1,9 +1,9 @@
 import {
-  ArrowPathIcon,
-  CogIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+  IconInfoCircle,
+  IconRefresh,
+  IconSettings,
+  IconX,
+} from "@tabler/icons-react";
 import axios from "axios";
 import type React from "react";
 import { useMemo, useState } from "react";
@@ -60,7 +60,7 @@ const ToolSchemaModal: React.FC<ToolSchemaModalProps> = ({
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg transition-colors"
           >
-            <XMarkIcon className="h-5 w-5" />
+            <IconX className="h-5 w-5" />
           </button>
         </div>
         <div className="p-4 overflow-auto flex-1">
@@ -175,7 +175,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
           </div>
           {loading && (
             <div className="inline-flex items-center text-sm text-purple-600 dark:text-purple-300">
-              <ArrowPathIcon className="h-5 w-5 animate-spin mr-2" />
+              <IconRefresh className="h-5 w-5 animate-spin mr-2" />
               Searching…
             </div>
           )}
@@ -239,7 +239,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                         className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-700/30 rounded-lg transition-colors"
                         title="Open MCP configuration"
                       >
-                        <CogIcon className="h-4 w-4" />
+                        <IconSettings className="h-4 w-4" />
                       </button>
                       <span className="inline-flex items-center rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-200 px-3 py-1 text-xs font-semibold">
                         {formatPercent(server.relevance_score)} match
@@ -299,7 +299,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                               className="shrink-0 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-sm transition-colors"
                               title="View input schema"
                             >
-                              <InformationCircleIcon className="h-4 w-4" />
+                              <IconInfoCircle className="h-4 w-4" />
                             </button>
                           </li>
                         ))}
@@ -360,7 +360,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                       className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                       title="View input schema"
                     >
-                      <InformationCircleIcon className="h-4 w-4" />
+                      <IconInfoCircle className="h-4 w-4" />
                     </button>
                     <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 px-3 py-1 text-xs font-semibold">
                       {formatPercent(tool.relevance_score)} match
@@ -410,7 +410,7 @@ const SemanticSearchResults: React.FC<SemanticSearchResultsProps> = ({
                         className="p-2 text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-700/30 rounded-lg transition-colors"
                         title="View full agent details"
                       >
-                        <InformationCircleIcon className="h-4 w-4" />
+                        <IconInfoCircle className="h-4 w-4" />
                       </button>
                       <span className="inline-flex items-center rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-200 px-3 py-1 text-xs font-semibold">
                         {formatPercent(agent.relevance_score)} match

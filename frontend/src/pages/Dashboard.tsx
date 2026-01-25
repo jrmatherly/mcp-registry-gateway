@@ -1,9 +1,9 @@
 import {
-	ArrowPathIcon,
-	MagnifyingGlassIcon,
-	PlusIcon,
-	XMarkIcon,
-} from "@heroicons/react/24/outline";
+	IconPlus,
+	IconRefresh,
+	IconSearch,
+	IconX,
+} from "@tabler/icons-react";
 import axios from "axios";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -860,7 +860,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 					<div className="flex gap-4 items-center">
 						<div className="relative flex-1">
 							<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-								<MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+								<IconSearch className="h-5 w-5 text-gray-400" />
 							</div>
 							<input
 								type="text"
@@ -881,7 +881,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 									onClick={handleClearSearch}
 									className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
 								>
-									<XMarkIcon className="h-4 w-4" />
+									<IconX className="h-4 w-4" />
 								</button>
 							)}
 						</div>
@@ -891,7 +891,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 							onClick={handleRegisterServer}
 							className="btn-primary flex items-center space-x-2 shrink-0"
 						>
-							<PlusIcon className="h-4 w-4" />
+							<IconPlus className="h-4 w-4" />
 							<span>Register Server</span>
 						</button>
 
@@ -901,7 +901,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 							disabled={refreshing}
 							className="btn-secondary flex items-center space-x-2 shrink-0"
 						>
-							<ArrowPathIcon
+							<IconRefresh
 								className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
 							/>
 							<span>Refresh Health</span>
@@ -987,7 +987,7 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 									onClick={() => setShowRegisterModal(false)}
 									className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
 								>
-									<XMarkIcon className="h-6 w-6" />
+									<IconX className="h-6 w-6" />
 								</button>
 							</div>
 

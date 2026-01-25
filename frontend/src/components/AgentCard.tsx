@@ -1,15 +1,15 @@
 import {
-  ArrowPathIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  CpuChipIcon,
-  GlobeAltIcon,
-  InformationCircleIcon,
-  LockClosedIcon,
-  PencilIcon,
-  ShieldCheckIcon,
-  ShieldExclamationIcon,
-} from "@heroicons/react/24/outline";
+  IconCheck,
+  IconClock,
+  IconCpu,
+  IconInfoCircle,
+  IconLock,
+  IconPencil,
+  IconRefresh,
+  IconShield,
+  IconShieldExclamation,
+  IconWorld,
+} from "@tabler/icons-react";
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import type {
@@ -133,9 +133,9 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
     const getTrustLevelIcon = () => {
       switch (agent.trust_level) {
         case "trusted":
-          return <ShieldCheckIcon className="h-3 w-3" />;
+          return <IconShield className="h-3 w-3" />;
         case "verified":
-          return <CheckCircleIcon className="h-3 w-3" />;
+          return <IconCheck className="h-3 w-3" />;
         default:
           return null;
       }
@@ -143,9 +143,9 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
     const getVisibilityIcon = () => {
       return agent.visibility === "public" ? (
-        <GlobeAltIcon className="h-3 w-3" />
+        <IconWorld className="h-3 w-3" />
       ) : (
-        <LockClosedIcon className="h-3 w-3" />
+        <IconLock className="h-3 w-3" />
       );
     };
 
@@ -245,7 +245,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
       // Gray: no scan result yet
       if (!securityScanResult) {
         return {
-          Icon: ShieldCheckIcon,
+          Icon: IconShield,
           color: "text-gray-400 dark:text-gray-500",
           title: "View security scan results",
         };
@@ -253,7 +253,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
       // Red: scan failed or any vulnerabilities found
       if (securityScanResult.scan_failed) {
         return {
-          Icon: ShieldExclamationIcon,
+          Icon: IconShieldExclamation,
           color: "text-red-500 dark:text-red-400",
           title: "Security scan failed",
         };
@@ -265,14 +265,14 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
         (securityScanResult.low_severity ?? 0) > 0;
       if (hasVulnerabilities) {
         return {
-          Icon: ShieldExclamationIcon,
+          Icon: IconShieldExclamation,
           color: "text-red-500 dark:text-red-400",
           title: "Security issues found",
         };
       }
       // Green: scan passed with no vulnerabilities
       return {
-        Icon: ShieldCheckIcon,
+        Icon: IconShield,
         color: "text-green-500 dark:text-green-400",
         title: "Security scan passed",
       };
@@ -348,7 +348,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   onClick={() => onEdit?.(agent)}
                   title="Edit agent"
                 >
-                  <PencilIcon className="h-4 w-4" />
+                  <IconPencil className="h-4 w-4" />
                 </button>
               )}
 
@@ -385,7 +385,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                 className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-700/50 rounded-lg transition-all duration-200 shrink-0"
                 title="View full agent details (JSON)"
               >
-                <InformationCircleIcon className="h-4 w-4" />
+                <IconInfoCircle className="h-4 w-4" />
               </button>
             </div>
 
@@ -433,7 +433,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
               />
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-cyan-50 dark:bg-cyan-900/30 rounded-sm">
-                  <CpuChipIcon className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                  <IconCpu className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -498,7 +498,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                   const timeText = formatTimeSince(agent.last_checked_time);
                   return agent.last_checked_time && timeText ? (
                     <div className="text-xs text-gray-500 dark:text-gray-300 flex items-center gap-1.5">
-                      <ClockIcon className="h-3.5 w-3.5" />
+                      <IconClock className="h-3.5 w-3.5" />
                       <span>{timeText}</span>
                     </div>
                   ) : null;
@@ -513,7 +513,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                     className="p-2.5 text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-lg transition-all duration-200 disabled:opacity-50"
                     title="Refresh agent health status"
                   >
-                    <ArrowPathIcon
+                    <IconRefresh
                       className={`h-4 w-4 ${loadingRefresh ? "animate-spin" : ""}`}
                     />
                   </button>

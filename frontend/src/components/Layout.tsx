@@ -1,19 +1,20 @@
-import { Menu, Transition } from "@headlessui/react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
-	ArrowRightOnRectangleIcon,
-	Bars3Icon,
-	ChevronDownIcon,
-	Cog6ToothIcon,
-	MoonIcon,
-	SunIcon,
-	UserIcon,
-} from "@heroicons/react/24/outline";
-import React, { Fragment, useEffect, useState } from "react";
+	IconChevronDown,
+	IconLogout,
+	IconMenu2,
+	IconMoon,
+	IconSettings,
+	IconSun,
+	IconUser,
+} from "@tabler/icons-react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import logo from "../assets/logo.png";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useServerStats } from "../hooks/useServerStats";
+import { cn } from "@/lib/utils";
 import Sidebar from "./Sidebar";
 
 interface LayoutProps {
@@ -63,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 									setSidebarOpen(!sidebarOpen);
 								}}
 							>
-								<Bars3Icon className="h-6 w-6" />
+								<IconMenu2 className="h-6 w-6" />
 							</button>
 
 							{/* Logo */}
@@ -94,49 +95,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 								className="p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
 							>
 								{theme === "dark" ? (
-									<SunIcon className="h-5 w-5" />
+									<IconSun className="h-5 w-5" />
 								) : (
-									<MoonIcon className="h-5 w-5" />
+									<IconMoon className="h-5 w-5" />
 								)}
 							</button>
 
 							{/* User dropdown */}
-							<Menu as="div" className="relative">
-								<div>
-									<Menu.Button className="flex items-center space-x-3 text-sm rounded-full focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger asChild>
+									<button
+										type="button"
+										className="flex items-center space-x-3 text-sm rounded-full focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+									>
 										<div className="h-8 w-8 rounded-full bg-linear-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
-											<UserIcon className="h-5 w-5 text-white" />
+											<IconUser className="h-5 w-5 text-white" />
 										</div>
 										<span className="hidden md:block text-gray-700 dark:text-gray-100 font-medium">
 											{user?.username || "Admin"}
 										</span>
-										<ChevronDownIcon className="h-4 w-4 text-gray-400" />
-									</Menu.Button>
-								</div>
+										<IconChevronDown className="h-4 w-4 text-gray-400" />
+									</button>
+								</DropdownMenu.Trigger>
 
-								<Transition
-									as={Fragment}
-									enter="transition ease-out duration-100"
-									enterFrom="transform opacity-0 scale-95"
-									enterTo="transform opacity-100 scale-100"
-									leave="transition ease-in duration-75"
-									leaveFrom="transform opacity-100 scale-100"
-									leaveTo="transform opacity-0 scale-95"
-								>
-									<Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl py-1 shadow-xl border border-gray-200/50 dark:border-white/10 focus:outline-hidden">
-										<Menu.Item>
-											{({ active }) => (
-												<Link
-													to="/settings"
-													className={`${
-														active ? "bg-white/50 dark:bg-white/10" : ""
-													} flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-100 transition-colors`}
-												>
-													<Cog6ToothIcon className="mr-3 h-4 w-4" />
-													Settings
-												</Link>
-											)}
-										</Menu.Item>
+								<DropdownMenu.Portal>
+									<DropdownMenu.Content
+										className={cn(
+											"z-50 min-w-48 origin-top-right rounded-xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl py-1 shadow-xl border border-gray-200/50 dark:border-white/10",
+											"data-[state=open]:animate-in data-[state=closed]:animate-out",
+											"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+											"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+											"data-[side=bottom]:slide-in-from-top-2"
+										)}
+										sideOffset={8}
+										align="end"
+									>
+										<DropdownMenu.Item asChild>
+											<Link
+												to="/settings"
+												className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-100 transition-colors hover:bg-white/50 dark:hover:bg-white/10 outline-none cursor-pointer"
+											>
+												<IconSettings className="mr-3 h-4 w-4" />
+												Settings
+											</Link>
+										</DropdownMenu.Item>
 
 										{/* Version display */}
 										{version && (
@@ -147,25 +149,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 											</div>
 										)}
 
-										<div className="border-t border-gray-200/50 dark:border-white/10 my-1" />
+										<DropdownMenu.Separator className="border-t border-gray-200/50 dark:border-white/10 my-1" />
 
-										<Menu.Item>
-											{({ active }) => (
-												<button
-													type="button"
-													onClick={handleLogout}
-													className={`${
-														active ? "bg-white/50 dark:bg-white/10" : ""
-													} flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 transition-colors`}
-												>
-													<ArrowRightOnRectangleIcon className="mr-3 h-4 w-4" />
-													Sign out
-												</button>
-											)}
-										</Menu.Item>
-									</Menu.Items>
-								</Transition>
-							</Menu>
+										<DropdownMenu.Item asChild>
+											<button
+												type="button"
+												onClick={handleLogout}
+												className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 transition-colors hover:bg-white/50 dark:hover:bg-white/10 outline-none cursor-pointer"
+											>
+												<IconLogout className="mr-3 h-4 w-4" />
+												Sign out
+											</button>
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Portal>
+							</DropdownMenu.Root>
 						</div>
 					</div>
 				</div>

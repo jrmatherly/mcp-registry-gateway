@@ -1,4 +1,4 @@
-import { SparklesIcon } from "@heroicons/react/24/outline";
+import { IconSparkles } from "@tabler/icons-react";
 import type React from "react";
 
 interface HeroBannerProps {
@@ -55,7 +55,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
               onClick={onRegisterClick}
               className="group flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 rounded-xl text-white font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary-500/25 shrink-0"
             >
-              <SparklesIcon className="h-5 w-5 group-hover:rotate-12 transition-transform" />
+              <IconSparkles className="h-5 w-5 group-hover:rotate-12 transition-transform" />
               Register New Service
             </button>
           )}

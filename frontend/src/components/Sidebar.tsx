@@ -1,23 +1,31 @@
-import { Dialog, Transition } from "@headlessui/react";
 import {
-  ArrowDownTrayIcon,
-  ArrowLeftIcon,
-  ChartBarIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  ClipboardIcon,
-  FunnelIcon,
-  KeyIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+  IconArrowLeft,
+  IconChartBar,
+  IconCheck,
+  IconChevronDown,
+  IconChevronUp,
+  IconClipboard,
+  IconDownload,
+  IconFilter,
+  IconKey,
+  IconX,
+} from "@tabler/icons-react";
 import axios from "axios";
 import type React from "react";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { getScopeDescription } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -126,10 +134,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             <Link
               to="/"
               className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => isMobile && setSidebarOpen(false)} // Only close on mobile
+              onClick={() => isMobile && setSidebarOpen(false)}
               tabIndex={0}
             >
-              <ArrowLeftIcon className="h-4 w-4" />
+              <IconArrowLeft className="h-4 w-4" />
               <span>Back to Dashboard</span>
             </Link>
 
@@ -138,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300"
               tabIndex={0}
             >
-              <KeyIcon className="h-4 w-4" />
+              <IconKey className="h-4 w-4" />
               <span>Generate Token</span>
             </Link>
           </div>
@@ -153,15 +161,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                   {user.is_admin ? (
                     <span className="text-green-600 dark:text-green-400">
-                      🔑 Admin Access
+                      Admin Access
                     </span>
                   ) : user.can_modify_servers ? (
                     <span className="text-blue-600 dark:text-blue-400">
-                      ⚙️ Modify Access
+                      Modify Access
                     </span>
                   ) : (
                     <span className="text-gray-600 dark:text-gray-300">
-                      👁️ Read-only Access
+                      Read-only Access
                     </span>
                   )}
                   {user.auth_method === "oauth2" && user.provider && (
@@ -179,9 +187,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     >
                       <span>Scopes ({user.scopes.length})</span>
                       {showScopes ? (
-                        <ChevronUpIcon className="h-3 w-3" />
+                        <IconChevronUp className="h-3 w-3" />
                       ) : (
-                        <ChevronDownIcon className="h-3 w-3" />
+                        <IconChevronDown className="h-3 w-3" />
                       )}
                     </button>
 
@@ -210,7 +218,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Token Generation Help */}
           <div className="text-center">
-            <KeyIcon className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+            <IconKey className="h-12 w-12 text-purple-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               Token Generation
             </h3>
@@ -240,15 +248,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                     {user.is_admin ? (
                       <span className="text-green-600 dark:text-green-400">
-                        🔑 Admin Access
+                        Admin Access
                       </span>
                     ) : user.can_modify_servers ? (
                       <span className="text-blue-600 dark:text-blue-400">
-                        ⚙️ Modify Access
+                        Modify Access
                       </span>
                     ) : (
                       <span className="text-gray-600 dark:text-gray-300">
-                        👁️ Read-only Access
+                        Read-only Access
                       </span>
                     )}
                     {user.auth_method === "oauth2" && user.provider && (
@@ -258,24 +266,25 @@ const Sidebar: React.FC<SidebarProps> = ({
 
                   {/* JWT Token Button - Available to all users */}
                   <div className="mb-2">
-                    <button
+                    <Button
                       type="button"
                       onClick={fetchAdminTokens}
                       disabled={loading}
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-medium transition-all bg-linear-to-r from-primary-500 to-indigo-600 text-white hover:from-primary-600 hover:to-indigo-700 shadow-lg shadow-primary-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full"
+                      size="sm"
                     >
                       {loading ? (
                         <>
-                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-purple-700 dark:border-purple-300"></div>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                           <span>Loading...</span>
                         </>
                       ) : (
                         <>
-                          <KeyIcon className="h-3 w-3" />
+                          <IconKey className="h-3 w-3" />
                           <span>Get JWT Token</span>
                         </>
                       )}
-                    </button>
+                    </Button>
                     {error && (
                       <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                         {error}
@@ -293,9 +302,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                       >
                         <span>Scopes ({user.scopes.length})</span>
                         {showScopes ? (
-                          <ChevronUpIcon className="h-3 w-3" />
+                          <IconChevronUp className="h-3 w-3" />
                         ) : (
-                          <ChevronDownIcon className="h-3 w-3" />
+                          <IconChevronDown className="h-3 w-3" />
                         )}
                       </button>
 
@@ -326,7 +335,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Filters Section */}
           <div className="flex-1 p-4 md:p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <FunnelIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <IconFilter className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                 Filter Services
               </h3>
@@ -365,7 +374,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Statistics Section */}
           <div className="border-t border-gray-200/50 dark:border-white/6 p-4 md:p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <ChartBarIcon className="h-5 w-5 text-primary-500" />
+              <IconChartBar className="h-5 w-5 text-primary-500" />
               <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                 Statistics
               </h3>
@@ -413,177 +422,103 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile sidebar only */}
+      {/* Mobile sidebar - using Dialog */}
       {isMobile && (
-        <Transition.Root show={sidebarOpen} as={Fragment}>
-          <Dialog as="div" className="relative z-50" onClose={setSidebarOpen}>
-            <Transition.Child
-              as={Fragment}
-              enter="transition-opacity ease-linear duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="transition-opacity ease-linear duration-300"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-gray-900/80" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 flex">
-              <Transition.Child
-                as={Fragment}
-                enter="transition ease-in-out duration-300 transform"
-                enterFrom="-translate-x-full"
-                enterTo="translate-x-0"
-                leave="transition ease-in-out duration-300 transform"
-                leaveFrom="translate-x-0"
-                leaveTo="-translate-x-full"
-              >
-                <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
-                  <Transition.Child
-                    as={Fragment}
-                    enter="ease-in-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in-out duration-300"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                      <button
-                        type="button"
-                        className="-m-2.5 p-2.5"
-                        onClick={() => setSidebarOpen(false)}
-                        aria-label="Close sidebar"
-                      >
-                        <XMarkIcon className="h-6 w-6 text-white" />
-                      </button>
-                    </div>
-                  </Transition.Child>
-
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-white/10">
-                    <SidebarContent />
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </Dialog>
-        </Transition.Root>
-      )}
-
-      {/* Desktop sidebar only */}
-      {!isMobile && (
-        <Transition show={sidebarOpen} as={Fragment}>
-          <Transition.Child
-            as={Fragment}
-            enter="transition ease-in-out duration-300 transform"
-            enterFrom="-translate-x-full"
-            enterTo="translate-x-0"
-            leave="transition ease-in-out duration-300 transform"
-            leaveFrom="translate-x-0"
-            leaveTo="-translate-x-full"
+        <Dialog open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <DialogContent
+            className="fixed inset-y-0 left-0 w-full max-w-xs p-0 rounded-none border-r border-gray-200/50 dark:border-white/10 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left duration-300"
+            showCloseButton={false}
           >
-            <div className="fixed left-0 top-16 bottom-0 z-40 w-64 lg:w-72 xl:w-80 bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/30 dark:border-white/5 shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.4)] overflow-y-auto">
+            <div className="absolute right-[-48px] top-4">
+              <button
+                type="button"
+                className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+              >
+                <IconX className="h-6 w-6 text-white" />
+              </button>
+            </div>
+            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl h-full">
               <SidebarContent />
             </div>
-          </Transition.Child>
-        </Transition>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Desktop sidebar */}
+      {!isMobile && (
+        <div
+          className={cn(
+            "fixed left-0 top-16 bottom-0 z-40 w-64 lg:w-72 xl:w-80 bg-white/80 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/30 dark:border-white/5 shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.4)] overflow-y-auto transition-transform duration-300",
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          <SidebarContent />
+        </div>
       )}
 
       {/* Token Modal */}
-      <Transition appear show={showTokenModal} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={() => setShowTokenModal(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
-          </Transition.Child>
+      <Dialog open={showTokenModal} onOpenChange={setShowTokenModal}>
+        <DialogContent className="max-w-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl border border-gray-200/50 dark:border-white/10">
+          <DialogHeader>
+            <DialogTitle>JWT Access Token</DialogTitle>
+          </DialogHeader>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl p-6 text-left align-middle shadow-2xl border border-gray-200/50 dark:border-white/10 transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"
-                  >
-                    JWT Access Token
-                  </Dialog.Title>
-
-                  {tokenData && (
-                    <div className="space-y-4">
-                      {/* Action Buttons */}
-                      <div className="flex space-x-2">
-                        <button
-                          type="button"
-                          onClick={handleCopyTokens}
-                          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                        >
-                          {copied ? (
-                            <>
-                              <CheckIcon className="h-4 w-4" />
-                              <span>Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <ClipboardIcon className="h-4 w-4" />
-                              <span>Copy JSON</span>
-                            </>
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleDownloadTokens}
-                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                        >
-                          <ArrowDownTrayIcon className="h-4 w-4" />
-                          <span>Download JSON</span>
-                        </button>
-                      </div>
-
-                      {/* Token Data Display */}
-                      <div className="bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl p-4 max-h-96 overflow-y-auto border border-gray-200/50 dark:border-white/6">
-                        <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all font-mono">
-                          {JSON.stringify(tokenData, null, 2)}
-                        </pre>
-                      </div>
-
-                      {/* Close Button */}
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setShowTokenModal(false)}
-                          className="px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm border border-gray-200/50 dark:border-white/10"
-                        >
-                          Close
-                        </button>
-                      </div>
-                    </div>
+          {tokenData && (
+            <div className="space-y-4">
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                <Button
+                  type="button"
+                  onClick={handleCopyTokens}
+                  variant="default"
+                  size="sm"
+                >
+                  {copied ? (
+                    <>
+                      <IconCheck className="h-4 w-4" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <IconClipboard className="h-4 w-4" />
+                      <span>Copy JSON</span>
+                    </>
                   )}
-                </Dialog.Panel>
-              </Transition.Child>
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleDownloadTokens}
+                  variant="secondary"
+                  size="sm"
+                >
+                  <IconDownload className="h-4 w-4" />
+                  <span>Download JSON</span>
+                </Button>
+              </div>
+
+              {/* Token Data Display */}
+              <div className="bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl p-4 max-h-96 overflow-y-auto border border-gray-200/50 dark:border-white/6">
+                <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all font-mono">
+                  {JSON.stringify(tokenData, null, 2)}
+                </pre>
+              </div>
+
+              {/* Close Button */}
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowTokenModal(false)}
+                >
+                  Close
+                </Button>
+              </DialogFooter>
             </div>
-          </div>
-        </Dialog>
-      </Transition>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -1,8 +1,8 @@
 import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+  IconAlertCircle,
+  IconCircleCheck,
+  IconX,
+} from "@tabler/icons-react";
 import type React from "react";
 import { useCallback, useEffect } from "react";
 import { TOAST_DURATION_MS } from "../constants";
@@ -40,7 +40,7 @@ const Toast: React.FC<ToastProps> = ({
     return () => clearTimeout(timer);
   }, [handleClose, duration]);
 
-  const Icon = type === "success" ? CheckCircleIcon : ExclamationCircleIcon;
+  const Icon = type === "success" ? IconCircleCheck : IconAlertCircle;
 
   const colorClasses =
     type === "success"
@@ -62,7 +62,7 @@ const Toast: React.FC<ToastProps> = ({
           className="ml-3 shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
           aria-label="Close notification"
         >
-          <XMarkIcon className="h-4 w-4" />
+          <IconX className="h-4 w-4" />
         </button>
       </div>
     </div>

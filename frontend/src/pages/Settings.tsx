@@ -1,10 +1,10 @@
 import {
-  KeyIcon,
-  MoonIcon,
-  ShieldCheckIcon,
-  SunIcon,
-  UserIcon,
-} from "@heroicons/react/24/outline";
+  IconKey,
+  IconMoon,
+  IconShield,
+  IconSun,
+  IconUser,
+} from "@tabler/icons-react";
 import type React from "react";
 import { Link } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
@@ -25,7 +25,7 @@ const Settings: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
           <div className="flex items-center">
             <div className="p-2 bg-primary-500/10 rounded-lg mr-3">
-              <UserIcon className="h-5 w-5 text-primary-500" />
+              <IconUser className="h-5 w-5 text-primary-500" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">
               Profile
@@ -66,7 +66,7 @@ const Settings: React.FC = () => {
           <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
             <div className="flex items-center">
               <div className="p-2 bg-emerald-500/10 rounded-lg mr-3">
-                <ShieldCheckIcon className="h-5 w-5 text-emerald-500" />
+                <IconShield className="h-5 w-5 text-emerald-500" />
               </div>
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">
                 Permissions
@@ -94,9 +94,9 @@ const Settings: React.FC = () => {
           <div className="flex items-center">
             <div className="p-2 bg-amber-500/10 rounded-lg mr-3">
               {theme === "dark" ? (
-                <MoonIcon className="h-5 w-5 text-amber-500" />
+                <IconMoon className="h-5 w-5 text-amber-500" />
               ) : (
-                <SunIcon className="h-5 w-5 text-amber-500" />
+                <IconSun className="h-5 w-5 text-amber-500" />
               )}
             </div>
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -136,7 +136,7 @@ const Settings: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-transparent dark:from-white/2 dark:to-transparent">
           <div className="flex items-center">
             <div className="p-2 bg-cyan-500/10 rounded-lg mr-3">
-              <KeyIcon className="h-5 w-5 text-cyan-500" />
+              <IconKey className="h-5 w-5 text-cyan-500" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">
               API Access

@@ -1,7 +1,4 @@
-import {
-  ArrowPathIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { IconAlertTriangle, IconRefresh } from "@tabler/icons-react";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
 interface ErrorBoundaryProps {
@@ -70,7 +67,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
           <div className="text-center max-w-md">
             <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6">
-              <ExclamationTriangleIcon className="h-8 w-8 text-red-600 dark:text-red-400" />
+              <IconAlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
 
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -95,7 +92,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               onClick={this.handleRetry}
               className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
             >
-              <ArrowPathIcon className="h-4 w-4 mr-2" />
+              <IconRefresh className="h-4 w-4 mr-2" />
               Try Again
             </button>
           </div>

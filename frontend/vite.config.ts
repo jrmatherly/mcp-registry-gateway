@@ -1,6 +1,5 @@
 import path from "node:path";
 
-import { codecovVitePlugin } from "@codecov/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -10,16 +9,7 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
-	plugins: [
-		react(),
-		// Codecov Bundle Analysis - must be last plugin
-		// Only enabled when CODECOV_TOKEN is available (CI environment)
-		codecovVitePlugin({
-			enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
-			bundleName: "mcp-gateway-frontend",
-			uploadToken: process.env.CODECOV_TOKEN,
-		}),
-	],
+	plugins: [react()],
 	root: ".",
 	build: {
 		outDir: "build",
@@ -33,7 +23,6 @@ export default defineConfig({
 						}
 						if (
 							id.includes("@headlessui") ||
-							id.includes("@heroicons") ||
 							id.includes("@radix-ui") ||
 							id.includes("@tabler/icons") ||
 							id.includes("motion")

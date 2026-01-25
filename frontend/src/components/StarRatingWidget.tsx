@@ -1,5 +1,4 @@
-import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
-import { StarIcon } from "@heroicons/react/24/solid";
+import { IconStar, IconStarFilled } from "@tabler/icons-react";
 import axios from "axios";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -193,7 +192,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
     size: "small" | "large" = "large",
   ) => {
     const sizeClass = size === "small" ? "h-4 w-4" : "h-6 w-6";
-    const IconComponent = filled ? StarIcon : StarIconOutline;
+    const IconComponent = filled ? IconStarFilled : IconStar;
 
     return (
       <IconComponent
@@ -220,7 +219,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
         aria-haspopup="dialog"
       >
         <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded-sm">
-          <StarIcon className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          <IconStarFilled className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
         </div>
         <div>
           <div className="text-sm font-semibold text-gray-900 dark:text-white">

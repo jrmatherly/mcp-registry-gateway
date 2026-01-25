@@ -1,10 +1,10 @@
 import {
-  ArrowPathIcon,
-  CpuChipIcon,
-  PlusIcon,
-  ServerStackIcon,
-  SparklesIcon,
-} from "@heroicons/react/24/outline";
+  IconCpu,
+  IconPlus,
+  IconRefresh,
+  IconServer,
+  IconSparkles,
+} from "@tabler/icons-react";
 import type React from "react";
 
 type QuickAction = {
@@ -44,7 +44,7 @@ const QuickActionPills: React.FC<QuickActionPillsProps> = ({
           {
             id: "register",
             label: "Register Server",
-            icon: PlusIcon,
+            icon: IconPlus,
             onClick: onRegisterServer,
             variant: "primary" as const,
           },
@@ -55,7 +55,7 @@ const QuickActionPills: React.FC<QuickActionPillsProps> = ({
           {
             id: "search",
             label: "Semantic Search",
-            icon: SparklesIcon,
+            icon: IconSparkles,
             onClick: onSearch,
             variant: "accent" as const,
           },
@@ -66,7 +66,7 @@ const QuickActionPills: React.FC<QuickActionPillsProps> = ({
           {
             id: "servers",
             label: "MCP Servers",
-            icon: ServerStackIcon,
+            icon: IconServer,
             onClick: onViewServers,
             variant: "secondary" as const,
           },
@@ -77,7 +77,7 @@ const QuickActionPills: React.FC<QuickActionPillsProps> = ({
           {
             id: "agents",
             label: "A2A Agents",
-            icon: CpuChipIcon,
+            icon: IconCpu,
             onClick: onViewAgents,
             variant: "secondary" as const,
           },
@@ -88,7 +88,7 @@ const QuickActionPills: React.FC<QuickActionPillsProps> = ({
           {
             id: "refresh",
             label: "Refresh All",
-            icon: ArrowPathIcon,
+            icon: IconRefresh,
             onClick: onRefresh,
             variant: "secondary" as const,
           },

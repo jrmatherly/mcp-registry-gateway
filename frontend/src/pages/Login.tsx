@@ -1,8 +1,8 @@
 import {
-	ExclamationTriangleIcon,
-	EyeIcon,
-	EyeSlashIcon,
-} from "@heroicons/react/24/outline";
+	IconAlertTriangle,
+	IconEye,
+	IconEyeOff,
+} from "@tabler/icons-react";
 import axios from "axios";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -247,7 +247,7 @@ const Login: React.FC = () => {
 					<form onSubmit={handleSubmit} className="space-y-6">
 						{error && (
 							<div className="p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/30 dark:text-red-400 dark:border-red-800 flex items-start space-x-2">
-								<ExclamationTriangleIcon className="h-5 w-5 shrink-0 mt-0.5" />
+								<IconAlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
 								<span>{error}</span>
 							</div>
 						)}
@@ -307,9 +307,9 @@ const Login: React.FC = () => {
 									tabIndex={-1}
 								>
 									{showPassword ? (
-										<EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+										<IconEyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
 									) : (
-										<EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+										<IconEye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
 									)}
 								</button>
 							</div>
@@ -320,7 +320,7 @@ const Login: React.FC = () => {
 							)}
 							{capsLockOn && (
 								<p className="mt-1 text-sm text-yellow-600 dark:text-yellow-400 flex items-center space-x-1">
-									<ExclamationTriangleIcon className="h-4 w-4" />
+									<IconAlertTriangle className="h-4 w-4" />
 									<span>Caps Lock is on</span>
 								</p>
 							)}

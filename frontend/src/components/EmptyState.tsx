@@ -1,9 +1,9 @@
 import {
-  CpuChipIcon,
-  FolderPlusIcon,
-  MagnifyingGlassIcon,
-  ServerStackIcon,
-} from "@heroicons/react/24/outline";
+  IconCpu,
+  IconFolderPlus,
+  IconSearch,
+  IconServer,
+} from "@tabler/icons-react";
 import type React from "react";
 
 type EmptyStateVariant = "servers" | "agents" | "search" | "generic";
@@ -19,21 +19,21 @@ interface EmptyStateProps {
 
 const variantConfig = {
   servers: {
-    icon: ServerStackIcon,
+    icon: IconServer,
     defaultTitle: "No servers found",
     defaultDescription: "Get started by registering your first MCP server.",
     iconBg: "bg-primary-500/10",
     iconColor: "text-primary-500",
   },
   agents: {
-    icon: CpuChipIcon,
+    icon: IconCpu,
     defaultTitle: "No agents found",
     defaultDescription: "A2A agents will appear here once registered.",
     iconBg: "bg-cyan-500/10",
     iconColor: "text-cyan-500",
   },
   search: {
-    icon: MagnifyingGlassIcon,
+    icon: IconSearch,
     defaultTitle: "No results found",
     defaultDescription:
       "Try adjusting your search or press Enter for semantic search.",
@@ -41,7 +41,7 @@ const variantConfig = {
     iconColor: "text-gray-400",
   },
   generic: {
-    icon: FolderPlusIcon,
+    icon: IconFolderPlus,
     defaultTitle: "Nothing here yet",
     defaultDescription: "Content will appear here once available.",
     iconBg: "bg-gray-500/10",
@@ -110,7 +110,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             onClick={onAction}
             className="inline-flex items-center gap-2 px-5 py-2.5 btn-primary"
           >
-            <FolderPlusIcon className="h-4 w-4" />
+            <IconFolderPlus className="h-4 w-4" />
             {actionLabel}
           </button>
         )}
