@@ -25,7 +25,9 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+	HealthBadge,
+	getHealthStatus,
+} from "@/components/ui";
 
 // Re-export Server type for consumers that import from this file
 export type { Server };
@@ -248,7 +250,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 					className={`group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 ${
 						isAnthropicServer
 							? "bg-linear-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-900/30 dark:to-indigo-900/30 border-2 border-purple-300/50 dark:border-purple-600/50 hover:border-purple-400/70 dark:hover:border-purple-500/70 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20"
-							: "bg-white/80 dark:bg-white/3 backdrop-blur-xl border border-gray-200/50 dark:border-white/8 hover:border-primary-300/50 dark:hover:border-primary-500/30 shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-primary-500/10"
+							: "glass-card"
 					}`}
 				>
 					{/* Header */}
@@ -405,11 +407,11 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 					{/* Footer */}
 					<div className="mt-auto px-5 py-4 border-t border-gray-200/50 dark:border-white/6 bg-linear-to-r from-gray-50/80 to-gray-100/50 dark:from-white/2 dark:to-white/1 rounded-b-2xl backdrop-blur-sm">
 						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-4">
+							<div className="flex items-center gap-3">
 								{/* Status Indicators */}
 								<div className="flex items-center gap-2">
 									<div
-										className={`w-3 h-3 rounded-full ${
+										className={`w-2.5 h-2.5 rounded-full ${
 											server.enabled
 												? "bg-green-400 shadow-lg shadow-green-400/30"
 												: "bg-gray-300 dark:bg-gray-600"
@@ -422,28 +424,12 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 
 								<div className="w-px h-4 bg-gray-200 dark:bg-gray-600" />
 
-								<div className="flex items-center gap-2">
-									<div
-										className={`w-3 h-3 rounded-full ${
-											server.status === "healthy"
-												? "bg-emerald-400 shadow-lg shadow-emerald-400/30"
-												: server.status === "healthy-auth-expired"
-													? "bg-orange-400 shadow-lg shadow-orange-400/30"
-													: server.status === "unhealthy"
-														? "bg-red-400 shadow-lg shadow-red-400/30"
-														: "bg-amber-400 shadow-lg shadow-amber-400/30"
-										}`}
-									/>
-									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										{server.status === "healthy"
-											? "Healthy"
-											: server.status === "healthy-auth-expired"
-												? "Healthy (Auth Expired)"
-												: server.status === "unhealthy"
-													? "Unhealthy"
-													: "Unknown"}
-									</span>
-								</div>
+								{/* Health Badge - New Component */}
+								<HealthBadge
+									status={getHealthStatus(server.status)}
+									size="sm"
+									lastChecked={server.last_checked_time}
+								/>
 							</div>
 
 							{/* Controls */}

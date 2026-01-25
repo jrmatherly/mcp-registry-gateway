@@ -12,11 +12,13 @@ repos:
         args: [--fix]
         name: Ruff linter
         description: Run ruff linter with auto-fixes
+        exclude: ^\.agent/
 
       # Run the formatter
       - id: ruff-format
         name: Ruff formatter
         description: Run ruff formatter
+        exclude: ^\.agent/
 
   # Pre-commit hooks for file quality
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -69,11 +71,13 @@ repos:
       - id: check-docstring-first
         name: Check docstring is first
         description: Ensure docstring comes first in Python files
+        exclude: ^\.agent/
 
       # Check for debugger imports
       - id: debug-statements
         name: Check for debugger statements
         description: Check for pdb and ipdb debugger statements
+        exclude: ^\.agent/
 
   # Bandit - Security vulnerability scanner
   - repo: https://github.com/PyCQA/bandit
@@ -84,7 +88,7 @@ repos:
         description: Scan for security vulnerabilities
         args: ["-c", "pyproject.toml"]
         additional_dependencies: ["bandit[toml]"]
-        exclude: ^tests/
+        exclude: ^(tests/|\.agent/)
 
   # MyPy - Static type checker
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -98,7 +102,7 @@ repos:
           - types-PyYAML
           - pydantic
         args: [--config-file=pyproject.toml]
-        exclude: ^(tests/|scripts/|agents/|credentials-provider/|cli/|servers/|api/|metrics-service/|auth_server/)
+        exclude: ^(tests/|scripts/|agents/|credentials-provider/|cli/|servers/|api/|metrics-service/|auth_server/|\.agent/)
 
   # Local hooks for project-specific checks
   - repo: local
@@ -118,6 +122,7 @@ repos:
         entry: python -m py_compile
         language: system
         types: [python]
+        exclude: ^\.agent/
 
       # Shell script syntax check
       - id: shell-syntax

@@ -25,6 +25,7 @@ import { handleApiError } from "../utils/errorHandler";
 import AgentDetailsModal from "./AgentDetailsModal";
 import SecurityScanModal from "./SecurityScanModal";
 import StarRatingWidget from "./StarRatingWidget";
+import { HealthBadge, getHealthStatus } from "@/components/ui";
 
 /**
  * Agent interface representing an A2A agent.
@@ -450,11 +451,11 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
           {/* Footer */}
           <div className="mt-auto px-5 py-4 border-t border-cyan-200/50 dark:border-cyan-700/50 bg-linear-to-r from-cyan-50/80 to-blue-50/50 dark:from-cyan-900/20 dark:to-blue-900/10 rounded-b-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {/* Status Indicators */}
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-3 h-3 rounded-full ${
+                    className={`w-2.5 h-2.5 rounded-full ${
                       agent.enabled
                         ? "bg-green-400 shadow-lg shadow-green-400/30"
                         : "bg-gray-300 dark:bg-gray-600"
@@ -467,28 +468,12 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
                 <div className="w-px h-4 bg-cyan-200 dark:bg-cyan-600" />
 
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-3 h-3 rounded-full ${
-                      agent.status === "healthy"
-                        ? "bg-emerald-400 shadow-lg shadow-emerald-400/30"
-                        : agent.status === "healthy-auth-expired"
-                          ? "bg-orange-400 shadow-lg shadow-orange-400/30"
-                          : agent.status === "unhealthy"
-                            ? "bg-red-400 shadow-lg shadow-red-400/30"
-                            : "bg-amber-400 shadow-lg shadow-amber-400/30"
-                    }`}
-                  />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {agent.status === "healthy"
-                      ? "Healthy"
-                      : agent.status === "healthy-auth-expired"
-                        ? "Healthy (Auth Expired)"
-                        : agent.status === "unhealthy"
-                          ? "Unhealthy"
-                          : "Unknown"}
-                  </span>
-                </div>
+                {/* Health Badge - New Component */}
+                <HealthBadge
+                  status={getHealthStatus(agent.status)}
+                  size="sm"
+                  lastChecked={agent.last_checked_time}
+                />
               </div>
 
               {/* Controls */}

@@ -2,6 +2,11 @@
 
 export { AnimatedTooltip } from "./animated-tooltip";
 export { Badge, badgeVariants } from "./badge";
+export {
+	BulkActionsBar,
+	bulkActionsBarVariants,
+} from "./bulk-actions-bar";
+export type { BulkAction } from "./bulk-actions-bar";
 export { Button, buttonVariants } from "./button";
 export { Checkbox } from "./checkbox";
 // Custom Components (ported from Aceternity template)
@@ -20,6 +25,12 @@ export {
 } from "./dialog";
 export type { HeadingLevel, HeadingProps, HeadingSize } from "./heading";
 export { Heading } from "./heading";
+export {
+	HealthBadge,
+	healthBadgeVariants,
+	getHealthStatus,
+} from "./health-badge";
+export type { HealthStatus } from "./health-badge";
 
 // Aceternity UI Components
 export { Input } from "./input";

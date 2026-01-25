@@ -3,6 +3,8 @@ layer(base);
 
 @import "tailwindcss";
 
+@import "./styles/design-tokens.css";
+
 @plugin '@tailwindcss/forms';
 
 @custom-variant dark (&:is(.dark *));
