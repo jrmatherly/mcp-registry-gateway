@@ -117,8 +117,19 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.GHCR_REGISTRY }} -u ${{ github.actor }} --password-stdin
 
       - name: Login to DockerHub
+        id: dockerhub-login
+        continue-on-error: true
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          if [ -n "$DOCKERHUB_TOKEN" ] && [ -n "$DOCKERHUB_USERNAME" ]; then
+            echo "$DOCKERHUB_TOKEN" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u "$DOCKERHUB_USERNAME" --password-stdin
+            echo "logged_in=true" >> $GITHUB_OUTPUT
+          else
+            echo "DockerHub credentials not configured, skipping DockerHub push"
+            echo "logged_in=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Build chart dependencies
         run: |
@@ -137,12 +148,15 @@ jobs:
           helm push "${CHART_PACKAGE}" "oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts"
 
       - name: Push chart to DockerHub
+        if: steps.dockerhub-login.outputs.logged_in == 'true'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           VERSION=${{ steps.version.outputs.version }}
           CHART_PACKAGE="${{ matrix.chart }}-${VERSION}.tgz"
 
-          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
-          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
 
       - name: Logout from registries
         if: always()
@@ -205,8 +219,19 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.GHCR_REGISTRY }} -u ${{ github.actor }} --password-stdin
 
       - name: Login to DockerHub
+        id: dockerhub-login
+        continue-on-error: true
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          if [ -n "$DOCKERHUB_TOKEN" ] && [ -n "$DOCKERHUB_USERNAME" ]; then
+            echo "$DOCKERHUB_TOKEN" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u "$DOCKERHUB_USERNAME" --password-stdin
+            echo "logged_in=true" >> $GITHUB_OUTPUT
+          else
+            echo "DockerHub credentials not configured, skipping DockerHub push"
+            echo "logged_in=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Add Helm repositories
         run: |
@@ -231,12 +256,15 @@ jobs:
           helm push "${CHART_PACKAGE}" "oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts"
 
       - name: Push stack chart to DockerHub
+        if: steps.dockerhub-login.outputs.logged_in == 'true'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           VERSION=${{ steps.version.outputs.version }}
           CHART_PACKAGE="mcp-gateway-registry-stack-${VERSION}.tgz"
 
-          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
-          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
 
       - name: Logout from registries
         if: always()
