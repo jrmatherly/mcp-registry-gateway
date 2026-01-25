@@ -16,7 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  REGISTRY: ghcr.io
+  GHCR_REGISTRY: ghcr.io
+  DOCKERHUB_REGISTRY: registry-1.docker.io
   HELM_VERSION: "3.14.0"
 
 permissions:
@@ -113,7 +114,11 @@ jobs:
 
       - name: Login to GitHub Container Registry
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.GHCR_REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Login to DockerHub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Build chart dependencies
         run: |
@@ -123,18 +128,27 @@ jobs:
         run: |
           helm package "charts/${{ matrix.chart }}" --destination .
 
-      - name: Push chart to OCI registry
+      - name: Push chart to GHCR
         run: |
           VERSION=${{ steps.version.outputs.version }}
           CHART_PACKAGE="${{ matrix.chart }}-${VERSION}.tgz"
 
-          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
-          helm push "${CHART_PACKAGE}" "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts"
 
-      - name: Logout from registry
+      - name: Push chart to DockerHub
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          CHART_PACKAGE="${{ matrix.chart }}-${VERSION}.tgz"
+
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
+
+      - name: Logout from registries
         if: always()
         run: |
-          helm registry logout ${{ env.REGISTRY }} || true
+          helm registry logout ${{ env.GHCR_REGISTRY }} || true
+          helm registry logout ${{ env.DOCKERHUB_REGISTRY }} || true
 
   # =============================================================================
   # Publish Umbrella Stack Chart
@@ -175,10 +189,10 @@ jobs:
 
           # Update subchart dependency versions to use OCI registry
           # Replace file:// references with OCI references for published chart
-          sed -i "s|repository: \"file://../auth-server\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
-          sed -i "s|repository: \"file://../registry\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
-          sed -i "s|repository: \"file://../keycloak-configure\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
-          sed -i "s|repository: \"file://../mongodb-configure\"|repository: \"oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../auth-server\"|repository: \"oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../registry\"|repository: \"oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../keycloak-configure\"|repository: \"oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
+          sed -i "s|repository: \"file://../mongodb-configure\"|repository: \"oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts\"|" "$CHART_PATH"
 
           # Update dependency versions
           sed -i "s/version: 2\.0\.8/version: ${VERSION}/g" "$CHART_PATH"
@@ -188,7 +202,11 @@ jobs:
 
       - name: Login to GitHub Container Registry
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.GHCR_REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Login to DockerHub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Add Helm repositories
         run: |
@@ -204,18 +222,27 @@ jobs:
         run: |
           helm package "charts/mcp-gateway-registry-stack" --destination .
 
-      - name: Push stack chart to OCI registry
+      - name: Push stack chart to GHCR
         run: |
           VERSION=${{ steps.version.outputs.version }}
           CHART_PACKAGE="mcp-gateway-registry-stack-${VERSION}.tgz"
 
-          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
-          helm push "${CHART_PACKAGE}" "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.GHCR_REGISTRY }}/${{ github.repository_owner }}/charts"
 
-      - name: Logout from registry
+      - name: Push stack chart to DockerHub
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          CHART_PACKAGE="mcp-gateway-registry-stack-${VERSION}.tgz"
+
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/charts"
+
+      - name: Logout from registries
         if: always()
         run: |
-          helm registry logout ${{ env.REGISTRY }} || true
+          helm registry logout ${{ env.GHCR_REGISTRY }} || true
+          helm registry logout ${{ env.DOCKERHUB_REGISTRY }} || true
 
   # =============================================================================
   # Summary
@@ -240,31 +267,50 @@ jobs:
       - name: Generate summary
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          REGISTRY="${{ env.REGISTRY }}"
+          GHCR="${{ env.GHCR_REGISTRY }}"
+          DOCKERHUB="${{ env.DOCKERHUB_REGISTRY }}"
           OWNER="${{ github.repository_owner }}"
+          DOCKERHUB_USER="${{ secrets.DOCKERHUB_USERNAME }}"
 
           echo "## Helm Chart Release Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version:** ${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Published Charts" >> $GITHUB_STEP_SUMMARY
+          echo "### Published Charts (GHCR)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Chart | OCI URL |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|---------|" >> $GITHUB_STEP_SUMMARY
-          echo "| registry | \`oci://${REGISTRY}/${OWNER}/charts/registry:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| auth-server | \`oci://${REGISTRY}/${OWNER}/charts/auth-server:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| keycloak-configure | \`oci://${REGISTRY}/${OWNER}/charts/keycloak-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| mongodb-configure | \`oci://${REGISTRY}/${OWNER}/charts/mongodb-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| mcp-gateway-registry-stack | \`oci://${REGISTRY}/${OWNER}/charts/mcp-gateway-registry-stack:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| registry | \`oci://${GHCR}/${OWNER}/charts/registry:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| auth-server | \`oci://${GHCR}/${OWNER}/charts/auth-server:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| keycloak-configure | \`oci://${GHCR}/${OWNER}/charts/keycloak-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mongodb-configure | \`oci://${GHCR}/${OWNER}/charts/mongodb-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mcp-gateway-registry-stack | \`oci://${GHCR}/${OWNER}/charts/mcp-gateway-registry-stack:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo "### Published Charts (DockerHub)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Chart | OCI URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| registry | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/registry:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| auth-server | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/auth-server:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| keycloak-configure | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/keycloak-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mongodb-configure | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/mongodb-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mcp-gateway-registry-stack | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/mcp-gateway-registry-stack:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation (from GHCR)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install the full stack:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "helm install mcp-stack oci://${REGISTRY}/${OWNER}/charts/mcp-gateway-registry-stack --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "helm install mcp-stack oci://${GHCR}/${OWNER}/charts/mcp-gateway-registry-stack --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Or install individual charts:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "helm install registry oci://${REGISTRY}/${OWNER}/charts/registry --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "helm install registry oci://${GHCR}/${OWNER}/charts/registry --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation (from DockerHub)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Install the full stack:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "helm install mcp-stack oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/mcp-gateway-registry-stack --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
