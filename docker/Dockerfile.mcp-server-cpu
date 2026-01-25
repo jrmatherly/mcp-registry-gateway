@@ -49,8 +49,9 @@ RUN . .venv/bin/activate && \
 EXPOSE 8000
 
 # Health check (generic for all MCP servers)
+# NOTE: Using shell form with /bin/sh -c to ensure environment variable is evaluated at runtime
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD nc -z localhost ${MCP_SERVER_LISTEN_PORT:-8000} || exit 1
+    CMD /bin/sh -c 'curl -sf http://localhost:${MCP_SERVER_LISTEN_PORT:-8000}/health || exit 1'
 
 # Copy and use shared entrypoint script
 COPY docker/mcp-server-entrypoint.sh /entrypoint.sh

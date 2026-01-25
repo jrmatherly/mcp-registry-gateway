@@ -203,14 +203,11 @@ services:
 
   # Current Time MCP Server - using pre-built image
   currenttime-server:
-    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-currenttime-server:${CURRENTTIME_VERSION:-latest}
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.mcp-server-light
-      args:
-        SERVER_DIR: servers/currenttime
+    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-currenttime-server:${CURRENTTIME_VERSION:-latest}
     environment:
-      - PORT=8000
+      - MCP_SERVER_LISTEN_PORT=8000
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
       - MCP_TRANSPORT=streamable-http
     ports:
       - "8000:8000"
@@ -220,22 +217,34 @@ services:
   fininfo-server:
     image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-fininfo-server:${FININFO_VERSION:-latest}
     environment:
-      - PORT=8001
+      - MCP_SERVER_LISTEN_PORT=8001
       - SECRET_KEY=${SECRET_KEY}
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ${HOME}/mcp-gateway/secrets/fininfo/:/app/fininfo/
     ports:
       - "8001:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # MCP Gateway Server - using pre-built image
   mcpgw-server:
     image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-mcpgw-server:${MCPGW_VERSION:-latest}
     environment:
-      - PORT=8003
+      - MCP_SERVER_LISTEN_PORT=8003
       - REGISTRY_BASE_URL=http://registry:7860
       - REGISTRY_USERNAME=${ADMIN_USER:-admin}
       - REGISTRY_PASSWORD=${ADMIN_PASSWORD}
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ${HOME}/mcp-gateway/servers:/app/registry/servers
       - ${HOME}/mcp-gateway/models:/app/registry/models
@@ -244,15 +253,30 @@ services:
       - "8003:8003"
     depends_on:
       - registry
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # Real Server Fake Tools MCP Server - using pre-built image
   realserverfaketools-server:
     image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-realserverfaketools-server:${REALSERVERFAKETOOLS_VERSION:-latest}
     environment:
-      - PORT=8002
+      - MCP_SERVER_LISTEN_PORT=8002
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     ports:
       - "8002:8002"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8002/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # SQLite container for metrics database - using official alpine image
@@ -278,6 +302,10 @@ services:
     image: prom/prometheus:${PROMETHEUS_VERSION:-latest}
     ports:
       - "9090:9090"
+    environment:
+      # External labels for metrics identification
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - CLUSTER_NAME=${CLUSTER_NAME:-local}
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
@@ -337,15 +365,15 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
 
-      # HTTP configuration
+      # HTTP configuration (Hostname v2 - migrated from deprecated v1 options)
+      # See: https://www.keycloak.org/docs/latest/upgrading (Hostname v2 migration)
       KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 8080
       KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_PROXY: edge # Running behind nginx
+      KC_PROXY_HEADERS: xforwarded # v2 replacement for KC_PROXY=edge (trusts X-Forwarded-* from nginx)
 
-      # Frontend URL for external JWT issuer
-      KC_FRONTEND_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
+      # Hostname for external JWT issuer (v2 uses KC_HOSTNAME instead of KC_FRONTEND_URL)
+      KC_HOSTNAME: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
 
       # Health check configuration (required for /health/* endpoints)
       # Health endpoints are served on management port 9000

@@ -212,51 +212,62 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Current Time MCP Server - using pre-built image
+  # Current Time MCP Server - local build
   currenttime-server:
-    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-currenttime-server:${CURRENTTIME_VERSION:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.mcp-server-light
       args:
         SERVER_DIR: servers/currenttime
     environment:
-      - PORT=8000
+      - MCP_SERVER_LISTEN_PORT=8000
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
       - MCP_TRANSPORT=streamable-http
     ports:
       - "8000:8000"
     restart: unless-stopped
 
-  # Financial Info MCP Server - using pre-built image
+  # Financial Info MCP Server - local build
   fininfo-server:
-    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-fininfo-server:${FININFO_VERSION:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.mcp-server-light
       args:
         SERVER_DIR: servers/fininfo
     environment:
-      - PORT=8001
+      - MCP_SERVER_LISTEN_PORT=8001
       - SECRET_KEY=${SECRET_KEY}
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ${HOME}/mcp-gateway/secrets/fininfo/:/app/fininfo/
     ports:
       - "8001:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
-  # MCP Gateway Server - using pre-built image
+  # MCP Gateway Server - local build
   mcpgw-server:
-    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-mcpgw-server:${MCPGW_VERSION:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.mcp-server
       args:
         SERVER_DIR: servers/mcpgw
     environment:
-      - PORT=8003
+      - MCP_SERVER_LISTEN_PORT=8003
       - REGISTRY_BASE_URL=http://registry:7860
       - REGISTRY_USERNAME=${ADMIN_USER:-admin}
       - REGISTRY_PASSWORD=${ADMIN_PASSWORD}
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ${HOME}/mcp-gateway/servers:/app/registry/servers
       - ${HOME}/mcp-gateway/models:/app/registry/models
@@ -265,20 +276,34 @@ services:
       - "8003:8003"
     depends_on:
       - registry
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
-  # Real Server Fake Tools MCP Server - using pre-built image
+  # Real Server Fake Tools MCP Server - local build
   realserverfaketools-server:
-    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-realserverfaketools-server:${REALSERVERFAKETOOLS_VERSION:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.mcp-server-light
       args:
         SERVER_DIR: servers/realserverfaketools
     environment:
-      - PORT=8002
+      - MCP_SERVER_LISTEN_PORT=8002
+      # FastMCP configuration - disable PyPI version check and set explicit transport
+      - FASTMCP_CHECK_FOR_UPDATES=off
+      - MCP_TRANSPORT=streamable-http
     ports:
       - "8002:8002"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8002/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # SQLite container for metrics database - using official alpine image
@@ -302,6 +327,9 @@ services:
   # Prometheus for metrics collection - using official image
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION:-latest}
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - CLUSTER_NAME=${CLUSTER_NAME:-local}
     ports:
       - "9090:9090"
     volumes:
@@ -368,10 +396,12 @@ services:
       KC_HTTP_PORT: 8080
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_PROXY: edge # Running behind nginx
 
-      # Frontend URL for external JWT issuer
-      KC_FRONTEND_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
+      # Keycloak v2 proxy configuration (replaces deprecated KC_PROXY)
+      KC_PROXY_HEADERS: xforwarded
+
+      # Hostname configuration (replaces deprecated KC_FRONTEND_URL)
+      KC_HOSTNAME: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8080}
 
       # Health check configuration (required for /health/* endpoints)
       # Health endpoints are served on management port 9000
