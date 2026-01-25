@@ -181,8 +181,8 @@ Before completing:
 - `tests/unit/test_resource_service.py`
 
 **Modified:**
-- `registry/api/__init__.py` (added router)
-- `registry/api/dependencies.py` (added dependency)
+- `registry/main.py` (added router registration)
+- `registry/core/dependencies.py` (added service dependency)
 
 ### Tests Added
 - `tests/unit/test_resource_service.py`

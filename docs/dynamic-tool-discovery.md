@@ -108,11 +108,12 @@ Agent developers can directly call the `intelligent_tool_finder` in their code t
 
 #### Basic Discovery
 
+When using `intelligent_tool_finder` via MCP, authentication is handled automatically through the MCP context:
+
 ```python
-# Basic usage with session cookie
+# Basic usage via MCP (authentication handled automatically)
 tools = await intelligent_tool_finder(
-    natural_language_query="what time is it in Tokyo",
-    session_cookie="your_session_cookie_here"
+    natural_language_query="what time is it in Tokyo"
 )
 
 # Returns information about relevant tools:
@@ -130,23 +131,24 @@ tools = await intelligent_tool_finder(
 #### Advanced Discovery
 
 ```python
-# Advanced usage with multiple results
+# Advanced usage with tag filtering and multiple results
 tools = await intelligent_tool_finder(
     natural_language_query="stock market information and financial data",
-    username="admin",
-    password="your_password",
+    tags=["finance", "market"],  # Optional: only use if user explicitly provides tags
     top_k_services=5,
     top_n_tools=3
 )
 ```
 
-#### Complete Workflow
+#### Complete Workflow (Agent Framework)
+
+When using the Python agent framework in `agents/`, use `search_registry_tools` and `invoke_mcp_tool`:
 
 ```python
 # 1. Discover tools for weather information
-weather_tools = await intelligent_tool_finder(
-    natural_language_query="weather forecast for tomorrow",
-    session_cookie="your_session_cookie"
+weather_tools = await search_registry_tools(
+    query="weather forecast for tomorrow",
+    max_results=3
 )
 
 # 2. Use the discovered tool
@@ -155,16 +157,13 @@ if weather_tools:
 
     result = await invoke_mcp_tool(
         mcp_registry_url="https://your-registry.com/mcpgw/sse",
-        server_name=tool_info["service_path"],  # e.g., "/weather"
-        tool_name=tool_info["tool_name"],       # e.g., "get_forecast"
-        arguments={"location": "New York", "days": 1},
-        auth_token=auth_token,
-        user_pool_id=user_pool_id,
-        client_id=client_id,
-        region=region,
-        auth_method="m2m"
+        server_name=tool_info["server_path"],  # e.g., "/weather"
+        tool_name=tool_info["tool_name"],      # e.g., "get_forecast"
+        arguments={"location": "New York", "days": 1}
     )
 ```
+
+**Note:** Authentication is configured via the agent settings and applied automatically.
 
 ### 2. Agent Integration
 
@@ -225,20 +224,20 @@ This integration enables agents to have **limitless capabilities** - they can ha
 
 ### intelligent_tool_finder
 
-Finds the most relevant MCP tool(s) across all registered and enabled services based on a natural language query.
+Finds the most relevant MCP tool(s) across all registered and enabled services based on a natural language query and/or tag filtering.
 
 #### Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `natural_language_query` | `str` | Yes | Your query in natural language describing the task you want to perform |
-| `username` | `str` | No* | Username for mcpgw server authentication |
-| `password` | `str` | No* | Password for mcpgw server authentication |
-| `session_cookie` | `str` | No* | Session cookie for registry authentication |
+| `natural_language_query` | `str` | No* | Your query in natural language describing the task you want to perform |
+| `tags` | `list[str]` | No* | List of tags to filter tools by using AND logic. Only use if user explicitly provides tags |
 | `top_k_services` | `int` | No | Number of top services to consider from initial vector search (default: 3) |
 | `top_n_tools` | `int` | No | Number of best matching tools to return (default: 1) |
 
-*Either `session_cookie` OR (`username` AND `password`) must be provided for authentication.
+*Either `natural_language_query` OR `tags` (or both) must be provided.
+
+**Note:** When accessed via MCP, authentication is handled automatically through the MCP context.
 
 #### Returns
 
@@ -270,19 +269,23 @@ A list of dictionaries, each describing a recommended tool:
 #### Example Usage
 
 ```python
-# Basic usage with session cookie
+# Basic usage with natural language query
 tools = await intelligent_tool_finder(
-    natural_language_query="what time is it in Tokyo",
-    session_cookie="your_session_cookie_here"
+    natural_language_query="what time is it in Tokyo"
 )
 
-# Advanced usage with multiple results
+# Advanced usage with multiple results and tag filtering
 tools = await intelligent_tool_finder(
     natural_language_query="stock market information and financial data",
-    username="admin",
-    password="your_password",
+    tags=["finance"],  # Only use if user explicitly provides tags
     top_k_services=5,
     top_n_tools=3
+)
+
+# Pure tag-based filtering (when user provides tags without a query)
+tools = await intelligent_tool_finder(
+    tags=["database", "analytics"],
+    top_n_tools=10
 )
 ```
 
@@ -324,10 +327,14 @@ if query_token in doc["path"]:
     text_boost += 5.0  # Strong boost for path matches
 if query_token in doc["name"]:
     text_boost += 3.0  # Moderate boost for name matches
+if query_token in doc["description"]:
+    text_boost += 2.0  # Description match boost
+if query_token in doc["tags"]:
+    text_boost += 1.5  # Tag match boost
 
 # 4. Combine vector similarity with keyword boost
 normalized_vector_score = (vector_score + 1.0) / 2.0  # Normalize to [0, 1]
-relevance_score = normalized_vector_score + (text_boost * 0.1)
+relevance_score = normalized_vector_score + (text_boost * 0.05)
 
 # 5. Return ranked results
 ranked_tools = sorted(tools_with_scores, key=lambda x: x["relevance_score"], reverse=True)

@@ -257,6 +257,6 @@ After setting up Keycloak:
 
 1. Generate tokens for your agents: See [Token Management](../credentials-provider/README.md)
 2. Configure your AI agents: See [Agent Configuration](../agents/README.md)
-3. Test the integration: See [Testing Guide](../docs/testing.md)
+3. Test the integration: See [Testing Guide](../docs/testing/README.md)
 
 For detailed documentation, see [Keycloak Integration Guide](../docs/keycloak-integration.md)

@@ -466,11 +466,17 @@ For local sentence-transformers, download the model (~90MB):
 
 ```bash
 # Download the embeddings model (this may take a few minutes)
+# Option 1: Using hf CLI shortcut (if available)
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
+
+# Option 2: Using huggingface-cli (alternative)
+# huggingface-cli download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 
 # Verify the model was downloaded
 ls -la ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2/
 ```
+
+**Note**: The `hf` command is a shortcut installed by the `huggingface-hub` package. If not available, use `huggingface-cli` instead.
 
 #### Option B: Cloud-Based Embeddings
 
@@ -713,8 +719,8 @@ chmod +x keycloak/setup/setup-agent-service-account.sh
 # - Create individual env files: .oauth-tokens/<client-id>.env
 # - Display a summary of all credentials saved
 
-# Or to get just one specific client:
-./keycloak/setup/get-agent-credentials.sh agent-test-agent-m2m
+# View credentials for a specific agent after retrieval:
+cat .oauth-tokens/agent-test-agent-m2m.json
 ```
 
 **Important**: Save the Client ID and Client Secret shown in the output. You'll need these to authenticate your AI agents.
@@ -1418,7 +1424,7 @@ docker compose exec auth-server curl -f http://keycloak:8080/health/ready
 docker compose logs registry | tail -50
 
 # Rebuild registry frontend
-cd ~/workspace/mcp-registry-gateway/registry
+cd ~/workspace/mcp-registry-gateway/frontend
 npm install
 npm run build
 cd ..

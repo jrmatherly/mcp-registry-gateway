@@ -364,7 +364,7 @@ Import a scope from JSON file:
 
 ```bash
 uv run python api/registry_management.py \
-  --token-file .token \
+  --token-file .oauth-tokens/ingress.json \
   --registry-url https://registry.example.com \
   import-group cli/examples/public-mcp-users.json
 ```
@@ -373,7 +373,7 @@ List all scopes:
 
 ```bash
 uv run python api/registry_management.py \
-  --token-file .token \
+  --token-file .oauth-tokens/ingress.json \
   --registry-url https://registry.example.com \
   list-groups
 ```
@@ -439,7 +439,7 @@ When using Microsoft Entra ID (Azure AD) as the identity provider:
 1. Check group membership in IdP (Keycloak/Entra)
 2. Verify `group_mappings` includes the correct group name/ID
 3. Check registry logs for scope mapping messages
-4. Use the debug endpoint: `GET /api/debug/user-context`
+4. Use the `debug_auth_context` MCP tool via the mcpgw server to inspect user context
 
 ### Scope Not Found
 

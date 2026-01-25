@@ -18,12 +18,13 @@ This FAQ addresses common questions from different user personas working with th
 
 **A:** You can discover tools in several ways:
 
-1. **Dynamic Tool Discovery** (Recommended): Use the [`intelligent_tool_finder`](dynamic-tool-discovery.md) tool with natural language queries:
+1. **Dynamic Tool Discovery** (Recommended): Use the [`intelligent_tool_finder`](dynamic-tool-discovery.md) tool with natural language queries. When accessed via MCP, authentication is handled automatically through the MCP context:
 
    ```python
+   # Via MCP server connection (authentication handled automatically)
    tools = await intelligent_tool_finder(
        natural_language_query="get current time in different timezones",
-       session_cookie="your_session_cookie"
+       top_n_tools=3
    )
    ```
 
@@ -104,25 +105,26 @@ headers = {
 
 **A:** Use the Dynamic Tool Discovery feature:
 
-1. **In your agent code**:
+1. **In your agent code** (using the agents framework):
 
    ```python
-   # Let your agent discover tools autonomously
-   tools = await intelligent_tool_finder(
-       natural_language_query="I need to get stock market data",
-       session_cookie=session_cookie,
-       top_n_tools=3
+   # Use search_registry_tools to discover tools
+   tools = await search_registry_tools(
+       query="I need to get stock market data",
+       max_results=3
    )
 
    # Then invoke the discovered tool
    if tools:
        result = await invoke_mcp_tool(
-           server_name=tools[0]["service_path"],
+           mcp_registry_url="https://your-gateway.com/mcpgw/sse",
+           server_name=tools[0]["server_path"],
            tool_name=tools[0]["tool_name"],
-           arguments={"symbol": "AAPL"},
-           # ... auth parameters
+           arguments={"symbol": "AAPL"}
        )
    ```
+
+   **Note:** When using the MCP server directly via `intelligent_tool_finder`, authentication is handled automatically through the MCP context.
 
 2. **Configure your agent** with tool discovery capabilities as shown in the [Dynamic Tool Discovery guide](dynamic-tool-discovery.md).
 

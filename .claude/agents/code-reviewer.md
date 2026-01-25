@@ -124,9 +124,9 @@ Review code with a focus on maintainability, readability, and correctness. Think
 
 When reviewing unfamiliar code areas, selectively load relevant sections from `docs/llms.txt`:
 
-- **API Routes**: `Read docs/llms.txt offset=200 limit=150`
-- **Repository Patterns**: `Read docs/llms.txt offset=600 limit=100`
-- **Testing Patterns**: `Read docs/llms.txt offset=2000 limit=150`
+- **API Routes**: `Read docs/llms.txt offset=680 limit=100` (Agent routes start at ~685)
+- **Repository Patterns**: `Read docs/llms.txt offset=245 limit=80` (Repository pattern at ~250)
+- **Testing Patterns**: `Read docs/llms.txt offset=1775 limit=100` (Testing architecture at ~1778)
 
 Load only when needed for context on specific components.
 

@@ -43,6 +43,7 @@ source .venv/bin/activate
 # 3. (Optional) Download local embeddings model
 # Skip this step if using cloud APIs (OpenAI, Bedrock) - see docs/embeddings.md
 uv pip install -U huggingface_hub
+# Use 'hf' or 'huggingface-cli' depending on your installation
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 
 # 4. Configure environment - edit .env with your passwords
@@ -627,8 +628,8 @@ graph TB
 3. **Test Authentication**
 
    ```bash
-   cd tests
-   ./mcp_cmds.sh ping
+   # Verify the MCP Gateway is responding
+   curl -f http://localhost:7860/health
    ```
 
 ### Configure AI Coding Assistants

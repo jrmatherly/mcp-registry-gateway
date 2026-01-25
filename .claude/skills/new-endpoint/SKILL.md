@@ -24,7 +24,7 @@ from registry.schemas.your_resource import (
     YourResourceUpdate,
 )
 from registry.services.your_resource_service import YourResourceService
-from registry.api.dependencies import get_your_resource_service
+from registry.core.dependencies import get_your_resource_service
 
 router = APIRouter(prefix="/your-resources", tags=["your-resources"])
 
@@ -121,10 +121,11 @@ Add methods to existing repository or create new one.
 Create `registry/api/your_resource.py` with endpoints.
 
 ### 5. Register Router
-Add to `registry/api/__init__.py`:
+Add to `registry/main.py` (after other router imports):
 ```python
 from registry.api.your_resource import router as your_resource_router
-app.include_router(your_resource_router)
+# ...
+app.include_router(your_resource_router, prefix="/api", tags=["Your Resources"])
 ```
 
 ### 6. Add Tests

@@ -333,9 +333,9 @@ This ensures test data is:
 
 ## Coverage Goals
 
-- Minimum coverage: 80%
-- Target coverage: 90%+
-- Critical paths: 100%
+- Minimum enforced: 35% (configured in pyproject.toml)
+- Current coverage: ~35%
+- Target: Incremental improvement focused on critical paths
 
 Run coverage report:
 

@@ -325,8 +325,11 @@ tail -f ~/.vscode/logs/mcp.log
 **Connection Failures:**
 
 ```bash
-# Test gateway connectivity
-./tests/mcp_cmds.sh ping
+# Test gateway health
+curl -f http://localhost:7860/health
+
+# Test MCP connectivity with authentication
+uv run python cli/mcp_client.py --url http://localhost:7860/mcp --token-file .token --operation ping
 
 # Verify SSL certificates (if using HTTPS)
 openssl s_client -connect your-gateway.com:443

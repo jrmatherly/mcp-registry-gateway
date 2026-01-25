@@ -135,9 +135,9 @@ docker compose up -d mongodb
 
 ## Expected Results
 
-- **Passed**: ~701 tests
-- **Skipped**: ~57 tests (known issues)
-- **Coverage**: ~39.50%
+- **Passed**: ~870 tests
+- **Skipped**: Some tests (known issues)
+- **Coverage**: Varies by environment (35% minimum threshold)
 - **Duration**: ~30 seconds (parallel)
 
 ## Handling Failures

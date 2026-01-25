@@ -545,18 +545,18 @@ This guide provides comprehensive coverage of Amazon Cognito setup for both auth
 
 After completing the Cognito setup and obtaining your client ID and secret, you need to configure the agent environment files to use these credentials.
 
-### Step 1: Copy Template to Environment File
+### Step 1: Create Environment File
 
-Navigate to the `agents/` directory and copy the template file:
+Navigate to the `agents/` directory and create the environment file:
 
 ```bash
 cd agents/
-cp .env.template .env.user
+touch .env.user
 ```
 
 ### Step 2: Configure Client Credentials
 
-Edit the [`agents/.env.user`](../agents/.env.user) file with your Cognito credentials obtained from the [User Group Setup](#user-group-setup-for-users-and-agents-using-user-identity) section:
+Edit the `agents/.env.user` file with your Cognito credentials obtained from the [User Group Setup](#user-group-setup-for-users-and-agents-using-user-identity) section:
 
 ```bash
 # Cognito Authentication Configuration
@@ -582,7 +582,7 @@ AWS_REGION=us-east-1
 # To generate: python -c 'import secrets; print(secrets.token_hex(32))'
 SECRET_KEY=your-secret-key-here
 
-# Either http://localhost:8000 or the HTTPS URL of your deployed MCP Gateway
+# Either http://localhost:7860 or the HTTPS URL of your deployed MCP Gateway
 REGISTRY_URL=your_registry_url_here
 ```
 

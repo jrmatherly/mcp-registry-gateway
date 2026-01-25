@@ -37,8 +37,8 @@ async def get_server(
 
 ## Dependency Injection
 - Use `Depends()` for service injection
-- Define auth dependencies in `registry/auth/dependencies.py`
-- Define core dependencies in `registry/core/dependencies.py`
+- Service dependencies (get_server_service, etc.) are in `registry/core/dependencies.py`
+- Auth dependencies (get_current_user, api_auth) are in `registry/auth/dependencies.py`
 - Use `Annotated` for cleaner type hints
 
 ```python

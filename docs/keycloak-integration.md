@@ -505,7 +505,7 @@ open https://mcpgateway.ddns.net/admin
 # - mcp-servers-restricted (limited access)
 
 # Generate new token to reflect changes
-uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
+uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
 ```
 
 #### Updating Scopes Configuration
@@ -537,7 +537,7 @@ docker compose logs auth-server | grep -i scope
   --group <mcp-servers-restricted|mcp-servers-unrestricted>
 
 # Step 2: Generate initial token
-uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
+uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
 
 # Step 3: Validate setup
 ./test-keycloak-mcp.sh --agent-id <agent-id>
@@ -555,7 +555,7 @@ echo "<agent-id>,<group>,<created-date>,<purpose>" >> docs/agent-inventory.csv
 # 3. Join new group
 # 4. Generate new token
 
-uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
+uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
 ```
 
 #### Agent Decommissioning
@@ -679,7 +679,7 @@ docker compose logs -f auth-server | grep -E "Token validation|Groups.*mapped|Ac
 # - "Token has expired" in logs
 
 # Solution:
-uv run uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
+uv run python credentials-provider/token_refresher.py --agent-id <agent-id>
 ```
 
 #### Issue: Service Account Missing

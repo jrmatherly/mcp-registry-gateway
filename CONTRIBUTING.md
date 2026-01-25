@@ -10,7 +10,7 @@ information to effectively respond to your bug report or contribution.
 
 Before contributing, ensure you have the following installed:
 
-- Python 3.11+
+- Python 3.11-3.13 (3.14+ not yet supported)
 - [uv](https://github.com/astral-sh/uv) package manager
 - Docker or Podman
 - Git
@@ -28,7 +28,7 @@ uv sync --dev --all-extras
 # Start MongoDB
 docker compose up -d mongodb
 
-# Run tests to verify setup
+# Run tests to verify setup (~870 tests, 35% minimum coverage)
 uv run pytest tests/ -n 8
 
 # Build documentation locally (optional)
@@ -36,6 +36,9 @@ uv run mkdocs serve
 
 # Format and lint code
 uv run ruff check --fix . && uv run ruff format .
+
+# Type check (required before submitting PRs)
+uv run mypy registry/
 ```
 
 **Dependency Groups:**

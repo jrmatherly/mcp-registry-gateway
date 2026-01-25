@@ -2,6 +2,8 @@
 
 This document provides a comprehensive reference for all configuration files in the MCP Gateway Registry project. Each configuration file serves a specific purpose in the authentication and operation of the system.
 
+> **Security Note**: All secrets, passwords, and API keys shown in this documentation are **examples only**. Never use example values in production. Always generate unique, secure credentials for your deployment.
+
 ## Configuration Files Overview
 
 | File | Purpose | Type | Location | Example File | User Modification |
@@ -640,8 +642,7 @@ cd credentials-provider
 ./generate_creds.sh --verbose
 
 # Test MCP gateway connectivity
-cd tests
-./tests/mcp_cmds.sh ping
+curl -f http://localhost:7860/health
 
 # Check configuration files
 python -c "import yaml; yaml.safe_load(open('file.yml'))"  # YAML validation

@@ -52,8 +52,9 @@ Agent Application (AI Code)
     ↓
 ┌─────────────────────────────────────┐
 │  Agent State Management             │
-│  - registry/agents/agent_state.json │
-│  - registry/agents/{name}.json      │
+│  Storage backend (configurable):    │
+│  - File: registry/repositories/file │
+│  - MongoDB: documentdb backend      │
 └─────────────────────────────────────┘
 ```
 
@@ -89,7 +90,7 @@ The A2A implementation uses **three-tier access control** to ensure agents only 
 uv run python cli/agent_mgmt.py register cli/examples/code_reviewer_agent.json
 
 # 3. Verify registration
-curl -H "Authorization: Bearer $(jq -r '.access_token' .oauth-tokens/admin-bot-token.json)" \
+curl -H "Authorization: Bearer $(jq -r '.access_token' .oauth-tokens/ingress.json)" \
   http://localhost/api/agents | jq .
 ```
 
@@ -153,56 +154,53 @@ See [A2A Agent Management](a2a-agent-management.md) for complete CLI guide.
 
 ### Agent CRUD Test Script
 
-Simple script to test all agent operations:
+Use the pytest test suite to verify agent operations:
 
 ```bash
-# Generate fresh credentials
-./credentials-provider/generate_creds.sh
+# Run all agent-related unit tests
+uv run pytest tests/unit/api/ -v -k agent
 
-# Run CRUD tests
-bash tests/agent_crud_test.sh
-
-# With custom token
-bash tests/agent_crud_test.sh /path/to/token.json
-
-# With environment variable
-TOKEN_FILE=/path/to/token.json bash tests/agent_crud_test.sh
+# Run with coverage
+uv run pytest tests/unit/ -n 8 --cov=registry --cov-report=term-missing
 ```
 
-Tests all 9 CRUD operations:
+Agent CRUD operations are tested via:
 
-1. CREATE - Register new agent
-2. READ - Retrieve agent details
-3. UPDATE - Modify agent metadata
-4. LIST - List all agents
-5. TOGGLE - Disable agent
-6. TOGGLE - Re-enable agent
-7. DELETE - Remove agent
-8. VERIFY - Confirm deletion
-9. RE-CREATE - Restore agent
+1. CREATE - Register new agent (`POST /api/agents`)
+2. READ - Retrieve agent details (`GET /api/agents/{id}`)
+3. UPDATE - Modify agent metadata (`PUT /api/agents/{id}`)
+4. LIST - List all agents (`GET /api/agents`)
+5. TOGGLE - Disable/enable agent (`PATCH /api/agents/{id}`)
+6. DELETE - Remove agent (`DELETE /api/agents/{id}`)
 
-See [Test Quick Reference](../tests/TEST_QUICK_REFERENCE.md) for details.
+See [tests/README.md](../tests/README.md) for complete testing documentation.
 
 ### Access Control Testing
 
-Test that agents only access agents they're authorized for:
+Test agent access control with pytest:
 
 ```bash
-# Generate tokens for all bots
+# Run auth-related tests
+uv run pytest tests/unit/auth/ -v
+
+# Run integration tests for access control
+uv run pytest tests/integration/ -v -k agent
+```
+
+Tests verify:
+
+- **Token Validation** - JWT authentication and authorization
+- **Scope Enforcement** - Permission checking per endpoint
+- **Group-Based Access** - Team isolation and visibility
+
+For manual testing with different bot tokens:
+
+```bash
+# Generate tokens for testing access control
 ./keycloak/setup/generate-agent-token.sh admin-bot
 ./keycloak/setup/generate-agent-token.sh lob1-bot
 ./keycloak/setup/generate-agent-token.sh lob2-bot
-
-# Run 14 comprehensive access control tests
-bash tests/run-lob-bot-tests.sh
 ```
-
-Tests include:
-
-- **MCP Service Access** (Tests 1-6) - Verify service permissions
-- **Agent Registry API** (Tests 7-14) - Verify agent visibility and access
-
-See [LOB Bot Access Control Testing](../tests/lob-bot-access-control-testing.md) for detailed test documentation.
 
 ## Implementation Details
 
@@ -222,7 +220,7 @@ See [LOB Bot Access Control Testing](../tests/lob-bot-access-control-testing.md)
 - Token validation and authentication
 - Agent state persistence and management
 
-**Data Models** (`registry/models/`)
+**Data Models** (`registry/schemas/`)
 
 - Agent schema validation
 - Skill/capability definitions
@@ -242,7 +240,7 @@ See [LOB Bot Access Control Testing](../tests/lob-bot-access-control-testing.md)
 - **Base64 Padding** - Proper JWT payload decoding
 - **HTTP Status Codes** - Correct semantics (200, 201, 204, 400, 403, 404)
 - **Error Messages** - Comprehensive debugging information
-- **File-Based Persistence** - Simple, reliable agent state storage
+- **Configurable Storage** - File-based or MongoDB/DocumentDB backend
 - **Keycloak Integration** - Enterprise authentication and authorization
 
 ### Token Management
@@ -315,8 +313,7 @@ Continues with confidence in code quality
 ## Documentation
 
 - **[A2A Agent Management](a2a-agent-management.md)** - Complete CLI guide and examples
-- **[Agent CRUD Test](../tests/TEST_QUICK_REFERENCE.md#agent-crud-test)** - Testing CRUD operations
-- **[LOB Bot Access Control Testing](../tests/lob-bot-access-control-testing.md)** - Testing access control
+- **[Test Documentation](../tests/README.md)** - Complete test infrastructure guide
 - **[Scopes Configuration](../auth_server/scopes.yml)** - Permission definitions
 - **[LLM Navigation Guide](llms.txt#section-45)** - For AI systems understanding implementation
 
@@ -325,8 +322,8 @@ Continues with confidence in code quality
 For issues or questions:
 
 1. **Review Documentation** - Check [A2A Agent Management](a2a-agent-management.md)
-2. **Run Tests** - Verify setup with `bash tests/agent_crud_test.sh`
-3. **Check Access Control** - Run `bash tests/run-lob-bot-tests.sh`
+2. **Run Tests** - Verify setup with `uv run pytest tests/unit/api/ -v -k agent`
+3. **Check Access Control** - Run `uv run pytest tests/unit/auth/ -v`
 4. **Review Logs** - Check `/tmp/*_*.log` for error details
 5. **Create Issue** - Include test output and logs
 

@@ -405,7 +405,7 @@ Database and storage settings.
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `STORAGE_BACKEND` | Yes | `mongodb-ce` | Backend: `file`, `mongodb-ce`, or `documentdb` |
+| `STORAGE_BACKEND` | Yes | `file` | Backend: `file`, `mongodb-ce`, or `documentdb` |
 
 ### Storage Backend Options
 

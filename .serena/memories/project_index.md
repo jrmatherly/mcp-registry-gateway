@@ -29,7 +29,7 @@ API Routes → Services → Repositories → Storage Backends
 - **Factory Pattern**: Repository instantiation via `registry/repositories/factory.py`
 - **Repository Pattern**: Abstract data access via `registry/repositories/interfaces.py`
 - **Service Layer**: Business logic separation in `registry/services/`
-- **Dependency Injection**: FastAPI dependencies in `registry/auth/dependencies.py`
+- **- **Dependency Injection**: FastAPI dependencies in `registry/core/dependencies.py` (services) and `registry/auth/dependencies.py` (auth)
 
 ---
 
@@ -59,7 +59,7 @@ The web UI is built with modern frontend technologies (upgraded January 2026).
 | `src/pages/` | Page components |
 | `src/hooks/` | Custom React hooks |
 | `src/utils/` | Utility functions |
-| `dist/` | Production build output |
+| `build/` | Production build output |
 
 ### Build Commands
 ```bash
@@ -83,8 +83,8 @@ cd frontend && npm run test:coverage
 ```
 
 ### Integration with Registry
-- Frontend build output (`dist/`) served by FastAPI
-- Static assets in `dist/assets/` (Vite convention)
+- Frontend build output (`build/`) served by FastAPI
+- Static assets in `build/assets/` (custom Vite config)
 - API calls to registry backend at same origin
 - Authentication via session cookies
 
@@ -202,6 +202,7 @@ cd frontend && npm run test:coverage
 | `registry/services/agent_scanner.py` | `AgentScannerService` | A2A agent scanning |
 | `registry/services/scope_service.py` | Scope management | Access control |
 | `registry/services/transform_service.py` | Data transformation | Server data conversion |
+| `registry/services/agent_transform_service.py` | Agent transformation | Agent data conversion |
 
 ### ServerService Methods
 - `register_server()` - Register new MCP server
@@ -395,5 +396,5 @@ uv run pytest tests/ -n 8 --cov=registry --cov-report=term-missing
 | Templates | `registry/templates/` |
 | Static Assets (logos) | `registry/static/` |
 | Frontend Source | `frontend/src/` |
-| Frontend Build | `frontend/dist/` |
+| Frontend Build | `frontend/build/` |
 | Tests | `tests/` |

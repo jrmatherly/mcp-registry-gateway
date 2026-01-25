@@ -250,12 +250,13 @@ Enable detailed federation logging:
 
 ```bash
 # Add to .env
-FEDERATION_DEBUG=true
 LOG_LEVEL=DEBUG
 
 # Restart services
 docker compose restart registry
 ```
+
+**Note:** Set `LOG_LEVEL=DEBUG` to enable verbose logging for federation operations.
 
 ### Log Analysis
 

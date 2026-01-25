@@ -2,7 +2,7 @@
 
 ## Testing Framework
 - Use `pytest` as the primary testing framework
-- Maintain minimum 80% code coverage
+- Maintain minimum 35% code coverage (enforced via CI)
 - Use `pytest-cov` for coverage reporting
 - Use `pytest-asyncio` for async tests
 - Use `pytest-xdist` for parallel execution
@@ -71,9 +71,9 @@ Always run the full test suite before submitting a pull request:
 uv run pytest tests/ -n 8
 
 # Expected output:
-# - 701 passed
-# - 57 skipped
-# - Coverage: ~39.50%
+# - ~850+ passed
+# - ~20 skipped
+# - Coverage: ~42%
 # - Execution time: ~30 seconds
 ```
 

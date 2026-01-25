@@ -293,13 +293,11 @@ If you get connection errors:
 
 ## Storage
 
-After registration, agent files are stored in:
+Agents are stored in the MongoDB/DocumentDB database in the `agents` collection. View registered agents via:
 
-```bash
-ls registry/agents/
-cat registry/agents/test-reviewer.json
-cat registry/agents/agent_state.json
-```
+- **Web UI**: Browse the frontend dashboard at `http://localhost:5173`
+- **API**: Query the agents endpoint: `curl http://localhost:8000/api/v1/agents`
+- **CLI**: List agents with: `uv run python cli/agent_mgmt.py list`
 
 ## Next Steps
 
@@ -308,4 +306,4 @@ cat registry/agents/agent_state.json
 3. Test agent accessibility
 4. Explore the admin panel for agent management
 
-For complete documentation, see: `.scratchpad/A2A_AGENT_CLI_REGISTRATION_GUIDE.md`
+For complete documentation, see: [A2A Protocol Documentation](../../docs/a2a.md)

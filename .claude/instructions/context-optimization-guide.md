@@ -208,15 +208,16 @@ Well-structured sessions use ~50% fewer tokens than naive context loading:
 
 ## Deep Context: docs/llms.txt
 
-When Serena memories don't provide enough context, `docs/llms.txt` (~2,500 lines) has comprehensive project documentation. **Load selectively by section:**
+When Serena memories don't provide enough context, `docs/llms.txt` (~2,545 lines) has comprehensive project documentation. **Load selectively by section:**
 
 | Section | Read Command | Use Case |
 |---------|--------------|----------|
-| Overview & Structure | `Read docs/llms.txt offset=1 limit=150` | Understanding project layout |
-| API Routes | `Read docs/llms.txt offset=200 limit=150` | API development |
-| Authentication | `Read docs/llms.txt offset=500 limit=150` | Auth implementation |
-| Database & Storage | `Read docs/llms.txt offset=900 limit=150` | Repository work |
-| Deployment | `Read docs/llms.txt offset=1500 limit=150` | Infrastructure changes |
-| Testing Patterns | `Read docs/llms.txt offset=2000 limit=150` | Writing complex tests |
+| Overview & Structure | `Read docs/llms.txt offset=1 limit=120` | Understanding project layout |
+| Storage & Repository | `Read docs/llms.txt offset=245 limit=100` | Repository patterns |
+| Authentication | `Read docs/llms.txt offset=349 limit=100` | Auth system (3-layer auth) |
+| Agent API Routes | `Read docs/llms.txt offset=680 limit=80` | Agent routes development |
+| OAuth Configuration | `Read docs/llms.txt offset=1070 limit=80` | OAuth provider setup |
+| Deployment | `Read docs/llms.txt offset=1585 limit=100` | ECS/EKS deployment |
+| Testing Patterns | `Read docs/llms.txt offset=1775 limit=80` | pytest patterns |
 
 **Warning**: Never load the entire file - it will consume significant context (~5,000+ tokens).

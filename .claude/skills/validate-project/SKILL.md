@@ -63,7 +63,7 @@ Runs full test suite in parallel.
 | Ruff check | No errors |
 | Bandit | No high/critical issues |
 | MyPy | No errors |
-| Pytest | 701 passed, ~57 skipped |
+| Pytest | ~850+ passed, ~20 skipped |
 
 ## References
 

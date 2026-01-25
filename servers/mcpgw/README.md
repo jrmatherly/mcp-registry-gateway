@@ -43,7 +43,7 @@ Exposes the following registry API endpoints as MCP tools:
     - `REGISTRY_USERNAME`: The username for authenticating with the registry API (defaults to `admin` if not set).
     - `REGISTRY_PASSWORD`: The password for authenticating with the registry API (defaults to `password` if not set).
 
-    You can also uncomment and set `MCP_SERVER_LISTEN_PORT` if you don't want to use the default port 8000 (as defined in `server.py`).
+    You can also uncomment and set `MCP_SERVER_LISTEN_PORT` if you don't want to use the default port 8003 (as defined in `server.py`).
 
 ## Running the Server
 
@@ -51,7 +51,7 @@ Exposes the following registry API endpoints as MCP tools:
 python server.py
 ```
 
-The server will start and listen on the configured port (default 8001).
+The server will start and listen on the configured port (default 8003).
 
 ## Running the Client (Example)
 

@@ -255,17 +255,18 @@ Human users can generate API tokens for programmatic access (CLI tools, AI codin
 ### 2.3 Using the Token with CLI Tools
 
 ```bash
-# Save token to file
-echo "eyJhbGciOiJIUzI1NiIs..." > .token
+# Save token to file (UI-generated tokens can be saved to any file)
+echo "eyJhbGciOiJIUzI1NiIs..." > .oauth-tokens/ui-token.json
 
 # Use with registry_management.py
 uv run python api/registry_management.py \
-  --token-file .token \
+  --token-file .oauth-tokens/ui-token.json \
   --registry-url http://localhost \
   server-search --query "documentation"
 
-# Use with curl
-curl -H "Authorization: Bearer $(cat .token)" \
+# Use with curl (using M2M token from credentials provider)
+export TOKEN=$(jq -r '.access_token' .oauth-tokens/ingress.json)
+curl -H "Authorization: Bearer $TOKEN" \
   http://localhost/api/servers
 ```
 

@@ -205,6 +205,7 @@ EMBEDDINGS_MODEL_DIMENSIONS=384
 brew install huggingface-cli
 
 # Download the embeddings model (this may take a few minutes)
+# Use 'hf' shortcut or 'huggingface-cli' depending on your installation
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 
 # Verify the model was downloaded
@@ -511,8 +512,8 @@ chmod +x keycloak/setup/setup-agent-service-account.sh
 # - Create individual env files: .oauth-tokens/<client-id>.env
 # - Display a summary of all credentials saved
 
-# Or to get just one specific client:
-./keycloak/setup/get-agent-credentials.sh agent-test-agent-m2m
+# View credentials for a specific agent after retrieval:
+cat .oauth-tokens/agent-test-agent-m2m.json
 ```
 
 **Important**: Save the Client ID and Client Secret shown in the output. You'll need these to authenticate your AI agents.

@@ -89,7 +89,7 @@ Download the sentence-transformers model (~90MB) for local embeddings:
 # Install huggingface_hub if not already installed
 uv pip install -U huggingface_hub
 
-# Download the model
+# Download the model (use 'hf' or 'huggingface-cli' depending on your installation)
 hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ${HOME}/mcp-gateway/models/all-MiniLM-L6-v2
 ```
 

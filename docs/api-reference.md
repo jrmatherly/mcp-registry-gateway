@@ -56,7 +56,7 @@ This document provides a comprehensive overview of all 49 API endpoints availabl
 
 ```bash
 curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ..." \
-  http://localhost/v0.1/agents
+  http://localhost/api/agents
 ```
 
 ---
@@ -417,7 +417,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 
 #### 1. List MCP Servers
 
-**Endpoint:** `GET /v0/servers`
+**Endpoint:** `GET /v0.1/servers`
 
 **Purpose:** List all MCP servers with cursor-based pagination
 
@@ -457,7 +457,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 
 #### 2. List Server Versions
 
-**Endpoint:** `GET /v0/servers/{serverName:path}/versions`
+**Endpoint:** `GET /v0.1/servers/{serverName:path}/versions`
 
 **Purpose:** List all versions for a specific server
 
@@ -475,7 +475,7 @@ This section implements the official [Anthropic MCP Registry API specification](
 
 #### 3. Get Server Version Details
 
-**Endpoint:** `GET /v0/servers/{serverName:path}/versions/{version}`
+**Endpoint:** `GET /v0.1/servers/{serverName:path}/versions/{version}`
 
 **Purpose:** Get detailed information about a specific server version
 
@@ -1228,7 +1228,7 @@ curl -s http://localhost:7860/openapi.json | \
 
 ### I want to list all servers (Anthropic API format)
 
-- **Endpoint:** `GET /v0/servers`
+- **Endpoint:** `GET /v0.1/servers`
 - **Auth:** JWT Bearer Token
 - **Documentation:** See [Anthropic MCP Registry API v0 > List MCP Servers](#1-list-mcp-servers)
 

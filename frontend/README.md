@@ -6,8 +6,8 @@ React-based frontend for the MCP Gateway Registry application.
 
 ### Prerequisites
 
-- Node.js 16+ and npm
-- Backend server running on `http://localhost:7860` (configured in `package.json` proxy)
+- Node.js 18+ and npm
+- Backend server running on `http://localhost:7860` (or configure via Vite proxy)
 
 ### Installation
 
@@ -20,42 +20,22 @@ Note: The postinstall script will automatically apply patches to dependencies.
 ### Running Development Server
 
 ```bash
+npm run dev
+# or
 npm start
 ```
 
-The development server will start on `http://localhost:3000`.
-
-## Important Configuration Notes
-
-### webpack-dev-server v5 Compatibility Patch
-
-This project uses `react-scripts` v5.0.1, which has a compatibility issue with `webpack-dev-server` v5. The project includes a patch to fix this issue.
-
-**Problem**: react-scripts v5.0.1 uses deprecated webpack-dev-server hooks (`onBeforeSetupMiddleware` and `onAfterSetupMiddleware`) that were removed in webpack-dev-server v5.
-
-**Solution**: We use `patch-package` to apply a patch that replaces the deprecated hooks with the modern `setupMiddlewares` API.
-
-**Patch Location**: `patches/react-scripts+5.0.1.patch`
-
-**How it Works**:
-
-1. The patch modifies `node_modules/react-scripts/config/webpackDevServer.config.js`
-2. Replaces deprecated hooks with `setupMiddlewares` function
-3. The patch is automatically applied after `npm install` via the postinstall script
-
-**If you encounter webpack-dev-server errors**:
-
-1. Delete `node_modules` and `package-lock.json`
-2. Run `npm install` to reinstall dependencies and reapply the patch
-3. If the patch fails, check the `patches/react-scripts+5.0.1.patch` file for conflicts
+The Vite development server will start on `http://localhost:5173` (default Vite port).
 
 ## Available Scripts
 
 ### Development
 
-- `npm start` - Start the development server
-- `npm run build` - Build the production bundle
-- `npm run lint` - Run ESLint
+- `npm run dev` or `npm start` - Start the Vite development server
+- `npm run build` - TypeScript compile and Vite production build
+- `npm run lint` - Run Biome linting
+- `npm run lint:fix` - Auto-fix linting issues with Biome
+- `npm run format` - Format code with Biome
 
 ### Testing
 
@@ -67,13 +47,14 @@ This project uses `react-scripts` v5.0.1, which has a compatibility issue with `
 
 ## Tech Stack
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router v6
+- React 19.2
+- TypeScript 5.9
+- Vite 6.0
+- Tailwind CSS 4.1
+- React Router v7
 - Heroicons
 - Axios
+- Biome (linting/formatting)
 
 ### Testing Stack
 

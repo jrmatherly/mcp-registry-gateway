@@ -8,7 +8,7 @@ Running the full test suite with parallel execution can cause Out-of-Memory (OOM
 
 The test suite includes:
 
-- **38 test files** with over 14,000 lines of test code
+- **50+ test files** with extensive test code
 - Heavy dependencies including:
   - Sentence-transformers embedding models (~120-200MB per process)
   - FAISS vector indexes

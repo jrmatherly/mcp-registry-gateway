@@ -199,8 +199,8 @@ logger.error(f"Failed to fetch server {server_id}: {e}")
 
 ## Test Expectations
 
-- **~850+ tests collected**
-- **Coverage**: ~42%
+- **~870 tests collected**
+- **Coverage**: Varies by environment (35% minimum threshold)
 - **Duration**: ~30 seconds (parallel with -n 8)
 
 ## Commit Message Format

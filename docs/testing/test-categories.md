@@ -28,6 +28,7 @@ Tests are organized using pytest markers to enable selective test execution:
 - **`@pytest.mark.search`** - Search and AI functionality tests
 - **`@pytest.mark.health`** - Health monitoring tests
 - **`@pytest.mark.core`** - Core infrastructure tests
+- **`@pytest.mark.repositories`** - Repository layer tests
 
 ### Special Markers
 
@@ -285,7 +286,7 @@ pytest --lf
 
 ## Coverage Requirements
 
-- Minimum overall coverage: 80%
+- Minimum overall coverage: 35%
 - All new code should have tests
 - Critical paths should have 100% coverage
 

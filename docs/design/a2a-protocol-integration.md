@@ -761,7 +761,7 @@ The filtering considers both the user's groups and the agent's visibility settin
 
 This section maps the implementation to actual files and shows how the pieces fit together.
 
-### API Routes (registry/api/agent_routes.py - 838 lines)
+### API Routes (registry/api/agent_routes.py)
 
 This file defines 8 REST API endpoints:
 
@@ -823,7 +823,7 @@ async def discover_agents_semantic(request: Request, query: DiscoveryQuery):
     # 4. Return ranked results
 ```
 
-### Business Logic (registry/services/agent_service.py - 695 lines)
+### Business Logic (registry/services/agent_service.py)
 
 This file handles all agent operations:
 
@@ -866,7 +866,7 @@ class AgentService:
         # Returns list of simplified agent info
 ```
 
-### Data Models (registry/schemas/agent_models.py - 603 lines)
+### Data Models (registry/schemas/agent_models.py)
 
 Pydantic models for validation:
 
@@ -907,7 +907,7 @@ class AgentCard(BaseModel):
     updated_at: Optional[datetime] = None
 ```
 
-### Validation (registry/utils/agent_validator.py - 343 lines)
+### Validation (registry/utils/agent_validator.py)
 
 Ensures agent cards are valid:
 

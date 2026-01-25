@@ -17,7 +17,7 @@ Guide for maintaining a healthy test suite over time.
 
 ### Current Coverage Requirements
 
-The project maintains **80% minimum code coverage** across all source code.
+The project maintains **35% minimum code coverage** across all source code (configured in `pyproject.toml`).
 
 ### Checking Current Coverage
 
@@ -316,7 +316,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install uv
         run: pip install uv
@@ -619,7 +619,7 @@ Deprecate tests when:
 
 Key maintenance tasks:
 
-1. Monitor and maintain 80% coverage
+1. Monitor and maintain 35% coverage (minimum threshold)
 2. Keep tests fast and reliable
 3. Fix flaky tests immediately
 4. Ensure test isolation

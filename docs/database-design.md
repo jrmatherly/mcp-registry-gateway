@@ -89,7 +89,7 @@ All collections are suffixed with the configured namespace (e.g., `_default`, `_
 1. **mcp_servers_{namespace}** - Server definitions
 2. **mcp_agents_{namespace}** - Agent cards
 3. **mcp_scopes_{namespace}** - Authorization scopes
-4. **mcp_embeddings_1536_{namespace}** - Vector embeddings
+4. **mcp_embeddings_{dimensions}_{namespace}** - Vector embeddings (e.g., `mcp_embeddings_384_default` for 384d models)
 5. **mcp_security_scans_{namespace}** - Security scan results
 6. **mcp_federation_config_{namespace}** - Federation configuration
 
@@ -434,11 +434,12 @@ Both backends combine:
 **Formula:**
 
 ```
-final_score = vector_score + (text_boost * 0.03)
+final_score = normalized_vector_score + (text_boost * 0.05)
 
 Where:
-  vector_score = cosine_similarity(query_embedding, doc_embedding)  // 0-1
-  text_boost = 3.0 (name match) + 2.0 (description match)           // 0-5
+  normalized_vector_score = (vector_score + 1.0) / 2.0              // Normalize cosine to [0, 1]
+  vector_score = cosine_similarity(query_embedding, doc_embedding)  // [-1, 1]
+  text_boost = 5.0 (path match) + 3.0 (name match) + 2.0 (description match) + 1.5 (tag match) + 1.0 (per tool match)
 ```
 
 ---

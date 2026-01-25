@@ -176,9 +176,9 @@ tests/
 │   ├── core/               # Core functionality tests
 │   └── agents/             # Agent-specific tests
 ├── integration/            # Integration tests (slower)
-│   ├── test_server_integration.py
-│   ├── test_api_integration.py
-│   └── test_e2e_workflows.py
+│   ├── test_mongodb_connectivity.py
+│   ├── test_search_integration.py
+│   └── test_server_lifecycle.py
 ├── fixtures/               # Shared test fixtures
 │   └── factories.py        # Factory functions for test data
 ├── conftest.py             # Shared pytest configuration
@@ -300,7 +300,7 @@ Tests are organized using pytest markers:
 - `@pytest.mark.slow` - Slow tests (> 5 seconds)
 - `@pytest.mark.auth` - Authentication/authorization tests
 - `@pytest.mark.servers` - Server management tests
-- `@pytest.mark.agents` - Agent-specific tests
+- `@pytest.mark.repositories` - Repository layer tests
 - `@pytest.mark.search` - Search functionality tests
 - `@pytest.mark.health` - Health monitoring tests
 
@@ -328,7 +328,7 @@ uv run pytest -m "integration and not slow"
 
 ## Coverage Requirements
 
-The project maintains **80% minimum code coverage**.
+The project maintains **35% minimum code coverage** (configured in `pyproject.toml`).
 
 ### Checking Coverage
 
@@ -353,8 +353,8 @@ Coverage settings are configured in `pyproject.toml`:
 addopts = [
     "--cov=registry",
     "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-fail-under=80",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=35",
 ]
 ```
 
@@ -380,9 +380,10 @@ The project uses GitHub Actions for CI/CD. Test workflows are defined in:
 
 ```
 .github/workflows/
-├── test.yml           # Main test workflow
-├── coverage.yml       # Coverage reporting
-└── integration.yml    # Integration test workflow
+├── registry-test.yml      # Backend registry tests
+├── frontend-test.yml      # Frontend Vitest tests
+├── auth-server-test.yml   # Auth server tests
+└── metrics-service-test.yml # Metrics service tests
 ```
 
 ### Pre-commit Hooks
@@ -390,14 +391,14 @@ The project uses GitHub Actions for CI/CD. Test workflows are defined in:
 Install pre-commit hooks to run tests before commits:
 
 ```bash
-# Install pre-commit
-pip install pre-commit
+# Install pre-commit (using uv)
+uv add --dev pre-commit
 
 # Install hooks
-pre-commit install
+uv run pre-commit install
 
 # Run hooks manually
-pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Troubleshooting
@@ -470,7 +471,7 @@ async def async_client():
 
 #### 7. Coverage Too Low
 
-**Error**: `FAIL Required test coverage of 80% not reached`
+**Error**: `FAIL Required test coverage of 35% not reached`
 
 **Solution**: Add tests for uncovered code:
 

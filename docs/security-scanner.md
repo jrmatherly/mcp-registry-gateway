@@ -57,7 +57,7 @@ uv run python api/registry_management.py --token-file .oauth-tokens/ingress.json
 
 - `SECURITY_SCAN_ENABLED=true` - Enable/disable security scanning (default: true)
 - `SECURITY_SCAN_ON_REGISTRATION=true` - Scan during registration (default: true)
-- `SECURITY_SCAN_BLOCK_UNSAFE_SERVERS=true` - Auto-disable unsafe servers (default: true)
+- `SECURITY_BLOCK_UNSAFE_SERVERS=true` - Auto-disable unsafe servers (default: true)
 - `SECURITY_ANALYZERS=yara` - Comma-separated list of analyzers (default: yara)
 - `SECURITY_SCAN_TIMEOUT=60` - Scan timeout in seconds (default: 60)
 - `MCP_SCANNER_LLM_API_KEY=<key>` - API key for LLM analyzer (optional)
