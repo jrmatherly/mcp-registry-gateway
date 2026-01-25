@@ -2,8 +2,8 @@ apiVersion: v2
 name: registry
 description: MCP Registry service for discovering and managing MCP servers and A2A agents
 type: application
-version: 2.0.12
-appVersion: "2.0.12"
+version: 2.0.13
+appVersion: "2.0.13"
 
 # Project metadata
 home: https://github.com/jrmatherly/mcp-registry-gateway

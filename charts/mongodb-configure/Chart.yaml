@@ -2,8 +2,8 @@ apiVersion: v2
 name: mongodb-configure
 description: Configuration job for MongoDB database and users for MCP Gateway Registry
 type: application
-version: 2.0.12
-appVersion: "2.0.12"
+version: 2.0.13
+appVersion: "2.0.13"
 
 # Project metadata
 home: https://github.com/jrmatherly/mcp-registry-gateway
