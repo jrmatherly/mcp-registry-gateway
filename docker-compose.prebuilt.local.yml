@@ -11,7 +11,12 @@
 services:
   # Registry service (includes nginx, SSL, FAISS, models) - using pre-built image
   registry:
-    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-registry:${REGISTRY_VERSION:-latest}
+    #image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-registry:${REGISTRY_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.registry
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-}
     environment:
       - BUILD_VERSION=${BUILD_VERSION:-}
       - SECRET_KEY=${SECRET_KEY}
@@ -111,7 +116,10 @@ services:
 
   # Metrics Collection Service - using pre-built image
   metrics-service:
-    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-metrics-service:${METRICS_VERSION:-latest}
+    #image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-metrics-service:${METRICS_VERSION:-latest}
+    build:
+      context: metrics-service
+      dockerfile: Dockerfile
     environment:
       - METRICS_SERVICE_PORT=8890
       - METRICS_SERVICE_HOST=0.0.0.0
@@ -141,7 +149,10 @@ services:
 
   # Auth service (separate and scalable) - using pre-built image
   auth-server:
-    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-auth-server:${AUTH_SERVER_VERSION:-latest}
+    #image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-auth-server:${AUTH_SERVER_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.auth
     environment:
       - REGISTRY_URL=${REGISTRY_URL}
       - SECRET_KEY=${SECRET_KEY}
@@ -218,7 +229,12 @@ services:
 
   # Financial Info MCP Server - using pre-built image
   fininfo-server:
-    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-fininfo-server:${FININFO_VERSION:-latest}
+    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-fininfo-server:${FININFO_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server-light
+      args:
+        SERVER_DIR: servers/fininfo
     environment:
       - PORT=8001
       - SECRET_KEY=${SECRET_KEY}
@@ -230,7 +246,12 @@ services:
 
   # MCP Gateway Server - using pre-built image
   mcpgw-server:
-    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-mcpgw-server:${MCPGW_VERSION:-latest}
+    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-mcpgw-server:${MCPGW_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVER_DIR: servers/mcpgw
     environment:
       - PORT=8003
       - REGISTRY_BASE_URL=http://registry:7860
@@ -248,7 +269,12 @@ services:
 
   # Real Server Fake Tools MCP Server - using pre-built image
   realserverfaketools-server:
-    image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-realserverfaketools-server:${REALSERVERFAKETOOLS_VERSION:-latest}
+    # image: ${IMAGE_REGISTRY:-ghcr.io/jrmatherly}/mcp-realserverfaketools-server:${REALSERVERFAKETOOLS_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server-light
+      args:
+        SERVER_DIR: servers/realserverfaketools
     environment:
       - PORT=8002
     ports:

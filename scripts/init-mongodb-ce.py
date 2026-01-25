@@ -523,7 +523,11 @@ async def _initialize_mongodb_ce() -> None:
             else:
                 logger.info(f"  - {coll_name}_{namespace}")
         logger.info("")
-        logger.info("To use MongoDB CE:")
+        logger.info("To use MongoDB CE 8.2+ with native vector search:")
+        logger.info("  export STORAGE_BACKEND=mongodb")
+        logger.info("  docker-compose up registry")
+        logger.info("")
+        logger.info("Or for MongoDB CE < 8.2 (client-side vector similarity):")
         logger.info("  export STORAGE_BACKEND=mongodb-ce")
         logger.info("  docker-compose up registry")
         logger.info("")
