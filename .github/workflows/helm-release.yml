@@ -160,8 +160,8 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           CHART_PACKAGE="${{ matrix.chart }}-${VERSION}.tgz"
 
-          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
-          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}"
 
       - name: Logout from registries
         if: always()
@@ -273,8 +273,8 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           CHART_PACKAGE="mcp-gateway-registry-stack-${VERSION}.tgz"
 
-          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
-          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}/charts"
+          echo "Pushing ${CHART_PACKAGE} to oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}"
+          helm push "${CHART_PACKAGE}" "oci://${{ env.DOCKERHUB_REGISTRY }}/${DOCKERHUB_USERNAME}"
 
       - name: Logout from registries
         if: always()
@@ -328,11 +328,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Chart | OCI URL |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|---------|" >> $GITHUB_STEP_SUMMARY
-          echo "| registry | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/registry:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| auth-server | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/auth-server:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| keycloak-configure | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/keycloak-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| mongodb-configure | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/mongodb-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| mcp-gateway-registry-stack | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/mcp-gateway-registry-stack:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| registry | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/registry:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| auth-server | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/auth-server:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| keycloak-configure | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/keycloak-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mongodb-configure | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/mongodb-configure:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| mcp-gateway-registry-stack | \`oci://${DOCKERHUB}/${DOCKERHUB_USER}/mcp-gateway-registry-stack:${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation (from GHCR)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -350,5 +350,5 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install the full stack:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "helm install mcp-stack oci://${DOCKERHUB}/${DOCKERHUB_USER}/charts/mcp-gateway-registry-stack --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "helm install mcp-stack oci://${DOCKERHUB}/${DOCKERHUB_USER}/mcp-gateway-registry-stack --version ${VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
