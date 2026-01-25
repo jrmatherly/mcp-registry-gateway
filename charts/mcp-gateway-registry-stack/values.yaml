@@ -23,11 +23,70 @@ mongodb-kubernetes:
     telemetry:
       installClusterRole: false
 
-# MongoDB configuration
+# MongoDB CE 8.2+ configuration with native vector search
 mongodb:
   enabled: true
-  user: my-user # username for MongDB
-  password: CHANGEME # Set the password for the MongoDB user
+  name: mongodb  # Name of the MongoDB resource (used for service discovery)
+  version: "8.2.0"  # MongoDB version (8.2+ required for native $vectorSearch)
+  replicas: 3  # Number of replica set members
+
+  # Authentication
+  user: registry  # MongoDB username
+  password: CHANGEME  # MongoDB password - CHANGE IN PRODUCTION
+  auth:
+    enabled: true
+    secretName: mongodb-credentials
+
+  # Resource limits for mongod pods
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+
+  # WiredTiger cache settings
+  wiredTiger:
+    cacheSizeGB: 1  # Adjust based on container memory
+
+  # Persistence for mongod data
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: ""  # Use default storage class
+
+  # Pod disruption budget (enable for production)
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 2
+
+  # Maximum client connections
+  maxConnections: 1000
+
+  # Vector search (mongot) configuration
+  vectorSearch:
+    enabled: true  # Deploy MongoDBSearch CRD for mongot pods
+
+    # Resource limits for mongot pods
+    # Memory sizing: (num_vectors * dimensions * 4 bytes) * 1.25
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "2Gi"
+      limits:
+        cpu: "2"
+        memory: "8Gi"
+
+    # Persistence for mongot index data
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: ""
+
+    # Pod disruption budget for mongot
+    podDisruptionBudget:
+      minAvailable: 1
 
 # Keycloak configuration
 keycloak:
@@ -93,12 +152,48 @@ keycloak-configure:
 # Mongodb configuration job
 mongodb-configure:
   enabled: true # Whether to run the MongoDB configuration job
+  mongodb:
+    # Must match mongodb.name-svc from the MongoDB CRD
+    host: "mongodb-svc"
+    port: 27017
+    database: "mcp_registry"
+    namespace: "default"
+    # Credentials must match mongodb.user and mongodb.password
+    username: "registry"
+    password: "CHANGEME"  # Must match mongodb.password - CHANGE IN PRODUCTION
+    replica_set: "mongodb"  # Matches mongodb.name from the MongoDB CRD
+    use_tls: false
+    storage_backend: "mongodb"  # Matches registry.storage.backend
 
 # Registry service configuration
 registry:
   # app.secretKey and app.authServerUrl will be templated in the subchart using global values
   app:
     replicas: 1
+
+  # Storage backend configuration
+  # Options: "file", "documentdb", "mongodb-ce", "mongodb"
+  #   - mongodb: MongoDB CE 8.2+ with native $vectorSearch (recommended for K8s)
+  storage:
+    backend: "mongodb"
+    mongodb:
+      # Service name matches mongodb.name from the MongoDB CRD
+      # Format: <mongodb.name>-svc.<namespace>.svc.cluster.local
+      host: "mongodb-svc"
+      port: 27017
+      database: "mcp_registry"
+      # Credentials must match mongodb.user and mongodb.password above
+      username: "registry"
+      password: "CHANGEME"  # Must match mongodb.password - CHANGE IN PRODUCTION
+      useTls: false
+      directConnection: false
+      namespace: "default"
+    vectorSearch:
+      enabled: true
+      indexName: "vector_index"
+      similarityMetric: "cosine"
+      numCandidatesMultiplier: 10
+
   ingress:
     enabled: true
     ingressClassName: alb

@@ -17,6 +17,33 @@ app:
   # Security settings - REQUIRED: Override in production
   # secretKey: ""  # Must be provided via --set or values override
 
+# Storage backend configuration
+# Options: "file", "documentdb", "mongodb-ce", "mongodb"
+#   - file: File-based storage with FAISS for vector search
+#   - documentdb: AWS DocumentDB with $search.vectorSearch
+#   - mongodb-ce: MongoDB CE < 8.2 with client-side vector similarity
+#   - mongodb: MongoDB CE 8.2+ with native $vectorSearch (requires mongot)
+storage:
+  backend: "mongodb"
+
+  # MongoDB/DocumentDB connection settings
+  mongodb:
+    host: "mongodb"
+    port: 27017
+    database: "mcp_registry"
+    # username: ""  # Set via --set or external secret
+    # password: ""  # Set via --set or external secret
+    useTls: false
+    directConnection: false
+    namespace: "default"
+
+  # MongoDB CE 8.2+ vector search settings (only used when backend="mongodb")
+  vectorSearch:
+    enabled: true
+    indexName: "vector_index"
+    similarityMetric: "cosine"  # Options: cosine, euclidean, dotProduct
+    numCandidatesMultiplier: 10
+
 # Service account configuration
 serviceAccount:
   # Specifies whether a service account should be created

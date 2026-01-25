@@ -87,7 +87,22 @@ class Settings(BaseSettings):
     a2a_scanner_llm_api_base: str | None = None  # Custom API base URL (e.g., LiteLLM proxy)
 
     # Storage Backend Configuration
-    storage_backend: str = "file"  # Options: "file", "documentdb"
+    # Options:
+    #   - "file": File-based storage with FAISS for vector search
+    #   - "documentdb": AWS DocumentDB with $search.vectorSearch
+    #   - "mongodb-ce": MongoDB CE < 8.2 with client-side vector similarity
+    #   - "mongodb": MongoDB CE 8.2+ with native $vectorSearch (requires mongot)
+    storage_backend: str = "file"
+
+    # MongoDB CE 8.2 Vector Search Configuration (only used when storage_backend="mongodb-ce-82")
+    # Enables native $vectorSearch aggregation stage instead of keyword-based search
+    mongodb_ce_82_native_search: bool = True
+    # Name of the vector search index created via SearchIndexModel
+    mongodb_vector_index_name: str = "vector_index"
+    # Multiplier for numCandidates in $vectorSearch (numCandidates = limit * multiplier)
+    mongodb_vector_num_candidates_multiplier: int = 10
+    # Similarity metric for vector search: "cosine", "euclidean", or "dotProduct"
+    mongodb_vector_similarity_metric: str = "cosine"
 
     # DocumentDB Configuration (only used when storage_backend="documentdb")
     documentdb_host: str = "localhost"

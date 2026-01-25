@@ -164,7 +164,7 @@ services:
       - MCP_SCANNER_LLM_API_KEY=${MCP_SCANNER_LLM_API_KEY}
       # Storage Backend Configuration
       - STORAGE_BACKEND=${STORAGE_BACKEND:-file}
-      # DocumentDB/MongoDB Configuration (when STORAGE_BACKEND=documentdb)
+      # DocumentDB/MongoDB Configuration (when STORAGE_BACKEND=documentdb, mongodb-ce, or mongodb)
       - DOCUMENTDB_HOST=${DOCUMENTDB_HOST:-mongodb}
       - DOCUMENTDB_PORT=${DOCUMENTDB_PORT:-27017}
       - DOCUMENTDB_USERNAME=${DOCUMENTDB_USERNAME}
@@ -176,6 +176,11 @@ services:
       - DOCUMENTDB_USE_IAM=${DOCUMENTDB_USE_IAM:-false}
       - DOCUMENTDB_REPLICA_SET=${DOCUMENTDB_REPLICA_SET:-rs0}
       - DOCUMENTDB_READ_PREFERENCE=${DOCUMENTDB_READ_PREFERENCE:-secondaryPreferred}
+      # MongoDB CE 8.2+ Native Vector Search Configuration
+      - MONGODB_CE_82_NATIVE_SEARCH=${MONGODB_CE_82_NATIVE_SEARCH:-true}
+      - MONGODB_VECTOR_INDEX_NAME=${MONGODB_VECTOR_INDEX_NAME:-vector_index}
+      - MONGODB_VECTOR_SIMILARITY_METRIC=${MONGODB_VECTOR_SIMILARITY_METRIC:-cosine}
+      - MONGODB_VECTOR_NUM_CANDIDATES_MULTIPLIER=${MONGODB_VECTOR_NUM_CANDIDATES_MULTIPLIER:-10}
       # Embeddings Configuration
       - EMBEDDINGS_PROVIDER=${EMBEDDINGS_PROVIDER:-sentence-transformers}
       - EMBEDDINGS_MODEL_NAME=${EMBEDDINGS_MODEL_NAME:-all-MiniLM-L6-v2}
@@ -330,6 +335,12 @@ services:
       - ${HOME}/mcp-gateway/secrets/fininfo/:/app/fininfo/
     ports:
       - "8001:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # MCP Gateway Server
@@ -355,6 +366,12 @@ services:
       - "8003:8003"
     depends_on:
       - registry
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # Real Server Fake Tools MCP Server
@@ -371,6 +388,12 @@ services:
       - MCP_TRANSPORT=streamable-http
     ports:
       - "8002:8002"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8002/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # SQLite container for metrics database

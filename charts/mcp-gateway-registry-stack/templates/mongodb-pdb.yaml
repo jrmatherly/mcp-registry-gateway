@@ -1,0 +1,31 @@
+{{- if and .Values.mongodb.enabled (.Values.mongodb.podDisruptionBudget.enabled | default false) }}
+# Pod Disruption Budget for MongoDB replica set
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.mongodb.name | default "mongodb" }}-pdb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mcp-registry-gateway-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb
+spec:
+  minAvailable: {{ .Values.mongodb.podDisruptionBudget.minAvailable | default 2 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.mongodb.name | default "mongodb" }}
+---
+# Pod Disruption Budget for mongot (search) pods
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.mongodb.name | default "mongodb" }}-search-pdb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mcp-registry-gateway-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb-search
+spec:
+  minAvailable: {{ .Values.mongodb.vectorSearch.podDisruptionBudget.minAvailable | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.mongodb.name | default "mongodb" }}-search
+{{- end }}

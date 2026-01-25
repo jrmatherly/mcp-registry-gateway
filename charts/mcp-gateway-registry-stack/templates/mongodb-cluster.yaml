@@ -1,32 +1,92 @@
-{{ if .Values.mongodb.enabled }}
-apiVersion: mongodbcommunity.mongodb.com/v1
-kind: MongoDBCommunity
+{{- if .Values.mongodb.enabled }}
+# MongoDB CE 8.2+ ReplicaSet with native vector search support
+# Uses the unified MongoDB Kubernetes Operator (mongodb.com/v1)
+apiVersion: mongodb.com/v1
+kind: MongoDB
 metadata:
-  name: {{ default .Values.mongodb.host "mcp-registry-mongodb" }}
+  name: {{ .Values.mongodb.name | default "mongodb" }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "mcp-registry-gateway-stack.labels" . | nindent 4 }}
     app.kubernetes.io/component: mongodb
 spec:
-  members: {{ default .Values.mongodb.replicas "3"}}
   type: ReplicaSet
-  version: {{ default .Values.mongodb.version "8.0.16" | quote }}
+  members: {{ .Values.mongodb.replicas | default 3 }}
+  version: {{ .Values.mongodb.version | default "8.2.0" | quote }}
+
+  # Security configuration
   security:
     authentication:
       modes: ["SCRAM"]
-  users:
-    - name: {{ .Values.mongodb.user }}
-      db: admin
-      passwordSecretRef:
-        name: my-user-password
-      roles:
-        - name: clusterAdmin
-          db: admin
-        - name: root
-          db: admin
-        - name: userAdminAnyDatabase
-          db: admin
-      scramCredentialsSecretName: my-scram
+    {{- if .Values.mongodb.auth.enabled | default true }}
+    users:
+      - name: {{ .Values.mongodb.user }}
+        db: admin
+        passwordSecretRef:
+          name: {{ .Values.mongodb.auth.secretName | default "mongodb-credentials" }}
+          key: password
+        roles:
+          - name: root
+            db: admin
+          - name: readWriteAnyDatabase
+            db: admin
+        scramCredentialsSecretName: mongodb-scram
+    {{- end }}
+
+  # Pod template for mongod
+  podSpec:
+    podTemplate:
+      spec:
+        containers:
+          - name: mongod
+            resources:
+              {{- if .Values.mongodb.resources }}
+              {{- toYaml .Values.mongodb.resources | nindent 14 }}
+              {{- else }}
+              requests:
+                cpu: "500m"
+                memory: "2Gi"
+              limits:
+                cpu: "2"
+                memory: "4Gi"
+              {{- end }}
+        {{- if .Values.mongodb.affinity }}
+        affinity:
+          {{- toYaml .Values.mongodb.affinity | nindent 10 }}
+        {{- else }}
+        # Default pod anti-affinity for HA
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: {{ .Values.mongodb.name | default "mongodb" }}
+                  topologyKey: kubernetes.io/hostname
+        {{- end }}
+
+  # Persistent storage
+  persistent: {{ .Values.mongodb.persistence.enabled | default true }}
+  {{- if .Values.mongodb.persistence.enabled | default true }}
+  podSpec:
+    persistence:
+      single:
+        storage: {{ .Values.mongodb.persistence.size | default "50Gi" }}
+        {{- if .Values.mongodb.persistence.storageClass }}
+        storageClass: {{ .Values.mongodb.persistence.storageClass }}
+        {{- end }}
+  {{- end }}
+
+  # Additional mongod configuration for performance
   additionalMongodConfig:
-    storage.wiredTiger.engineConfig.journalCompressor: zlib
-{{ end }}
+    storage:
+      wiredTiger:
+        engineConfig:
+          journalCompressor: zlib
+          {{- if .Values.mongodb.wiredTiger }}
+          cacheSizeGB: {{ .Values.mongodb.wiredTiger.cacheSizeGB | default 1 }}
+          {{- end }}
+    net:
+      maxIncomingConnections: {{ .Values.mongodb.maxConnections | default 1000 }}
+{{- end }}

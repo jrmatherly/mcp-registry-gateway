@@ -35,7 +35,7 @@ def get_server_repository() -> ServerRepositoryBase:
     backend = settings.storage_backend
     logger.info(f"Creating server repository with backend: {backend}")
 
-    if backend in ("documentdb", "mongodb-ce"):
+    if backend in ("documentdb", "mongodb-ce", "mongodb"):
         from .documentdb.server_repository import DocumentDBServerRepository
 
         _server_repo = DocumentDBServerRepository()
@@ -57,7 +57,7 @@ def get_agent_repository() -> AgentRepositoryBase:
     backend = settings.storage_backend
     logger.info(f"Creating agent repository with backend: {backend}")
 
-    if backend in ("documentdb", "mongodb-ce"):
+    if backend in ("documentdb", "mongodb-ce", "mongodb"):
         from .documentdb.agent_repository import DocumentDBAgentRepository
 
         _agent_repo = DocumentDBAgentRepository()
@@ -79,7 +79,7 @@ def get_scope_repository() -> ScopeRepositoryBase:
     backend = settings.storage_backend
     logger.info(f"Creating scope repository with backend: {backend}")
 
-    if backend in ("documentdb", "mongodb-ce"):
+    if backend in ("documentdb", "mongodb-ce", "mongodb"):
         from .documentdb.scope_repository import DocumentDBScopeRepository
 
         _scope_repo = DocumentDBScopeRepository()
@@ -101,7 +101,7 @@ def get_security_scan_repository() -> SecurityScanRepositoryBase:
     backend = settings.storage_backend
     logger.info(f"Creating security scan repository with backend: {backend}")
 
-    if backend in ("documentdb", "mongodb-ce"):
+    if backend in ("documentdb", "mongodb-ce", "mongodb"):
         from .documentdb.security_scan_repository import DocumentDBSecurityScanRepository
 
         _security_scan_repo = DocumentDBSecurityScanRepository()
@@ -114,7 +114,14 @@ def get_security_scan_repository() -> SecurityScanRepositoryBase:
 
 
 def get_search_repository() -> SearchRepositoryBase:
-    """Get search repository singleton."""
+    """Get search repository singleton.
+
+    Backend options for search:
+    - "file": Uses FAISS for local vector search
+    - "documentdb": Uses AWS DocumentDB $search.vectorSearch (or client-side fallback)
+    - "mongodb-ce": Uses client-side cosine similarity (MongoDB CE < 8.2)
+    - "mongodb": Uses MongoDB CE 8.2+ native $vectorSearch with mongot
+    """
     global _search_repo
 
     if _search_repo is not None:
@@ -123,11 +130,18 @@ def get_search_repository() -> SearchRepositoryBase:
     backend = settings.storage_backend
     logger.info(f"Creating search repository with backend: {backend}")
 
-    if backend in ("documentdb", "mongodb-ce"):
+    if backend == "mongodb":
+        # MongoDB CE 8.2+ with native $vectorSearch support
+        from .mongodb.search_repository import MongoDBSearchRepository
+
+        _search_repo = MongoDBSearchRepository()
+    elif backend in ("documentdb", "mongodb-ce"):
+        # AWS DocumentDB or MongoDB CE < 8.2
         from .documentdb.search_repository import DocumentDBSearchRepository
 
         _search_repo = DocumentDBSearchRepository()
     else:
+        # File-based storage with FAISS
         from .file.search_repository import FaissSearchRepository
 
         _search_repo = FaissSearchRepository()
@@ -145,7 +159,7 @@ def get_federation_config_repository() -> FederationConfigRepositoryBase:
     backend = settings.storage_backend
     logger.info(f"Creating federation config repository with backend: {backend}")
 
-    if backend in ("documentdb", "mongodb-ce"):
+    if backend in ("documentdb", "mongodb-ce", "mongodb"):
         from .documentdb.federation_config_repository import DocumentDBFederationConfigRepository
 
         _federation_config_repo = DocumentDBFederationConfigRepository()
