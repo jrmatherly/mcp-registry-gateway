@@ -288,18 +288,40 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 	}, []);
 
 	const handleEditAgent = useCallback(async (agent: Agent) => {
-		// For now, just populate the form with existing data
-		// In the future, we might fetch additional details from an API
-		setEditingAgent(agent);
-		setEditAgentForm({
-			name: agent.name,
-			path: agent.path,
-			description: agent.description || "",
-			version: agent.version || "1.0.0",
-			visibility: agent.visibility || "private",
-			trust_level: agent.trust_level || "community",
-			tags: agent.tags || [],
-		});
+		try {
+			// Fetch full agent details including url (required for update)
+			const response = await axios.get(
+				`${API_ENDPOINTS.AGENTS}${agent.path}`,
+			);
+			const agentDetails = response.data;
+
+			setEditingAgent({
+				...agent,
+				url: agentDetails.url, // Preserve URL for update
+			});
+			setEditAgentForm({
+				name: agentDetails.name || agent.name,
+				path: agent.path,
+				description: agentDetails.description || "",
+				version: agentDetails.version || "1.0.0",
+				visibility: agentDetails.visibility || "private",
+				trust_level:
+					agentDetails.trustLevel || agentDetails.trust_level || "community",
+				tags: agentDetails.tags || [],
+			});
+		} catch {
+			// Fallback to basic agent data on error
+			setEditingAgent(agent);
+			setEditAgentForm({
+				name: agent.name,
+				path: agent.path,
+				description: agent.description || "",
+				version: agent.version || "1.0.0",
+				visibility: agent.visibility || "private",
+				trust_level: agent.trust_level || "community",
+				tags: agent.tags || [],
+			});
+		}
 	}, []);
 
 	const handleCloseEdit = () => {
@@ -361,28 +383,31 @@ const Dashboard: React.FC<DashboardProps> = ({ activeFilter = "all" }) => {
 		try {
 			setEditAgentLoading(true);
 
-			// TODO: Implement agent edit endpoint when backend is ready
-			// For now, just show a message
-			showToast("Agent editing is not yet implemented", "error");
+			// Backend expects PUT with JSON body matching AgentRegistrationRequest
+			await axios.put(
+				`${API_ENDPOINTS.AGENTS}${editingAgent.path}`,
+				{
+					name: editAgentForm.name,
+					description: editAgentForm.description,
+					version: editAgentForm.version || "1.0.0",
+					visibility: editAgentForm.visibility,
+					tags: editAgentForm.tags.join(","),
+					// Required fields - get from existing agent
+					url: editingAgent.url || "",
+					protocol_version: "1.0",
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			);
 
-			// When backend is ready, uncomment and implement:
-			// const formData = new FormData();
-			// formData.append('name', editAgentForm.name);
-			// formData.append('description', editAgentForm.description);
-			// formData.append('version', editAgentForm.version);
-			// formData.append('visibility', editAgentForm.visibility);
-			// formData.append('trust_level', editAgentForm.trust_level);
-			// formData.append('tags', editAgentForm.tags.join(','));
-			//
-			// await axios.post(`/api/agents${editingAgent.path}/edit`, formData, {
-			//   headers: {
-			//     'Content-Type': 'application/x-www-form-urlencoded',
-			//   },
-			// });
-			//
-			// await fetchAgents();
-			// setEditingAgent(null);
-			// showToast('Agent updated successfully!', 'success');
+			// Refresh data and close modal
+			await refreshData();
+			setEditingAgent(null);
+
+			showToast("Agent updated successfully!", "success");
 		} catch (err: unknown) {
 			const message = getErrorMessage(err, "Failed to update agent");
 			showToast(message, "error");

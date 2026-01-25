@@ -2,6 +2,116 @@
 
 This directory contains utility scripts for building, testing, and deploying MCP Gateway Registry services.
 
+## MongoDB CE 8.2+ Scripts
+
+### Overview
+
+These scripts support MongoDB Community Edition 8.2+ with native vector search capabilities. Use these when running MongoDB locally or in self-hosted environments.
+
+### Scripts
+
+#### init-mongodb-indexes.py
+
+Creates all necessary MongoDB collections and indexes with native vector search support.
+
+**Features:**
+
+- Creates SearchIndexModel vector indexes for MongoDB CE 8.2+
+- Graceful fallback when mongot process is unavailable
+- Supports SCRAM-SHA-256 authentication
+- Namespace support for multi-tenancy
+
+**Usage:**
+
+```bash
+# Local MongoDB without authentication
+uv run python scripts/init-mongodb-indexes.py
+
+# With authentication (using environment variable)
+uv run python scripts/init-mongodb-indexes.py \
+  --username admin \
+  --password "$DOCUMENTDB_PASSWORD"
+
+# With namespace
+uv run python scripts/init-mongodb-indexes.py --namespace production
+
+# Recreate indexes
+uv run python scripts/init-mongodb-indexes.py --recreate
+```
+
+#### manage-mongodb.py
+
+MongoDB collection management tool for inspection and maintenance.
+
+**Commands:**
+
+- `list` - List all collections with document counts and sizes
+- `inspect` - Detailed collection inspection (indexes, sample docs)
+- `count` - Count documents in a collection
+- `sample` - Get sample documents
+- `query` - Query collection with JSON filter
+- `search` - Text search in collection
+- `drop` - Drop a collection
+- `vector-status` - Check vector search index status (MongoDB CE 8.2+)
+
+**Usage:**
+
+```bash
+# List collections
+uv run python scripts/manage-mongodb.py list
+
+# Inspect a specific collection
+uv run python scripts/manage-mongodb.py inspect mcp_servers_default
+
+# Check vector index status
+uv run python scripts/manage-mongodb.py vector-status mcp_embeddings_1536_default
+
+# With authentication (using environment variable)
+uv run python scripts/manage-mongodb.py --username admin --password "$DOCUMENTDB_PASSWORD" list
+```
+
+#### registry/scripts/inspect-mongodb.py
+
+Detailed MongoDB inspection tool showing collections, indexes, and vector search configuration.
+
+**Usage:**
+
+```bash
+# Basic inspection
+uv run python -m registry.scripts.inspect-mongodb
+
+# With authentication (using environment variable)
+uv run python -m registry.scripts.inspect-mongodb --username admin --password "$DOCUMENTDB_PASSWORD"
+
+# Skip sample documents
+uv run python -m registry.scripts.inspect-mongodb --no-sample
+```
+
+### Environment Variables (MongoDB)
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `DOCUMENTDB_HOST` | `localhost` | MongoDB host |
+| `DOCUMENTDB_PORT` | `27017` | MongoDB port |
+| `DOCUMENTDB_DATABASE` | `mcp_registry` | Database name |
+| `DOCUMENTDB_USERNAME` | - | Username for authentication |
+| `DOCUMENTDB_PASSWORD` | - | Password for authentication |
+| `DOCUMENTDB_DIRECT_CONNECTION` | `true` | Use directConnection for single-node |
+| `DOCUMENTDB_NAMESPACE` | `default` | Namespace for multi-tenancy |
+
+### MongoDB CE 8.2+ Vector Search
+
+MongoDB CE 8.2+ provides native `$vectorSearch` support through the mongot process. When mongot is not available (typical in local Docker setups), the scripts gracefully fall back to client-side similarity search.
+
+**Key Differences from DocumentDB:**
+
+- Uses `SearchIndexModel` with `type="vectorSearch"` instead of HNSW indexes
+- Requires mongot process for server-side vector search
+- Uses SCRAM-SHA-256 authentication (vs SCRAM-SHA-1)
+- No TLS/CA bundle requirements for local connections
+
+---
+
 ## DocumentDB Initialization Scripts
 
 ### Overview
