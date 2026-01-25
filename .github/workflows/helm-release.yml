@@ -124,8 +124,13 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           if [ -n "$DOCKERHUB_TOKEN" ] && [ -n "$DOCKERHUB_USERNAME" ]; then
-            echo "$DOCKERHUB_TOKEN" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u "$DOCKERHUB_USERNAME" --password-stdin
-            echo "logged_in=true" >> $GITHUB_OUTPUT
+            if echo "$DOCKERHUB_TOKEN" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u "$DOCKERHUB_USERNAME" --password-stdin; then
+              echo "DockerHub login successful"
+              echo "logged_in=true" >> $GITHUB_OUTPUT
+            else
+              echo "DockerHub login failed, skipping DockerHub push"
+              echo "logged_in=false" >> $GITHUB_OUTPUT
+            fi
           else
             echo "DockerHub credentials not configured, skipping DockerHub push"
             echo "logged_in=false" >> $GITHUB_OUTPUT
@@ -226,8 +231,13 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           if [ -n "$DOCKERHUB_TOKEN" ] && [ -n "$DOCKERHUB_USERNAME" ]; then
-            echo "$DOCKERHUB_TOKEN" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u "$DOCKERHUB_USERNAME" --password-stdin
-            echo "logged_in=true" >> $GITHUB_OUTPUT
+            if echo "$DOCKERHUB_TOKEN" | helm registry login ${{ env.DOCKERHUB_REGISTRY }} -u "$DOCKERHUB_USERNAME" --password-stdin; then
+              echo "DockerHub login successful"
+              echo "logged_in=true" >> $GITHUB_OUTPUT
+            else
+              echo "DockerHub login failed, skipping DockerHub push"
+              echo "logged_in=false" >> $GITHUB_OUTPUT
+            fi
           else
             echo "DockerHub credentials not configured, skipping DockerHub push"
             echo "logged_in=false" >> $GITHUB_OUTPUT
