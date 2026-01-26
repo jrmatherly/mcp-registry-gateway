@@ -493,7 +493,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 
 				{/* Tools Modal */}
 				<Dialog open={showTools} onOpenChange={setShowTools}>
-					<DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
+					<DialogContent className="max-w-4xl max-h-[80vh] overflow-auto" showCloseButton={false}>
 						<DialogHeader>
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-3">
@@ -509,6 +509,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 									type="button"
 									onClick={() => setShowTools(false)}
 									className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+									aria-label="Close"
 								>
 									<IconX className="h-5 w-5" />
 								</button>

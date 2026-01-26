@@ -166,7 +166,7 @@ const ServerConfigModal: React.FC<ServerConfigModalProps> = ({
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent
-				className="max-w-3xl max-h-[85vh] overflow-auto"
+				className="max-w-4xl max-h-[85vh] overflow-auto"
 				showCloseButton={false}
 			>
 				<DialogHeader>
