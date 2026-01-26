@@ -100,6 +100,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
     const [showSecurityScan, setShowSecurityScan] = useState(false);
     const [securityScanResult, setSecurityScanResult] = useState<SecurityScanResult | null>(null);
     const [loadingSecurityScan, setLoadingSecurityScan] = useState(false);
+    const [isRatingDropdownOpen, setIsRatingDropdownOpen] = useState(false);
 
     // Fetch security scan status on mount to show correct icon color
     useEffect(() => {
@@ -281,7 +282,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
 
     return (
       <>
-        <div className="group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 bg-linear-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-900/30 dark:to-blue-900/30 border-2 border-cyan-300/50 dark:border-cyan-600/50 hover:border-cyan-400/70 dark:hover:border-cyan-500/70 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/20 backdrop-blur-xl">
+        <div className={`group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 bg-linear-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-900/30 dark:to-blue-900/30 border-2 border-cyan-300/50 dark:border-cyan-600/50 hover:border-cyan-400/70 dark:hover:border-cyan-500/70 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/20 backdrop-blur-xl overflow-visible ${isRatingDropdownOpen ? "z-50" : ""}`}>
           {/* Header */}
           <div className="p-5 pb-4">
             <div className="flex items-start justify-between mb-4">
@@ -416,8 +417,8 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
           </div>
 
           {/* Stats */}
-          <div className="px-5 pb-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="px-5 pb-4 overflow-visible">
+            <div className="grid grid-cols-2 gap-4 overflow-visible">
               <StarRatingWidget
                 resourceType="agents"
                 path={agent.path}
@@ -431,6 +432,7 @@ const AgentCard: React.FC<AgentCardProps> = React.memo(
                     onAgentUpdate(agent.path, { rating: newRating });
                   }
                 }}
+                onDropdownChange={setIsRatingDropdownOpen}
               />
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-cyan-50 dark:bg-cyan-900/30 rounded-sm">

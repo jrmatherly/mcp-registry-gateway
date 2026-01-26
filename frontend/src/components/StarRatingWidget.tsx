@@ -21,18 +21,24 @@ interface StarRatingWidgetProps {
   authToken?: string | null;
   onShowToast?: (message: string, type: "success" | "error") => void;
   onRatingUpdate?: (newRating: number) => void;
+  onDropdownChange?: (isOpen: boolean) => void;
 }
 
 const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
   resourceType,
   path,
   initialRating = 0,
+  onDropdownChange,
   initialCount = 0,
   authToken,
   onShowToast,
   onRatingUpdate,
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpenInternal] = useState(false);
+  const setIsDropdownOpen = useCallback((open: boolean) => {
+    setIsDropdownOpenInternal(open);
+    onDropdownChange?.(open);
+  }, [onDropdownChange]);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [currentUserRating, setCurrentUserRating] = useState<number | null>(
@@ -207,7 +213,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       : selectedRating || currentUserRating || 0;
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className={`relative ${isDropdownOpen ? "z-50" : ""}`} ref={dropdownRef}>
       {/* Rating Display - Clickable */}
       <button
         type="button"
@@ -236,7 +242,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       {/* Rating Dropdown */}
       {isDropdownOpen && (
         <div
-          className="absolute top-full left-0 mt-2 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 z-50 p-4"
+          className="absolute top-full left-0 mt-2 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 z-100 p-4"
           role="dialog"
           aria-label={`${resourceType.slice(0, -1)} rating form`}
         >

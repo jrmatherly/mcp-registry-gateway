@@ -67,6 +67,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 		const [securityScanResult, setSecurityScanResult] =
 			useState<SecurityScanResult | null>(null);
 		const [loadingSecurityScan, setLoadingSecurityScan] = useState(false);
+		const [isRatingDropdownOpen, setIsRatingDropdownOpen] = useState(false);
 
 		// Fetch security scan status on mount to show correct icon color
 		useEffect(() => {
@@ -247,11 +248,11 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 		return (
 			<>
 				<div
-					className={`group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 ${
+					className={`group rounded-2xl h-full flex flex-col transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 overflow-visible ${
 						isAnthropicServer
 							? "bg-linear-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-900/30 dark:to-indigo-900/30 border-2 border-purple-300/50 dark:border-purple-600/50 hover:border-purple-400/70 dark:hover:border-purple-500/70 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20"
 							: "glass-card"
-					}`}
+					} ${isRatingDropdownOpen ? "z-50" : ""}`}
 				>
 					{/* Header */}
 					<div className="p-5 pb-4">
@@ -352,8 +353,8 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 					</div>
 
 					{/* Stats */}
-					<div className="px-5 pb-4">
-						<div className="grid grid-cols-2 gap-4">
+					<div className="px-5 pb-4 overflow-visible">
+						<div className="grid grid-cols-2 gap-4 overflow-visible">
 							<StarRatingWidget
 								resourceType="servers"
 								path={server.path}
@@ -367,6 +368,7 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 										onServerUpdate(server.path, { num_stars: newRating });
 									}
 								}}
+								onDropdownChange={setIsRatingDropdownOpen}
 							/>
 							<div className="flex items-center gap-2">
 								{(server.num_tools || 0) > 0 ? (

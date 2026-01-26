@@ -69,7 +69,7 @@ const EditServerModal: React.FC<EditServerModalProps> = ({
 	return (
 		<Dialog open={true} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent
-				className="max-w-md max-h-[90vh] overflow-y-auto"
+				className="max-w-xl max-h-[90vh] overflow-y-auto"
 				showCloseButton={false}
 			>
 				<DialogHeader>
