@@ -197,8 +197,9 @@ class SecurityScannerService:
             timeout = config.scan_timeout_seconds
 
         # Ensure server URL has /mcp endpoint if not already present
-        if not server_url.endswith("/mcp"):
-            server_url = f"{server_url}/mcp"
+        # Handle both /mcp and /mcp/ (with trailing slash)
+        if not server_url.rstrip("/").endswith("/mcp"):
+            server_url = f"{server_url.rstrip('/')}/mcp"
 
         logger.info(f"Starting security scan for {server_url} with analyzers: {analyzers}")
 
@@ -262,6 +263,8 @@ class SecurityScannerService:
             # Return error result
             result = SecurityScanResult(
                 server_url=server_url,
+                server_path=server_path
+                or server_url,  # Use server_path if provided, fallback to URL
                 scan_timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 is_safe=False,  # Treat scanner failures as unsafe
                 critical_issues=0,
@@ -293,6 +296,8 @@ class SecurityScannerService:
             # Return error result
             result = SecurityScanResult(
                 server_url=server_url,
+                server_path=server_path
+                or server_url,  # Use server_path if provided, fallback to URL
                 scan_timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 is_safe=False,  # Treat scanner failures as unsafe
                 critical_issues=0,
