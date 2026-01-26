@@ -619,6 +619,8 @@ class HealthMonitoringService:
                 # For SSE endpoints, use a shorter timeout since they start streaming immediately
                 if proxy_pass_url.endswith("/sse") or "/sse/" in proxy_pass_url:
                     logger.info("[TRACE] Detected SSE endpoint in URL, using SSE-specific handling")
+                    # Add Accept header required for SSE endpoints
+                    headers["Accept"] = "text/event-stream"
                     timeout = httpx.Timeout(connect=5.0, read=2.0, write=5.0, pool=5.0)
                     try:
                         response = await client.get(
@@ -786,6 +788,8 @@ class HealthMonitoringService:
                     sse_endpoint = f"{base_url}/sse"
                 # Build headers including server-specific headers
                 headers = self._build_headers_for_server(server_info)
+                # Add Accept header required for SSE endpoints
+                headers["Accept"] = "text/event-stream"
                 # Use shorter timeout for SSE since it starts streaming immediately
                 timeout = httpx.Timeout(connect=5.0, read=2.0, write=5.0, pool=5.0)
                 response = await client.get(
