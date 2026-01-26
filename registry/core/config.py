@@ -71,7 +71,7 @@ class Settings(BaseSettings):
     security_add_pending_tag: bool = True
     mcp_scanner_llm_api_key: str = ""  # Optional LLM API key for advanced analysis
     mcp_scanner_llm_model: str = "openai/gpt-4o-mini"  # LLM model for security analysis
-    mcp_scanner_llm_api_base: str | None = None  # Custom API base URL (e.g., LiteLLM proxy)
+    mcp_scanner_llm_base_url: str | None = None  # Custom LLM base URL (mcp-scanner convention)
 
     # Agent security scanning settings (A2A Agents)
     agent_security_scan_enabled: bool = True
@@ -226,9 +226,9 @@ class Settings(BaseSettings):
         return self.mcp_scanner_llm_api_key or self.llm_api_key
 
     @property
-    def effective_mcp_scanner_api_base(self) -> str | None:
-        """Get MCP scanner API base, falling back to global LLM API base."""
-        return self.mcp_scanner_llm_api_base or self.llm_api_base
+    def effective_mcp_scanner_base_url(self) -> str | None:
+        """Get MCP scanner base URL, falling back to global LLM API base."""
+        return self.mcp_scanner_llm_base_url or self.llm_api_base
 
     @property
     def effective_a2a_scanner_api_key(self) -> str | None:

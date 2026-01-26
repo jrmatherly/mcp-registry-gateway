@@ -364,10 +364,11 @@ class SecurityScannerService:
         env = os.environ.copy()
         if api_key:
             env["MCP_SCANNER_LLM_API_KEY"] = api_key
-        if settings.effective_mcp_scanner_api_base:
-            env["MCP_SCANNER_LLM_API_BASE"] = settings.effective_mcp_scanner_api_base
+        if settings.effective_mcp_scanner_base_url:
+            # mcp-scanner uses MCP_SCANNER_LLM_BASE_URL (not API_BASE)
+            env["MCP_SCANNER_LLM_BASE_URL"] = settings.effective_mcp_scanner_base_url
             # Also set provider-specific vars for compatibility
-            env["OPENAI_API_BASE"] = settings.effective_mcp_scanner_api_base
+            env["OPENAI_API_BASE"] = settings.effective_mcp_scanner_base_url
         # Set model if configured
         if settings.effective_mcp_scanner_model:
             env["MCP_SCANNER_LLM_MODEL"] = settings.effective_mcp_scanner_model

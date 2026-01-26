@@ -57,6 +57,7 @@ dependencies = [
     "dnspython>=2.4.0",
     # Security scanning
     "cisco-ai-a2a-scanner @ git+https://github.com/cisco-ai-defense/a2a-scanner.git@main",
+    "cisco-ai-mcp-scanner @ git+https://github.com/cisco-ai-defense/mcp-scanner.git@main",
     # System monitoring
     "psutil>=6.1.0",
 ]

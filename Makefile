@@ -683,7 +683,7 @@ dev: dev-services
 	@echo "Starting backend and frontend in parallel..."
 	@trap 'kill 0' EXIT; \
 	(cd frontend && npm run dev) & \
-	(DOCUMENTDB_HOST=localhost uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
+	(DOCUMENTDB_HOST=localhost DOCUMENTDB_DIRECT_CONNECTION=true uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
 	wait
 
 # Start full development environment with Keycloak auth provider
@@ -703,7 +703,7 @@ dev-keycloak: dev-services-kc
 	@echo "Starting backend and frontend in parallel..."
 	@trap 'kill 0' EXIT; \
 	(cd frontend && npm run dev) & \
-	(DOCUMENTDB_HOST=localhost AUTH_PROVIDER=keycloak KEYCLOAK_ENABLED=true uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
+	(DOCUMENTDB_HOST=localhost DOCUMENTDB_DIRECT_CONNECTION=true AUTH_PROVIDER=keycloak KEYCLOAK_ENABLED=true AUTH_SERVER_URL=http://localhost:8888 uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload) & \
 	wait
 
 # Start only frontend with Vite hot-reload
@@ -719,7 +719,7 @@ dev-backend:
 	@echo "Starting FastAPI backend with auto-reload..."
 	@echo "Backend will be available at: http://localhost:7860"
 	@echo ""
-	DOCUMENTDB_HOST=localhost uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload
+	DOCUMENTDB_HOST=localhost DOCUMENTDB_DIRECT_CONNECTION=true uv run uvicorn registry.main:app --host 0.0.0.0 --port 7860 --reload
 
 # Start supporting services only (MongoDB, auth-server, metrics)
 dev-services:
