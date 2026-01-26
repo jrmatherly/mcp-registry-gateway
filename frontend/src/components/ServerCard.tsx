@@ -496,48 +496,62 @@ const ServerCard: React.FC<ServerCardProps> = React.memo(
 					<DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
 						<DialogHeader>
 							<div className="flex items-center justify-between">
-								<DialogTitle>Tools for {server.name}</DialogTitle>
+								<div className="flex items-center gap-3">
+									<div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center border border-blue-300 dark:border-blue-600/50">
+										<IconTool className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+									</div>
+									<div>
+										<DialogTitle>Tools for {server.name}</DialogTitle>
+										<p className="text-sm text-gray-500 dark:text-gray-400">{tools.length} tool{tools.length !== 1 ? 's' : ''} available</p>
+									</div>
+								</div>
 								<button
 									type="button"
 									onClick={() => setShowTools(false)}
-									className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+									className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
 								>
 									<IconX className="h-5 w-5" />
 								</button>
 							</div>
 						</DialogHeader>
 
-						<div className="space-y-4">
+						<div className="space-y-3 mt-2">
 							{tools.length > 0 ? (
 								tools.map((tool) => (
 									<div
 										key={tool.name}
-										className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+										className="bg-gray-50 dark:bg-white/3 border border-gray-200 dark:border-white/10 rounded-xl p-4 hover:border-blue-300 dark:hover:border-blue-500/30 transition-colors"
 									>
-										<h4 className="font-medium text-gray-900 dark:text-white mb-2">
+										<h4 className="font-semibold text-gray-900 dark:text-white font-mono text-sm">
 											{tool.name}
 										</h4>
 										{tool.description && (
-											<p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+											<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
 												{tool.description}
 											</p>
 										)}
 										{tool.schema && (
-											<details className="text-xs">
-												<summary className="cursor-pointer text-gray-500 dark:text-gray-300">
-													View Schema
+											<details className="text-xs mt-3">
+												<summary className="cursor-pointer text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
+													<span>▶</span> View Schema
 												</summary>
-												<pre className="mt-2 p-3 bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded-sm overflow-x-auto text-gray-900 dark:text-gray-100">
-													{JSON.stringify(tool.schema, null, 2)}
-												</pre>
+												<div className="mt-2 rounded-lg overflow-hidden border border-gray-700 dark:border-white/10">
+													<div className="bg-gray-800 dark:bg-gray-900/80 text-gray-300 px-3 py-1.5 text-xs font-mono border-b border-gray-700 dark:border-white/10">schema.json</div>
+													<pre className="p-3 bg-gray-900 dark:bg-[#0d1117] overflow-x-auto text-gray-100 font-mono leading-relaxed">
+														{JSON.stringify(tool.schema, null, 2)}
+													</pre>
+												</div>
 											</details>
 										)}
 									</div>
 								))
 							) : (
-								<p className="text-gray-500 dark:text-gray-300">
-									No tools available for this server.
-								</p>
+								<div className="text-center py-8">
+									<div className="mx-auto w-16 h-16 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-4">
+										<IconTool className="h-8 w-8 text-gray-400" />
+									</div>
+									<p className="text-gray-500 dark:text-gray-400">No tools available for this server.</p>
+								</div>
 							)}
 						</div>
 					</DialogContent>

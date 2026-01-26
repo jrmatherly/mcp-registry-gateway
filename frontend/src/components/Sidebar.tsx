@@ -128,111 +128,119 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Conditional Content */}
       {isTokenPage ? (
         /* Token Page - Show navigation and user info */
-        <div className="flex-1 p-4 md:p-6">
+        <>
           {/* Navigation Links */}
-          <div className="space-y-2 mb-6">
-            <Link
-              to="/"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => isMobile && setSidebarOpen(false)}
-              tabIndex={0}
-            >
-              <IconArrowLeft className="h-4 w-4" />
-              <span>Back to Dashboard</span>
-            </Link>
+          <div className="p-4 md:p-6 border-b border-gray-200/50 dark:border-white/6">
+            <div className="space-y-2">
+              <Link
+                to="/"
+                className="w-full text-left px-3 py-2 rounded-xl text-sm transition-all focus:outline-hidden focus:ring-2 focus:ring-primary-500 text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 border border-transparent flex items-center gap-3"
+                onClick={() => isMobile && setSidebarOpen(false)}
+                tabIndex={0}
+              >
+                <IconArrowLeft className="h-4 w-4" />
+                <span>Back to Dashboard</span>
+              </Link>
 
-            <Link
-              to="/generate-token"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-purple-500 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300"
-              tabIndex={0}
-            >
-              <IconKey className="h-4 w-4" />
-              <span>Generate Token</span>
-            </Link>
+              <Link
+                to="/generate-token"
+                className="w-full text-left px-3 py-2 rounded-xl text-sm transition-all focus:outline-hidden focus:ring-2 focus:ring-primary-500 bg-linear-to-r from-primary-500/15 to-indigo-500/10 text-primary-700 dark:text-primary-300 border border-primary-500/30 shadow-sm flex items-center gap-3"
+                tabIndex={0}
+              >
+                <IconKey className="h-4 w-4" />
+                <span>Generate Token</span>
+              </Link>
+            </div>
           </div>
 
           {/* User Access Information */}
           {user && (
-            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-6">
-              <div className="text-sm">
-                <div className="font-medium text-gray-900 dark:text-white mb-1">
-                  {user.username}
-                </div>
-                <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
-                  {user.is_admin ? (
-                    <span className="text-green-600 dark:text-green-400">
-                      Admin Access
-                    </span>
-                  ) : user.can_modify_servers ? (
-                    <span className="text-blue-600 dark:text-blue-400">
-                      Modify Access
-                    </span>
-                  ) : (
-                    <span className="text-gray-600 dark:text-gray-300">
-                      Read-only Access
-                    </span>
-                  )}
-                  {user.auth_method === "oauth2" && user.provider && (
-                    <span className="ml-1">({user.provider})</span>
-                  )}
-                </div>
-
-                {/* Scopes toggle */}
-                {!user.is_admin && user.scopes && user.scopes.length > 0 && (
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setShowScopes(!showScopes)}
-                      className="flex items-center justify-between w-full text-xs text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition-colors py-1"
-                    >
-                      <span>Scopes ({user.scopes.length})</span>
-                      {showScopes ? (
-                        <IconChevronUp className="h-3 w-3" />
-                      ) : (
-                        <IconChevronDown className="h-3 w-3" />
-                      )}
-                    </button>
-
-                    {showScopes && (
-                      <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
-                        {user.scopes.map((scope) => (
-                          <div
-                            key={scope}
-                            className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-sm text-xs"
-                          >
-                            <div className="font-medium text-blue-800 dark:text-blue-200">
-                              {scope}
-                            </div>
-                            <div className="text-blue-600 dark:text-blue-300 mt-1">
-                              {getScopeDescription(scope)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+            <div className="p-4 md:p-6 border-b border-gray-200/50 dark:border-white/6">
+              <div className="p-3 bg-white/60 dark:bg-white/3 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/10">
+                <div className="text-sm">
+                  <div className="font-medium text-gray-900 dark:text-white mb-1">
+                    {user.username}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                    {user.is_admin ? (
+                      <span className="text-green-600 dark:text-green-400">
+                        Admin Access
+                      </span>
+                    ) : user.can_modify_servers ? (
+                      <span className="text-blue-600 dark:text-blue-400">
+                        Modify Access
+                      </span>
+                    ) : (
+                      <span className="text-gray-600 dark:text-gray-300">
+                        Read-only Access
+                      </span>
+                    )}
+                    {user.auth_method === "oauth2" && user.provider && (
+                      <span className="ml-1">({user.provider})</span>
                     )}
                   </div>
-                )}
+
+                  {/* Scopes toggle */}
+                  {!user.is_admin && user.scopes && user.scopes.length > 0 && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setShowScopes(!showScopes)}
+                        className="flex items-center justify-between w-full text-xs text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition-colors py-1"
+                      >
+                        <span>Scopes ({user.scopes.length})</span>
+                        {showScopes ? (
+                          <IconChevronUp className="h-3 w-3" />
+                        ) : (
+                          <IconChevronDown className="h-3 w-3" />
+                        )}
+                      </button>
+
+                      {showScopes && (
+                        <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
+                          {user.scopes.map((scope) => (
+                            <div
+                              key={scope}
+                              className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg text-xs"
+                            >
+                              <div className="font-medium text-blue-800 dark:text-blue-200">
+                                {scope}
+                              </div>
+                              <div className="text-blue-600 dark:text-blue-300 mt-1">
+                                {getScopeDescription(scope)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
 
           {/* Token Generation Help */}
-          <div className="text-center">
-            <IconKey className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Token Generation
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Create personal access tokens for programmatic access to MCP
-              servers
-            </p>
-            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-              <p>• Tokens inherit your current permissions</p>
-              <p>• Configure expiration time and scopes</p>
-              <p>• Use tokens for programmatic access</p>
+          <div className="flex-1 p-4 md:p-6">
+            <div className="text-center p-4 bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-white/8">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-linear-to-br from-primary-500/20 to-indigo-500/20 flex items-center justify-center border border-primary-300 dark:border-primary-600/50">
+                <IconKey className="h-7 w-7 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Token Generation
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Create personal access tokens for programmatic access to MCP
+                servers
+              </p>
+              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 text-left">
+                <p>• Tokens inherit your current permissions</p>
+                <p>• Configure expiration time and scopes</p>
+                <p>• Use tokens for programmatic access</p>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       ) : (
         /* Dashboard - Show user info, filters and stats */
         <>
@@ -462,7 +470,15 @@ const Sidebar: React.FC<SidebarProps> = ({
       <Dialog open={showTokenModal} onOpenChange={setShowTokenModal}>
         <DialogContent className="max-w-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl border border-gray-200/50 dark:border-white/10">
           <DialogHeader>
-            <DialogTitle>JWT Access Token</DialogTitle>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary-500/20 to-indigo-500/20 flex items-center justify-center border border-primary-300 dark:border-primary-600/50">
+                <IconKey className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <DialogTitle>JWT Access Token</DialogTitle>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Generated for API authentication</p>
+              </div>
+            </div>
           </DialogHeader>
 
           {tokenData && (
@@ -474,6 +490,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={handleCopyTokens}
                   variant="default"
                   size="sm"
+                  className={copied ? "bg-green-600 hover:bg-green-700" : ""}
                 >
                   {copied ? (
                     <>
@@ -490,7 +507,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <Button
                   type="button"
                   onClick={handleDownloadTokens}
-                  variant="secondary"
+                  variant="outline"
                   size="sm"
                 >
                   <IconDownload className="h-4 w-4" />
@@ -499,10 +516,16 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               {/* Token Data Display */}
-              <div className="bg-white/50 dark:bg-white/2 backdrop-blur-sm rounded-xl p-4 max-h-96 overflow-y-auto border border-gray-200/50 dark:border-white/6">
-                <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all font-mono">
-                  {JSON.stringify(tokenData, null, 2)}
-                </pre>
+              <div className="rounded-xl overflow-hidden border border-gray-700 dark:border-white/10">
+                <div className="bg-gray-800 dark:bg-gray-900/80 text-gray-300 px-4 py-2 text-xs font-mono flex items-center justify-between border-b border-gray-700 dark:border-white/10">
+                  <span>token_response.json</span>
+                  <span className="text-gray-500">JSON</span>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  <pre className="p-4 bg-gray-900 dark:bg-[#0d1117] text-gray-100 text-xs whitespace-pre-wrap break-all font-mono leading-relaxed">
+                    {JSON.stringify(tokenData, null, 2)}
+                  </pre>
+                </div>
               </div>
 
               {/* Close Button */}

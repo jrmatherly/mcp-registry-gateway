@@ -236,7 +236,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       {/* Rating Dropdown */}
       {isDropdownOpen && (
         <div
-          className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 p-4"
+          className="absolute top-full left-0 mt-2 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 z-50 p-4"
           role="dialog"
           aria-label={`${resourceType.slice(0, -1)} rating form`}
         >
@@ -361,7 +361,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl transition-colors duration-200"
                 >
                   Cancel
                 </button>
@@ -369,7 +369,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
                   type="button"
                   onClick={handleSubmitRating}
                   disabled={!selectedRating}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   {currentUserRating ? "Update Rating" : "Submit Rating"}
                   {selectedRating && (
